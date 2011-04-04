@@ -1,0 +1,4 @@
+OCAD-compatible orienteering course software.
+10.6+
+Image drawing can be further optimized, by drawing into multiple images and then compositing the images.
+

@@ -1,0 +1,7 @@
+//
+// Prefix header for all source files of the 'O-course' target in the 'O-course' project
+//
+
+#ifdef __OBJC__
+    #import <Cocoa/Cocoa.h>
+#endif

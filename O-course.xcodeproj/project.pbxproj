@@ -1,0 +1,343 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		032001BE12FE9EF900707BA5 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 032001BD12FE9EF900707BA5 /* Cocoa.framework */; };
+		032001C812FE9EF900707BA5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 032001C612FE9EF900707BA5 /* InfoPlist.strings */; };
+		032001CB12FE9EF900707BA5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 032001CA12FE9EF900707BA5 /* main.m */; };
+		032001CE12FE9EF900707BA5 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 032001CC12FE9EF900707BA5 /* Credits.rtf */; };
+		032001D112FE9EF900707BA5 /* ASOcourseDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 032001D012FE9EF900707BA5 /* ASOcourseDocument.m */; };
+		032001D412FE9EF900707BA5 /* ASOcourseDocument.xib in Resources */ = {isa = PBXBuildFile; fileRef = 032001D212FE9EF900707BA5 /* ASOcourseDocument.xib */; };
+		032001D712FE9EF900707BA5 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 032001D512FE9EF900707BA5 /* MainMenu.xib */; };
+		032001DA12FE9EF900707BA5 /* ASOcourseDocument.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 032001D812FE9EF900707BA5 /* ASOcourseDocument.xcdatamodeld */; };
+		032001E212FE9F1000707BA5 /* ocdimport.c in Sources */ = {isa = PBXBuildFile; fileRef = 032001E012FE9F1000707BA5 /* ocdimport.c */; };
+		0373FA6D1349A42C006E41C9 /* ASMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0373FA6C1349A42C006E41C9 /* ASMapView.m */; };
+		03B7C94313083E05005A800A /* OCDView.m in Sources */ = {isa = PBXBuildFile; fileRef = 03B7C94213083E05005A800A /* OCDView.m */; };
+		03C305161347B5FA00FB8133 /* ASOCADController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03C305151347B5FA00FB8133 /* ASOCADController.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		032001B912FE9EF900707BA5 /* O-course.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "O-course.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		032001BD12FE9EF900707BA5 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		032001C012FE9EF900707BA5 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		032001C112FE9EF900707BA5 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		032001C212FE9EF900707BA5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		032001C512FE9EF900707BA5 /* O_course-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "O_course-Info.plist"; sourceTree = "<group>"; };
+		032001C712FE9EF900707BA5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		032001C912FE9EF900707BA5 /* O_course-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "O_course-Prefix.pch"; sourceTree = "<group>"; };
+		032001CA12FE9EF900707BA5 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		032001CD12FE9EF900707BA5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		032001CF12FE9EF900707BA5 /* ASOcourseDocument.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ASOcourseDocument.h; sourceTree = "<group>"; };
+		032001D012FE9EF900707BA5 /* ASOcourseDocument.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ASOcourseDocument.m; sourceTree = "<group>"; };
+		032001D312FE9EF900707BA5 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ASOcourseDocument.xib; sourceTree = "<group>"; };
+		032001D612FE9EF900707BA5 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		032001D912FE9EF900707BA5 /* ASOcourseDocument.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ASOcourseDocument.xcdatamodel; sourceTree = "<group>"; };
+		032001E012FE9F1000707BA5 /* ocdimport.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ocdimport.c; sourceTree = "<group>"; };
+		032001E112FE9F1000707BA5 /* ocdimport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ocdimport.h; sourceTree = "<group>"; };
+		0373FA6B1349A42C006E41C9 /* ASMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASMapView.h; sourceTree = "<group>"; };
+		0373FA6C1349A42C006E41C9 /* ASMapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASMapView.m; sourceTree = "<group>"; };
+		03B7C94113083E05005A800A /* OCDView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCDView.h; sourceTree = "<group>"; };
+		03B7C94213083E05005A800A /* OCDView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCDView.m; sourceTree = "<group>"; };
+		03C305141347B5FA00FB8133 /* ASOCADController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASOCADController.h; sourceTree = "<group>"; };
+		03C305151347B5FA00FB8133 /* ASOCADController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASOCADController.m; sourceTree = "<group>"; };
+		03C305171347B60B00FB8133 /* ASMapViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASMapViewDelegate.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		032001B612FE9EF900707BA5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				032001BE12FE9EF900707BA5 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		032001AE12FE9EF900707BA5 = {
+			isa = PBXGroup;
+			children = (
+				032001E012FE9F1000707BA5 /* ocdimport.c */,
+				032001E112FE9F1000707BA5 /* ocdimport.h */,
+				03C305171347B60B00FB8133 /* ASMapViewDelegate.h */,
+				03C305141347B5FA00FB8133 /* ASOCADController.h */,
+				03C305151347B5FA00FB8133 /* ASOCADController.m */,
+				032001C312FE9EF900707BA5 /* O-course */,
+				032001BC12FE9EF900707BA5 /* Frameworks */,
+				032001BA12FE9EF900707BA5 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		032001BA12FE9EF900707BA5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				032001B912FE9EF900707BA5 /* O-course.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		032001BC12FE9EF900707BA5 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				032001BD12FE9EF900707BA5 /* Cocoa.framework */,
+				032001BF12FE9EF900707BA5 /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		032001BF12FE9EF900707BA5 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				032001C012FE9EF900707BA5 /* AppKit.framework */,
+				032001C112FE9EF900707BA5 /* CoreData.framework */,
+				032001C212FE9EF900707BA5 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		032001C312FE9EF900707BA5 /* O-course */ = {
+			isa = PBXGroup;
+			children = (
+				032001CF12FE9EF900707BA5 /* ASOcourseDocument.h */,
+				032001D012FE9EF900707BA5 /* ASOcourseDocument.m */,
+				0373FA6B1349A42C006E41C9 /* ASMapView.h */,
+				0373FA6C1349A42C006E41C9 /* ASMapView.m */,
+				032001D212FE9EF900707BA5 /* ASOcourseDocument.xib */,
+				032001D512FE9EF900707BA5 /* MainMenu.xib */,
+				032001D812FE9EF900707BA5 /* ASOcourseDocument.xcdatamodeld */,
+				032001C412FE9EF900707BA5 /* Supporting Files */,
+				03B7C94113083E05005A800A /* OCDView.h */,
+				03B7C94213083E05005A800A /* OCDView.m */,
+			);
+			path = "O-course";
+			sourceTree = "<group>";
+		};
+		032001C412FE9EF900707BA5 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				032001C512FE9EF900707BA5 /* O_course-Info.plist */,
+				032001C612FE9EF900707BA5 /* InfoPlist.strings */,
+				032001C912FE9EF900707BA5 /* O_course-Prefix.pch */,
+				032001CA12FE9EF900707BA5 /* main.m */,
+				032001CC12FE9EF900707BA5 /* Credits.rtf */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		032001B812FE9EF900707BA5 /* O-course */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 032001DD12FE9EF900707BA5 /* Build configuration list for PBXNativeTarget "O-course" */;
+			buildPhases = (
+				032001B512FE9EF900707BA5 /* Sources */,
+				032001B612FE9EF900707BA5 /* Frameworks */,
+				032001B712FE9EF900707BA5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "O-course";
+			productName = "O-course";
+			productReference = 032001B912FE9EF900707BA5 /* O-course.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		032001B012FE9EF900707BA5 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				ORGANIZATIONNAME = "Aderstedt Software AB";
+			};
+			buildConfigurationList = 032001B312FE9EF900707BA5 /* Build configuration list for PBXProject "O-course" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 032001AE12FE9EF900707BA5;
+			productRefGroup = 032001BA12FE9EF900707BA5 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				032001B812FE9EF900707BA5 /* O-course */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		032001B712FE9EF900707BA5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				032001C812FE9EF900707BA5 /* InfoPlist.strings in Resources */,
+				032001CE12FE9EF900707BA5 /* Credits.rtf in Resources */,
+				032001D412FE9EF900707BA5 /* ASOcourseDocument.xib in Resources */,
+				032001D712FE9EF900707BA5 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		032001B512FE9EF900707BA5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				032001CB12FE9EF900707BA5 /* main.m in Sources */,
+				032001D112FE9EF900707BA5 /* ASOcourseDocument.m in Sources */,
+				032001DA12FE9EF900707BA5 /* ASOcourseDocument.xcdatamodeld in Sources */,
+				032001E212FE9F1000707BA5 /* ocdimport.c in Sources */,
+				03B7C94313083E05005A800A /* OCDView.m in Sources */,
+				03C305161347B5FA00FB8133 /* ASOCADController.m in Sources */,
+				0373FA6D1349A42C006E41C9 /* ASMapView.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		032001C612FE9EF900707BA5 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				032001C712FE9EF900707BA5 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		032001CC12FE9EF900707BA5 /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				032001CD12FE9EF900707BA5 /* en */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		032001D212FE9EF900707BA5 /* ASOcourseDocument.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				032001D312FE9EF900707BA5 /* en */,
+			);
+			name = ASOcourseDocument.xib;
+			sourceTree = "<group>";
+		};
+		032001D512FE9EF900707BA5 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				032001D612FE9EF900707BA5 /* en */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		032001DB12FE9EF900707BA5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		032001DC12FE9EF900707BA5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		032001DE12FE9EF900707BA5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "O-course/O_course-Prefix.pch";
+				INFOPLIST_FILE = "O-course/O_course-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		032001DF12FE9EF900707BA5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "O-course/O_course-Prefix.pch";
+				INFOPLIST_FILE = "O-course/O_course-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		032001B312FE9EF900707BA5 /* Build configuration list for PBXProject "O-course" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				032001DB12FE9EF900707BA5 /* Debug */,
+				032001DC12FE9EF900707BA5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		032001DD12FE9EF900707BA5 /* Build configuration list for PBXNativeTarget "O-course" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				032001DE12FE9EF900707BA5 /* Debug */,
+				032001DF12FE9EF900707BA5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		032001D812FE9EF900707BA5 /* ASOcourseDocument.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				032001D912FE9EF900707BA5 /* ASOcourseDocument.xcdatamodel */,
+			);
+			currentVersion = 032001D912FE9EF900707BA5 /* ASOcourseDocument.xcdatamodel */;
+			path = ASOcourseDocument.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
+	};
+	rootObject = 032001B012FE9EF900707BA5 /* Project object */;
+}
