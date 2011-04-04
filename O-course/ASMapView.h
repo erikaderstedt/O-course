@@ -11,7 +11,11 @@
 
 @interface ASMapView : NSView {
 	id <ASMapViewDelegate> delegate;
+	double zoom;
+	NSRect mapBounds;
+	NSImage *cachedImage;
 }
 @property(nonatomic,retain) id <ASMapViewDelegate> delegate;
+@property(nonatomic,retain) NSImage *cachedImage;
 
 @end

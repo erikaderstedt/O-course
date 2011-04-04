@@ -17,6 +17,7 @@
 		032001DA12FE9EF900707BA5 /* ASOcourseDocument.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 032001D812FE9EF900707BA5 /* ASOcourseDocument.xcdatamodeld */; };
 		032001E212FE9F1000707BA5 /* ocdimport.c in Sources */ = {isa = PBXBuildFile; fileRef = 032001E012FE9F1000707BA5 /* ocdimport.c */; };
 		0373FA6D1349A42C006E41C9 /* ASMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0373FA6C1349A42C006E41C9 /* ASMapView.m */; };
+		0373FAE71349D7EE006E41C9 /* ASOCADRenderingOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 0373FAE61349D7EE006E41C9 /* ASOCADRenderingOperation.m */; };
 		03B7C94313083E05005A800A /* OCDView.m in Sources */ = {isa = PBXBuildFile; fileRef = 03B7C94213083E05005A800A /* OCDView.m */; };
 		03C305161347B5FA00FB8133 /* ASOCADController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03C305151347B5FA00FB8133 /* ASOCADController.m */; };
 /* End PBXBuildFile section */
@@ -41,6 +42,8 @@
 		032001E112FE9F1000707BA5 /* ocdimport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ocdimport.h; sourceTree = "<group>"; };
 		0373FA6B1349A42C006E41C9 /* ASMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASMapView.h; sourceTree = "<group>"; };
 		0373FA6C1349A42C006E41C9 /* ASMapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASMapView.m; sourceTree = "<group>"; };
+		0373FAE51349D7EE006E41C9 /* ASOCADRenderingOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASOCADRenderingOperation.h; sourceTree = "<group>"; };
+		0373FAE61349D7EE006E41C9 /* ASOCADRenderingOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASOCADRenderingOperation.m; sourceTree = "<group>"; };
 		03B7C94113083E05005A800A /* OCDView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCDView.h; sourceTree = "<group>"; };
 		03B7C94213083E05005A800A /* OCDView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCDView.m; sourceTree = "<group>"; };
 		03C305141347B5FA00FB8133 /* ASOCADController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASOCADController.h; sourceTree = "<group>"; };
@@ -63,6 +66,8 @@
 		032001AE12FE9EF900707BA5 = {
 			isa = PBXGroup;
 			children = (
+				0373FAE51349D7EE006E41C9 /* ASOCADRenderingOperation.h */,
+				0373FAE61349D7EE006E41C9 /* ASOCADRenderingOperation.m */,
 				032001E012FE9F1000707BA5 /* ocdimport.c */,
 				032001E112FE9F1000707BA5 /* ocdimport.h */,
 				03C305171347B60B00FB8133 /* ASMapViewDelegate.h */,
@@ -201,6 +206,7 @@
 				03B7C94313083E05005A800A /* OCDView.m in Sources */,
 				03C305161347B5FA00FB8133 /* ASOCADController.m in Sources */,
 				0373FA6D1349A42C006E41C9 /* ASMapView.m in Sources */,
+				0373FAE71349D7EE006E41C9 /* ASOCADRenderingOperation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

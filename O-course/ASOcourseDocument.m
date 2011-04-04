@@ -43,9 +43,9 @@
 }
 
 - (void)awakeFromNib {
-    ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:@"/Users/erik/Documents/Orientering/Marstrand_1_3_090331_ocad9.ocd"];
+    ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:@"/Users/erik/Documents/Orientering/Guddehjälm_1_04_090804.ocd"];
 	[mapView setDelegate:o];
-	[mapView setNeedsDisplay:YES];
+	[mapView mapLoaded];
 }
 
 @end

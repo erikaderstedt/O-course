@@ -11,7 +11,7 @@
 
 @protocol ASMapViewDelegate <NSObject>
 
-- (NSImage *)renderedMapWithImageSize:(NSSize)sz atPoint:(CGPoint)point;
+- (void)beginRenderingMapWithImageSize:(NSSize)sz fromSourceRect:(NSRect)sourceRect whenDone:(void (^)(NSImage *i))completionBlock;
 - (NSInteger)symbolNumberAtPosition:(CGPoint)p;
 - (NSRect)mapBounds; // In native coordinates.
 @end

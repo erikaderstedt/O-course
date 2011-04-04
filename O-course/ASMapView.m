@@ -13,6 +13,7 @@
 @implementation ASMapView
 
 @synthesize delegate;
+@synthesize cachedImage;
 
 - (id)initWithFrame:(NSRect)frame {
     self = [super initWithFrame:frame];
@@ -24,18 +25,34 @@
 
 - (void)dealloc {
 	[delegate release];
+	[cachedImage release];
+	
 	[super dealloc];
+}
+
+- (void)mapLoaded {
+	zoom = 1.0; // Reset zoom.
+	mapBounds = [delegate mapBounds];
+	[delegate beginRenderingMapWithImageSize:[self frame].size fromSourceRect:mapBounds whenDone:^(NSImage *i) {
+		[self performSelectorOnMainThread:@selector(setCachedImage:) withObject:i waitUntilDone:YES];
+		[self setNeedsDisplay:YES];
+	}];
+}
+	
+- (void)setFrameSize:(NSSize)newSize {
+	[super setFrameSize:newSize];
+	[delegate beginRenderingMapWithImageSize:newSize fromSourceRect:mapBounds whenDone:^(NSImage *i) {
+		[self performSelectorOnMainThread:@selector(setCachedImage:) withObject:i waitUntilDone:YES];
+		[self setNeedsDisplay:YES];
+	}];
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
 	NSRect frame = [self bounds];
-	NSRect q = [delegate mapBounds];
-	LogR(@"bounds", q);
-
     
     // Drawing code here.
-	NSImage *i = [delegate renderedMapWithImageSize:frame.size atPoint:NSMakePoint(NSMidX(q), NSMidY(q))];
-	[i drawInRect:frame fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+	
+	[self.cachedImage drawInRect:frame fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
 	
 }
 

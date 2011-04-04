@@ -8,9 +8,11 @@
 
 #import "ASOCADController.h"
 #import "ocdimport.h"
+#import "ASOCADRenderingOperation.h"
 
 #define PARALLELIZATION 2
 #define CONCURRENCY (1 << PARALLELIZATION)
+
 
 @implementation ASOCADController
 
@@ -87,6 +89,13 @@
     return self;
 }
 
+- (void)dealloc {
+	[renderingQueue waitUntilAllOperationsAreFinished];
+	[renderingQueue release];
+	
+	[super dealloc];
+}
+
 - (NSPoint)approximateCenterOfMap {
 	NSInteger x;
 	NSDictionary *cachedData;
@@ -126,49 +135,53 @@
 	return wholeMap;
 }
 
-- (NSImage *)renderedMapWithImageSize:(NSSize)sz atPoint:(CGPoint)point {
+- (void)beginRenderingMapWithImageSize:(NSSize)sz fromSourceRect:(NSRect)sourceRect whenDone:(void (^)(NSImage *i))completionBlock {
 	// Create an image of the appropriate size.
 	NSLog(@"begin rendering");
+	
 	NSImage *destinationImage = [[NSImage alloc] initWithSize:sz];
 	[destinationImage lockFocus];
 	[[NSColor whiteColor] set];
 	[NSBezierPath fillRect:NSMakeRect(0.0, 0.0, sz.width, sz.height)];
 	
-    // Render in CONCURRENCY different images, and then composite them on top of each other.
-	// Set up a transform.
+	NSInteger num = [cachedDrawingInformation count];
+	NSInteger i;
+	if (renderingQueue != nil) {
+		[renderingQueue cancelAllOperations];
+		[renderingQueue waitUntilAllOperationsAreFinished];
+	} else {
+		renderingQueue = [[NSOperationQueue alloc] init];
+	}
+	
 	NSAffineTransform *at = [NSAffineTransform transform];
 	
-	NSRect q = [self mapBounds];
     NSAffineTransformStruct ts;
 	ts.m12 = 0.0; ts.m21 = 0.0;
-    float scale = sz.width/ NSWidth(q);
+    float scale = sz.width/ NSWidth(sourceRect);
+	ts.tX = - NSMinX(sourceRect)*scale;
+	ts.tY = - NSMinY(sourceRect)*scale;
 	ts.m11 = scale; ts.m22 = scale;
-	ts.tX = - NSMinX(q)*scale;
-	ts.tY = - NSMinY(q)*scale;
-	
-	NSAffineTransform *t = [NSAffineTransform transform];
 	[at setTransformStruct:ts];
-	[at concat];
 	
-	// Draw into the image.
-	for (NSDictionary *info in cachedDrawingInformation) {
-		NSBezierPath *path = [info valueForKey:@"path"];
-		NSColor *stroke = [info valueForKey:@"strokeColor"];
-		NSColor *fill = [info valueForKey:@"fillColor"];
-			
-		if (fill != nil) {
-			[fill set];
-			[path fill];
-		}
-		if (stroke != nil) {
-			[stroke set];
-			[path stroke];
-		}
-		
+	NSMutableArray *ops = [NSMutableArray arrayWithCapacity:CONCURRENCY];
+	ASOCADFinishRenderingOperation *finished = [[[ASOCADFinishRenderingOperation alloc] init] autorelease];
+
+	for (i = 0; i < CONCURRENCY; i++) {
+
+		ASOCADRenderingOperation *render = [[ASOCADRenderingOperation alloc] init];
+		render.size = sz;
+		render.transform = at;
+		render.cachedDrawingInformation = cachedDrawingInformation;
+		render.ocdf = ocdf;
+		render.startIndex = i*(num >> PARALLELIZATION);
+		render.stopIndex = (i == (CONCURRENCY - 1))?num:(render.startIndex + (num >> PARALLELIZATION));
+		[ops addObject:render];
+		[finished addDependency:render];
+		[renderingQueue addOperation:[render autorelease]];
 	}
-	[destinationImage unlockFocus];
-	NSLog(@"end rendering");
-	return [destinationImage autorelease];
+	finished.renderingOperations = ops;
+	[finished setWhenDone:completionBlock];
+	[renderingQueue addOperation:finished];
 }
 
 - (NSInteger)symbolNumberAtPosition:(CGPoint)p {
@@ -231,7 +244,6 @@
 		}
 
     }
-	NSLog(@"%d roads", [roads count]);
     [lines addObjectsFromArray:roads];
 
     return [NSArray arrayWithObjects:nonBlackAreas, lines, rectangles, blackAreas, pointObjects, nil];
@@ -283,7 +295,6 @@
     }
     [queue release];
 	[cachedDrawingInformation retain];
-	NSLog(@"Cached %d paths.", [cachedDrawingInformation count]);
 }
 
 - (NSDictionary *)cachedDrawingInfoForAreaObject:(struct ocad_element *)e {
@@ -384,7 +395,7 @@
         [left setLineCapStyle:NSSquareLineCapStyle];
         [right setLineCapStyle:NSSquareLineCapStyle];
         
-        [road setLineWidth:line->dbl_width/* + line->dbl_left_width*0.5 + line->dbl_right_width*0.5*/];
+        [road setLineWidth:line->dbl_width + line->dbl_left_width*0.5 + line->dbl_right_width*0.5];
         [road setWindingRule:NSEvenOddWindingRule];
         NSPoint p0 = NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8);
         [road moveToPoint:p0];
@@ -462,7 +473,6 @@
         roadCache = [NSDictionary dictionaryWithObjectsAndKeys:[self colorWithNumber:line->dbl_fill_color], @"strokeColor", road, @"path", nil];
         [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:[self colorWithNumber:line->dbl_left_color], @"strokeColor", left, @"path", nil]];
         [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:[self colorWithNumber:line->dbl_right_color], @"strokeColor", right, @"path", nil]];
-		NSLog(@"%d, %@", line->dbl_right_color, [self colorWithNumber:line->dbl_right_color]);
     }
     if (e->linewidth != 0 || (line != NULL && line->line_width != 0)) {
         [p setWindingRule:NSEvenOddWindingRule];

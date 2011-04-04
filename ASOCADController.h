@@ -22,6 +22,8 @@
     
     NSArray *colors;
     NSMutableDictionary *areaSymbolColors;
+	
+	NSOperationQueue *renderingQueue;
 }
 - (id)initWithOCADFile:(NSString *)path;
 
