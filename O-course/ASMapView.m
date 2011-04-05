@@ -12,48 +12,293 @@
 
 @implementation ASMapView
 
-@synthesize delegate;
+@synthesize mapProvider;
 @synthesize cachedImage;
+@synthesize showMagnifyingGlass;
+@synthesize zoom;
+@synthesize currentTransform;
 
 - (id)initWithFrame:(NSRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        // Initialization code here.
+		imageCaches = [[NSMutableArray alloc] initWithCapacity:20];
     }
     return self;
 }
+- (id)initWithCoder:(NSCoder *)aDecoder {
+	self = [super initWithCoder:aDecoder];
+	if (self) {
+		imageCaches = [[NSMutableArray alloc] initWithCapacity:20];
+	}
+	return self;
+}
 
 - (void)dealloc {
-	[delegate release];
+	[mapProvider release];
 	[cachedImage release];
+	
+	[_magnifyingGlass removeFromSuperlayer];
+	[_magnifyingGlass release];
+	[lozenge release];
+	[mask release];
 	
 	[super dealloc];
 }
 
+#pragma mark -
+#pragma mark Magnifying glass
+
+- (CALayer *)magnifyingGlass {
+	if (_magnifyingGlass == nil) {
+		mask = [CIFilter filterWithName:@"CISourceInCompositing"];
+		[mask setDefaults];
+		
+		NSImage *i = [[NSImage alloc] init];
+		NSRect f = NSMakeRect(0.0, 0.0, 150.0, 150.0);
+		[i setSize:f.size];
+		[i lockFocus];
+		[[NSColor clearColor] set];
+		[NSBezierPath fillRect:f];
+		[[NSColor whiteColor] set];
+		NSBezierPath *circle = [NSBezierPath bezierPathWithOvalInRect:f];
+		[circle fill];
+		[i unlockFocus];
+		
+		[mask setValue:[CIImage imageWithCGImage:[i CGImageForProposedRect:&f context:[NSGraphicsContext currentContext] hints:nil]]
+				forKey:@"inputBackgroundImage"];
+		
+		[i release];
+		/*
+		lozenge = [CIFilter filterWithName:@"CIGlassLozenge"];
+		[lozenge setDefaults];
+		[lozenge setValue:[CIVector vectorWithX:NSMidX(f) Y:NSMidY(f)] forKey:@"inputPoint0"];
+		[lozenge setValue:[CIVector vectorWithX:NSMidX(f) Y:NSMidY(f)] forKey:@"inputPoint1"];
+		[lozenge setValue:[NSNumber numberWithFloat:f.size.width*0.5] forKey:@"inputRadius"];
+		[lozenge setValue:[NSNumber numberWithFloat:1.04] forKey:@"inputRefraction"];
+		[lozenge retain]; */
+		[mask retain];
+		
+		_magnifyingGlass = [CALayer layer];
+		[_magnifyingGlass setBackgroundColor:CGColorCreateGenericRGB(0.3, 0.3, 1.0, 0.6)];
+		
+		[_magnifyingGlass setBounds:NSRectToCGRect(f)];
+		[_magnifyingGlass setAnchorPoint:CGPointMake(0.5, 0.5)];
+		[_magnifyingGlass setHidden:YES];
+		[_magnifyingGlass setFilters:[NSArray arrayWithObjects:mask, lozenge, nil]];
+		[_magnifyingGlass setShadowColor:CGColorCreateGenericGray(0.2, 1.0)];
+		[_magnifyingGlass setShadowOpacity:0.5];
+		[_magnifyingGlass setShadowOffset:CGSizeMake(0.0, -3.0)];
+		[_magnifyingGlass setShadowRadius:3.0];
+		[_magnifyingGlass retain];
+		
+		
+		CALayer *bezel = [CALayer layer];
+		bezel.bounds = _magnifyingGlass.bounds;
+		bezel.anchorPoint = CGPointMake(0.0, 0.0);
+		bezel.position = CGPointMake(0.0, 0.0);
+		i = [NSImage imageNamed:@"compass bezel.png"];
+		[bezel setContents:(id)[i CGImageForProposedRect:NULL context:nil hints:nil]];
+		[_magnifyingGlass addSublayer:bezel];
+	}
+	return _magnifyingGlass;
+}
+
+- (void)setShowMagnifyingGlass:(BOOL)b {
+	showMagnifyingGlass = b;
+	CALayer *l = [self magnifyingGlass];
+	if (b) {
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hideMagnifyingGlass:) name:NSWindowDidResignKeyNotification object:[self window]];
+		[[self layer] addSublayer:l];
+	} else {
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidResignKeyNotification object:[self window]];
+		[l removeFromSuperlayer];
+	}
+	[self updateTrackingAreas];
+}
+
+- (void)hideMagnifyingGlass:(NSNotification *)n {
+	[CATransaction begin];
+	[CATransaction setDisableActions:YES];
+	[self magnifyingGlass].hidden = YES;
+	[CATransaction commit];
+}
+
+- (void)updateTrackingAreas {
+	[super updateTrackingAreas];
+	[self removeTrackingArea:glassTrackingArea];
+	if (self.showMagnifyingGlass) {
+		if (glassTrackingArea != nil) {
+			[glassTrackingArea release];
+		}
+		glassTrackingArea = [[NSTrackingArea alloc] initWithRect:[self bounds] 
+														 options:NSTrackingMouseMoved | NSTrackingMouseEnteredAndExited | NSTrackingActiveInKeyWindow 
+														   owner:self 
+														userInfo:nil];		 
+		[self addTrackingArea:glassTrackingArea];
+	} else {
+		if (glassTrackingArea != nil) {
+			[glassTrackingArea release];
+			glassTrackingArea = nil;
+		}
+	}
+}
+
+- (IBAction)toggleMagnifyingGlass:(id)sender {
+	self.showMagnifyingGlass = !self.showMagnifyingGlass;
+}
+
+- (void)mouseEntered:(NSEvent *)theEvent {
+	[NSCursor hide];
+}
+
+- (void)mouseMoved:(NSEvent *)theEvent {
+	NSAssert(self.showMagnifyingGlass, @"Not showing magnifying glass?");
+	NSPoint p = [theEvent locationInWindow];
+	p = [self convertPointFromBase:p];
+
+	CALayer *l = [self magnifyingGlass];
+	if (l.hidden) l.hidden = NO;	
+	[CATransaction begin];
+	[CATransaction setDisableActions:YES];
+	[[self magnifyingGlass] setPosition:NSPointToCGPoint(p)];
+	[CATransaction commit];
+}
+
+- (void)mouseExited:(NSEvent *)theEvent {
+	[[self magnifyingGlass] setHidden:YES];
+	[NSCursor unhide];
+}
+
+#pragma mark -
+
+- (void)mouseDown:(NSEvent *)theEvent {
+	NSLog(@"mouse down");
+}
+
+- (BOOL)isOpaque {
+	return YES;
+}
+
 - (void)mapLoaded {
-	zoom = 1.0; // Reset zoom.
-	mapBounds = [delegate mapBounds];
-	[delegate beginRenderingMapWithImageSize:[self frame].size fromSourceRect:mapBounds whenDone:^(NSImage *i) {
-		[self performSelectorOnMainThread:@selector(setCachedImage:) withObject:i waitUntilDone:YES];
-		[self setNeedsDisplay:YES];
-	}];
+	 // Reset zoom.
+	mapBounds = [mapProvider mapBounds];
+	NSSize v = [[self enclosingScrollView] contentSize], m = mapBounds.size, r, b;
+	r = NSMakeSize(m.width / v.width, m.height / v.height);
+	if (r.width < r.height)
+		b = NSMakeSize(v.width, v.width * m.height / m.width); 
+	else 
+		b = NSMakeSize(v.height * m.width / m.height, v.height);
+	minZoom = b.width / m.width;
+	self.zoom = minZoom;
+	NSLog(@"zoom: %f %f", b.width / m.width, b.height / m.height);
+/*
+	NSRect i = NSMakeRect(0.0, 0.0, b.width, b.height);
+	i = NSIntegralRect(i);
+
+ */
+}
+
+- (void)setZoom:(double)z {
+	// Calculate a new frame for us.
+	zoom = z;
+
+	[imageCaches removeAllObjects];
+	NSRect r = NSMakeRect(0.0, 0.0, mapBounds.size.width*z, mapBounds.size.height * z);
+	
+	NSAffineTransform *at = [NSAffineTransform transform];
+	
+    NSAffineTransformStruct ts;
+	
+	ts.m12 = 0.0; ts.m21 = 0.0;	
+	ts.tX = - NSMinX(mapBounds)*z;
+	ts.tY = - NSMinY(mapBounds)*z;
+	ts.m11 = z; ts.m22 = z;
+	[at setTransformStruct:ts];
+	self.currentTransform = at;
+	
+	[self setFrame:NSIntegralRect(r)];
+//	[self setNeedsDisplay:YES];
 }
 	
-- (void)setFrameSize:(NSSize)newSize {
-	[super setFrameSize:newSize];
-	[delegate beginRenderingMapWithImageSize:newSize fromSourceRect:mapBounds whenDone:^(NSImage *i) {
+/*
+- (void)setVisibleMapBounds:(NSRect)r {
+	NSSize b = [self bounds].size, ratios, v = r;
+	ratios = NSMakeSize(r.size.width / b.width, r.size.height / b.height);
+	if (ratios.height > ratios.width) {
+		// map is taller than the window.
+		v.size.height = v.size.width * ratios.height / ratios.width;
+		v.origin.y += 0.5*(r.size.height - v.size.height);
+	} else if (ratios.height < ratios.width) {
+		v.size.width = v.size.height * ratios.width / ratios.height;
+		v.origin.x + = 0.5*(r.size.width - v.size.width);
+	}
+	[mapProvider beginRenderingMapWithSize:b fromSourceRect:visibleMapBounds whenDone:^(NSImage *i) {
 		[self performSelectorOnMainThread:@selector(setCachedImage:) withObject:i waitUntilDone:YES];
+		_visibleMapBounds = v;
 		[self setNeedsDisplay:YES];
 	}];
 }
 
+- (void)visibleMapBounds {
+	return _visibleMapBounds;
+}*/
+/*
+
+- (void)setFrameSize:(NSSize)newSize {
+	[super setFrameSize:newSize];
+	[mapProvider beginRenderingMapWithPixelsPerMeter:_pixelsPerMeter fromSourceRect:mapBounds whenDone:^(NSImage *i) {
+		[self performSelectorOnMainThread:@selector(setCachedImage:) withObject:i waitUntilDone:YES];
+		[self setNeedsDisplay:YES];
+	}];
+}
+*/
+
+- (NSRect)convertRectFromMapCoordinates:(NSRect)r {
+	NSPoint p = r.origin;
+	NSSize s = r.size;
+	p = [self.currentTransform transformPoint:p];
+	s = [self.currentTransform transformSize:s];
+	return NSMakeRect(p.x, p.y, s.width, s.height);
+}
+
+- (NSRect)convertRectToMapCoordinates:(NSRect)r {
+	NSAffineTransform *at = [[self.currentTransform copy] autorelease];
+	[at invert];
+	NSPoint p = r.origin;
+	NSSize s = r.size;
+	p = [at transformPoint:p];
+	s = [at transformSize:s];
+	return NSMakeRect(p.x, p.y, s.width, s.height);
+}
+
 - (void)drawRect:(NSRect)dirtyRect {
-	NSRect frame = [self bounds];
+	NSRect dirtyMap = [self convertRectToMapCoordinates:dirtyRect];
+	NSRect f = [self frame];
+	double z = self.zoom;
     
-    // Drawing code here.
-	
-	[self.cachedImage drawInRect:frame fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
-	
+	@synchronized(imageCaches) {
+		if ([imageCaches count] == 0) {
+			// Render initial unzoomed map. This is as far out as you can zoom.
+			[mapProvider beginRenderingMapWithSize:f.size fromSourceRect:mapBounds whenDone:^(NSImage *i) {
+				@synchronized(imageCaches) {
+					[imageCaches addObject:[NSArray arrayWithObjects:i, [NSValue valueWithRect:mapBounds], [NSNumber numberWithDouble:z], nil]];
+				};
+				[self setNeedsDisplayInRect:[self convertRectFromMapCoordinates:mapBounds]];
+			}];
+		} else {
+			// Start looking.
+			NSArray *original = [imageCaches objectAtIndex:0];
+			// Draw the original. Might be covered up subsequently.
+			NSImage *i = [original objectAtIndex:0];
+			double ozoom = [[original objectAtIndex:2] doubleValue];
+			[i drawInRect:f fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+			if (ozoom != z) {
+				// Go through the other caches, draw them.
+				
+				// Order up regions that aren't available.
+			}
+		}
+	}
 }
 
 @end

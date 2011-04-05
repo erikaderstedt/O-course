@@ -7,10 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "ASMapViewDelegate.h"
+#import "ASMapProvider.h"
 #import "ocdimport.h"
 
-@interface ASOCADController : NSObject <ASMapViewDelegate> {
+@interface ASOCADController : NSObject <ASMapProvider> {
 @private
   	NSMutableArray *cachedDrawingInformation;
 

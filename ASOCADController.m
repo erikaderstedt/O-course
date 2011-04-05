@@ -85,6 +85,7 @@
         [self createAreaSymbolColors];
 
         [self createCache];
+		free(ocdf);
     }
     return self;
 }
@@ -92,6 +93,9 @@
 - (void)dealloc {
 	[renderingQueue waitUntilAllOperationsAreFinished];
 	[renderingQueue release];
+	[areaSymbolColors release];
+	[colors release];
+	[cachedDrawingInformation release];
 	
 	[super dealloc];
 }
@@ -135,10 +139,15 @@
 	return wholeMap;
 }
 
-- (void)beginRenderingMapWithImageSize:(NSSize)sz fromSourceRect:(NSRect)sourceRect whenDone:(void (^)(NSImage *i))completionBlock {
+- (void)beginRenderingMapWithSize:(NSSize)sz fromSourceRect:(NSRect)sourceRect whenDone:(void (^)(NSImage *i))completionBlock {
 	// Create an image of the appropriate size.
-	NSLog(@"begin rendering");
+/*	double adjustedScale = 15000 * 0.01 * 0.001 * scale;
+	double limit = 8000.0;
+	if (sourceRect.size.width * adjustedScale > limit) adjustedScale = limit / sourceRect.size.width;
+	if (sourceRect.size.height * adjustedScale > limit) adjustedScale = limit / sourceRect.size.height;
 	
+	NSSize sz = NSMakeSize(adjustedScale*sourceRect.size.width, adjustedScale * sourceRect.size.height);
+*/	
 	NSImage *destinationImage = [[NSImage alloc] initWithSize:sz];
 	[destinationImage lockFocus];
 	[[NSColor whiteColor] set];
@@ -148,6 +157,9 @@
 	NSInteger i;
 	if (renderingQueue != nil) {
 		[renderingQueue cancelAllOperations];
+		// If we are unlucky, we'll cancel an operation while it is waiting to perform a selector on the main
+		// thread (in the completion block). To combat that we sleep for a short while.
+		[NSThread sleepForTimeInterval:0.001];
 		[renderingQueue waitUntilAllOperationsAreFinished];
 	} else {
 		renderingQueue = [[NSOperationQueue alloc] init];
@@ -156,11 +168,12 @@
 	NSAffineTransform *at = [NSAffineTransform transform];
 	
     NSAffineTransformStruct ts;
-	ts.m12 = 0.0; ts.m21 = 0.0;
-    float scale = sz.width/ NSWidth(sourceRect);
-	ts.tX = - NSMinX(sourceRect)*scale;
-	ts.tY = - NSMinY(sourceRect)*scale;
-	ts.m11 = scale; ts.m22 = scale;
+	float adjustedScale = sz.width / sourceRect.size.width;
+
+	ts.m12 = 0.0; ts.m21 = 0.0;	
+	ts.tX = - NSMinX(sourceRect)*adjustedScale;
+	ts.tY = - NSMinY(sourceRect)*adjustedScale;
+	ts.m11 = adjustedScale; ts.m22 = adjustedScale;
 	[at setTransformStruct:ts];
 	
 	NSMutableArray *ops = [NSMutableArray arrayWithCapacity:CONCURRENCY];

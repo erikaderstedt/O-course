@@ -16,9 +16,10 @@
 		032001D712FE9EF900707BA5 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 032001D512FE9EF900707BA5 /* MainMenu.xib */; };
 		032001DA12FE9EF900707BA5 /* ASOcourseDocument.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 032001D812FE9EF900707BA5 /* ASOcourseDocument.xcdatamodeld */; };
 		032001E212FE9F1000707BA5 /* ocdimport.c in Sources */ = {isa = PBXBuildFile; fileRef = 032001E012FE9F1000707BA5 /* ocdimport.c */; };
+		033D6818134AF79C00502CA8 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 033D6817134AF79C00502CA8 /* QuartzCore.framework */; };
+		033D6874134B05D100502CA8 /* compass bezel.png in Resources */ = {isa = PBXBuildFile; fileRef = 033D6873134B05D100502CA8 /* compass bezel.png */; };
 		0373FA6D1349A42C006E41C9 /* ASMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0373FA6C1349A42C006E41C9 /* ASMapView.m */; };
 		0373FAE71349D7EE006E41C9 /* ASOCADRenderingOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 0373FAE61349D7EE006E41C9 /* ASOCADRenderingOperation.m */; };
-		03B7C94313083E05005A800A /* OCDView.m in Sources */ = {isa = PBXBuildFile; fileRef = 03B7C94213083E05005A800A /* OCDView.m */; };
 		03C305161347B5FA00FB8133 /* ASOCADController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03C305151347B5FA00FB8133 /* ASOCADController.m */; };
 /* End PBXBuildFile section */
 
@@ -38,17 +39,17 @@
 		032001D312FE9EF900707BA5 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ASOcourseDocument.xib; sourceTree = "<group>"; };
 		032001D612FE9EF900707BA5 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		032001D912FE9EF900707BA5 /* ASOcourseDocument.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ASOcourseDocument.xcdatamodel; sourceTree = "<group>"; };
-		032001E012FE9F1000707BA5 /* ocdimport.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ocdimport.c; sourceTree = "<group>"; };
-		032001E112FE9F1000707BA5 /* ocdimport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ocdimport.h; sourceTree = "<group>"; };
+		032001E012FE9F1000707BA5 /* ocdimport.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ocdimport.c; path = ../ocdimport.c; sourceTree = "<group>"; };
+		032001E112FE9F1000707BA5 /* ocdimport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ocdimport.h; path = ../ocdimport.h; sourceTree = "<group>"; };
+		033D6817134AF79C00502CA8 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		033D6873134B05D100502CA8 /* compass bezel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "compass bezel.png"; sourceTree = "<group>"; };
 		0373FA6B1349A42C006E41C9 /* ASMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASMapView.h; sourceTree = "<group>"; };
 		0373FA6C1349A42C006E41C9 /* ASMapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASMapView.m; sourceTree = "<group>"; };
-		0373FAE51349D7EE006E41C9 /* ASOCADRenderingOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASOCADRenderingOperation.h; sourceTree = "<group>"; };
-		0373FAE61349D7EE006E41C9 /* ASOCADRenderingOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASOCADRenderingOperation.m; sourceTree = "<group>"; };
-		03B7C94113083E05005A800A /* OCDView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCDView.h; sourceTree = "<group>"; };
-		03B7C94213083E05005A800A /* OCDView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCDView.m; sourceTree = "<group>"; };
-		03C305141347B5FA00FB8133 /* ASOCADController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASOCADController.h; sourceTree = "<group>"; };
-		03C305151347B5FA00FB8133 /* ASOCADController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASOCADController.m; sourceTree = "<group>"; };
-		03C305171347B60B00FB8133 /* ASMapViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASMapViewDelegate.h; sourceTree = "<group>"; };
+		0373FAE51349D7EE006E41C9 /* ASOCADRenderingOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ASOCADRenderingOperation.h; path = ../ASOCADRenderingOperation.h; sourceTree = "<group>"; };
+		0373FAE61349D7EE006E41C9 /* ASOCADRenderingOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ASOCADRenderingOperation.m; path = ../ASOCADRenderingOperation.m; sourceTree = "<group>"; };
+		03C305141347B5FA00FB8133 /* ASOCADController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ASOCADController.h; path = ../ASOCADController.h; sourceTree = "<group>"; };
+		03C305151347B5FA00FB8133 /* ASOCADController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ASOCADController.m; path = ../ASOCADController.m; sourceTree = "<group>"; };
+		03C305171347B60B00FB8133 /* ASMapProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASMapProvider.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +58,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				032001BE12FE9EF900707BA5 /* Cocoa.framework in Frameworks */,
+				033D6818134AF79C00502CA8 /* QuartzCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -66,13 +68,9 @@
 		032001AE12FE9EF900707BA5 = {
 			isa = PBXGroup;
 			children = (
-				0373FAE51349D7EE006E41C9 /* ASOCADRenderingOperation.h */,
-				0373FAE61349D7EE006E41C9 /* ASOCADRenderingOperation.m */,
-				032001E012FE9F1000707BA5 /* ocdimport.c */,
-				032001E112FE9F1000707BA5 /* ocdimport.h */,
-				03C305171347B60B00FB8133 /* ASMapViewDelegate.h */,
-				03C305141347B5FA00FB8133 /* ASOCADController.h */,
-				03C305151347B5FA00FB8133 /* ASOCADController.m */,
+				033D6872134B05AE00502CA8 /* Resources */,
+				033D67D2134AE9B500502CA8 /* OCAD */,
+				03C305171347B60B00FB8133 /* ASMapProvider.h */,
 				032001C312FE9EF900707BA5 /* O-course */,
 				032001BC12FE9EF900707BA5 /* Frameworks */,
 				032001BA12FE9EF900707BA5 /* Products */,
@@ -92,6 +90,7 @@
 			children = (
 				032001BD12FE9EF900707BA5 /* Cocoa.framework */,
 				032001BF12FE9EF900707BA5 /* Other Frameworks */,
+				033D6817134AF79C00502CA8 /* QuartzCore.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -113,12 +112,8 @@
 				032001D012FE9EF900707BA5 /* ASOcourseDocument.m */,
 				0373FA6B1349A42C006E41C9 /* ASMapView.h */,
 				0373FA6C1349A42C006E41C9 /* ASMapView.m */,
-				032001D212FE9EF900707BA5 /* ASOcourseDocument.xib */,
-				032001D512FE9EF900707BA5 /* MainMenu.xib */,
 				032001D812FE9EF900707BA5 /* ASOcourseDocument.xcdatamodeld */,
 				032001C412FE9EF900707BA5 /* Supporting Files */,
-				03B7C94113083E05005A800A /* OCDView.h */,
-				03B7C94213083E05005A800A /* OCDView.m */,
 			);
 			path = "O-course";
 			sourceTree = "<group>";
@@ -133,6 +128,29 @@
 				032001CC12FE9EF900707BA5 /* Credits.rtf */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		033D67D2134AE9B500502CA8 /* OCAD */ = {
+			isa = PBXGroup;
+			children = (
+				0373FAE51349D7EE006E41C9 /* ASOCADRenderingOperation.h */,
+				0373FAE61349D7EE006E41C9 /* ASOCADRenderingOperation.m */,
+				032001E012FE9F1000707BA5 /* ocdimport.c */,
+				032001E112FE9F1000707BA5 /* ocdimport.h */,
+				03C305141347B5FA00FB8133 /* ASOCADController.h */,
+				03C305151347B5FA00FB8133 /* ASOCADController.m */,
+			);
+			path = OCAD;
+			sourceTree = "<group>";
+		};
+		033D6872134B05AE00502CA8 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				033D6873134B05D100502CA8 /* compass bezel.png */,
+				032001D212FE9EF900707BA5 /* ASOcourseDocument.xib */,
+				032001D512FE9EF900707BA5 /* MainMenu.xib */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -189,6 +207,7 @@
 				032001CE12FE9EF900707BA5 /* Credits.rtf in Resources */,
 				032001D412FE9EF900707BA5 /* ASOcourseDocument.xib in Resources */,
 				032001D712FE9EF900707BA5 /* MainMenu.xib in Resources */,
+				033D6874134B05D100502CA8 /* compass bezel.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -203,7 +222,6 @@
 				032001D112FE9EF900707BA5 /* ASOcourseDocument.m in Sources */,
 				032001DA12FE9EF900707BA5 /* ASOcourseDocument.xcdatamodeld in Sources */,
 				032001E212FE9F1000707BA5 /* ocdimport.c in Sources */,
-				03B7C94313083E05005A800A /* OCDView.m in Sources */,
 				03C305161347B5FA00FB8133 /* ASOCADController.m in Sources */,
 				0373FA6D1349A42C006E41C9 /* ASMapView.m in Sources */,
 				0373FAE71349D7EE006E41C9 /* ASOCADRenderingOperation.m in Sources */,
@@ -235,6 +253,7 @@
 				032001D312FE9EF900707BA5 /* en */,
 			);
 			name = ASOcourseDocument.xib;
+			path = "../O-course";
 			sourceTree = "<group>";
 		};
 		032001D512FE9EF900707BA5 /* MainMenu.xib */ = {
@@ -243,6 +262,7 @@
 				032001D612FE9EF900707BA5 /* en */,
 			);
 			name = MainMenu.xib;
+			path = "../O-course";
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

@@ -3,6 +3,20 @@ OCAD-compatible orienteering course software.
 Image drawing can be further optimized, by drawing into multiple images and then compositing the images.
 
 
-http://orienteering.org/wp-content/uploads/2010/12/International-Specification-for-Orienteering-Maps-2000.pdf
+1. View frame size changes:
+	- If existing operation to re-render is in progress, cancel it.
+	- Start operation to re-render.
+	- When operation finishes, use performSelector: onMainThread: to switch out the cached image and refresh the window. Put this code in the completion block.
+2. Zoom changes are handled in the same way.
 
-
+9/4 	Map view
+16/4 	Toolbar, add control points.
+		Detect symbol type.
+30/4 	Control definition view.
+6/5		List of courses
+13/5	Numbers / lines overlay
+20/5	Begin layout mode
+27/5	Apply border + name
+4/6		Logo, north arrow, scale indicator, control definition + custom text.
+11/6	Eraser
+18/6	Choose which symbol types to render.

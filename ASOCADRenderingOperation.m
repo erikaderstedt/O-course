@@ -23,7 +23,6 @@
 	[result lockFocus];
 	if (_startIndex == 0) {
 		[[NSColor whiteColor] set];
-		NSLog(@"white!");
 		[NSBezierPath fillRect:NSMakeRect(0.0, 0.0, _size.width, _size.height)];
 	}
 	
@@ -82,6 +81,10 @@
 				   fromRect:NSZeroRect 
 				  operation:NSCompositeSourceOver 
 				   fraction:1.0];
+		if ([self isCancelled]) {
+			[composited unlockFocus];
+			return;
+		}
 	}
 	[composited unlockFocus];
 
