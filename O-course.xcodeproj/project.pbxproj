@@ -39,16 +39,16 @@
 		032001D312FE9EF900707BA5 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ASOcourseDocument.xib; sourceTree = "<group>"; };
 		032001D612FE9EF900707BA5 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		032001D912FE9EF900707BA5 /* ASOcourseDocument.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ASOcourseDocument.xcdatamodel; sourceTree = "<group>"; };
-		032001E012FE9F1000707BA5 /* ocdimport.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ocdimport.c; path = ../ocdimport.c; sourceTree = "<group>"; };
-		032001E112FE9F1000707BA5 /* ocdimport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ocdimport.h; path = ../ocdimport.h; sourceTree = "<group>"; };
+		032001E012FE9F1000707BA5 /* ocdimport.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ocdimport.c; sourceTree = "<group>"; };
+		032001E112FE9F1000707BA5 /* ocdimport.h */ = {isa = PBXFileReference; fileEncoding = 4; path = ocdimport.h; sourceTree = "<group>"; };
 		033D6817134AF79C00502CA8 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		033D6873134B05D100502CA8 /* compass bezel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "compass bezel.png"; sourceTree = "<group>"; };
 		0373FA6B1349A42C006E41C9 /* ASMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASMapView.h; sourceTree = "<group>"; };
 		0373FA6C1349A42C006E41C9 /* ASMapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASMapView.m; sourceTree = "<group>"; };
-		0373FAE51349D7EE006E41C9 /* ASOCADRenderingOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ASOCADRenderingOperation.h; path = ../ASOCADRenderingOperation.h; sourceTree = "<group>"; };
-		0373FAE61349D7EE006E41C9 /* ASOCADRenderingOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ASOCADRenderingOperation.m; path = ../ASOCADRenderingOperation.m; sourceTree = "<group>"; };
-		03C305141347B5FA00FB8133 /* ASOCADController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ASOCADController.h; path = ../ASOCADController.h; sourceTree = "<group>"; };
-		03C305151347B5FA00FB8133 /* ASOCADController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ASOCADController.m; path = ../ASOCADController.m; sourceTree = "<group>"; };
+		0373FAE51349D7EE006E41C9 /* ASOCADRenderingOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASOCADRenderingOperation.h; sourceTree = "<group>"; };
+		0373FAE61349D7EE006E41C9 /* ASOCADRenderingOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASOCADRenderingOperation.m; sourceTree = "<group>"; };
+		03C305141347B5FA00FB8133 /* ASOCADController.h */ = {isa = PBXFileReference; fileEncoding = 4; path = ASOCADController.h; sourceTree = "<group>"; };
+		03C305151347B5FA00FB8133 /* ASOCADController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASOCADController.m; sourceTree = "<group>"; };
 		03C305171347B60B00FB8133 /* ASMapProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASMapProvider.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
