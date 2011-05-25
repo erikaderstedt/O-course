@@ -181,7 +181,7 @@
 
 - (void)mapLoaded {
 	 // Reset zoom.
-	mapBounds = [mapProvider mapBounds];
+//	mapBounds = [mapProvider mapBounds];
 	NSSize v = [[self enclosingScrollView] contentSize], m = mapBounds.size, r, b;
 	r = NSMakeSize(m.width / v.width, m.height / v.height);
 	if (r.width < r.height)

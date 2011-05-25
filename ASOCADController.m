@@ -9,6 +9,7 @@
 #import "ASOCADController.h"
 #import "ocdimport.h"
 #import "ASOCADRenderingOperation.h"
+#import <QuartzCore/QuartzCore.h>
 
 #define PARALLELIZATION 2
 #define CONCURRENCY (1 << PARALLELIZATION)
@@ -318,30 +319,30 @@
         area == NULL ||
         area->status == 2 /* Hidden */)
         return nil;
-    
-    NSBezierPath *p = [NSBezierPath bezierPath];
-    [p setWindingRule:NSEvenOddWindingRule];
-    [p moveToPoint:NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8)];
+	
+	CGMutablePathRef p = CGPathCreateMutable();
+	CGPathMoveToPoint(p, NULL, e->coords[0].x >> 8, e->coords[0].y >> 8);
     
     for (c = 0; c < e->nCoordinates; c++) {
         if (e->coords[c].x & 1) {
             // Bezier curve.
-            [p curveToPoint:NSMakePoint(e->coords[c+2].x >> 8, e->coords[c+2].y >> 8) 
-              controlPoint1:NSMakePoint(e->coords[c].x >> 8, e->coords[c].y >> 8) 
-              controlPoint2:NSMakePoint(e->coords[c+1].x >> 8, e->coords[c+1].y >> 8)];
-            
+			CGPathAddCurveToPoint(p, NULL,	e->coords[c].x >> 8, e->coords[c].y >> 8,
+											e->coords[c+1].x >> 8, e->coords[c+1].y >> 8,
+								  e->coords[c+2].x >> 8, e->coords[c+2].y >> 8);
             c += 2;
             
         } else      if (e->coords[c].y & 2) {
-            [p closePath];
-            [p moveToPoint:NSMakePoint(e->coords[c].x >> 8, e->coords[c].y >> 8)];
+			CGPathCloseSubpath(p);
+			CGPathMoveToPoint(p, NULL, e->coords[c].x >> 8, e->coords[c].y >> 8);
         }
         else {
-            [p lineToPoint:NSMakePoint(e->coords[c].x >> 8, e->coords[c].y >> 8)];
+			CGPathAddLineToPoint(p, NULL, e->coords[c].x >> 8, e->coords[c].y >> 8);
         }
     }
     NSColor *color = [areaSymbolColors objectForKey:[NSNumber numberWithInt:area->symnum]];
-    return [NSDictionary dictionaryWithObjectsAndKeys:color, @"fillColor", p, @"path", nil];
+    NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:color, @"fillColor", p, @"path", nil];
+	CGPathRelease(p);
+	return d;
 }
 
 - (NSArray *)cachedDrawingInfoForPointObject:(struct ocad_element *)e {
@@ -361,36 +362,40 @@
 - (NSDictionary *)cachedDrawingInfoForRectangleObject:(struct ocad_element *)e {
     struct ocad_rectangle_symbol *rect = (struct ocad_rectangle_symbol *)(e->symbol);
     int c;
+	NSDictionary *d = nil;
     
     if (e->nCoordinates == 0 ||
         rect == NULL ||
         rect->status == 2 /* Hidden */) {
-        return nil;
+        return d;
     }
     
-    NSBezierPath *p = [NSBezierPath bezierPath];
-    
-    [p moveToPoint:NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8)];
+	CGMutablePathRef p = CGPathCreateMutable();
+	CGPathMoveToPoint(p, NULL, e->coords[0].x >> 8, e->coords[0].y >> 8);
     
     for (c = 0; c < e->nCoordinates; c++) {
-        [p lineToPoint:NSMakePoint(e->coords[c].x >> 8, e->coords[c].y >> 8)];
+		CGPathAddLineToPoint(p, NULL, e->coords[c].x >> 8, e->coords[c].y >> 8);
     }
-    [p closePath];
+	CGPathCloseSubpath(p);
     
     NSColor *color = [self colorWithNumber:rect->colors[0]];
     
     if (rect->line_width != 0) {
-        [p setLineWidth:rect->line_width];
-        return [NSDictionary dictionaryWithObjectsAndKeys:color,@"strokeColor",p, @"path", nil];
-    } 
-    
-    return [NSDictionary dictionaryWithObjectsAndKeys:color, @"fillColor", p, @"path", nil];    
+        d = [NSDictionary dictionaryWithObjectsAndKeys:color,@"strokeColor",p, @"path",[NSNumber numberWithInt:rect->line_width], @"width", nil];
+    } else {
+		d = [NSDictionary dictionaryWithObjectsAndKeys:color, @"fillColor", p, @"path", nil];
+	}
+	CGPathRelease(p);
+	
+	return d;
 }
 
 - (NSArray *)cachedDrawingInfoForLineObject:(struct ocad_element *)e {
     struct ocad_line_symbol *line = (struct ocad_line_symbol *)(e->symbol);
     int c;
-    NSBezierPath *p = [NSBezierPath bezierPath];
+	
+	CGMutablePathRef p = CGPathCreateMutable();
+
     NSDictionary *roadCache = nil;
     NSMutableArray *cachedData = [NSMutableArray arrayWithCapacity:10];
     
@@ -399,19 +404,12 @@
     }
     
     if (line != NULL && (line->dbl_width != 0)) {
-        NSBezierPath *left = nil, *right = nil, *road = nil;
-        left = [NSBezierPath bezierPath];
-        right = [NSBezierPath bezierPath];
-        road = [NSBezierPath bezierPath];
-        [left setLineWidth:line->dbl_left_width];
-        [right setLineWidth:line->dbl_right_width];
-        [left setLineCapStyle:NSSquareLineCapStyle];
-        [right setLineCapStyle:NSSquareLineCapStyle];
-        
-        [road setLineWidth:line->dbl_width + line->dbl_left_width*0.5 + line->dbl_right_width*0.5];
-        [road setWindingRule:NSEvenOddWindingRule];
+		CGMutablePathRef left = CGPathCreateMutable();
+		CGMutablePathRef right = CGPathCreateMutable();
+		CGMutablePathRef road = CGPathCreateMutable();
+
         NSPoint p0 = NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8);
-        [road moveToPoint:p0];
+		CGPathMoveToPoint(road, NULL, p0.x, p0.y);
         
         // For each point
         BOOL angleSet = NO;
@@ -434,12 +432,12 @@
             
             if (e->coords[c].x & 1) {
                 // Bezier curve.
-                [road curveToPoint:p3 controlPoint1:p1 controlPoint2:p2];
+				CGPathAddCurveToPoint(road, NULL, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
                 c += 2;
                 p0 = p2; angleSet = NO;
             } else {
                 p0 = p1;
-                [road lineToPoint:p1];
+				CGPathAddLineToPoint(road, NULL, p1.x, p1.y);
             }
             
         }
@@ -450,8 +448,11 @@
         // Be sure to watch for gaps in the left / right lines.
         
         currentAngle = angles;
-        [left moveToPoint:[[self class] translatePoint:NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8) distance:(line->dbl_width) angle:(*currentAngle + pi/2)]];
-        [right moveToPoint:[[self class] translatePoint:NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8) distance:(line->dbl_width) angle:(*currentAngle - pi/2)]];
+		NSPoint p1;
+		p1 = [[self class] translatePoint:NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8) distance:(line->dbl_width) angle:(*currentAngle + pi/2)]; 
+		CGPathMoveToPoint(left, NULL, p1.x, p1.y);
+		p1 = [[self class] translatePoint:NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8) distance:(line->dbl_width) angle:(*currentAngle - pi/2)];
+		CGPathMoveToPoint(right, NULL, p1.x, p1.y);
         
         for (c = 1; c < e->nCoordinates; c++) {
             angle = *currentAngle;
@@ -471,37 +472,47 @@
                 p3l = [[self class] translatePoint:p3 distance:(line->dbl_width) angle:(nextangle + pi/2)];
                 p2r = [[self class] translatePoint:p2 distance:(line->dbl_width) angle:(nextangle - pi/2)];
                 p3r = [[self class] translatePoint:p3 distance:(line->dbl_width) angle:(nextangle - pi/2)];
-                
-                [left curveToPoint:p3l controlPoint1:p1l controlPoint2:p2l];
-                [right curveToPoint:p3r controlPoint1:p1r controlPoint2:p2r];
+
+                CGPathAddCurveToPoint(left, NULL, p1l.x, p1l.y, p2l.x, p2l.y, p3l.x, p3l.y);
+				CGPathAddCurveToPoint(right, NULL, p1r.x, p1r.y, p2r.x, p2r.y, p3r.x, p3r.y);
                 c += 2;
                 
             } else {
-                if (e->coords[c].x & 4) [left moveToPoint:p1l]; else [left lineToPoint:p1l];
-                if (e->coords[c].y & 4) [right moveToPoint:p1r]; else [right lineToPoint:p1r];
+                if (e->coords[c].x & 4) {
+					CGPathMoveToPoint(left, NULL, p1l.x, p1l.y);
+				} else {
+					CGPathAddLineToPoint(left, NULL, p1l.x, p1l.y);
+				}
+				
+                if (e->coords[c].y & 4) {
+					CGPathMoveToPoint(right, NULL, p1r.x, p1r.y);
+				} else {
+					CGPathAddLineToPoint(right, NULL, p1r.x, p1r.y);
+				}
             }
         }
         free(angles);
         
-        roadCache = [NSDictionary dictionaryWithObjectsAndKeys:[self colorWithNumber:line->dbl_fill_color], @"strokeColor", road, @"path", nil];
-        [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:[self colorWithNumber:line->dbl_left_color], @"strokeColor", left, @"path", nil]];
-        [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:[self colorWithNumber:line->dbl_right_color], @"strokeColor", right, @"path", nil]];
+        roadCache = [NSDictionary dictionaryWithObjectsAndKeys:[self colorWithNumber:line->dbl_fill_color], @"strokeColor", 
+					 road, @"path", [NSNumber numberWithFloat:line->dbl_width + line->dbl_left_width*0.5 + line->dbl_right_width*0.5], @"width", nil];
+        [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:[self colorWithNumber:line->dbl_left_color], @"strokeColor", 
+							   left, @"path",[NSNumber numberWithInt:line->dbl_left_width], @"width", 
+							   [NSNumber numberWithInt:NSSquareLineCapStyle], @"capStyle", nil]];
+        [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:[self colorWithNumber:line->dbl_right_color], @"strokeColor", 
+							   right, @"path",[NSNumber numberWithInt:line->dbl_right_width], @"width", 
+							   [NSNumber numberWithInt:NSSquareLineCapStyle], @"capStyle", nil]];
     }
     if (e->linewidth != 0 || (line != NULL && line->line_width != 0)) {
-        [p setWindingRule:NSEvenOddWindingRule];
-        [p moveToPoint:NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8)];
+		CGPathMoveToPoint(p, NULL, e->coords[0].x >> 8, e->coords[0].y >> 8);
         
         for (c = 0; c < e->nCoordinates; c++) {
             if (e->coords[c].x & 1) {
                 // Bezier curve.
-                [p curveToPoint:NSMakePoint(e->coords[c+2].x >> 8, e->coords[c+2].y >> 8) 
-                  controlPoint1:NSMakePoint(e->coords[c].x >> 8, e->coords[c].y >> 8) 
-                  controlPoint2:NSMakePoint(e->coords[c+1].x >> 8, e->coords[c+1].y >> 8)];
-                
+				CGPathAddCurveToPoint(p, NULL, e->coords[c].x >> 8, e->coords[c].y >> 8, e->coords[c+1].x >> 8, e->coords[c+1].y >> 8, e->coords[c+2].x >> 8, e->coords[c+2].y >> 8);
                 c += 2;
                 
             } else {
-                [p lineToPoint:NSMakePoint(e->coords[c].x >> 8, e->coords[c].y >> 8)];
+				CGPathAddLineToPoint(p, NULL, e->coords[c].x >> 8, e->coords[c].y >> 8);
             }
             
             if (e->coords[c].y & 1 && line != NULL && line->corner_d_size != 0) {
@@ -512,6 +523,8 @@
             }
         }
         NSColor *mainColor;
+		NSMutableDictionary *mainLine = [NSMutableDictionary dictionaryWithCapacity:5];
+
         if (line != NULL && line->line_color < [colors count]) 
             mainColor = [colors objectAtIndex:line->line_color];
         else if (e->color < [colors count])
@@ -520,38 +533,38 @@
             mainColor = [NSColor blackColor];
         
         if (line != NULL && line->main_length != 0) {
-            CGFloat dashes[4];
-            int num_dashes = 2;
-            dashes[0] = line->main_length;
-            dashes[1] = line->main_gap;
+			NSMutableArray *dashes = [NSMutableArray arrayWithCapacity:4];
+			[dashes addObject:[NSNumber numberWithInt:line->main_length]];
+			[dashes addObject:[NSNumber numberWithInt:line->main_gap]];
             if (line->sec_gap > 0) {
-                num_dashes += 2;
-                dashes[2] = line->main_length;
-                dashes[3] = line->sec_gap;
+				[dashes addObject:[NSNumber numberWithInt:line->main_length]];
+				[dashes addObject:[NSNumber numberWithInt:line->sec_gap]];
             }
-            [p setLineDash:dashes count:num_dashes phase:0];
+			[mainLine setObject:dashes forKey:@"dashes"];
         }
         
         if (line != NULL) {
-            [p setLineWidth:(CGFloat)(line->line_width)];
+			[mainLine setObject:[NSNumber numberWithFloat:(CGFloat)(line->line_width)] forKey:@"width"];
             switch (line->line_style) {
                 case 0:
-                    [p setLineJoinStyle:NSBevelLineJoinStyle];
-                    [p setLineCapStyle:NSButtLineCapStyle];
+					[mainLine setObject:[NSNumber numberWithInt:NSBevelLineJoinStyle] forKey:@"joinStyle"];
+					[mainLine setObject:[NSNumber numberWithInt:NSButtLineCapStyle] forKey:@"capStyle"];
                     break;
                 case 1:
-                    [p setLineJoinStyle:NSRoundLineJoinStyle];
-                    [p setLineCapStyle:NSRoundLineCapStyle];
+					[mainLine setObject:[NSNumber numberWithInt:NSRoundLineJoinStyle] forKey:@"joinStyle"];
+					[mainLine setObject:[NSNumber numberWithInt:NSRoundLineCapStyle] forKey:@"capStyle"];
                     break;
                 case 2:
-                    [p setLineJoinStyle:NSMiterLineJoinStyle];
-                    [p setLineCapStyle:NSButtLineCapStyle];
+					[mainLine setObject:[NSNumber numberWithInt:NSMiterLineJoinStyle] forKey:@"joinStyle"];
+					[mainLine setObject:[NSNumber numberWithInt:NSButtLineCapStyle] forKey:@"capStyle"];
                     break;
             };
         } else {
-            [p setLineWidth:(CGFloat)(e->linewidth)];        
+ 			[mainLine setObject:[NSNumber numberWithFloat:(CGFloat)(e->linewidth)] forKey:@"width"];
         }
-        [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:mainColor, @"strokeColor", p, @"path", nil]];
+		[mainLine setObject:mainColor forKey:@"strokeColor"];
+		[mainLine setObject:(id)p forKey:@"path"];
+        [cachedData addObject:mainLine];
     }
     if (line != NULL && line->prim_d_size) {
         float phase = (float)line->end_length;
@@ -628,9 +641,9 @@
 }
 
 - (NSArray *)cacheSymbolElements:(struct ocad_symbol_element *)se atPoint:(NSPoint)origin withAngle:(float)angle totalDataSize:(uint16_t)data_size {
-    NSAffineTransform *at = [NSAffineTransform transform];
-    [at translateXBy:origin.x yBy:origin.y];
-    if (angle != 0.0) [at rotateByRadians:angle];
+	CGAffineTransform at = CGAffineTransformIdentity;
+	at = CGAffineTransformTranslate(at, origin.x, origin.y);
+    if (angle != 0.0) at = CGAffineTransformRotate(at, angle);
     
     uint16_t se_index;
     if (data_size == 0) data_size = se->ncoords + 2;
@@ -638,44 +651,44 @@
     
     for (se_index = 0; se_index < data_size;) {
         
-        NSBezierPath *path = [NSBezierPath bezierPath];
+		CGMutablePathRef path = CGPathCreateMutable();
         int i;
         NSColor *color = [self colorWithNumber:se->color];
 
         switch (se->symbol_type) {
             case 1: /* Line */
-                [path moveToPoint:NSMakePoint(se->points[0].x >> 8, se->points[0].y >> 8)];
+				CGPathMoveToPoint(path, &at, se->points[0].x >> 8, se->points[0].y >> 8);
                 for (i = 1; i < se->ncoords; i++) {
-                    [path lineToPoint:NSMakePoint(se->points[i].x >> 8, se->points[i].y >> 8)];
+					CGPathAddLineToPoint(path, &at, se->points[i].x >> 8, se->points[i].y >> 8);
                 }
-                [path setLineWidth:se->line_width];
-                [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:color, @"strokeColor", [at transformBezierPath:path], @"path", nil]];
+				
+                [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:color, @"strokeColor", 
+								  path, @"path", 
+								  [NSNumber numberWithInt:se->line_width], @"width",nil]];
                 break;
             case 2: /* Area */
-                [path moveToPoint:NSMakePoint(se->points[0].x >> 8, se->points[0].y >> 8)];
+				CGPathMoveToPoint(path, &at, se->points[0].x >> 8, se->points[0].y >> 8);
                 for (i = 1; i < se->ncoords; i++) {
                     if (se->points[i].x & 1) {
-                        [path curveToPoint:NSMakePoint(se->points[i + 2].x >> 8, se->points[i + 2].y >> 8) 
-                             controlPoint1:NSMakePoint(se->points[i].x >> 8, se->points[i].y >> 8) 
-                             controlPoint2:NSMakePoint(se->points[i + 1].x >> 8, se->points[i + 1].y >> 8)];
-                        
+						CGPathAddCurveToPoint(path, &at, se->points[i].x >> 8, se->points[i].y >> 8, se->points[i + 1].x >> 8, se->points[i + 1].y >> 8, se->points[i + 2].x >> 8, se->points[i + 2].y >> 8);                       
                         i += 2;
                         
                     } else {
-                        [path lineToPoint:NSMakePoint(se->points[i].x >> 8, se->points[i].y >> 8)];
+						CGPathAddLineToPoint(path, &at, se->points[i].x >> 8, se->points[i].y >> 8);
                     }
                 }
-                [path closePath];
-                [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:color, @"fillColor", [at transformBezierPath:path], @"path", nil]];
+				CGPathCloseSubpath(path);
+                [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:color, @"fillColor", path, @"path", nil]];
                 break;
             case 3:
             case 4: /* Dot. */
-                path = [NSBezierPath bezierPathWithOvalInRect:NSMakeRect(-(se->diameter / 2) + (se->points[0].x >> 8), -(se->diameter / 2) + (se->points[0].y >> 8), se->diameter, se->diameter)];
+				CGPathAddEllipseInRect(path, &at, CGRectMake(-(se->diameter / 2) + (se->points[0].x >> 8), -(se->diameter / 2) + (se->points[0].y >> 8), se->diameter, se->diameter));
                 if (se->symbol_type == 3) {
-                    [path setLineWidth:se->line_width];
-                    [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:color, @"strokeColor", [at transformBezierPath:path], @"path", nil]];
+					[cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:color, @"strokeColor", 
+									  path, @"path", 
+									  [NSNumber numberWithInt:se->line_width], @"width",nil]];
                 } else {
-                    [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:color, @"fillColor", [at transformBezierPath:path], @"path", nil]];
+                    [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:color, @"fillColor", path, @"path", nil]];
                 }
                 break;
             default:
@@ -1007,5 +1020,11 @@
     return q;
 }
 
+// CATiledLayer delegate stuff.
+- (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
+	
+	NSLog(@"draw %@", [NSThread currentThread]);
+
+}
 
 @end

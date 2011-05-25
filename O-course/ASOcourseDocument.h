@@ -8,12 +8,10 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class ASMapView;
-
 @interface ASOcourseDocument : NSPersistentDocument {
 @private
-	ASMapView *mapView;
+	NSView *mapView;
 }
-@property (nonatomic,retain) IBOutlet ASMapView *mapView;
+@property (nonatomic,retain) IBOutlet NSView *mapView;
 
 @end
