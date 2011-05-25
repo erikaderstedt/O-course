@@ -8,8 +8,6 @@
 
 #import "ASOcourseDocument.h"
 #import "ASOCADController.h"
-#import "ASTiledLayerView.h"
-
 
 @implementation ASOcourseDocument
 @synthesize mapView;
