@@ -21,6 +21,7 @@
     self = [super initWithFrame:frame];
     if (self) {
 		imageCaches = [[NSMutableArray alloc] initWithCapacity:20];
+		_zoom = 1.0;
     }
     return self;
 }
@@ -28,6 +29,7 @@
 	self = [super initWithCoder:aDecoder];
 	if (self) {
 		imageCaches = [[NSMutableArray alloc] initWithCapacity:20];
+		_zoom = 1.0;
 	}
 	return self;
 }
@@ -183,32 +185,27 @@
     // it will zoom in or out around the current center point.
     //
     // Note that mapBounds is the *frame* of the view, but [self layer] has the origin at (0,0).
-                                /*
-    NSRect v = [self    visibleRect];
-    CGPoint p = CGPointMake(NSMidX(v), NSMidY(v)), tp, newAnchorPoint, oldAnchorPoint, diff;
-    tp = [[self layer] convertPoint:p toLayer:tiledLayer];
-    
-    oldAnchorPoint = tiledLayer.anchorPoint;
-    newAnchorPoint = CGPointMake(tp.x/tiledLayer.bounds.size.width, tp.y/tiledLayer.bounds.size.height);
-    diff = CGPointMake((oldAnchorPoint.x-newAnchorPoint.x)*tiledLayer.bounds.size.width, <#CGFloat y#>)
-    */
-//    NSRect oldBounds = [self bounds];
-//    NSPoint midpoint = [self convertPoint:NSMakePoint(NSMidX(oldBounds), NSMidY(oldBounds)) toView:[self enclosingScrollView]];
+                                
+    NSRect v = [self visibleRect];
+    CGPoint midpointBefore = CGPointMake(NSMidX(v), NSMidY(v));
+	CGPoint newAnchorPoint, oldAnchorPoint;
     if (zoom > 3.0) zoom = 3.0;
     if (zoom < 0.1) zoom = 0.1;
     
-    LogR(@"visible", [self visibleRect]);
-//    LogR(@"visible", [[[self enclosingScrollView] contentView] documentVisibleRect]);
-    
     [self setFrame:NSMakeRect(0.0, 0.0, mapBounds.size.width*zoom, mapBounds.size.height*zoom)];
-    
-    LogR(@"bounds", [self layer].frame);
-    tiledLayer.position = CGPointMake(mapBounds.size.width*0.5, mapBounds.size.height*0.5);
-    
-//    NSPoint newMidpoint = [self convertPoint:midpoint fromView:[self enclosingScrollView]];
-    
-    
-//    tiledLayer.transform = CATransform3DMakeScale(zoom, zoom, 1.0);
+	v = [self visibleRect];
+	[[[self enclosingScrollView] contentView] scrollToPoint:NSMakePoint(midpointBefore.x - 0.5*v.size.width, midpointBefore.y - 0.5*v.size.height)];
+
+	oldAnchorPoint = tiledLayer.anchorPoint;
+	newAnchorPoint = CGPointMake(midpointBefore.x/mapBounds.size.width, midpointBefore.y/mapBounds.size.height);
+	
+	// Calculate the difference between the new anchor point and the old anchor point, in [self layer] coordinates.
+	// We need to change the anchor point without moving the frame, so we need to move the position back by exactly the same amount.
+	// The other option would be to change the translation in the layer transform, but that might be more work?
+	CGSize diff = CGSizeMake(oldAnchorPoint.x - newAnchorPoint.x, oldAnchorPoint.y - newAnchorPoint.y);
+	tiledLayer.anchorPoint = newAnchorPoint;
+	tiledLayer.position = CGPointMake(tiledLayer.position.x - diff.width*mapBounds.size.width, tiledLayer.position.y - diff.height*mapBounds.size.height);		  
+	tiledLayer.transform = CATransform3DMakeScale(zoom, zoom, 1.0);
     
     _zoom = zoom;
 }
@@ -248,8 +245,8 @@
     [tiledLayer retain];
     
     tiledLayer.anchorPoint = CGPointMake(0.5, 0.5);
-    tiledLayer.position = CGPointMake(CGRectGetMidX([self layer].bounds), CGRectGetMidY([self layer].bounds));
     tiledLayer.bounds = mapBounds;
+    tiledLayer.position = CGPointMake(mapBounds.size.width*0.5, mapBounds.size.height*0.5);
 
  //   [[self layer] setLayoutManager:[CAConstraintLayoutManager layoutManager]];
     [[self layer] addSublayer:tiledLayer];
