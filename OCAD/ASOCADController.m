@@ -1060,7 +1060,6 @@ void draw709 (void * info, CGContextRef context) {
 
 // CATiledLayer delegate stuff.
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
-	
     for (NSDictionary *d in cachedDrawingInformation) {
         CGPathRef path = (CGPathRef)[d objectForKey:@"path"];
         CGColorRef strokeColor = (CGColorRef)[d objectForKey:@"strokeColor"];

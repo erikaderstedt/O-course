@@ -37,7 +37,6 @@
 
 @interface ASMapView : NSView {
 	id <ASMapProvider> mapProvider;
-	double zoom, minZoom;
 	NSAffineTransform *currentTransform;
 	NSRect mapBounds;
 
@@ -50,11 +49,14 @@
 	CIFilter *lozenge;
 	CIFilter *mask;
 	NSTrackingArea *glassTrackingArea;
+    
+    CATiledLayer *tiledLayer;
+    CGFloat _zoom;
 }
 @property(nonatomic,retain) id <ASMapProvider> mapProvider;
 @property(nonatomic,retain) NSImage *cachedImage;
 @property(nonatomic,assign) BOOL showMagnifyingGlass;
-@property(nonatomic,assign) double zoom;
+@property(nonatomic,assign) CGFloat zoom;
 @property(nonatomic,retain) NSAffineTransform *currentTransform;
 
 - (void)mapLoaded;
