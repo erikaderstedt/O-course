@@ -21,15 +21,15 @@
     struct LRect currentBox;
     
     NSArray *colors;
+    CGColorRef blackColor;
     NSMutableDictionary *areaSymbolColors;
 	
 	NSOperationQueue *renderingQueue;
 }
 - (id)initWithOCADFile:(NSString *)path;
 
-- (NSImage *)patternImageForSymbolNumber:(int)symbol;
 - (void)createAreaSymbolColors;
-- (NSColor *)colorWithNumber:(int)color_number;
+- (CGColorRef)colorWithNumber:(int)color_number;
 
 - (NSArray *)createCacheFromIndex:(NSInteger)start upToButNotIncludingIndex:(NSInteger)stop;
 - (void)createCache;

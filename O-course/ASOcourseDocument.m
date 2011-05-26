@@ -8,6 +8,7 @@
 
 #import "ASOcourseDocument.h"
 #import "ASOCADController.h"
+#import "ASMapView.h"
 
 @implementation ASOcourseDocument
 @synthesize mapView;
@@ -43,7 +44,8 @@
 - (void)awakeFromNib {
     ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:@"/Users/erik/Documents/Orientering/OCAD-filer/Guddehjälm_1_04_090804.ocd"];
 //	ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:@"/Users/erik/Documents/Orientering/Stor-kungälv_1_06_090426_ocad 9.ocd"];
-	[[mapView layer] setDelegate:o];
+    mapView.mapProvider = o;
+    [mapView mapLoaded];
 }
 
 @end

@@ -44,7 +44,19 @@
 	
 	[super dealloc];
 }
-
+/*
+- (void)awakeFromNib {
+    CATiledLayer *tl = [CATiledLayer layer];
+    [[self layer] setLayoutManager:[CAConstraintLayoutManager layoutManager]];
+    [tl addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMinX relativeTo:@"superlayer" attribute:kCAConstraintMinX]];
+    [tl addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMaxX relativeTo:@"superlayer" attribute:kCAConstraintMaxX]];
+    [tl addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMinY relativeTo:@"superlayer" attribute:kCAConstraintMinY]];
+    [tl addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMaxY relativeTo:@"superlayer" attribute:kCAConstraintMaxY]];
+    tl.delegate = self;
+    tl.name = @"tiled";
+    [[self layer] addSublayer:tl];
+}
+*/
 #pragma mark -
 #pragma mark Magnifying glass
 
@@ -181,21 +193,13 @@
 
 - (void)mapLoaded {
 	 // Reset zoom.
-//	mapBounds = [mapProvider mapBounds];
-	NSSize v = [[self enclosingScrollView] contentSize], m = mapBounds.size, r, b;
-	r = NSMakeSize(m.width / v.width, m.height / v.height);
-	if (r.width < r.height)
-		b = NSMakeSize(v.width, v.width * m.height / m.width); 
-	else 
-		b = NSMakeSize(v.height * m.width / m.height, v.height);
-	minZoom = b.width / m.width;
-	self.zoom = minZoom;
-	NSLog(@"zoom: %f %f", b.width / m.width, b.height / m.height);
-/*
-	NSRect i = NSMakeRect(0.0, 0.0, b.width, b.height);
-	i = NSIntegralRect(i);
+	mapBounds = [mapProvider mapBounds];
 
- */
+    [self setFrame:mapBounds];
+    [[[self enclosingScrollView] contentView] viewFrameChanged:[NSNotification notificationWithName:NSViewFrameDidChangeNotification object:self userInfo:nil]];
+    [[self layer] setBackgroundColor:CGColorCreateGenericRGB(1.0, 1.0, 1.0, 1.0)];
+
+    [self setNeedsDisplay:YES];
 }
 
 - (void)setZoom:(double)z {
@@ -270,35 +274,22 @@
 	s = [at transformSize:s];
 	return NSMakeRect(p.x, p.y, s.width, s.height);
 }
+static CGFloat randomFloat()
+{
+	return random() / (double)LONG_MAX;
+}
 
-- (void)drawRect:(NSRect)dirtyRect {
-	NSRect dirtyMap = [self convertRectToMapCoordinates:dirtyRect];
-	NSRect f = [self frame];
-	double z = self.zoom;
-    
-	@synchronized(imageCaches) {
-		if ([imageCaches count] == 0) {
-			// Render initial unzoomed map. This is as far out as you can zoom.
-			[mapProvider beginRenderingMapWithSize:f.size fromSourceRect:mapBounds whenDone:^(NSImage *i) {
-				@synchronized(imageCaches) {
-					[imageCaches addObject:[NSArray arrayWithObjects:i, [NSValue valueWithRect:mapBounds], [NSNumber numberWithDouble:z], nil]];
-				};
-				[self setNeedsDisplayInRect:[self convertRectFromMapCoordinates:mapBounds]];
-			}];
-		} else {
-			// Start looking.
-			NSArray *original = [imageCaches objectAtIndex:0];
-			// Draw the original. Might be covered up subsequently.
-			NSImage *i = [original objectAtIndex:0];
-			double ozoom = [[original objectAtIndex:2] doubleValue];
-			[i drawInRect:f fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
-			if (ozoom != z) {
-				// Go through the other caches, draw them.
-				
-				// Order up regions that aren't available.
-			}
-		}
-	}
+// CATiledLayer delegate stuff.
+- (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
+    CGPoint p = layer.frame.origin;
+    CGAffineTransform at;
+    at = CGAffineTransformMakeScale(-1.0, -1.0);
+    at = CGAffineTransformTranslate(at, p.x,p.y);
+    CGContextSaveGState(ctx);
+    CGContextConcatCTM(ctx, at);
+    [mapProvider drawLayer:layer inContext:ctx];
+
+    CGContextRestoreGState(ctx);
 }
 
 @end

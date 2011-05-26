@@ -13,8 +13,9 @@
 /*
 - (void)beginRenderingMapWithSize:(NSSize)sz fromSourceRect:(NSRect)sourceRect whenDone:(void (^)(NSImage *i))completionBlock;
 - (NSInteger)symbolNumberAtPosition:(CGPoint)p;
+ */
+
 - (NSRect)mapBounds; // In native coordinates.
-*/
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx;
 
 @end

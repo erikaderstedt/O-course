@@ -57,6 +57,8 @@
 @property(nonatomic,assign) double zoom;
 @property(nonatomic,retain) NSAffineTransform *currentTransform;
 
+- (void)mapLoaded;
+
 - (CALayer *)magnifyingGlass;
 - (IBAction)toggleMagnifyingGlass:(id)sender;
 

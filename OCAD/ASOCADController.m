@@ -29,39 +29,46 @@
 	//		symbol - NSNumber (NSInteger)
 	//		angle - NSNumber (float)
     if ((self = [super init])) {
+        blackColor = CGColorCreateGenericRGB(0.0,0.0,0.0,1.0);
+        
         colors = [NSArray arrayWithObjects:
-                  /* 0 Svart */           [NSColor blackColor],
-                  /* 1 Berg i dagen */    [NSColor colorWithCalibratedRed:0.698 green:0.702 blue:0.698 alpha:1.000],
-                  /* 2 Mindre vatten */   [NSColor colorWithCalibratedRed:0.000 green:0.576 blue:0.773 alpha:1.000],
-                  /* 3 Vatten */          [NSColor colorWithCalibratedRed:0.537 green:0.745 blue:0.859 alpha:1.000], 
-                  /* 4 Höjdkurva */       [NSColor colorWithCalibratedRed:0.745 green:0.427 blue:0.180 alpha:1.000],
-                  /* 5 Asfalt */          [NSColor colorWithCalibratedRed:0.867 green:0.675 blue:0.486 alpha:1.000],
-                  /* 6 Mkt svårlöpt */    [NSColor colorWithCalibratedRed:0.212 green:0.663 blue:0.345 alpha:1.000], 
-                  /* 7 Svårlöpt */        [NSColor colorWithCalibratedRed:0.545 green:0.769 blue:0.557 alpha:1.000],
-                  /* 8 Löphindrande */    [NSColor colorWithCalibratedRed:0.773 green:0.875 blue:0.745 alpha:1.000],
-                  /* 9 Odlad mark */      [NSColor colorWithCalibratedRed:0.953 green:0.722 blue:0.357 alpha:1.000],
-                  /* 10 Öppet sandomr. */ [NSColor colorWithCalibratedRed:0.976 green:0.847 blue:0.635 alpha:1.000],
-                  /* 11 Påtryck */        [NSColor colorWithCalibratedRed:0.835 green:0.102 blue:0.490 alpha:1.000],
-                  /* 12 Tomtmark */       [NSColor colorWithCalibratedRed:0.631 green:0.616 blue:0.255 alpha:1.000],
-                  /* 13 Vitt */           [NSColor whiteColor],
-                  /* 14 Vitt */           [NSColor redColor],
-                  /* 15 Brown 50 % */     [NSColor colorWithCalibratedRed:0.867 green:0.675 blue:0.486 alpha:1.000],
-                  /* 16 Reserved % */     [NSColor clearColor],
-                  /* 17 Reserved % */     [NSColor clearColor],
-                  /* 18 Reserved % */     [NSColor clearColor],
-                  /* 19 Reserved % */     [NSColor clearColor],
-                  /* 20 Reserved % */     [NSColor clearColor],
-                  /* 21 Reserved % */     [NSColor clearColor],
-                  /* 22 Reserved % */     [NSColor clearColor],
-                  /* 23 Reserved % */     [NSColor clearColor],
-                  /* 24 Reserved % */     [NSColor clearColor],
-                  /* 25 Roads  */		  [NSColor blackColor],
-                  /* 26 Reserved % */     [NSColor clearColor],
-                  /* 27 Reserved % */     [NSColor clearColor],
-                  /* 28 Reserved % */     [NSColor clearColor],
-                  /* 29 Water? */     [NSColor colorWithCalibratedRed:0.537 green:0.745 blue:0.859 alpha:1.000],
+                  /* 0 Svart */           (id)blackColor,
+                  /* 1 Berg i dagen */    CGColorCreateGenericRGB(0.698,0.702,0.698,1.000),
+                  /* 2 Mindre vatten */   CGColorCreateGenericRGB(0.000,0.576,0.773,1.000),
+                  /* 3 Vatten */          CGColorCreateGenericRGB(0.537,0.745,0.859,1.000), 
+                  /* 4 Höjdkurva */       CGColorCreateGenericRGB(0.745,0.427,0.180,1.000),
+                  /* 5 Asfalt */          CGColorCreateGenericRGB(0.867,0.675,0.486,1.000),
+                  /* 6 Mkt svårlöpt */    CGColorCreateGenericRGB(0.212,0.663,0.345,1.000), 
+                  /* 7 Svårlöpt */        CGColorCreateGenericRGB(0.545,0.769,0.557,1.000),
+                  /* 8 Löphindrande */    CGColorCreateGenericRGB(0.773,0.875,0.745,1.000),
+                  /* 9 Odlad mark */      CGColorCreateGenericRGB(0.953,0.722,0.357,1.000),
+                  /* 10 Öppet sandomr. */ CGColorCreateGenericRGB(0.976,0.847,0.635,1.000),
+                  /* 11 Påtryck */        CGColorCreateGenericRGB(0.835,0.102,0.490,1.000),
+                  /* 12 Tomtmark */       CGColorCreateGenericRGB(0.631,0.616,0.255,1.000),
+                  /* 13 Vitt */           CGColorCreateGenericRGB(1.000,1.000,1.000,1.000),
+                  /* 14 Vitt */           CGColorCreateGenericRGB(1.000,0.000,0.000,1.000),
+                  /* 15 Brown 50 % */     CGColorCreateGenericRGB(0.867,0.675,0.486,1.000),
+                  /* 16 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+                  /* 17 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+                  /* 18 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+                  /* 19 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+                  /* 20 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+                  /* 21 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+                  /* 22 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+                  /* 23 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+                  /* 24 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+                  /* 25 Roads  */		  (id)blackColor,
+                  /* 26 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+                  /* 27 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+                  /* 28 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+                  /* 29 Water? */         CGColorCreateGenericRGB(0.537,0.745,0.859,1.000),
                   nil];
+        CGColorRetain(blackColor);
+        CGColorRetain(blackColor);
         [colors retain];
+        for (id c in colors) {
+            CGColorRelease((CGColorRef)c);
+        }
 
         if (ocdf != NULL) {
             free(ocdf);
@@ -124,17 +131,17 @@
 }
 
 - (NSRect)mapBounds {
-	NSBezierPath *thePath;
-	NSRect pathBounds;
-	NSRect wholeMap = NSZeroRect;
+    CGPathRef thePath;
+	CGRect pathBounds;
+	CGRect wholeMap = CGRectMake(0.0,0.0,0.0,0.0);
 	
 	if ([cachedDrawingInformation count] == 0) return NSZeroRect;
 	
 	for (NSDictionary *cachedData in cachedDrawingInformation) {
-		thePath = [cachedData objectForKey:@"path"];
-		if (thePath != nil) {
-			pathBounds = [thePath bounds];
-			wholeMap = NSUnionRect(wholeMap, pathBounds);
+		thePath = (CGPathRef)[cachedData objectForKey:@"path"];
+		if (thePath != NULL) {
+            pathBounds = CGPathGetPathBoundingBox(thePath);
+			wholeMap = CGRectUnion(wholeMap, pathBounds);
 		}
 	}
 	return wholeMap;
@@ -378,12 +385,12 @@
     }
 	CGPathCloseSubpath(p);
     
-    NSColor *color = [self colorWithNumber:rect->colors[0]];
+    CGColorRef color = [self colorWithNumber:rect->colors[0]];
     
     if (rect->line_width != 0) {
-        d = [NSDictionary dictionaryWithObjectsAndKeys:color,@"strokeColor",p, @"path",[NSNumber numberWithInt:rect->line_width], @"width", nil];
+        d = [NSDictionary dictionaryWithObjectsAndKeys:(id)color,@"strokeColor",p, @"path",[NSNumber numberWithInt:rect->line_width], @"width", nil];
     } else {
-		d = [NSDictionary dictionaryWithObjectsAndKeys:color, @"fillColor", p, @"path", nil];
+		d = [NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", p, @"path", nil];
 	}
 	CGPathRelease(p);
 	
@@ -493,12 +500,12 @@
         }
         free(angles);
         
-        roadCache = [NSDictionary dictionaryWithObjectsAndKeys:[self colorWithNumber:line->dbl_fill_color], @"strokeColor", 
+        roadCache = [NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_fill_color], @"strokeColor", 
 					 road, @"path", [NSNumber numberWithFloat:line->dbl_width + line->dbl_left_width*0.5 + line->dbl_right_width*0.5], @"width", nil];
-        [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:[self colorWithNumber:line->dbl_left_color], @"strokeColor", 
+        [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_left_color], @"strokeColor", 
 							   left, @"path",[NSNumber numberWithInt:line->dbl_left_width], @"width", 
 							   [NSNumber numberWithInt:NSSquareLineCapStyle], @"capStyle", nil]];
-        [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:[self colorWithNumber:line->dbl_right_color], @"strokeColor", 
+        [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_right_color], @"strokeColor", 
 							   right, @"path",[NSNumber numberWithInt:line->dbl_right_width], @"width", 
 							   [NSNumber numberWithInt:NSSquareLineCapStyle], @"capStyle", nil]];
     }
@@ -653,7 +660,7 @@
         
 		CGMutablePathRef path = CGPathCreateMutable();
         int i;
-        NSColor *color = [self colorWithNumber:se->color];
+        CGColorRef color = [self colorWithNumber:se->color];
 
         switch (se->symbol_type) {
             case 1: /* Line */
@@ -662,7 +669,7 @@
 					CGPathAddLineToPoint(path, &at, se->points[i].x >> 8, se->points[i].y >> 8);
                 }
 				
-                [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:color, @"strokeColor", 
+                [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"strokeColor", 
 								  path, @"path", 
 								  [NSNumber numberWithInt:se->line_width], @"width",nil]];
                 break;
@@ -678,17 +685,17 @@
                     }
                 }
 				CGPathCloseSubpath(path);
-                [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:color, @"fillColor", path, @"path", nil]];
+                [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", path, @"path", nil]];
                 break;
             case 3:
             case 4: /* Dot. */
 				CGPathAddEllipseInRect(path, &at, CGRectMake(-(se->diameter / 2) + (se->points[0].x >> 8), -(se->diameter / 2) + (se->points[0].y >> 8), se->diameter, se->diameter));
                 if (se->symbol_type == 3) {
-					[cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:color, @"strokeColor", 
+					[cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"strokeColor", 
 									  path, @"path", 
 									  [NSNumber numberWithInt:se->line_width], @"width",nil]];
                 } else {
-                    [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:color, @"fillColor", path, @"path", nil]];
+                    [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", path, @"path", nil]];
                 }
                 break;
             default:
@@ -703,152 +710,113 @@
     return cache;
 }
 
-- (NSImage *)patternImageForSymbolNumber:(int)symbol {
-    NSImage *i = nil;
-    NSBezierPath *p;
-    
-    switch (symbol) {
-        case 815:
-            NSLog(@"oops!");
-            break;
-        case 211: // Open sandy ground
-            i = [[NSImage alloc] initWithSize:NSMakeSize(45.0, 45.0)];
-            [i lockFocus];
-            [[colors objectAtIndex:10] set];
-            [NSBezierPath fillRect:NSMakeRect(0.0, 0.0, 45.0, 45.0)];
-            p = [NSBezierPath bezierPathWithOvalInRect:NSMakeRect(0, 0, 18.0, 18.0)];
-            [[colors objectAtIndex:0] set];
-            [p fill];
-            break;
-        case 309: // Uncrossable marsh
-            i = [[NSImage alloc] initWithSize:NSMakeSize(1.0, 50.0)];
-            [i lockFocus];
-            [[NSColor clearColor] set];
-            [NSBezierPath fillRect:NSMakeRect(0.0, 0.0, 1.0, 25.0)];
-            [[colors objectAtIndex:2] set];
-            [NSBezierPath fillRect:NSMakeRect(0.0, 25.0, 1.0, 25.0)];
-            break;
-        case 310: // Marsh
-            i = [[NSImage alloc] initWithSize:NSMakeSize(1.0, 30.0)];
-            [i lockFocus];
-            [[NSColor clearColor] set];
-            [NSBezierPath fillRect:NSMakeRect(0.0, 0.0, 1.0, 20.0)];
-            [[colors objectAtIndex:2] set];
-            [NSBezierPath fillRect:NSMakeRect(0.0, 20.0, 1.0, 10.0)];
-            break;
-        case 311: // Indistinct marsh
-            i = [[NSImage alloc] initWithSize:NSMakeSize(115.0, 60.0)];
-            [i lockFocus];
-            [[NSColor clearColor] set];
-            [NSBezierPath fillRect:NSMakeRect(0.0, 0.0, 115.0, 60.0)];
-            [[colors objectAtIndex:2] set];
-            [NSBezierPath fillRect:NSMakeRect(12.0, 20.0, 90.0, 10.0)];
-            [NSBezierPath fillRect:NSMakeRect(0.0, 50.0, 45.0, 10.0)];
-            [NSBezierPath fillRect:NSMakeRect(70.0, 50.0, 45.0, 10.0)];
-            break;
-        case 402: // Open land with scattered trees
-            i = [[NSImage alloc] initWithSize:NSMakeSize(71.0, 71.0)];
-            [i lockFocus];
-            [[colors objectAtIndex:13] set];
-            [NSBezierPath fillRect:NSMakeRect(0.0, 0.0, 71.0, 71.0)];
-            [[colors objectAtIndex:9] set];
-            p = [NSBezierPath bezierPathWithOvalInRect:NSMakeRect(-20.0, -20.0, 40.0, 40.0)];
-            [p fill];
-            p = [NSBezierPath bezierPathWithOvalInRect:NSMakeRect(51.0, -20.0, 40.0, 40.0)];
-            [p fill];
-            p = [NSBezierPath bezierPathWithOvalInRect:NSMakeRect(-20.0, 51.0, 40.0, 40.0)];
-            [p fill];
-            p = [NSBezierPath bezierPathWithOvalInRect:NSMakeRect(51.0, 51.0, 40.0, 40.0)];
-            [p fill];
-            p = [NSBezierPath bezierPathWithOvalInRect:NSMakeRect(15.0, 15.0, 40.0, 40.0)];
-            [p fill];
-            break;
-        case 404: // Rough open land with scattered trees
-            i = [[NSImage alloc] initWithSize:NSMakeSize(99.0, 99.0)];
-            [i lockFocus];
-            [[colors objectAtIndex:9] set];
-            [NSBezierPath fillRect:NSMakeRect(0.0, 0.0, 99.0, 99.0)];
-            [[colors objectAtIndex:13] set];
-            p = [NSBezierPath bezierPathWithOvalInRect:NSMakeRect(-28.0, -28.0, 55.0, 55.0)];
-            [p fill];
-            p = [NSBezierPath bezierPathWithOvalInRect:NSMakeRect(71.0, -28.0, 55.0, 55.0)];
-            [p fill];
-            p = [NSBezierPath bezierPathWithOvalInRect:NSMakeRect(-28.0, 71.0, 55.0, 55.0)];
-            [p fill];
-            p = [NSBezierPath bezierPathWithOvalInRect:NSMakeRect(71.0, 71.0, 55.0, 55.0)];
-            [p fill];
-            p = [NSBezierPath bezierPathWithOvalInRect:NSMakeRect(22.0, 22.0, 55.0, 55.0)];
-            [p fill];
-            
-            break;
-        case 407: // Undergrowth: slow running
-            i = [[NSImage alloc] initWithSize:NSMakeSize(84.0, 1.0)];
-            [i lockFocus];
-            [[NSColor clearColor] set];
-            [NSBezierPath fillRect:NSMakeRect(12.0, 0.0, 72.0, 1.0)];
-            [[NSColor colorWithCalibratedRed:0.357 green:0.725 blue:0.467 alpha:1.000] set];
-            [NSBezierPath fillRect:NSMakeRect(0.0, 0.0, 12.0, 1.0)];            
-            break;
-        case 409: // Undergrowth: difficult to run
-            i = [[NSImage alloc] initWithSize:NSMakeSize(42.0, 1.0)];
-            [i lockFocus];
-            [[NSColor clearColor] set];
-            [NSBezierPath fillRect:NSMakeRect(12.0, 0.0, 30.0, 1.0)];
-            [[NSColor colorWithCalibratedRed:0.357 green:0.725 blue:0.467 alpha:1.000] set];
-            [NSBezierPath fillRect:NSMakeRect(0.0, 0.0, 12.0, 1.0)];            
-            break;        
-        case 412: // Orchard
-            i = [[NSImage alloc] initWithSize:NSMakeSize(80.0, 80.0)];
-            [i lockFocus];
-            [[colors objectAtIndex:9] set];
-            [NSBezierPath fillRect:NSMakeRect(0.0, 0.0, 80.0, 80.0)];
-            [[colors objectAtIndex:6] set];
-            p = [NSBezierPath bezierPathWithOvalInRect:NSMakeRect(18.0, 18.0, 45.0, 45.0)];
-            [p fill];
-            break;
-        case 413: // Vineyard
-            i = [[NSImage alloc] initWithSize:NSMakeSize(170.0, 190.0)];
-            [i lockFocus];
-            [[colors objectAtIndex:9] set];
-            [NSBezierPath fillRect:NSMakeRect(0.0, 0.0, 170.0, 190.0)];
-            [[colors objectAtIndex:6] set];
-            [NSBezierPath fillRect:NSMakeRect(0.0, 0.0, 20.0, 65.0)];
-            [NSBezierPath fillRect:NSMakeRect(0.0, 125.0, 20.0, 65.0)];
-            [NSBezierPath fillRect:NSMakeRect(85.0, 30.0, 20.0, 130.0)];
-            break;
-        case 415: // Cultivated land
-            i = [[NSImage alloc] initWithSize:NSMakeSize(80.0, 80.0)];
-            [i lockFocus];
-            [[colors objectAtIndex:9] set];
-            [NSBezierPath fillRect:NSMakeRect(0.0, 0.0, 80.0, 80.0)];
-            [[colors objectAtIndex:0] set];
-            p = [NSBezierPath bezierPathWithOvalInRect:NSMakeRect(30.0, 30.0, 20.0, 20.0)];
-            [p fill];
-            
-            break;
-        case 528: // Permanently out of bounds
-            i = [[NSImage alloc] initWithSize:NSMakeSize(75.0, 1.0)];
-            [i lockFocus];
-            [[NSColor clearColor] set];
-            [NSBezierPath fillRect:NSMakeRect(0.0, 0.0, 75.0, 1.0)];
-            [[colors objectAtIndex:0] set];
-            [NSBezierPath fillRect:NSMakeRect(0.0, 0.0, 25.0, 1.0)];            
-            break;    
-        case 709: // Out-of-bounds area
-            i = [[NSImage alloc] initWithSize:NSMakeSize(60.0, 1.0)];
-            [i lockFocus];
-            [[NSColor clearColor] set];
-            [NSBezierPath fillRect:NSMakeRect(0.0, 0.0, 60.0, 1.0)];
-            [[colors objectAtIndex:11] set];
-            [NSBezierPath fillRect:NSMakeRect(0.0, 0.0, 25.0, 1.0)];            
-            break;    
-        default:
-            NSLog(@"No definition for symbol %d", symbol);
-            break;
-    }
-    
-    [i unlockFocus];
-    return [i autorelease];
+// Open sandy ground. 45x45
+void draw211 (void * info,CGContextRef context) {
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 10));
+    CGContextFillRect(context, CGRectMake(0.0, 0.0, 45.0, 45.0));
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 0));
+    CGContextBeginPath(context);
+    CGContextAddEllipseInRect(context, CGRectMake(0.0, 0.0, 18.0, 18.0));
+    CGContextFillPath(context);
+}
+
+// Uncrossable marsh 1x50
+void draw309 (void * info,CGContextRef context) {
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 2));
+    CGContextFillRect(context, CGRectMake(0.0, 25.0, 1.0, 25.0));
+}
+
+// Marsh 1x30
+void draw310 (void * info,CGContextRef context) {
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 2));
+    CGContextFillRect(context, CGRectMake(0.0, 20.0, 1.0, 10.0));
+}
+
+// Indistinct marsh 115x60
+void draw311 (void * info,CGContextRef context) {
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 2));
+    CGContextFillRect(context, CGRectMake(12.0, 20.0, 90.0, 10.0));
+    CGContextFillRect(context, CGRectMake(0.0, 50.0, 45.0, 10.0));
+    CGContextFillRect(context, CGRectMake(70.0, 50.0, 45.0, 10.0));
+}
+
+// Open land with scattered trees 71x71
+void draw402 (void * info,CGContextRef context) {
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 13));
+    CGContextFillRect(context, CGRectMake(0.0,0.0,71.0,71.0));
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 9));
+    CGContextBeginPath(context);
+    CGContextAddEllipseInRect(context, CGRectMake(-20.0, -20.0, 40.0, 40.0));
+    CGContextAddEllipseInRect(context, CGRectMake(51.0, -20.0, 40.0, 40.0));
+    CGContextAddEllipseInRect(context, CGRectMake(-20.0, 51.0, 40.0, 40.0));
+    CGContextAddEllipseInRect(context, CGRectMake(51.0, 51.0, 40.0, 40.0));
+    CGContextAddEllipseInRect(context, CGRectMake(15.0, 15.0, 40.0, 40.0));
+    CGContextFillPath(context);
+}
+
+// Rough open land with scattered trees 99x99
+void draw404 (void * info,CGContextRef context) {
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 9));
+    CGContextFillRect(context, CGRectMake(0.0,0.0,99.0,99.0));
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 13));
+    CGContextBeginPath(context);
+    CGContextAddEllipseInRect(context, CGRectMake(-28.0, -28.0, 55.0, 55.0));
+    CGContextAddEllipseInRect(context, CGRectMake(71.0, -28.0, 55.0, 55.0));
+    CGContextAddEllipseInRect(context, CGRectMake(-28.0, 71.0, 55.0, 55.0));
+    CGContextAddEllipseInRect(context, CGRectMake(71.0, 71.0, 55.0, 55.0));
+    CGContextAddEllipseInRect(context, CGRectMake(22.0, 22.0, 55.0, 55.0));
+    CGContextFillPath(context);
+}
+
+// Undergrowth: slow running 84x1
+// Undergrowth: difficult to run 42x1
+void draw407or409 (void * info,CGContextRef context) {
+    CGFloat color[4] = {0.357,0.725,0.467,1.000};
+    CGContextSetFillColor(context, color);
+    CGContextFillRect(context, CGRectMake(0.0,0.0,12.0,1.0));
+}
+
+// Orchard 80x80
+void draw412 (void * info,CGContextRef context) {
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 9));
+    CGContextFillRect(context, CGRectMake(0.0,0.0,80.0,80.0));
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 6));
+    CGContextBeginPath(context);
+    CGContextAddEllipseInRect(context, CGRectMake(18.0, 18.0, 45.0, 45.0));
+    CGContextFillPath(context);
+                              
+}
+
+// Vineyard 170x190
+void draw413 (void * info,CGContextRef context) {
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 9));
+    CGContextFillRect(context, CGRectMake(0.0,0.0,170.0, 190.0));
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 6));
+    CGContextFillRect(context, CGRectMake(0.0, 0.0, 20.0, 65.0));
+    CGContextFillRect(context, CGRectMake(0.0, 125.0, 20.0, 65.0));
+    CGContextFillRect(context, CGRectMake(85.0, 30.0, 20.0, 130.0));
+}
+
+// Cultivated land 80x80
+void draw415 (void * info, CGContextRef context) {
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 9));
+    CGContextFillRect(context, CGRectMake(0.0,0.0,80.0,80.0));
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 0));
+    CGContextBeginPath(context);
+    CGContextAddEllipseInRect(context, CGRectMake(30.0, 30.0, 20.0, 20.0));
+    CGContextFillPath(context);
+}
+
+// Permanently out of bounds 75x1
+void draw528 (void * info, CGContextRef context) {
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 0));
+    CGContextFillRect(context, CGRectMake(0.0,0.0,25.0,1.0));
+}
+
+// Out-of-bounds area 60x1
+void draw709 (void * info, CGContextRef context) {
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 11));
+    CGContextFillRect(context, CGRectMake(0.0,0.0,25.0,1.0));
 }
 
 - (void)createAreaSymbolColors {
@@ -863,17 +831,85 @@
         a = (struct ocad_area_symbol *)ocdf->symbols[i];
         if ((enum ocad_object_type)a->otp != ocad_area_object) continue;
         key = [NSNumber numberWithInt:a->symnum];
-        NSColor *c;
-        c = [NSColor clearColor];
+        CGColorRef c;
         
         if (a->hatch_mode == 0 && a->structure_mode == 0) {
             if (a->colors[0] >= [colors count]) {
-                NSLog(@"color: %d", a->colors[0]);
-                c = [NSColor blackColor];
+                c = blackColor;
             } else {
-                c = [colors objectAtIndex:a->colors[0]];
+                c = (CGColorRef)[colors objectAtIndex:a->colors[0]];
             }
+            CGColorRetain(c);
         } else {
+            CGPatternCallbacks callbacks;
+            callbacks.releaseInfo = NULL;
+            callbacks.version = 0;
+            CGColorSpaceRef cspace = CGColorSpaceCreatePattern(NULL);
+            CGPatternRef pattern;
+            switch (a->symnum / 1000) {
+                case 211:
+                    callbacks.drawPattern = draw211;
+                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 45.0, 45.0), CGAffineTransformIdentity, 45.0, 45.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    break;
+                case 309:
+                    callbacks.drawPattern = draw309;
+                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 1.0, 50.0), CGAffineTransformIdentity, 1.0,50.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    break;
+                case 310:
+                    callbacks.drawPattern = draw310;
+                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 1.0, 30.0), CGAffineTransformIdentity, 1.0,30.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    break;
+                case 311:
+                    callbacks.drawPattern = draw311;
+                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 115.0, 60.0), CGAffineTransformIdentity, 115.0, 60.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    break;
+                case 402:
+                    callbacks.drawPattern = draw402;
+                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 71.0, 71.0), CGAffineTransformIdentity, 71.0, 71.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    break;
+                case 404:
+                    callbacks.drawPattern = draw404;
+                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 99.0, 99.0), CGAffineTransformIdentity, 99.0, 99.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    break;
+                case 407:
+                    callbacks.drawPattern = draw407or409;
+                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 84.0, 1.0), CGAffineTransformIdentity, 84.0, 1.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    break;
+                case 409:
+                    callbacks.drawPattern = draw407or409;
+                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 42.0, 1.0), CGAffineTransformIdentity, 42.0, 1.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    break;
+                case 412:
+                    callbacks.drawPattern = draw412;
+                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 80.0, 80.0), CGAffineTransformIdentity, 80.0, 80.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    break;
+                case 413:
+                    callbacks.drawPattern = draw413;
+                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 170.0, 190.0), CGAffineTransformIdentity, 170.0, 190.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    break;
+                case 415:
+                    callbacks.drawPattern = draw415;
+                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 80.0, 80.0), CGAffineTransformIdentity, 80.0, 80.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    break;
+                case 528:
+                    callbacks.drawPattern = draw528;
+                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 75.0, 1.0), CGAffineTransformIdentity, 75.0, 1.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    break;
+                case 709:
+                    callbacks.drawPattern = draw709;
+                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 60.0, 1.0), CGAffineTransformIdentity, 60.0, 1.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    break;
+                    
+                default:
+                    callbacks.drawPattern = draw407or409;
+                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 60.0, 1.0), CGAffineTransformIdentity, 60.0, 1.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    break;
+                    break;
+            }
+            CGFloat testComps[4] = {0.0,0.0,0.0,1.0};
+            c = CGColorCreateWithPattern(cspace, pattern, testComps);
+            CGColorSpaceRelease(cspace);
+            /*
             NSImage *image = [self patternImageForSymbolNumber: a->symnum / 1000];
             if (image != nil) {
                 c = [NSColor colorWithPatternImage:image];
@@ -959,18 +995,20 @@
                     c = [NSColor colorWithPatternImage:[pattern autorelease]];
                 }
             }
+             */
             
         }
         
-        [areaSymbolColors setObject:c forKey:key];
+        [areaSymbolColors setObject:(id)c forKey:key];
+        CGColorRelease(c);
     }
 }
 
-- (NSColor *)colorWithNumber:(int)color_number {
+- (CGColorRef)colorWithNumber:(int)color_number {
     if (color_number < [colors count]) {
-        return [colors objectAtIndex:color_number];
+        return (CGColorRef)[colors objectAtIndex:color_number];
     } else {
-        return [NSColor blackColor];
+        return blackColor;
     }
 }
 
@@ -1023,8 +1061,29 @@
 // CATiledLayer delegate stuff.
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
 	
-	NSLog(@"draw %@", [NSThread currentThread]);
-
+    for (NSDictionary *d in cachedDrawingInformation) {
+        CGPathRef path = (CGPathRef)[d objectForKey:@"path"];
+        CGColorRef strokeColor = (CGColorRef)[d objectForKey:@"strokeColor"];
+        CGColorRef fillColor = (CGColorRef)[d objectForKey:@"fillColor"];
+        NSNumber *capStyle = [d objectForKey:@"capStyle"];
+        NSNumber *joinStyle = [d objectForKey:@"joinStyle"];
+        NSNumber *width = [d objectForKey:@"width"];
+        
+        CGContextBeginPath(ctx);
+        CGContextAddPath(ctx,path);
+        if (fillColor != NULL) {
+            CGContextSetFillColorWithColor(ctx, fillColor);
+            CGContextEOFillPath(ctx);
+        }
+        if (strokeColor != NULL) {
+            CGContextSetStrokeColorWithColor(ctx, strokeColor);
+            CGContextSetLineWidth(ctx, [width doubleValue]);
+            if (joinStyle != NULL) CGContextSetLineJoin(ctx, (enum CGLineJoin)[joinStyle integerValue]);
+            if (capStyle != NULL) CGContextSetLineCap(ctx, (enum CGLineCap)[capStyle integerValue]);
+            CGContextStrokePath(ctx);
+        }
+    }
+     
 }
 
 @end
