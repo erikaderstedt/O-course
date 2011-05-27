@@ -201,21 +201,29 @@
     // it will zoom in or out around the current center point.
     //
     // Note that mapBounds is the *frame* of the view, but [self layer] has the origin at (0,0).
+	// 
+	// Both tiledLayer and the view have the same effective bounds. The former by using a transform,
+	// and the latter by simply scaling the frame according to the zoom. We need to do it this way
+	// to automatically get the scroll view to update according to 
                                 
 	NSClipView *cv = [[self enclosingScrollView] contentView];
     NSRect v = [cv documentVisibleRect ], f;
     CGPoint midpointBefore, midpointAfter, tentativeNewOrigin, pointInMapCoordinates;
 	CGFloat oldWidth = v.size.width;
 	
-    midpointBefore = CGPointMake(NSMidX(v), NSMidY(v));
-	pointInMapCoordinates = [tiledLayer convertPoint:midpointBefore fromLayer:[self layer]];
 	
     if (zoom > 3.0) zoom = 3.0;
     if (zoom < minZoom) zoom = minZoom;
     
 	[CATransaction begin];
 	[CATransaction setDisableActions:YES];
+    
+	midpointBefore = CGPointMake(NSMidX(v), NSMidY(v));
+	pointInMapCoordinates = [tiledLayer convertPoint:midpointBefore fromLayer:[self layer]];
+
 	[self setFrame:NSMakeRect(0.0, 0.0, mapBounds.size.width*zoom, mapBounds.size.height*zoom)];
+	f = [self frame];
+	
 	tiledLayer.transform = CATransform3DMakeScale(zoom, zoom, 1.0);
 	midpointAfter = [tiledLayer convertPoint:pointInMapCoordinates toLayer:[self layer]];
 	
@@ -224,10 +232,10 @@
 	if (tentativeNewOrigin.y < 0.0) tentativeNewOrigin.y = 0.0;
 	if (tentativeNewOrigin.x + v.size.width > NSMaxX(f)) tentativeNewOrigin.x = NSMaxX(f) - v.size.width;
 	if (tentativeNewOrigin.y + v.size.height > NSMaxY(f)) tentativeNewOrigin.y = NSMaxY(f) - v.size.height;
-	
 	[cv scrollToPoint:tentativeNewOrigin];
 	[CATransaction commit];
 
+	[tiledLayer performSelector:@selector(setNeedsDisplay) withObject:nil afterDelay:1.0];
     _zoom = zoom;
 }
 
@@ -241,22 +249,10 @@
 }
 
 - (void)mapLoaded {
-	 // Reset zoom.
 	mapBounds = [mapProvider mapBounds];
-
-    // 1. Scale map bounds according to the zoom.
-    // 2. Assign that as the view frame.
-    // 3. Set the tiled layer bounds to the map bounds.
-    // 4. Assign 
-//    [self setFrame:mapBounds]; // Adjust for zoom.
-//    [[[self enclosingScrollView] contentView] viewFrameChanged:[NSNotification notificationWithName:NSViewFrameDidChangeNotification object:self userInfo:nil]];
     
     tiledLayer = [CATiledLayer layer];
-//    [tiledLayer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMinX relativeTo:@"superlayer" attribute:kCAConstraintMinX]];
- //   [tiledLayer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMaxX relativeTo:@"superlayer" attribute:kCAConstraintMaxX]];
- //   [tiledLayer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMinY relativeTo:@"superlayer" attribute:kCAConstraintMinY]];
- //   [tiledLayer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMaxY relativeTo:@"superlayer" attribute:kCAConstraintMaxY]];
-    tiledLayer.delegate = self;
+    tiledLayer.delegate = mapProvider;
     tiledLayer.name = @"tiled";
     tiledLayer.needsDisplayOnBoundsChange = YES;
     tiledLayer.backgroundColor = CGColorCreateGenericRGB(1.0, 1.0, 1.0, 1.0);
@@ -268,18 +264,13 @@
     tiledLayer.anchorPoint = CGPointMake(0.0, 0.0);
     tiledLayer.bounds = mapBounds;
 	tiledLayer.position = CGPointMake(0.0, 0.0);
-//    tiledLayer.position = CGPointMake(mapBounds.size.width*0.5, mapBounds.size.height*0.5);
-
- //   [[self layer] setLayoutManager:[CAConstraintLayoutManager layoutManager]];
     [[self layer] addSublayer:tiledLayer];
- //  [[self layer] layoutSublayers];
     
 	// Calculate the initial zoom as the minimum zoom.
 	minZoom = [self calculateMinimumZoomForFrame:[self frame]];
     [self setZoom:minZoom*3.0];
 
-    
-    [self setNeedsDisplay:YES];
+	[self setNeedsDisplay:YES];
 }
 /*
 - (void)setZoom:(double)z {
@@ -389,7 +380,7 @@ static CGFloat randomFloat()
 // CATiledLayer delegate stuff.
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
     if (layer == tiledLayer) {
-        //       NSLog(@"Thread: %d", [NSThread isMainThread]);
+         //      NSLog(@"Thread: %d", [NSThread isMainThread]);
 //        CGPoint p = layer.frame.origin;
 //        CGAffineTransform at;
 //        CGRect r = CGContextGetClipBoundingBox(ctx);
