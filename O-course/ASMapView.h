@@ -52,6 +52,7 @@
     
     CATiledLayer *tiledLayer;
     CGFloat _zoom;
+	CGFloat minZoom;
 }
 @property(nonatomic,retain) id <ASMapProvider> mapProvider;
 @property(nonatomic,retain) NSImage *cachedImage;
@@ -60,6 +61,7 @@
 @property(nonatomic,retain) NSAffineTransform *currentTransform;
 
 - (void)mapLoaded;
+- (CGFloat)calculateMinimumZoomForFrame:(NSRect)frame;
 
 - (CALayer *)magnifyingGlass;
 - (IBAction)toggleMagnifyingGlass:(id)sender;

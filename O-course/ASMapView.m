@@ -46,6 +46,11 @@
 	[super dealloc];
 }
 
+- (void)awakeFromNib {
+	[self setPostsFrameChangedNotifications:YES];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameChanged:) name:NSViewFrameDidChangeNotification object:[self enclosingScrollView]];
+}
+
 #pragma mark -
 #pragma mark Magnifying glass
 
@@ -180,33 +185,49 @@
 	return YES;
 }
 
+- (CGFloat)calculateMinimumZoomForFrame:(NSRect)frame {
+	return fmax(frame.size.height/mapBounds.size.height, frame.size.width/mapBounds.size.width);
+}
+
+- (void)frameChanged:(NSNotification *)n {
+	minZoom = [self calculateMinimumZoomForFrame:[[n object] frame]];
+	if (self.zoom < minZoom) [self setZoom:minZoom];
+	
+//	[[[self enclosingScrollView] contentView] viewFrameChanged:n];
+}
+
 - (void)setZoom:(CGFloat)zoom {
     // Before we change the zoom, we need to change the anchor point, so that when we change the transform
     // it will zoom in or out around the current center point.
     //
     // Note that mapBounds is the *frame* of the view, but [self layer] has the origin at (0,0).
                                 
-    NSRect v = [self visibleRect];
-    CGPoint midpointBefore = CGPointMake(NSMidX(v), NSMidY(v));
-	CGPoint newAnchorPoint, oldAnchorPoint;
-    if (zoom > 3.0) zoom = 3.0;
-    if (zoom < 0.1) zoom = 0.1;
-    
-    [self setFrame:NSMakeRect(0.0, 0.0, mapBounds.size.width*zoom, mapBounds.size.height*zoom)];
-	v = [self visibleRect];
-	[[[self enclosingScrollView] contentView] scrollToPoint:NSMakePoint(midpointBefore.x - 0.5*v.size.width, midpointBefore.y - 0.5*v.size.height)];
-
-	oldAnchorPoint = tiledLayer.anchorPoint;
-	newAnchorPoint = CGPointMake(midpointBefore.x/mapBounds.size.width, midpointBefore.y/mapBounds.size.height);
+	NSClipView *cv = [[self enclosingScrollView] contentView];
+    NSRect v = [cv documentVisibleRect ], f;
+    CGPoint midpointBefore, midpointAfter, tentativeNewOrigin, pointInMapCoordinates;
+	CGFloat oldWidth = v.size.width;
 	
-	// Calculate the difference between the new anchor point and the old anchor point, in [self layer] coordinates.
-	// We need to change the anchor point without moving the frame, so we need to move the position back by exactly the same amount.
-	// The other option would be to change the translation in the layer transform, but that might be more work?
-	CGSize diff = CGSizeMake(oldAnchorPoint.x - newAnchorPoint.x, oldAnchorPoint.y - newAnchorPoint.y);
-	tiledLayer.anchorPoint = newAnchorPoint;
-	tiledLayer.position = CGPointMake(tiledLayer.position.x - diff.width*mapBounds.size.width, tiledLayer.position.y - diff.height*mapBounds.size.height);		  
-	tiledLayer.transform = CATransform3DMakeScale(zoom, zoom, 1.0);
+    midpointBefore = CGPointMake(NSMidX(v), NSMidY(v));
+	pointInMapCoordinates = [tiledLayer convertPoint:midpointBefore fromLayer:[self layer]];
+	
+    if (zoom > 3.0) zoom = 3.0;
+    if (zoom < minZoom) zoom = minZoom;
     
+	[CATransaction begin];
+	[CATransaction setDisableActions:YES];
+	[self setFrame:NSMakeRect(0.0, 0.0, mapBounds.size.width*zoom, mapBounds.size.height*zoom)];
+	tiledLayer.transform = CATransform3DMakeScale(zoom, zoom, 1.0);
+	midpointAfter = [tiledLayer convertPoint:pointInMapCoordinates toLayer:[self layer]];
+	
+	tentativeNewOrigin = CGPointMake(midpointAfter.x - 0.5*v.size.width, midpointAfter.y - 0.5*v.size.height);
+	if (tentativeNewOrigin.x < 0.0) tentativeNewOrigin.x = 0.0;
+	if (tentativeNewOrigin.y < 0.0) tentativeNewOrigin.y = 0.0;
+	if (tentativeNewOrigin.x + v.size.width > NSMaxX(f)) tentativeNewOrigin.x = NSMaxX(f) - v.size.width;
+	if (tentativeNewOrigin.y + v.size.height > NSMaxY(f)) tentativeNewOrigin.y = NSMaxY(f) - v.size.height;
+	
+	[cv scrollToPoint:tentativeNewOrigin];
+	[CATransaction commit];
+
     _zoom = zoom;
 }
 
@@ -244,15 +265,18 @@
     tiledLayer.levelsOfDetailBias = 2;
     [tiledLayer retain];
     
-    tiledLayer.anchorPoint = CGPointMake(0.5, 0.5);
+    tiledLayer.anchorPoint = CGPointMake(0.0, 0.0);
     tiledLayer.bounds = mapBounds;
-    tiledLayer.position = CGPointMake(mapBounds.size.width*0.5, mapBounds.size.height*0.5);
+	tiledLayer.position = CGPointMake(0.0, 0.0);
+//    tiledLayer.position = CGPointMake(mapBounds.size.width*0.5, mapBounds.size.height*0.5);
 
  //   [[self layer] setLayoutManager:[CAConstraintLayoutManager layoutManager]];
     [[self layer] addSublayer:tiledLayer];
  //  [[self layer] layoutSublayers];
     
-    [self setZoom:1.0];
+	// Calculate the initial zoom as the minimum zoom.
+	minZoom = [self calculateMinimumZoomForFrame:[self frame]];
+    [self setZoom:minZoom*3.0];
 
     
     [self setNeedsDisplay:YES];
