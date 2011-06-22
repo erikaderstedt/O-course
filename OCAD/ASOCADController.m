@@ -748,6 +748,16 @@ void draw415 (void * info, CGContextRef context) {
     CGContextFillPath(context);
 }
 
+void drawUnknown( void *info, CGContextRef context) {
+    CGFloat cols[4];
+    cols[0] = 1.0;
+    cols[1] = 0.0;
+    cols[2] = 0.0;
+    cols[3] = 1.0;
+    CGContextSetFillColor(context, cols);
+    CGContextFillRect(context, CGRectMake(0.0,0.0,80.0,80.0));
+}
+
 // Permanently out of bounds 75x1
 void draw528 (void * info, CGContextRef context) {
     CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 0));
@@ -782,73 +792,72 @@ void draw709 (void * info, CGContextRef context) {
             }
             CGColorRetain(c);
         } else {
-            CGPatternCallbacks callbacks;
-            callbacks.releaseInfo = NULL;
-            callbacks.version = 0;
-            CGColorSpaceRef cspace = CGColorSpaceCreatePattern(NULL);
+             CGColorSpaceRef cspace = CGColorSpaceCreatePattern(NULL);
             CGPatternRef pattern;
+            void *drawFunction;
+            CGRect pRect;
             switch (a->symnum / 1000) {
                 case 211:
-                    callbacks.drawPattern = draw211;
-                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 45.0, 45.0), CGAffineTransformIdentity, 45.0, 45.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    drawFunction = &draw211;
+                    pRect = CGRectMake(0.0, 0.0, 45.0, 45.0);
                     break;
                 case 309:
-                    callbacks.drawPattern = draw309;
-                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 1.0, 50.0), CGAffineTransformIdentity, 1.0,50.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    drawFunction = &draw309;
+                    pRect = CGRectMake(0.0, 0.0, 1.0, 50.0);
                     break;
                 case 310:
-                    callbacks.drawPattern = draw310;
-                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 1.0, 30.0), CGAffineTransformIdentity, 1.0,30.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    drawFunction = &draw310;
+                    pRect = CGRectMake(0.0, 0.0, 1.0, 30.0);
                     break;
                 case 311:
-                    callbacks.drawPattern = draw311;
-                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 115.0, 60.0), CGAffineTransformIdentity, 115.0, 60.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    drawFunction = &draw311;
+                    pRect = CGRectMake(0.0, 0.0, 115.0, 60.0);
                     break;
                 case 402:
-                    callbacks.drawPattern = draw402;
-                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 71.0, 71.0), CGAffineTransformIdentity, 71.0, 71.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    drawFunction = &draw402;
+                    pRect = CGRectMake(0.0, 0.0, 71.0, 71.0);
                     break;
                 case 404:
-                    callbacks.drawPattern = draw404;
-                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 99.0, 99.0), CGAffineTransformIdentity, 99.0, 99.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    drawFunction = &draw404;
+                    pRect = CGRectMake(0.0, 0.0, 99.0, 99.0);
                     break;
                 case 407:
-                    callbacks.drawPattern = draw407or409;
-                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 84.0, 1.0), CGAffineTransformIdentity, 84.0, 1.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    drawFunction = &draw407or409;
+                    pRect = CGRectMake(0.0, 0.0, 84.0, 1.0);
                     break;
                 case 409:
-                    callbacks.drawPattern = draw407or409;
-                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 42.0, 1.0), CGAffineTransformIdentity, 42.0, 1.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    drawFunction = &draw407or409;
+                    pRect = CGRectMake(0.0, 0.0, 42.0, 1.0);
                     break;
                 case 412:
-                    callbacks.drawPattern = draw412;
-                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 80.0, 80.0), CGAffineTransformIdentity, 80.0, 80.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    drawFunction = &draw412;
+                    pRect = CGRectMake(0.0, 0.0, 80.0, 80.0);
                     break;
                 case 413:
-                    callbacks.drawPattern = draw413;
-                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 170.0, 190.0), CGAffineTransformIdentity, 170.0, 190.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    drawFunction = &draw413;
+                    pRect = CGRectMake(0.0, 0.0, 170.0, 190.0);
                     break;
                 case 415:
-                    callbacks.drawPattern = draw415;
-                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 80.0, 80.0), CGAffineTransformIdentity, 80.0, 80.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    drawFunction = &draw415;
+                    pRect = CGRectMake(0.0, 0.0, 80.0, 80.0);
                     break;
                 case 528:
-                    callbacks.drawPattern = draw528;
-                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 75.0, 1.0), CGAffineTransformIdentity, 75.0, 1.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    drawFunction = &draw528;
+                    pRect = CGRectMake(0.0, 0.0, 75.0, 1.0);
                     break;
                 case 709:
-                    callbacks.drawPattern = draw709;
-                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 60.0, 1.0), CGAffineTransformIdentity, 60.0, 1.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
+                    drawFunction = &draw709;
+                    pRect = CGRectMake(0.0, 0.0, 60.0, 1.0);
                     break;
-                    
                 default:
-                    callbacks.drawPattern = draw407or409;
-                    pattern = CGPatternCreate(colors, CGRectMake(0.0, 0.0, 60.0, 1.0), CGAffineTransformIdentity, 60.0, 1.0, kCGPatternTilingConstantSpacingMinimalDistortion, true, &callbacks);
-                    break;
+                    drawFunction = &drawUnknown;
+                    pRect = CGRectMake(0.0, 0.0, 80.0, 80.0);
                     break;
             }
-            CGFloat testComps[4] = {0.0,0.0,0.0,1.0};
-            c = CGColorCreateWithPattern(cspace, pattern, testComps);
+            const CGPatternCallbacks callbacks = {0, drawFunction, NULL};
+            pattern = CGPatternCreate(colors, pRect, CGAffineTransformIdentity, pRect.size.width, pRect.size.height, kCGPatternTilingConstantSpacing, true, &callbacks);
+            CGFloat components[1] = {1.0};
+            c = CGColorCreateWithPattern(cspace, pattern, components);
             CGColorSpaceRelease(cspace);
             /*
             NSImage *image = [self patternImageForSymbolNumber: a->symnum / 1000];
