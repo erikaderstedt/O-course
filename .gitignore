@@ -1,0 +1,6 @@
+build
+O-course.xcodeproj/*
+!O-course.xcodeproj/project.pbxproj
+.DS_Store
+
+

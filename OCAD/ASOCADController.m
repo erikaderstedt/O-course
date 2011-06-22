@@ -1068,18 +1068,29 @@ void draw709 (void * info, CGContextRef context) {
         NSNumber *joinStyle = [d objectForKey:@"joinStyle"];
         NSNumber *width = [d objectForKey:@"width"];
         
-        CGContextBeginPath(ctx);
-        CGContextAddPath(ctx,path);
-        if (fillColor != NULL) {
-            CGContextSetFillColorWithColor(ctx, fillColor);
-            CGContextEOFillPath(ctx);
-        }
-        if (strokeColor != NULL) {
-            CGContextSetStrokeColorWithColor(ctx, strokeColor);
-            CGContextSetLineWidth(ctx, [width doubleValue]);
-            if (joinStyle != NULL) CGContextSetLineJoin(ctx, (enum CGLineJoin)[joinStyle integerValue]);
-            if (capStyle != NULL) CGContextSetLineCap(ctx, (enum CGLineCap)[capStyle integerValue]);
-            CGContextStrokePath(ctx);
+        if (CGRectIntersectsRect(CGPathGetBoundingBox(path), CGContextGetClipBoundingBox(ctx))) {
+            CGContextBeginPath(ctx);
+            CGContextAddPath(ctx,path);
+            if (fillColor != NULL) {
+                CGContextSetFillColorWithColor(ctx, fillColor);
+                CGContextEOFillPath(ctx);
+            }
+            if (strokeColor != NULL) {
+                CGContextSetStrokeColorWithColor(ctx, strokeColor);
+                CGContextSetLineWidth(ctx, [width doubleValue]);
+                NSMutableArray *dashes = [d valueForKey:@"dashes"];
+                if (dashes != nil) {
+                    CGFloat dashValues[4];
+                    int i = 0;
+                    for (NSNumber *dValue in dashes) {
+                        dashValues[i++] = [dValue doubleValue];
+                    }
+                    CGContextSetLineDash(ctx, 0.0, dashValues, i);
+                }
+                if (joinStyle != NULL) CGContextSetLineJoin(ctx, (enum CGLineJoin)[joinStyle integerValue]);
+                if (capStyle != NULL) CGContextSetLineCap(ctx, (enum CGLineCap)[capStyle integerValue]);
+                CGContextStrokePath(ctx);
+            }
         }
     }
      
