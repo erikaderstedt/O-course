@@ -1086,6 +1086,8 @@ void draw709 (void * info, CGContextRef context) {
                         dashValues[i++] = [dValue doubleValue];
                     }
                     CGContextSetLineDash(ctx, 0.0, dashValues, i);
+                } else {
+                    CGContextSetLineDash(ctx, 0.0, NULL, 0);
                 }
                 if (joinStyle != NULL) CGContextSetLineJoin(ctx, (enum CGLineJoin)[joinStyle integerValue]);
                 if (capStyle != NULL) CGContextSetLineCap(ctx, (enum CGLineCap)[capStyle integerValue]);
