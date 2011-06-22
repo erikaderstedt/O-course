@@ -8,7 +8,6 @@
 
 #import "ASOCADController.h"
 #import "ocdimport.h"
-#import "ASOCADRenderingOperation.h"
 #import <QuartzCore/QuartzCore.h>
 
 #define PARALLELIZATION 2
@@ -145,64 +144,6 @@
 		}
 	}
 	return wholeMap;
-}
-
-- (void)beginRenderingMapWithSize:(NSSize)sz fromSourceRect:(NSRect)sourceRect whenDone:(void (^)(NSImage *i))completionBlock {
-	// Create an image of the appropriate size.
-/*	double adjustedScale = 15000 * 0.01 * 0.001 * scale;
-	double limit = 8000.0;
-	if (sourceRect.size.width * adjustedScale > limit) adjustedScale = limit / sourceRect.size.width;
-	if (sourceRect.size.height * adjustedScale > limit) adjustedScale = limit / sourceRect.size.height;
-	
-	NSSize sz = NSMakeSize(adjustedScale*sourceRect.size.width, adjustedScale * sourceRect.size.height);
-*/	
-	NSImage *destinationImage = [[NSImage alloc] initWithSize:sz];
-	[destinationImage lockFocus];
-	[[NSColor whiteColor] set];
-	[NSBezierPath fillRect:NSMakeRect(0.0, 0.0, sz.width, sz.height)];
-	
-	NSInteger num = [cachedDrawingInformation count];
-	NSInteger i;
-	if (renderingQueue != nil) {
-		[renderingQueue cancelAllOperations];
-		// If we are unlucky, we'll cancel an operation while it is waiting to perform a selector on the main
-		// thread (in the completion block). To combat that we sleep for a short while.
-		[NSThread sleepForTimeInterval:0.001];
-		[renderingQueue waitUntilAllOperationsAreFinished];
-	} else {
-		renderingQueue = [[NSOperationQueue alloc] init];
-	}
-	
-	NSAffineTransform *at = [NSAffineTransform transform];
-	
-    NSAffineTransformStruct ts;
-	float adjustedScale = sz.width / sourceRect.size.width;
-
-	ts.m12 = 0.0; ts.m21 = 0.0;	
-	ts.tX = - NSMinX(sourceRect)*adjustedScale;
-	ts.tY = - NSMinY(sourceRect)*adjustedScale;
-	ts.m11 = adjustedScale; ts.m22 = adjustedScale;
-	[at setTransformStruct:ts];
-	
-	NSMutableArray *ops = [NSMutableArray arrayWithCapacity:CONCURRENCY];
-	ASOCADFinishRenderingOperation *finished = [[[ASOCADFinishRenderingOperation alloc] init] autorelease];
-
-	for (i = 0; i < CONCURRENCY; i++) {
-
-		ASOCADRenderingOperation *render = [[ASOCADRenderingOperation alloc] init];
-		render.size = sz;
-		render.transform = at;
-		render.cachedDrawingInformation = cachedDrawingInformation;
-		render.ocdf = ocdf;
-		render.startIndex = i*(num >> PARALLELIZATION);
-		render.stopIndex = (i == (CONCURRENCY - 1))?num:(render.startIndex + (num >> PARALLELIZATION));
-		[ops addObject:render];
-		[finished addDependency:render];
-		[renderingQueue addOperation:[render autorelease]];
-	}
-	finished.renderingOperations = ops;
-	[finished setWhenDone:completionBlock];
-	[renderingQueue addOperation:finished];
 }
 
 - (NSInteger)symbolNumberAtPosition:(CGPoint)p {

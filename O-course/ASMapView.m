@@ -209,8 +209,6 @@
 	NSClipView *cv = [[self enclosingScrollView] contentView];
     NSRect v = [cv documentVisibleRect ], f;
     CGPoint midpointBefore, midpointAfter, tentativeNewOrigin, pointInMapCoordinates;
-	CGFloat oldWidth = v.size.width;
-	
 	
     if (zoom > 3.0) zoom = 3.0;
     if (zoom < minZoom) zoom = minZoom;
