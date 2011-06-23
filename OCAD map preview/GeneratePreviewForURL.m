@@ -35,7 +35,12 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
         
         // Set up a transform
         CGAffineTransform t = CGAffineTransformMake(1.0/scalingFactor, 0.0, 0.0, 1.0/scalingFactor, -CGRectGetMinX(r)/scalingFactor, -CGRectGetMinY(r)/scalingFactor);
+        
         CGContextConcatCTM(ctx, t);
+        CGFloat white[4] = {1.0,1.0,1.0,1.0};
+        CGContextSetFillColor(ctx, white);
+        CGContextFillRect(ctx, r);
+
         [ocad drawLayer:NULL inContext:ctx];
         QLPreviewRequestFlushContext(preview, ctx);
     }   
