@@ -231,7 +231,6 @@ CFArrayRef colorArray () {
         }
         return;
     }
-	NSLog(@"begin caching");
     NSMutableArray *invocations = [NSMutableArray arrayWithCapacity:4];
     NSMethodSignature *ms = [self methodSignatureForSelector:@selector(createCacheFromIndex:upToButNotIncludingIndex:)];
     NSOperationQueue *queue = [[NSOperationQueue alloc] init];
@@ -268,8 +267,6 @@ CFArrayRef colorArray () {
     }
     [queue release];
 	[cachedDrawingInformation retain];
-    NSLog(@"end caching");
-
 }
 
 - (NSDictionary *)cachedDrawingInfoForAreaObject:(struct ocad_element *)e {
