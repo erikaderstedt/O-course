@@ -112,6 +112,8 @@ CFArrayRef colorArray () {
 	[areaSymbolColors release];
 	[colors release];
 	[cachedDrawingInformation release];
+    
+    CGColorRelease(blackColor);
 	
 	[super dealloc];
 }
@@ -120,14 +122,20 @@ CFArrayRef colorArray () {
     CGPathRef thePath;
 	CGRect pathBounds;
 	CGRect wholeMap = CGRectMake(0.0,0.0,0.0,0.0);
-	
+	BOOL firstSet = NO;
+    
 	if ([cachedDrawingInformation count] == 0) return NSZeroRect;
 	
 	for (NSDictionary *cachedData in cachedDrawingInformation) {
 		thePath = (CGPathRef)[cachedData objectForKey:@"path"];
 		if (thePath != NULL) {
             pathBounds = CGPathGetPathBoundingBox(thePath);
-			wholeMap = CGRectUnion(wholeMap, pathBounds);
+            if (firstSet)
+                wholeMap = CGRectUnion(wholeMap, pathBounds);
+            else {
+                wholeMap = pathBounds;
+                firstSet = YES;
+            }
 		}
 	}
 	return wholeMap;
