@@ -298,7 +298,7 @@ CFArrayRef colorArray () {
         }
     }
     CGColorRef daColor = (CGColorRef)[areaSymbolColors objectForKey:[NSNumber numberWithInt:area->symnum]];
-    NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:(id)daColor, @"fillColor", p, @"path", nil];
+    NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:(id)daColor, @"fillColor", p, @"path", [NSValue valueWithPointer:area],@"symbol", nil];
 	CGPathRelease(p);
 	return d;
 }
@@ -780,6 +780,79 @@ void draw709 (void * info, CGContextRef context) {
     CGContextFillRect(context, CGRectMake(0.0,0.0,25.0,1.0));
 }
 
+- (CGColorRef)areaColorForSymbol:(struct ocad_area_symbol *)a transform:(CGAffineTransform)transform {
+    CGColorSpaceRef cspace = CGColorSpaceCreatePattern(NULL);
+    CGPatternRef pattern;
+    void *drawFunction;
+    CGRect pRect;
+    switch (a->symnum / 1000) {
+        case 211:
+            drawFunction = &draw211;
+            pRect = CGRectMake(0.0, 0.0, 45.0, 45.0);
+            break;
+        case 309:
+            drawFunction = &draw309;
+            pRect = CGRectMake(0.0, 0.0, 1.0, 50.0);
+            break;
+        case 310:
+            drawFunction = &draw310;
+            pRect = CGRectMake(0.0, 0.0, 1.0, 30.0);
+            break;
+        case 311:
+            drawFunction = &draw311;
+            pRect = CGRectMake(0.0, 0.0, 115.0, 60.0);
+            break;
+        case 402:
+            drawFunction = &draw402;
+            pRect = CGRectMake(0.0, 0.0, 71.0, 71.0);
+            break;
+        case 404:
+            drawFunction = &draw404;
+            pRect = CGRectMake(0.0, 0.0, 99.0, 99.0);
+            break;
+        case 407:
+            drawFunction = &draw407or409;
+            pRect = CGRectMake(0.0, 0.0, 84.0, 1.0);
+            break;
+        case 409:
+            drawFunction = &draw407or409;
+            pRect = CGRectMake(0.0, 0.0, 42.0, 1.0);
+            break;
+        case 412:
+            drawFunction = &draw412;
+            pRect = CGRectMake(0.0, 0.0, 80.0, 80.0);
+            break;
+        case 413:
+            drawFunction = &draw413;
+            pRect = CGRectMake(0.0, 0.0, 170.0, 190.0);
+            break;
+        case 415:
+            drawFunction = &draw415;
+            pRect = CGRectMake(0.0, 0.0, 80.0, 80.0);
+            break;
+        case 528:
+            drawFunction = &draw528;
+            pRect = CGRectMake(0.0, 0.0, 75.0, 1.0);
+            break;
+        case 709:
+            drawFunction = &draw709;
+            pRect = CGRectMake(0.0, 0.0, 60.0, 1.0);
+            break;
+        default:
+            drawFunction = &drawUnknown;
+            pRect = CGRectMake(0.0, 0.0, 80.0, 80.0);
+            break;
+    }
+    const CGPatternCallbacks callbacks = {0, drawFunction, NULL};
+    pattern = CGPatternCreate(colors, pRect, transform, pRect.size.width, pRect.size.height, kCGPatternTilingConstantSpacing, true, &callbacks);
+    CGFloat components[1] = {1.0};
+    CGColorRef c = CGColorCreateWithPattern(cspace, pattern, components);
+    CGColorSpaceRelease(cspace);
+    CGPatternRelease(pattern);
+    
+    return c;
+}
+
 - (void)createAreaSymbolColors {
     NSInteger i;
     struct ocad_area_symbol *a;
@@ -802,73 +875,7 @@ void draw709 (void * info, CGContextRef context) {
             }
             CGColorRetain(c);
         } else {
-             CGColorSpaceRef cspace = CGColorSpaceCreatePattern(NULL);
-            CGPatternRef pattern;
-            void *drawFunction;
-            CGRect pRect;
-            switch (a->symnum / 1000) {
-                case 211:
-                    drawFunction = &draw211;
-                    pRect = CGRectMake(0.0, 0.0, 45.0, 45.0);
-                    break;
-                case 309:
-                    drawFunction = &draw309;
-                    pRect = CGRectMake(0.0, 0.0, 1.0, 50.0);
-                    break;
-                case 310:
-                    drawFunction = &draw310;
-                    pRect = CGRectMake(0.0, 0.0, 1.0, 30.0);
-                    break;
-                case 311:
-                    drawFunction = &draw311;
-                    pRect = CGRectMake(0.0, 0.0, 115.0, 60.0);
-                    break;
-                case 402:
-                    drawFunction = &draw402;
-                    pRect = CGRectMake(0.0, 0.0, 71.0, 71.0);
-                    break;
-                case 404:
-                    drawFunction = &draw404;
-                    pRect = CGRectMake(0.0, 0.0, 99.0, 99.0);
-                    break;
-                case 407:
-                    drawFunction = &draw407or409;
-                    pRect = CGRectMake(0.0, 0.0, 84.0, 1.0);
-                    break;
-                case 409:
-                    drawFunction = &draw407or409;
-                    pRect = CGRectMake(0.0, 0.0, 42.0, 1.0);
-                    break;
-                case 412:
-                    drawFunction = &draw412;
-                    pRect = CGRectMake(0.0, 0.0, 80.0, 80.0);
-                    break;
-                case 413:
-                    drawFunction = &draw413;
-                    pRect = CGRectMake(0.0, 0.0, 170.0, 190.0);
-                    break;
-                case 415:
-                    drawFunction = &draw415;
-                    pRect = CGRectMake(0.0, 0.0, 80.0, 80.0);
-                    break;
-                case 528:
-                    drawFunction = &draw528;
-                    pRect = CGRectMake(0.0, 0.0, 75.0, 1.0);
-                    break;
-                case 709:
-                    drawFunction = &draw709;
-                    pRect = CGRectMake(0.0, 0.0, 60.0, 1.0);
-                    break;
-                default:
-                    drawFunction = &drawUnknown;
-                    pRect = CGRectMake(0.0, 0.0, 80.0, 80.0);
-                    break;
-            }
-            const CGPatternCallbacks callbacks = {0, drawFunction, NULL};
-            pattern = CGPatternCreate(colors, pRect, CGAffineTransformIdentity, pRect.size.width, pRect.size.height, kCGPatternTilingConstantSpacing, true, &callbacks);
-            CGFloat components[1] = {1.0};
-            c = CGColorCreateWithPattern(cspace, pattern, components);
-            CGColorSpaceRelease(cspace);
+            c = [self areaColorForSymbol:a transform:CGAffineTransformIdentity];
             /*
             NSImage *image = [self patternImageForSymbolNumber: a->symnum / 1000];
             if (image != nil) {
@@ -1033,13 +1040,13 @@ void draw709 (void * info, CGContextRef context) {
             CGContextBeginPath(ctx);
             CGContextAddPath(ctx,path);
             if (fillColor != NULL) {
-                CGPatternRef p = CGColorGetPattern(fillColor);
-                if (p != NULL) {
+                if (CGColorGetPattern(fillColor) != NULL) {
+                    struct ocad_area_symbol *area = (struct ocad_area_symbol *)[[d objectForKey:@"symbol"] pointerValue];
                     CGAffineTransform matrix = CGContextGetCTM(ctx);                    
-                    printf("[%.2f\t%.2f\t0\n%.2f\t%.2f\t0\n%.2f\t%.2f\t1]\n", matrix.a,
-                           matrix.b, matrix.c,matrix.d,matrix.tx,matrix.ty);
+                    CGContextSetFillColorWithColor(ctx, [self areaColorForSymbol:area transform:matrix]);
+                } else {
+                    CGContextSetFillColorWithColor(ctx, fillColor);
                 }
-                CGContextSetFillColorWithColor(ctx, fillColor);
                 CGContextEOFillPath(ctx);
             }
             if (strokeColor != NULL) {
