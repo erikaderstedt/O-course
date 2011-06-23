@@ -223,6 +223,134 @@ struct ocad_rectangle_symbol {
     int16_t unnum_text;
 };
 
+struct ocad_text_symbol {
+    // ocad_symbol
+    uint32_t size;
+    uint32_t symnum;
+    uint8_t  otp;
+    uint8_t  flags;
+    uint16_t selected;
+    uint8_t status;
+    uint8_t drawingtool;
+    uint8_t csmode;
+    uint8_t csobjtype;
+    uint8_t cscdflags;
+    uint32_t extent;
+    //    uint32_t filepos;
+    uint16_t group;
+    uint16_t ncolors;
+    uint16_t colors[14];
+    uint8_t desclength;
+    char description[31];
+    uint8_t iconbits[484]; // Kontrolldefinition.
+    
+    uint8_t fontnamelength;
+    char fontname[31];
+    uint16_t fontcolor;
+    uint16_t fontsize; // 10x the size in pt.
+    int16_t weight; // 400: normal. 700: bold
+    uint16_t italic;
+    uint8_t reserved0;
+    int16_t charspacing;
+    int16_t wordspacing;
+    int16_t alignment;  // 0: bottom left
+                        // 1: bottom center
+                        // 2: bottom right
+                        // 3: bottom justified
+                        // 4: middle left
+                        // 5: middle center
+                        // 6: middle center
+                        // 7: ?
+                        // 8: top left
+                        // 9: top center
+                        // 10: top right
+    int16_t linespacing;
+    int16_t paraspacing;
+    int16_t indent_first;
+    int16_t indent_other;
+    int16_t number_of_tabs;
+    int32_t tabs[32];
+    uint16_t underline;
+    int16_t underline_color;
+    int16_t underline_width;
+    int16_t underline_distance;
+    int16_t reserved3;
+    uint8_t framing_mode;
+    //   0: no framing
+    //   1: shadow framing
+    //   2: line framing
+    //   3: rectangle framing
+    uint8_t frame_line_style;
+    uint16_t point_symbol_activated;
+    int32_t point_symbol_num;
+    uint8_t reserved2[19];
+    int16_t frame_left;
+    int16_t frame_bottom;
+    int16_t frame_right;
+    int16_t frame_top;
+    int16_t frame_color;
+    int16_t frame_width;
+    int16_t reserved5;
+    int16_t reserved4;
+    int16_t frame_shadow_offset_x;
+    int16_t frame_shadow_offset_y;
+};
+
+struct ocad_line_text_symbol {
+    // ocad_symbol
+    uint32_t size;
+    uint32_t symnum;
+    uint8_t  otp;
+    uint8_t  flags;
+    uint16_t selected;
+    uint8_t status;
+    uint8_t drawingtool;
+    uint8_t csmode;
+    uint8_t csobjtype;
+    uint8_t cscdflags;
+    uint32_t extent;
+    //    uint32_t filepos;
+    uint16_t group;
+    uint16_t ncolors;
+    uint16_t colors[14];
+    uint8_t desclength;
+    char description[31];
+    uint8_t iconbits[484]; // Kontrolldefinition.
+    
+    uint8_t fontnamelength;
+    char fontname[31];
+    uint16_t fontcolor;
+    uint16_t fontsize; // 10x the size in pt.
+    int16_t weight; // 400: normal. 700: bold
+    uint16_t italic;
+    uint8_t reserved0;
+    int16_t charspacing;
+    int16_t wordspacing;
+    int16_t alignment;  // 0: bottom left
+    // 1: bottom center
+    // 2: bottom right
+    // 3: bottom justified
+    // 4: middle left
+    // 5: middle center
+    // 6: middle center
+    // 7: ?
+    // 8: top left
+    // 9: top center
+    // 10: top right
+    uint8_t framing_mode;
+    //   0: no framing
+    //   1: shadow framing
+    //   2: line framing
+    //   3: rectangle framing
+    uint8_t frame_line_style;
+    uint8_t reserved2[32];
+    int16_t frame_color;
+    int16_t frame_width;
+    int16_t reserved5;
+    int16_t reserved4;
+    int16_t frame_shadow_offset_x;
+    int16_t frame_shadow_offset_y;
+};
 
 struct ocad_symbol_block {
     uint32_t nextsymbolblock;

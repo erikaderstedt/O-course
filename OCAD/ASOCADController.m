@@ -17,7 +17,7 @@ void ColorRelease (CFAllocatorRef allocator,const void *value) {
     CGColorRelease((CGColorRef)value);
 }
 
-CFArrayRef colorArray () {
+CFArrayRef CreateColorArray () {
     CGColorRef colors[30] = {
     /* 0 Svart */            CGColorCreateGenericRGB(0.0,0.0,0.0,1.0),
     /* 1 Berg i dagen */    CGColorCreateGenericRGB(0.698,0.702,0.698,1.000),
@@ -76,7 +76,7 @@ CFArrayRef colorArray () {
     if ((self = [super init])) {
         blackColor = CGColorCreateGenericRGB(0.0,0.0,0.0,1.0);
         
-        colors = (NSArray *)colorArray();
+        colors = (NSArray *)CreateColorArray();
 
         if (ocdf != NULL) {
             free(ocdf);
@@ -161,6 +161,7 @@ CFArrayRef colorArray () {
     NSMutableArray *blackLines = [NSMutableArray arrayWithCapacity:10000];
     NSMutableArray *rectangles = [NSMutableArray arrayWithCapacity:100];
     NSMutableArray *blackAreas = [NSMutableArray arrayWithCapacity:100];
+    NSMutableArray *strings = [NSMutableArray arrayWithCapacity:100];
     NSMutableArray *pointObjects = [NSMutableArray arrayWithCapacity:10000];
     
     NSInteger i;
@@ -213,13 +214,18 @@ CFArrayRef colorArray () {
 			case ocad_point_object:
 				[pointObjects addObjectsFromArray:[self cachedDrawingInfoForPointObject:e]];
 				break;
+            case ocad_unformatted_text_object:
+            case ocad_formatted_text_object:
+            case ocad_line_text_object:
+                [strings addObject:[self cachedDrawingInfoForTextObject:e]];
+                break;
 			default:
 				break;
 		}
 
     }
 
-    return [NSArray arrayWithObjects:nonBlackAreas, lines, rectangles, blackAreas, pointObjects, blackLines, nil];
+    return [NSArray arrayWithObjects:nonBlackAreas, lines, rectangles, blackAreas, pointObjects, strings, blackLines, nil];
 }
 
 - (void)createCache {
@@ -257,7 +263,7 @@ CFArrayRef colorArray () {
     }
     
     [queue waitUntilAllOperationsAreFinished];
-    for (i = 0; i < 6; i++) {
+    for (i = 0; i < 7; i++) {
         for (NSInvocationOperation *op in invocations) {
             [cachedDrawingInformation addObjectsFromArray:[[op result] objectAtIndex:i]];
         }
@@ -596,6 +602,70 @@ CFArrayRef colorArray () {
     }
     return [NSArray arrayWithObjects:cachedData, roadCache, nil];
     
+}
+
+- (NSDictionary *)cachedDrawingInfoForTextObject:(struct ocad_element *)e {
+    struct ocad_text_symbol *text = (struct ocad_text_symbol *)(e->symbol);
+
+    // Load the actual string
+	char *rawBuffer = (char *)&(e->coords[e->nCoordinates]);
+    char buffer[80];
+    int i;
+    for (i =0; rawBuffer[i*2] != 0; i++) {
+        buffer[i] = rawBuffer[i*2];
+    }
+    buffer[i] = 0;
+    NSString *string = [NSString stringWithCString:buffer encoding:NSASCIIStringEncoding];
+    
+    // Load the font name and size.
+    rawBuffer = text->fontname;
+    NSString *fontName = [NSString stringWithCString:rawBuffer encoding:NSASCIIStringEncoding];
+    CGFloat fontSize = ((CGFloat)text->fontsize);
+    if (text->weight == 700) fontName = [fontName stringByAppendingString:@" Bold"];
+    
+    CTFontRef font = CTFontCreateWithName((CFStringRef)fontName, fontSize, NULL);
+    if (font == NULL) font = CTFontCreateWithName(CFSTR("Lucida Grande"), fontSize, NULL);
+
+    CGColorRef color = [self colorWithNumber:text->fontcolor];
+    CFMutableAttributedStringRef attrString = CFAttributedStringCreateMutable(kCFAllocatorDefault, 0);
+    CFAttributedStringReplaceString (attrString, CFRangeMake(0, 0), (CFStringRef)string);
+    CFAttributedStringSetAttribute(attrString, CFRangeMake(0, CFStringGetLength((CFStringRef)string)), kCTForegroundColorAttributeName, color);
+    CFAttributedStringSetAttribute(attrString, CFRangeMake(0, CFStringGetLength((CFStringRef)string)), kCTFontAttributeName, font);
+    CFRelease(font);
+    
+    CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(attrString);
+    CFRelease(attrString);
+    
+    CGMutablePathRef p = CGPathCreateMutable();
+    CGRect r;
+    int xmin, xmax, ymin, ymax, x, y;
+    xmin = xmax = e->coords[0].x >> 8;
+    ymin = ymax = e->coords[0].y >> 8;
+    for (i = 1; i < e->nCoordinates; i++) {
+        x = e->coords[i].x >> 8;
+        y = e->coords[i].y >> 8;
+        if (x < xmin) xmin = x;
+        if (x > xmax) xmax = x;
+        if (y < ymin) ymin = y;
+        if (y > ymax) ymax = y;
+    }
+    r.origin.x = xmin;
+    r.origin.y = ymin;
+    r.size.width = xmax-xmin;
+    r.size.height = ymax-ymin;
+    CGPathAddRect(p, NULL, r);
+    CTFrameRef frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0,0), p, NULL);
+    CFRelease(framesetter);
+    
+    NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity:5];
+    if (frame != NULL) {
+        [d setObject:(id)frame forKey:@"frame"];
+        CFRelease(frame);
+    }
+    [d setObject:(id)p forKey:@"path"];
+    CGPathRelease(p);
+    
+    return d;    
 }
 
 - (NSArray *)cacheSymbolElements:(struct ocad_symbol_element *)se atPoint:(NSPoint)origin withAngle:(float)angle totalDataSize:(uint16_t)data_size {
@@ -1032,10 +1102,12 @@ void draw709 (void * info, CGContextRef context) {
         CGPathRef path = (CGPathRef)[d objectForKey:@"path"];
         CGColorRef strokeColor = (CGColorRef)[d objectForKey:@"strokeColor"];
         CGColorRef fillColor = (CGColorRef)[d objectForKey:@"fillColor"];
+        CTFrameRef frame = (CTFrameRef)[d objectForKey:@"frame"];
         NSNumber *capStyle = [d objectForKey:@"capStyle"];
         NSNumber *joinStyle = [d objectForKey:@"joinStyle"];
         NSNumber *width = [d objectForKey:@"width"];
-        
+        CGContextSetTextDrawingMode(ctx, kCGTextStroke);
+        CGContextSetTextMatrix(ctx, CGAffineTransformIdentity);
         if (CGRectIntersectsRect(CGPathGetBoundingBox(path), CGContextGetClipBoundingBox(ctx))) {
             CGContextBeginPath(ctx);
             CGContextAddPath(ctx,path);
@@ -1066,6 +1138,9 @@ void draw709 (void * info, CGContextRef context) {
                 if (joinStyle != NULL) CGContextSetLineJoin(ctx, (enum CGLineJoin)[joinStyle integerValue]);
                 if (capStyle != NULL) CGContextSetLineCap(ctx, (enum CGLineCap)[capStyle integerValue]);
                 CGContextStrokePath(ctx);
+            }
+            if (frame != NULL) {
+                CTFrameDraw(frame, ctx);                
             }
         }
     }

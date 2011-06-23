@@ -12,7 +12,7 @@
 #import "ocdimport.h"
 
 void ColorRelease (CFAllocatorRef allocator,const void *value);
-CFArrayRef olorArray();
+CFArrayRef CreateColorArray();
 void draw211 (void * info,CGContextRef context);
 void draw309 (void * info,CGContextRef context);
 void draw310 (void * info,CGContextRef context);
@@ -55,6 +55,7 @@ void draw709 (void * info, CGContextRef context);
 - (NSArray *)cachedDrawingInfoForPointObject:(struct ocad_element *)e;
 - (NSDictionary *)cachedDrawingInfoForRectangleObject:(struct ocad_element *)e;
 - (NSArray *)cachedDrawingInfoForLineObject:(struct ocad_element *)e;
+- (NSDictionary *)cachedDrawingInfoForTextObject:(struct ocad_element *)e;
 - (NSArray *)cacheSymbolElements:(struct ocad_symbol_element *)se atPoint:(NSPoint)origin withAngle:(float)angle totalDataSize:(uint16_t)data_size;
 
 + (float)angleBetweenPoint:(NSPoint)p1 andPoint:(NSPoint)p2;
