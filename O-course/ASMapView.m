@@ -378,20 +378,7 @@ static CGFloat randomFloat()
 // CATiledLayer delegate stuff.
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
     if (layer == tiledLayer) {
-         //      NSLog(@"Thread: %d", [NSThread isMainThread]);
-//        CGPoint p = layer.frame.origin;
-//        CGAffineTransform at;
-//        CGRect r = CGContextGetClipBoundingBox(ctx);
-
-//        at = CGAffineTransformIdentity;
-//        at = CGAffineTransformMakeScale(-1.0, -1.0);
-       // at = CGAffineTransformTranslate(at, p.x,p.y);
-//        at = CGAffineTransformScale(at, 0.5, 0.5);
-//        CGContextSaveGState(ctx);
-//        CGContextConcatCTM(ctx, at);
         [mapProvider drawLayer:layer inContext:ctx];
-        
-//        CGContextRestoreGState(ctx);
     }
 }
 
