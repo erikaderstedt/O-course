@@ -25,7 +25,7 @@
 		03A3527013B31C5D0028D87C /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03A3526F13B31C5D0028D87C /* CoreServices.framework */; };
 		03A3527213B31C5D0028D87C /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03A3527113B31C5D0028D87C /* CoreFoundation.framework */; };
 		03A3527813B31C5E0028D87C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 03A3527613B31C5E0028D87C /* InfoPlist.strings */; };
-		03A3527A13B31C5E0028D87C /* GenerateThumbnailForURL.c in Sources */ = {isa = PBXBuildFile; fileRef = 03A3527913B31C5E0028D87C /* GenerateThumbnailForURL.c */; };
+		03A3527A13B31C5E0028D87C /* GenerateThumbnailForURL.m in Sources */ = {isa = PBXBuildFile; fileRef = 03A3527913B31C5E0028D87C /* GenerateThumbnailForURL.m */; };
 		03A3527C13B31C5E0028D87C /* GeneratePreviewForURL.m in Sources */ = {isa = PBXBuildFile; fileRef = 03A3527B13B31C5E0028D87C /* GeneratePreviewForURL.m */; };
 		03A3527E13B31C5E0028D87C /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 03A3527D13B31C5E0028D87C /* main.c */; };
 		03A3528613B32B030028D87C /* ASOCADController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03C305151347B5FA00FB8133 /* ASOCADController.m */; };
@@ -90,7 +90,7 @@
 		03A3527113B31C5D0028D87C /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		03A3527513B31C5E0028D87C /* OCAD map preview-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OCAD map preview-Info.plist"; sourceTree = "<group>"; };
 		03A3527713B31C5E0028D87C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		03A3527913B31C5E0028D87C /* GenerateThumbnailForURL.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = GenerateThumbnailForURL.c; sourceTree = "<group>"; };
+		03A3527913B31C5E0028D87C /* GenerateThumbnailForURL.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GenerateThumbnailForURL.m; sourceTree = "<group>"; };
 		03A3527B13B31C5E0028D87C /* GeneratePreviewForURL.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GeneratePreviewForURL.m; sourceTree = "<group>"; };
 		03A3527D13B31C5E0028D87C /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		03A3527F13B31C5E0028D87C /* OCAD map preview-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OCAD map preview-Prefix.pch"; sourceTree = "<group>"; };
@@ -222,7 +222,7 @@
 		03A3527313B31C5E0028D87C /* OCAD map preview */ = {
 			isa = PBXGroup;
 			children = (
-				03A3527913B31C5E0028D87C /* GenerateThumbnailForURL.c */,
+				03A3527913B31C5E0028D87C /* GenerateThumbnailForURL.m */,
 				03A3527B13B31C5E0028D87C /* GeneratePreviewForURL.m */,
 				03A3527D13B31C5E0028D87C /* main.c */,
 				03A3527413B31C5E0028D87C /* Supporting Files */,
@@ -369,7 +369,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				03A3527A13B31C5E0028D87C /* GenerateThumbnailForURL.c in Sources */,
+				03A3527A13B31C5E0028D87C /* GenerateThumbnailForURL.m in Sources */,
 				03A3527C13B31C5E0028D87C /* GeneratePreviewForURL.m in Sources */,
 				03A3527E13B31C5E0028D87C /* main.c in Sources */,
 				03A3528613B32B030028D87C /* ASOCADController.m in Sources */,

@@ -19,13 +19,16 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
     
     ASOCADController *ocad = [[ASOCADController alloc] initWithOCADFile:[(NSURL *)url path]];
     
+    CGFloat requestedWidth = [[(NSDictionary *)options objectForKey:(id)kQLPreviewPropertyWidthKey] doubleValue];
+    CGFloat requestedHeight = [[(NSDictionary *)options objectForKey:(id)kQLPreviewPropertyHeightKey] doubleValue];
+    if (requestedWidth == 0.0) requestedWidth = 2048.0;
+    if (requestedHeight == 0.0) requestedHeight = 2048.0;
     // Get the bounds.
     // Calculate appropriate scaling, so that the longest dimension is 2048 pixels, and the other is scaled with
     // a preserved aspect ratio.
     CGRect r = NSRectToCGRect([ocad mapBounds]);
-    printf("%.2f %.2f\t%.2f %.2f\n", r.origin.x, r.origin.y, r.size.width, r.size.height);
     CGFloat scalingFactor;
-    scalingFactor = ((r.size.height > r.size.width)?r.size.height:r.size.width) / 2048.0;
+    scalingFactor = ((r.size.height/requestedHeight > r.size.width/requestedWidth)?(r.size.height/requestedHeight):(r.size.width/requestedWidth));
     CGSize previewSize = CGSizeMake(r.size.width / scalingFactor, r.size.height / scalingFactor);
     
     // Since we're halfway (having loaded the file, but not drawn anything), we check
