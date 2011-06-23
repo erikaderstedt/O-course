@@ -13,9 +13,55 @@
 #define PARALLELIZATION 2
 #define CONCURRENCY (1 << PARALLELIZATION)
 
+void ColorRelease (CFAllocatorRef allocator,const void *value) {
+    CGColorRelease((CGColorRef)value);
+}
+
+CFArrayRef colorArray () {
+    CGColorRef colors[30] = {
+    /* 0 Svart */            CGColorCreateGenericRGB(0.0,0.0,0.0,1.0),
+    /* 1 Berg i dagen */    CGColorCreateGenericRGB(0.698,0.702,0.698,1.000),
+    /* 2 Mindre vatten */   CGColorCreateGenericRGB(0.000,0.576,0.773,1.000),
+    /* 3 Vatten */          CGColorCreateGenericRGB(0.537,0.745,0.859,1.000), 
+    /* 4 Höjdkurva */       CGColorCreateGenericRGB(0.745,0.427,0.180,1.000),
+    /* 5 Asfalt */          CGColorCreateGenericRGB(0.867,0.675,0.486,1.000),
+    /* 6 Mkt svårlöpt */    CGColorCreateGenericRGB(0.212,0.663,0.345,1.000), 
+    /* 7 Svårlöpt */        CGColorCreateGenericRGB(0.545,0.769,0.557,1.000),
+    /* 8 Löphindrande */    CGColorCreateGenericRGB(0.773,0.875,0.745,1.000),
+    /* 9 Odlad mark */      CGColorCreateGenericRGB(0.953,0.722,0.357,1.000),
+    /* 10 Öppet sandomr. */ CGColorCreateGenericRGB(0.976,0.847,0.635,1.000),
+    /* 11 Påtryck */        CGColorCreateGenericRGB(0.835,0.102,0.490,1.000),
+    /* 12 Tomtmark */       CGColorCreateGenericRGB(0.631,0.616,0.255,1.000),
+    /* 13 Vitt */           CGColorCreateGenericRGB(1.000,1.000,1.000,1.000),
+    /* 14 Vitt */           CGColorCreateGenericRGB(1.000,0.000,0.000,1.000),
+    /* 15 Brown 50 % */     CGColorCreateGenericRGB(0.867,0.675,0.486,1.000),
+    /* 16 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+    /* 17 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+    /* 18 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+    /* 19 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+    /* 20 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+    /* 21 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+    /* 22 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+    /* 23 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+    /* 24 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+    /* 25 Roads  */		    CGColorCreateGenericRGB(0.0,0.0,0.0,1.0),
+    /* 26 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+    /* 27 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+    /* 28 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
+        /* 29 Water? */         CGColorCreateGenericRGB(0.537,0.745,0.859,1.000) };
+    CFArrayCallBacks callbacks;
+    callbacks.version = 0;
+    callbacks.retain = NULL;
+    callbacks.release = &ColorRelease;
+    callbacks.copyDescription = NULL;
+    callbacks.equal = NULL;
+    
+    CFArrayRef c = CFArrayCreate(NULL, (const void **)colors, 30, &callbacks);
+    
+    return c;
+}
 
 @implementation ASOCADController
-
 
 - (id)initWithOCADFile:(NSString *)path {
 	// Load the ocad file.
@@ -30,44 +76,7 @@
     if ((self = [super init])) {
         blackColor = CGColorCreateGenericRGB(0.0,0.0,0.0,1.0);
         
-        colors = [NSArray arrayWithObjects:
-                  /* 0 Svart */           (id)blackColor,
-                  /* 1 Berg i dagen */    CGColorCreateGenericRGB(0.698,0.702,0.698,1.000),
-                  /* 2 Mindre vatten */   CGColorCreateGenericRGB(0.000,0.576,0.773,1.000),
-                  /* 3 Vatten */          CGColorCreateGenericRGB(0.537,0.745,0.859,1.000), 
-                  /* 4 Höjdkurva */       CGColorCreateGenericRGB(0.745,0.427,0.180,1.000),
-                  /* 5 Asfalt */          CGColorCreateGenericRGB(0.867,0.675,0.486,1.000),
-                  /* 6 Mkt svårlöpt */    CGColorCreateGenericRGB(0.212,0.663,0.345,1.000), 
-                  /* 7 Svårlöpt */        CGColorCreateGenericRGB(0.545,0.769,0.557,1.000),
-                  /* 8 Löphindrande */    CGColorCreateGenericRGB(0.773,0.875,0.745,1.000),
-                  /* 9 Odlad mark */      CGColorCreateGenericRGB(0.953,0.722,0.357,1.000),
-                  /* 10 Öppet sandomr. */ CGColorCreateGenericRGB(0.976,0.847,0.635,1.000),
-                  /* 11 Påtryck */        CGColorCreateGenericRGB(0.835,0.102,0.490,1.000),
-                  /* 12 Tomtmark */       CGColorCreateGenericRGB(0.631,0.616,0.255,1.000),
-                  /* 13 Vitt */           CGColorCreateGenericRGB(1.000,1.000,1.000,1.000),
-                  /* 14 Vitt */           CGColorCreateGenericRGB(1.000,0.000,0.000,1.000),
-                  /* 15 Brown 50 % */     CGColorCreateGenericRGB(0.867,0.675,0.486,1.000),
-                  /* 16 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-                  /* 17 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-                  /* 18 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-                  /* 19 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-                  /* 20 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-                  /* 21 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-                  /* 22 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-                  /* 23 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-                  /* 24 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-                  /* 25 Roads  */		  (id)blackColor,
-                  /* 26 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-                  /* 27 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-                  /* 28 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-                  /* 29 Water? */         CGColorCreateGenericRGB(0.537,0.745,0.859,1.000),
-                  nil];
-        CGColorRetain(blackColor);
-        CGColorRetain(blackColor);
-        [colors retain];
-        for (id c in colors) {
-            CGColorRelease((CGColorRef)c);
-        }
+        colors = (NSArray *)colorArray();
 
         if (ocdf != NULL) {
             free(ocdf);
@@ -107,28 +116,6 @@
 	[super dealloc];
 }
 
-- (NSPoint)approximateCenterOfMap {
-	NSInteger x;
-	NSDictionary *cachedData;
-	NSBezierPath *thePath;
-	double randomIndex;
-	NSRect pathBounds;
-	NSRect wholeMap = NSZeroRect;
-	
-	if ([cachedDrawingInformation count] == 0) return NSMakePoint(0.0, 0.0);
-	
-	for (x = 0; x < 10; x++) {
-		randomIndex = ((double)([cachedDrawingInformation count] - 1)) * random() / RAND_MAX;
-		cachedData = [cachedDrawingInformation objectAtIndex:((NSInteger)randomIndex)];
-		thePath = [cachedData objectForKey:@"path"];
-		if (thePath != nil) {
-			pathBounds = [thePath bounds];
-			wholeMap = NSUnionRect(wholeMap, pathBounds);
-		}
-	}
-	return NSMakePoint(NSMidX(wholeMap), NSMidY(wholeMap));
-}
-
 - (NSRect)mapBounds {
     CGPathRef thePath;
 	CGRect pathBounds;
@@ -150,9 +137,11 @@
 	NSEnumerator *cacheEnumerator = [cachedDrawingInformation reverseObjectEnumerator];
 	NSDictionary *info;
 	while ((info = [cacheEnumerator nextObject])) {
-		NSBezierPath *path = [info valueForKey:@"path"];
-		if ([path containsPoint:NSPointFromCGPoint(p)]) 
-			return [[info valueForKey:@"symbol"] integerValue];
+		CGPathRef path = (CGPathRef)[info objectForKey:@"path"];
+		if (CGPathContainsPoint(path, NULL, p, true)) {
+            // TODO: store the symbol number in the cache, and return that instead.
+            return 1;
+        }
 	}
 	
 	return 0;
@@ -303,8 +292,8 @@
 			CGPathAddLineToPoint(p, NULL, e->coords[c].x >> 8, e->coords[c].y >> 8);
         }
     }
-    NSColor *color = [areaSymbolColors objectForKey:[NSNumber numberWithInt:area->symnum]];
-    NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:color, @"fillColor", p, @"path", nil];
+    CGColorRef daColor = (CGColorRef)[areaSymbolColors objectForKey:[NSNumber numberWithInt:area->symnum]];
+    NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:(id)daColor, @"fillColor", p, @"path", nil];
 	CGPathRelease(p);
 	return d;
 }
@@ -461,10 +450,10 @@
 					 road, @"path", [NSNumber numberWithFloat:line->dbl_width + line->dbl_left_width*0.5 + line->dbl_right_width*0.5], @"width", nil];
         [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_left_color], @"strokeColor", 
 							   left, @"path",[NSNumber numberWithInt:line->dbl_left_width], @"width", 
-							   [NSNumber numberWithInt:NSSquareLineCapStyle], @"capStyle", nil]];
+							   [NSNumber numberWithInt:kCGLineCapSquare], @"capStyle", nil]];
         [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_right_color], @"strokeColor", 
 							   right, @"path",[NSNumber numberWithInt:line->dbl_right_width], @"width", 
-							   [NSNumber numberWithInt:NSSquareLineCapStyle], @"capStyle", nil]];
+							   [NSNumber numberWithInt:kCGLineCapSquare], @"capStyle", nil]];
     }
     if (e->linewidth != 0 || (line != NULL && line->line_width != 0)) {
 		CGPathMoveToPoint(p, NULL, e->coords[0].x >> 8, e->coords[0].y >> 8);
@@ -486,15 +475,15 @@
                 [cachedData addObjectsFromArray:[self cacheSymbolElements:se atPoint:NSMakePoint(e->coords[c].x >> 8, e->coords[c].y >> 8) withAngle:angle totalDataSize:(se->ncoords + 2)]];
             }
         }
-        NSColor *mainColor;
+        CGColorRef mainColor;
 		NSMutableDictionary *mainLine = [NSMutableDictionary dictionaryWithCapacity:5];
 
         if (line != NULL && line->line_color < [colors count]) 
-            mainColor = [colors objectAtIndex:line->line_color];
+            mainColor = (CGColorRef)[colors objectAtIndex:line->line_color];
         else if (e->color < [colors count])
-            mainColor = [colors objectAtIndex:e->color];
+            mainColor = (CGColorRef)[colors objectAtIndex:e->color];
         else
-            mainColor = [NSColor blackColor];
+            mainColor = blackColor;
         
         if (line != NULL && line->main_length != 0) {
 			NSMutableArray *dashes = [NSMutableArray arrayWithCapacity:4];
@@ -511,22 +500,22 @@
 			[mainLine setObject:[NSNumber numberWithFloat:(CGFloat)(line->line_width)] forKey:@"width"];
             switch (line->line_style) {
                 case 0:
-					[mainLine setObject:[NSNumber numberWithInt:NSBevelLineJoinStyle] forKey:@"joinStyle"];
-					[mainLine setObject:[NSNumber numberWithInt:NSButtLineCapStyle] forKey:@"capStyle"];
+					[mainLine setObject:[NSNumber numberWithInt:kCGLineJoinBevel] forKey:@"joinStyle"];
+					[mainLine setObject:[NSNumber numberWithInt:kCGLineCapButt] forKey:@"capStyle"];
                     break;
                 case 1:
-					[mainLine setObject:[NSNumber numberWithInt:NSRoundLineJoinStyle] forKey:@"joinStyle"];
-					[mainLine setObject:[NSNumber numberWithInt:NSRoundLineCapStyle] forKey:@"capStyle"];
+					[mainLine setObject:[NSNumber numberWithInt:kCGLineJoinRound] forKey:@"joinStyle"];
+					[mainLine setObject:[NSNumber numberWithInt:kCGLineCapRound] forKey:@"capStyle"];
                     break;
                 case 2:
-					[mainLine setObject:[NSNumber numberWithInt:NSMiterLineJoinStyle] forKey:@"joinStyle"];
-					[mainLine setObject:[NSNumber numberWithInt:NSButtLineCapStyle] forKey:@"capStyle"];
+					[mainLine setObject:[NSNumber numberWithInt:kCGLineJoinMiter] forKey:@"joinStyle"];
+					[mainLine setObject:[NSNumber numberWithInt:kCGLineCapButt] forKey:@"capStyle"];
                     break;
             };
         } else {
  			[mainLine setObject:[NSNumber numberWithFloat:(CGFloat)(e->linewidth)] forKey:@"width"];
         }
-		[mainLine setObject:mainColor forKey:@"strokeColor"];
+		[mainLine setObject:(id)mainColor forKey:@"strokeColor"];
 		[mainLine setObject:(id)p forKey:@"path"];
         [cachedData addObject:mainLine];
     }
@@ -1024,7 +1013,8 @@ void draw709 (void * info, CGContextRef context) {
     return q;
 }
 
-// CATiledLayer delegate stuff.
+// CATiledLayer delegate stuff. Also used by the quicklook plugin.
+// In the latter case, layer will be NULL.
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
     for (NSDictionary *d in cachedDrawingInformation) {
         CGPathRef path = (CGPathRef)[d objectForKey:@"path"];

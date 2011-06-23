@@ -7,8 +7,25 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreFoundation/CoreFoundation.h>
 #import "ASMapProvider.h"
 #import "ocdimport.h"
+
+void ColorRelease (CFAllocatorRef allocator,const void *value);
+CFArrayRef olorArray();
+void draw211 (void * info,CGContextRef context);
+void draw309 (void * info,CGContextRef context);
+void draw310 (void * info,CGContextRef context);
+void draw311 (void * info,CGContextRef context);
+void draw402 (void * info,CGContextRef context);
+void draw404 (void * info,CGContextRef context);
+void draw407or409 (void * info,CGContextRef context);
+void draw412 (void * info,CGContextRef context);
+void draw413 (void * info,CGContextRef context);
+void draw415 (void * info, CGContextRef context);
+void drawUnknown( void *info, CGContextRef context);
+void draw528 (void * info, CGContextRef context);
+void draw709 (void * info, CGContextRef context);
 
 @interface ASOCADController : NSObject <ASMapProvider> {
 @private
