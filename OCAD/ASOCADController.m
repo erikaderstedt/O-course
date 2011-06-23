@@ -1033,6 +1033,12 @@ void draw709 (void * info, CGContextRef context) {
             CGContextBeginPath(ctx);
             CGContextAddPath(ctx,path);
             if (fillColor != NULL) {
+                CGPatternRef p = CGColorGetPattern(fillColor);
+                if (p != NULL) {
+                    CGAffineTransform matrix = CGContextGetCTM(ctx);                    
+                    printf("[%.2f\t%.2f\t0\n%.2f\t%.2f\t0\n%.2f\t%.2f\t1]\n", matrix.a,
+                           matrix.b, matrix.c,matrix.d,matrix.tx,matrix.ty);
+                }
                 CGContextSetFillColorWithColor(ctx, fillColor);
                 CGContextEOFillPath(ctx);
             }
