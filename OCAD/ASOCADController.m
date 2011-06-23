@@ -161,7 +161,7 @@
 - (NSArray *)createCacheFromIndex:(NSInteger)start upToButNotIncludingIndex:(NSInteger)stop {
     NSMutableArray *nonBlackAreas = [NSMutableArray arrayWithCapacity:100];
     NSMutableArray *lines = [NSMutableArray arrayWithCapacity:10000];
-    NSMutableArray *roads = [NSMutableArray arrayWithCapacity:100];
+    NSMutableArray *blackLines = [NSMutableArray arrayWithCapacity:10000];
     NSMutableArray *rectangles = [NSMutableArray arrayWithCapacity:100];
     NSMutableArray *blackAreas = [NSMutableArray arrayWithCapacity:100];
     NSMutableArray *pointObjects = [NSMutableArray arrayWithCapacity:10000];
@@ -170,8 +170,9 @@
     struct ocad_element *e;
     struct ocad_object_index *o;
     enum ocad_object_type type;
-	NSArray *a;
+	NSArray *a, *b;
 	struct ocad_area_symbol *area;
+    CGColorRef black = (CGColorRef)[colors objectAtIndex:0];
     
     for (i = start; i < stop; i++) {
         e = ocdf->elements[i];
@@ -190,10 +191,24 @@
 				break;
 			case ocad_line_object:
 				a = [self cachedDrawingInfoForLineObject:e];
-				if ([a count] == 2)
-					[roads addObject:[a objectAtIndex:1]];
-				if ([a count] > 0)
-					[lines addObjectsFromArray:[a objectAtIndex:0]];
+                if ([a count] == 2) {
+                    NSDictionary *mainLine = [a objectAtIndex:1];
+                    if ((CGColorRef)[mainLine objectForKey:@"strokeColor"] == black) {
+                        [blackLines addObject:mainLine];
+                    } else {
+                        [lines addObject:mainLine];
+                    }
+                }
+				if ([a count] > 0) {
+                    b = [a objectAtIndex:0];
+                    for (NSDictionary *linePart in b) {
+                        if ((CGColorRef)[linePart objectForKey:@"strokeColor"] == black) {
+                            [blackLines addObject:linePart];
+                        } else {
+                            [lines addObject:linePart];
+                        }
+                    }
+                }
 				break;
 			case ocad_rectangle_object:
 				[rectangles addObject:[self cachedDrawingInfoForRectangleObject:e]];
@@ -206,9 +221,8 @@
 		}
 
     }
-    [lines addObjectsFromArray:roads];
 
-    return [NSArray arrayWithObjects:nonBlackAreas, lines, rectangles, blackAreas, pointObjects, nil];
+    return [NSArray arrayWithObjects:nonBlackAreas, lines, rectangles, blackAreas, pointObjects, blackLines, nil];
 }
 
 - (void)createCache {
@@ -247,7 +261,7 @@
     }
     
     [queue waitUntilAllOperationsAreFinished];
-    for (i = 0; i < 5; i++) {
+    for (i = 0; i < 6; i++) {
         for (NSInvocationOperation *op in invocations) {
             [cachedDrawingInformation addObjectsFromArray:[[op result] objectAtIndex:i]];
         }
@@ -257,6 +271,8 @@
     }
     [queue release];
 	[cachedDrawingInformation retain];
+    NSLog(@"end caching");
+
 }
 
 - (NSDictionary *)cachedDrawingInfoForAreaObject:(struct ocad_element *)e {
