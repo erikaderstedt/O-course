@@ -51,4 +51,11 @@
     [mapView mapLoaded];
 }
 
+- (IBAction)zoomIn:(id)sender {
+    mapView.zoom = (1.1)* mapView.zoom;
+}
+- (IBAction)zoomOut:(id)sender {
+    mapView.zoom = (1.0/1.1)* mapView.zoom;
+}
+
 @end
