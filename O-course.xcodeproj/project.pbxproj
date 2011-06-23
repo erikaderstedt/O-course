@@ -32,8 +32,32 @@
 		03A3528713B32B060028D87C /* ocdimport.c in Sources */ = {isa = PBXBuildFile; fileRef = 032001E012FE9F1000707BA5 /* ocdimport.c */; };
 		03A3528813B331350028D87C /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 033D6817134AF79C00502CA8 /* QuartzCore.framework */; };
 		03A3528913B331450028D87C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 032001C212FE9EF900707BA5 /* Foundation.framework */; };
+		03A3529313B33AD80028D87C /* OCAD map preview.qlgenerator in CopyFiles */ = {isa = PBXBuildFile; fileRef = 03A3526A13B31C5D0028D87C /* OCAD map preview.qlgenerator */; };
 		03C305161347B5FA00FB8133 /* ASOCADController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03C305151347B5FA00FB8133 /* ASOCADController.m */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		03A3529013B33AB30028D87C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 032001B012FE9EF900707BA5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 03A3526913B31C5D0028D87C;
+			remoteInfo = "OCAD map preview";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		03A3529213B33AB70028D87C /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Contents/Library/QuickLook;
+			dstSubfolderSpec = 1;
+			files = (
+				03A3529313B33AD80028D87C /* OCAD map preview.qlgenerator in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		032001B912FE9EF900707BA5 /* O-course.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "O-course.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -236,10 +260,12 @@
 				032001B512FE9EF900707BA5 /* Sources */,
 				032001B612FE9EF900707BA5 /* Frameworks */,
 				032001B712FE9EF900707BA5 /* Resources */,
+				03A3529213B33AB70028D87C /* CopyFiles */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				03A3529113B33AB30028D87C /* PBXTargetDependency */,
 			);
 			name = "O-course";
 			productName = "O-course";
@@ -352,6 +378,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		03A3529113B33AB30028D87C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 03A3526913B31C5D0028D87C /* OCAD map preview */;
+			targetProxy = 03A3529013B33AB30028D87C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		032001C612FE9EF900707BA5 /* InfoPlist.strings */ = {
