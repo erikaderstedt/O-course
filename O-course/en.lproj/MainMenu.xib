@@ -1210,25 +1210,25 @@
 							<string key="NSTitle">View</string>
 							<object class="NSMutableArray" key="NSMenuItems">
 								<bool key="EncodedWithXMLCoder">YES</bool>
-								<object class="NSMenuItem" id="519678068">
+								<object class="NSMenuItem" id="261376852">
 									<reference key="NSMenu" ref="466310130"/>
 									<string key="NSTitle">Zoom in</string>
 									<string key="NSKeyEquiv">+</string>
-									<int key="NSKeyEquivModMask">1048576</int>
+									<int key="NSKeyEquivModMask">1572864</int>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="1033313550"/>
 									<reference key="NSMixedImage" ref="310636482"/>
 								</object>
-								<object class="NSMenuItem" id="74531725">
+								<object class="NSMenuItem" id="923238387">
 									<reference key="NSMenu" ref="466310130"/>
 									<string key="NSTitle">Zoom out</string>
 									<string key="NSKeyEquiv">-</string>
-									<int key="NSKeyEquivModMask">1048576</int>
+									<int key="NSKeyEquivModMask">1572864</int>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="1033313550"/>
 									<reference key="NSMixedImage" ref="310636482"/>
 								</object>
-								<object class="NSMenuItem" id="497403507">
+								<object class="NSMenuItem" id="161092710">
 									<reference key="NSMenu" ref="466310130"/>
 									<bool key="NSIsDisabled">YES</bool>
 									<bool key="NSIsSeparator">YES</bool>
@@ -2028,7 +2028,7 @@
 					<object class="IBActionConnection" key="connection">
 						<string key="label">zoomIn:</string>
 						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="519678068"/>
+						<reference key="destination" ref="261376852"/>
 					</object>
 					<int key="connectionID">534</int>
 				</object>
@@ -2036,7 +2036,7 @@
 					<object class="IBActionConnection" key="connection">
 						<string key="label">zoomOut:</string>
 						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="74531725"/>
+						<reference key="destination" ref="923238387"/>
 					</object>
 					<int key="connectionID">536</int>
 				</object>
@@ -2495,9 +2495,9 @@
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<reference ref="102151532"/>
 							<reference ref="237841660"/>
-							<reference ref="497403507"/>
-							<reference ref="519678068"/>
-							<reference ref="74531725"/>
+							<reference ref="161092710"/>
+							<reference ref="261376852"/>
+							<reference ref="923238387"/>
 						</object>
 						<reference key="parent" ref="586577488"/>
 					</object>
@@ -3073,17 +3073,17 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">532</int>
-						<reference key="object" ref="497403507"/>
+						<reference key="object" ref="161092710"/>
 						<reference key="parent" ref="466310130"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">533</int>
-						<reference key="object" ref="519678068"/>
+						<reference key="object" ref="261376852"/>
 						<reference key="parent" ref="466310130"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">535</int>
-						<reference key="object" ref="74531725"/>
+						<reference key="object" ref="923238387"/>
 						<reference key="parent" ref="466310130"/>
 					</object>
 				</object>
