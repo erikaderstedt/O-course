@@ -19,6 +19,7 @@
 		033D6818134AF79C00502CA8 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 033D6817134AF79C00502CA8 /* QuartzCore.framework */; };
 		033D6874134B05D100502CA8 /* compass bezel.png in Resources */ = {isa = PBXBuildFile; fileRef = 033D6873134B05D100502CA8 /* compass bezel.png */; };
 		0373FA6D1349A42C006E41C9 /* ASMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0373FA6C1349A42C006E41C9 /* ASMapView.m */; };
+		03A3525013B30F480028D87C /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 03A3524F13B30F480028D87C /* AppDelegate.m */; };
 		03C305161347B5FA00FB8133 /* ASOCADController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03C305151347B5FA00FB8133 /* ASOCADController.m */; };
 /* End PBXBuildFile section */
 
@@ -44,6 +45,8 @@
 		033D6873134B05D100502CA8 /* compass bezel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "compass bezel.png"; sourceTree = "<group>"; };
 		0373FA6B1349A42C006E41C9 /* ASMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASMapView.h; sourceTree = "<group>"; };
 		0373FA6C1349A42C006E41C9 /* ASMapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASMapView.m; sourceTree = "<group>"; };
+		03A3524E13B30F480028D87C /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		03A3524F13B30F480028D87C /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		03C305141347B5FA00FB8133 /* ASOCADController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASOCADController.h; sourceTree = "<group>"; };
 		03C305151347B5FA00FB8133 /* ASOCADController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASOCADController.m; sourceTree = "<group>"; };
 		03C305171347B60B00FB8133 /* ASMapProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASMapProvider.h; sourceTree = "<group>"; };
@@ -111,6 +114,8 @@
 				0373FA6C1349A42C006E41C9 /* ASMapView.m */,
 				032001D812FE9EF900707BA5 /* ASOcourseDocument.xcdatamodeld */,
 				032001C412FE9EF900707BA5 /* Supporting Files */,
+				03A3524E13B30F480028D87C /* AppDelegate.h */,
+				03A3524F13B30F480028D87C /* AppDelegate.m */,
 			);
 			path = "O-course";
 			sourceTree = "<group>";
@@ -219,6 +224,7 @@
 				032001E212FE9F1000707BA5 /* ocdimport.c in Sources */,
 				03C305161347B5FA00FB8133 /* ASOCADController.m in Sources */,
 				0373FA6D1349A42C006E41C9 /* ASMapView.m in Sources */,
+				03A3525013B30F480028D87C /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

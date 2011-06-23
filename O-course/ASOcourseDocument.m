@@ -33,12 +33,15 @@
 - (void)windowControllerDidLoadNib:(NSWindowController *)aController
 {
     [super windowControllerDidLoadNib:aController];
-    // Add any code here that needs to be executed once the windowController has loaded the document's window.
-    // @"/Users/erik/Documents/Orientering/Stor-kungälv_1_06_090426_ocad 9.ocd"
-	// Guddehjälm_1_04_090804.ocd
-    // 
-//    ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:@"/Users/erik/Documents/Orientering/Bottenstugan_Braseröd_1_2_090123_ocad9.ocd"];
-//    ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:@"/Users/erik/Documents/Orientering/Stor-kungälv_1_06_090426_ocad 9.ocd"];
+
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7
+    [[aController window] setCollectionBehavior:([[aController window] collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary)];
+#endif 
+}
+
+
++ (BOOL)autosavesInPlace {
+    return YES;
 }
 
 - (void)awakeFromNib {
