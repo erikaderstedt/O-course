@@ -68,8 +68,6 @@
 			</array>
 			<key>UTTypeDescription</key>
 			<string>OCAD map</string>
-			<key>UTTypeIconFile</key>
-			<string>compass bezel</string>
 			<key>UTTypeIdentifier</key>
 			<string>ch.ocad.map</string>
 			<key>UTTypeTagSpecification</key>
