@@ -11,9 +11,11 @@
 @implementation AppDelegate
 
 - (void)awakeFromNib {
+#if MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_6
     [NSApp setPresentationOptions:NSApplicationPresentationAutoHideDock | 
      NSApplicationPresentationDefault |
      NSApplicationPresentationFullScreen];
+#endif
 }
     
 @end

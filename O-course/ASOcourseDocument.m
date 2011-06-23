@@ -34,7 +34,7 @@
 {
     [super windowControllerDidLoadNib:aController];
 
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7
+#if MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_6
     [[aController window] setCollectionBehavior:([[aController window] collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary)];
 #endif 
 }
@@ -45,7 +45,7 @@
 }
 
 - (void)awakeFromNib {
-    ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:@"/Users/erik/Desktop/Gudde.ocd"];
+    ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:@"/Users/erik/Documents/Orientering/OCAD-filer/Kastellegarden_ver_1_3_100302.ocd"];
 //	ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:@"/Users/erik/Documents/Orientering/Stor-kungälv_1_06_090426_ocad 9.ocd"];
     mapView.mapProvider = o;
     [mapView mapLoaded];
