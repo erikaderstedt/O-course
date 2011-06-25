@@ -620,7 +620,7 @@ CFArrayRef CreateColorArray () {
     // Load the font name and size.
     rawBuffer = text->fontname;
     NSString *fontName = [NSString stringWithCString:rawBuffer encoding:NSASCIIStringEncoding];
-    CGFloat fontSize = ((CGFloat)text->fontsize);
+    CGFloat fontSize = ((CGFloat)text->fontsize)*3.527777; // 1 pt = 1/72 inch = 0.3527777 mm.
     if (text->weight == 700) fontName = [fontName stringByAppendingString:@" Bold"];
     
     CTFontRef font = CTFontCreateWithName((CFStringRef)fontName, fontSize, NULL);
@@ -657,7 +657,7 @@ CFArrayRef CreateColorArray () {
     CTFrameRef frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0,0), p, NULL);
     CFRelease(framesetter);
     
-    NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity:5];
+    NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity:2];
     if (frame != NULL) {
         [d setObject:(id)frame forKey:@"frame"];
         CFRelease(frame);
@@ -1106,7 +1106,7 @@ void draw709 (void * info, CGContextRef context) {
         NSNumber *capStyle = [d objectForKey:@"capStyle"];
         NSNumber *joinStyle = [d objectForKey:@"joinStyle"];
         NSNumber *width = [d objectForKey:@"width"];
-        CGContextSetTextDrawingMode(ctx, kCGTextStroke);
+        CGContextSetTextDrawingMode(ctx, kCGTextFill);
         CGContextSetTextMatrix(ctx, CGAffineTransformIdentity);
         if (CGRectIntersectsRect(CGPathGetBoundingBox(path), CGContextGetClipBoundingBox(ctx))) {
             CGContextBeginPath(ctx);
