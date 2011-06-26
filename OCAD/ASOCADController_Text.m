@@ -1,0 +1,197 @@
+//
+//  ASOCADController_Text.m
+//  O-course
+//
+//  Created by Erik Aderstedt on 2011-06-26.
+//  Copyright 2011 Aderstedt Software AB. All rights reserved.
+//
+
+#import "ASOCADController_Text.h"
+
+@implementation ASOCADController (ASOCADController_Text)
+
+- (NSDictionary *)cachedDrawingInfoForTextObject:(struct ocad_element *)e {
+    struct ocad_text_symbol *text = (struct ocad_text_symbol *)(e->symbol);
+    
+    // Load the actual string
+	char *rawBuffer = (char *)&(e->coords[e->nCoordinates]);
+    char buffer[4096];
+    int i;
+    for (i =0; rawBuffer[i*2] != 0; i++) {
+        buffer[i] = rawBuffer[i*2];
+    }
+    buffer[i] = 0;
+    NSString *string = [NSString stringWithCString:buffer encoding:NSASCIIStringEncoding];
+    
+    // Load the font name and size.
+    rawBuffer = text->fontname;
+    NSString *fontName = [NSString stringWithCString:rawBuffer encoding:NSASCIIStringEncoding];
+    CGFloat fontSize = ((CGFloat)text->fontsize)*3.42; // 1 pt = 1/72 inch = 0.3527777 mm.
+    if (text->weight == 700) fontName = [fontName stringByAppendingString:@" Bold"];
+    
+    CTFontRef font = CTFontCreateWithName((CFStringRef)fontName, fontSize, NULL);
+    if (font == NULL) font = CTFontCreateWithName(CFSTR("Lucida Grande"), fontSize, NULL);
+    if (text->italic) {
+        CTFontRef oldFont = font;
+        font = CTFontCreateCopyWithSymbolicTraits(oldFont, fontSize, NULL, kCTFontItalicTrait, kCTFontItalicTrait);
+        if (font != NULL) {
+            CFRelease(oldFont);
+        } else {
+            font = oldFont;
+        }
+    }
+    string = [string stringByReplacingOccurrencesOfString:@"\r\n" withString:@"\n"];
+    
+    CTParagraphStyleSetting pss[20];
+    CTTextAlignment align = kCTLeftTextAlignment;
+    switch (text->alignment) {
+        case 0:
+        case 4:
+        case 8:
+            align = kCTLeftTextAlignment;
+            break;
+        case 1:
+        case 5:
+        case 9:
+            align = kCTCenterTextAlignment;
+            break;
+        case 2:
+        case 6:
+        case 10:
+            align = kCTRightTextAlignment;
+            break;
+        case 3:
+            align = kCTJustifiedTextAlignment;
+            break;
+        default:
+            NSLog(@"unknown alignment: %d", text->alignment);
+            break;
+    }
+    i = 0;
+    
+    pss[i].spec = kCTParagraphStyleSpecifierAlignment;
+    pss[i].valueSize = sizeof(CTTextAlignment);
+    pss[i].value = &align;
+    i++;
+    
+    CGFloat indent_first;
+    pss[i].spec = kCTParagraphStyleSpecifierFirstLineHeadIndent;
+    indent_first = text->indent_first;
+    pss[i].valueSize = sizeof(CGFloat);
+    pss[i].value = &indent_first;
+    i++;
+    
+    CGFloat indent_other;
+    pss[i].spec = kCTParagraphStyleSpecifierHeadIndent;
+    indent_other = text->indent_other;
+    pss[i].valueSize = sizeof(CGFloat);
+    pss[i].value = &indent_other;
+    i++;
+    
+    int j = 0;
+    CTTextTabRef tabArray[32];
+    for (j = 0; j < text->number_of_tabs; j++) {
+        CTTextTabRef tt = CTTextTabCreate(kCTLeftTextAlignment, ((CGFloat)text->tabs[j]) + 80.0, NULL);
+        tabArray[j] = tt;
+    }
+    CFArrayRef tabs = CFArrayCreate(NULL, (const void**) tabArray, text->number_of_tabs, NULL);
+    if (j > 0) {
+        pss[i].spec = kCTParagraphStyleSpecifierTabStops;
+        pss[i].valueSize = sizeof(CFMutableArrayRef);
+        pss[i].value = &tabs;
+        i++;
+    }
+    
+    CGFloat linespacing = ((CGFloat)(text->linespacing))/10.0 + CTFontGetLeading(font);
+    pss[i].spec = kCTParagraphStyleSpecifierLineSpacing;
+    pss[i].valueSize = sizeof(CGFloat);
+    pss[i].value = &linespacing;
+    i++;
+    
+    CGFloat paraspacing = 0.0;
+    pss[i].spec = kCTParagraphStyleSpecifierParagraphSpacing;
+    pss[i].valueSize = sizeof(CGFloat);
+    pss[i].value = &paraspacing;
+    i++;
+    
+    CGFloat paraspacingBefore = 0.0;
+    pss[i].spec = kCTParagraphStyleSpecifierParagraphSpacingBefore;
+    pss[i].valueSize = sizeof(CGFloat);
+    pss[i].value = &paraspacingBefore;
+    i++;
+    
+    CTParagraphStyleRef pstyle = CTParagraphStyleCreate(pss, i);
+    
+    CGColorRef color = [self colorWithNumber:text->fontcolor];
+    CFMutableAttributedStringRef attrString = CFAttributedStringCreateMutable(kCFAllocatorDefault, 0);
+    CFAttributedStringReplaceString (attrString, CFRangeMake(0, 0), (CFStringRef)string);
+    CFAttributedStringSetAttribute(attrString, CFRangeMake(0, CFStringGetLength((CFStringRef)string)), kCTForegroundColorAttributeName, color);
+    CFAttributedStringSetAttribute(attrString, CFRangeMake(0, CFStringGetLength((CFStringRef)string)), kCTFontAttributeName, font);
+    CFAttributedStringSetAttribute(attrString, CFRangeMake(0, CFStringGetLength((CFStringRef)string)), kCTParagraphStyleAttributeName, pstyle);
+    CFRelease(tabs);
+    CFRelease(pstyle);
+    
+    CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(attrString);
+    CFRelease(attrString);
+    
+    
+    NSLog(@"number of coords: %d", e->nCoordinates);
+    CGMutablePathRef p = CGPathCreateMutable();
+    CGRect r;
+    if (e->angle != 0 && e->angle != 3600) {
+        for (i = 0; i < e->nCoordinates; i++) {
+            NSLog(@"%d %d %d", i, e->coords[i].x >> 8, e->coords[i].y >> 8);
+        }
+        
+        CATransform3D transform = CATransform3DIdentity;
+        transform = CATransform3DRotate(transform, pi/180.0 * e->angle / 10.0, 0.0, 0.0, 1.0);
+        transform = CATransform3DTranslate(transform, -CGRectGetMidX(r), -CGRectGetMidY(r), 0.0);
+        CGAffineTransform at = CATransform3DGetAffineTransform(transform);
+        CGPathMoveToPoint(p, &at, e->coords[0].x >> 8, e->coords[0].y >> 8);
+        for (i = 1; i < e->nCoordinates; i++) {
+            CGPathAddLineToPoint(p, &at, e->coords[i].x >> 8, e->coords[i].y >> 8);
+        }
+        r = CGPathGetBoundingBox(p);
+    } else { 
+        int xmin, xmax, ymin, ymax, x, y;
+        xmin = xmax = e->coords[0].x >> 8;
+        ymin = ymax = e->coords[0].y >> 8;
+        for (i = 1; i < e->nCoordinates; i++) {
+            x = e->coords[i].x >> 8;
+            y = e->coords[i].y >> 8;
+            if (x < xmin) xmin = x;
+            if (x > xmax) xmax = x;
+            if (y < ymin) ymin = y;
+            if (y > ymax) ymax = y;
+        }
+        r.origin.x = xmin;
+        r.origin.y = ymin;
+        if (text->alignment == 0)
+            r.size.width = (xmax-xmin) * 1.1;
+        r.size.height = ymax-ymin;
+        CGPathAddRect(p, NULL, r);
+    }
+    CTFrameRef frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0,0), p, NULL);
+    CFRelease(framesetter);
+    
+    CFRelease(font);
+    
+    NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity:3];
+    if (frame != NULL) {
+        [d setObject:(id)frame forKey:@"frame"];
+        CFRelease(frame);
+    }
+    [d setObject:(id)p forKey:@"path"];
+    CGPathRelease(p);
+    
+    if (e->angle != 0 && e->angle != 3600) {
+        CATransform3D transform = CATransform3DIdentity;
+        transform = CATransform3DRotate(transform, pi/180.0 * e->angle / 10.0, 0.0, 0.0, 1.0);
+        transform = CATransform3DTranslate(transform, -CGRectGetMidX(r), -CGRectGetMidY(r), 0.0);
+        [d setObject:[NSValue valueWithCATransform3D:transform] forKey:@"transform"];
+    }
+    
+    return d;    
+}
+
+@end

@@ -249,8 +249,8 @@ struct ocad_text_symbol {
     uint16_t fontcolor;
     uint16_t fontsize; // 10x the size in pt.
     int16_t weight; // 400: normal. 700: bold
-    uint16_t italic;
-    uint8_t reserved0;
+    uint8_t italic;
+
     int16_t charspacing;
     int16_t wordspacing;
     int16_t alignment;  // 0: bottom left

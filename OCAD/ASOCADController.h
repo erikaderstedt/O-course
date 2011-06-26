@@ -13,19 +13,6 @@
 
 void ColorRelease (CFAllocatorRef allocator,const void *value);
 CFArrayRef CreateColorArray();
-void draw211 (void * info,CGContextRef context);
-void draw309 (void * info,CGContextRef context);
-void draw310 (void * info,CGContextRef context);
-void draw311 (void * info,CGContextRef context);
-void draw402 (void * info,CGContextRef context);
-void draw404 (void * info,CGContextRef context);
-void draw407or409 (void * info,CGContextRef context);
-void draw412 (void * info,CGContextRef context);
-void draw413 (void * info,CGContextRef context);
-void draw415 (void * info, CGContextRef context);
-void drawUnknown( void *info, CGContextRef context);
-void draw528 (void * info, CGContextRef context);
-void draw709 (void * info, CGContextRef context);
 
 @interface ASOCADController : NSObject <ASMapProvider> {
 @private
@@ -45,17 +32,13 @@ void draw709 (void * info, CGContextRef context);
 }
 - (id)initWithOCADFile:(NSString *)path;
 
-- (void)createAreaSymbolColors;
 - (CGColorRef)colorWithNumber:(int)color_number;
 
 - (NSArray *)createCacheFromIndex:(NSInteger)start upToButNotIncludingIndex:(NSInteger)stop;
 - (void)createCache;
 
-- (NSDictionary *)cachedDrawingInfoForAreaObject:(struct ocad_element *)e;
 - (NSArray *)cachedDrawingInfoForPointObject:(struct ocad_element *)e;
 - (NSDictionary *)cachedDrawingInfoForRectangleObject:(struct ocad_element *)e;
-- (NSArray *)cachedDrawingInfoForLineObject:(struct ocad_element *)e;
-- (NSDictionary *)cachedDrawingInfoForTextObject:(struct ocad_element *)e;
 - (NSArray *)cacheSymbolElements:(struct ocad_symbol_element *)se atPoint:(NSPoint)origin withAngle:(float)angle totalDataSize:(uint16_t)data_size;
 
 + (float)angleBetweenPoint:(NSPoint)p1 andPoint:(NSPoint)p2;

@@ -33,6 +33,15 @@
 		03A3528813B331350028D87C /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 033D6817134AF79C00502CA8 /* QuartzCore.framework */; };
 		03A3528913B331450028D87C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 032001C212FE9EF900707BA5 /* Foundation.framework */; };
 		03A3529313B33AD80028D87C /* OCAD map preview.qlgenerator in CopyFiles */ = {isa = PBXBuildFile; fileRef = 03A3526A13B31C5D0028D87C /* OCAD map preview.qlgenerator */; };
+		03A5113F13B7AE6000469BCF /* ASOCADController_Text.h in Headers */ = {isa = PBXBuildFile; fileRef = 03A5113D13B7AE5F00469BCF /* ASOCADController_Text.h */; };
+		03A5114013B7AE6000469BCF /* ASOCADController_Text.m in Sources */ = {isa = PBXBuildFile; fileRef = 03A5113E13B7AE6000469BCF /* ASOCADController_Text.m */; };
+		03A5114113B7AE6000469BCF /* ASOCADController_Text.m in Sources */ = {isa = PBXBuildFile; fileRef = 03A5113E13B7AE6000469BCF /* ASOCADController_Text.m */; };
+		03A5114413B7AE9100469BCF /* ASOCADController_Area.h in Headers */ = {isa = PBXBuildFile; fileRef = 03A5114213B7AE9100469BCF /* ASOCADController_Area.h */; };
+		03A5114513B7AE9100469BCF /* ASOCADController_Area.m in Sources */ = {isa = PBXBuildFile; fileRef = 03A5114313B7AE9100469BCF /* ASOCADController_Area.m */; };
+		03A5114613B7AE9100469BCF /* ASOCADController_Area.m in Sources */ = {isa = PBXBuildFile; fileRef = 03A5114313B7AE9100469BCF /* ASOCADController_Area.m */; };
+		03A5114913B7AF0E00469BCF /* ASOCADController_Line.h in Headers */ = {isa = PBXBuildFile; fileRef = 03A5114713B7AF0E00469BCF /* ASOCADController_Line.h */; };
+		03A5114A13B7AF0E00469BCF /* ASOCADController_Line.m in Sources */ = {isa = PBXBuildFile; fileRef = 03A5114813B7AF0E00469BCF /* ASOCADController_Line.m */; };
+		03A5114B13B7AF0E00469BCF /* ASOCADController_Line.m in Sources */ = {isa = PBXBuildFile; fileRef = 03A5114813B7AF0E00469BCF /* ASOCADController_Line.m */; };
 		03C305161347B5FA00FB8133 /* ASOCADController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03C305151347B5FA00FB8133 /* ASOCADController.m */; };
 /* End PBXBuildFile section */
 
@@ -94,6 +103,12 @@
 		03A3527B13B31C5E0028D87C /* GeneratePreviewForURL.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GeneratePreviewForURL.m; sourceTree = "<group>"; };
 		03A3527D13B31C5E0028D87C /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		03A3527F13B31C5E0028D87C /* OCAD map preview-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OCAD map preview-Prefix.pch"; sourceTree = "<group>"; };
+		03A5113D13B7AE5F00469BCF /* ASOCADController_Text.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASOCADController_Text.h; sourceTree = "<group>"; };
+		03A5113E13B7AE6000469BCF /* ASOCADController_Text.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASOCADController_Text.m; sourceTree = "<group>"; };
+		03A5114213B7AE9100469BCF /* ASOCADController_Area.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASOCADController_Area.h; sourceTree = "<group>"; };
+		03A5114313B7AE9100469BCF /* ASOCADController_Area.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASOCADController_Area.m; sourceTree = "<group>"; };
+		03A5114713B7AF0E00469BCF /* ASOCADController_Line.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASOCADController_Line.h; sourceTree = "<group>"; };
+		03A5114813B7AF0E00469BCF /* ASOCADController_Line.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASOCADController_Line.m; sourceTree = "<group>"; };
 		03C305141347B5FA00FB8133 /* ASOCADController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASOCADController.h; sourceTree = "<group>"; };
 		03C305151347B5FA00FB8133 /* ASOCADController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASOCADController.m; sourceTree = "<group>"; };
 		03C305171347B60B00FB8133 /* ASMapProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASMapProvider.h; sourceTree = "<group>"; };
@@ -203,8 +218,14 @@
 			children = (
 				032001E012FE9F1000707BA5 /* ocdimport.c */,
 				032001E112FE9F1000707BA5 /* ocdimport.h */,
+				03A5114213B7AE9100469BCF /* ASOCADController_Area.h */,
+				03A5114313B7AE9100469BCF /* ASOCADController_Area.m */,
+				03A5113D13B7AE5F00469BCF /* ASOCADController_Text.h */,
+				03A5113E13B7AE6000469BCF /* ASOCADController_Text.m */,
 				03C305141347B5FA00FB8133 /* ASOCADController.h */,
 				03C305151347B5FA00FB8133 /* ASOCADController.m */,
+				03A5114713B7AF0E00469BCF /* ASOCADController_Line.h */,
+				03A5114813B7AF0E00469BCF /* ASOCADController_Line.m */,
 			);
 			path = OCAD;
 			sourceTree = "<group>";
@@ -247,6 +268,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				03A5113F13B7AE6000469BCF /* ASOCADController_Text.h in Headers */,
+				03A5114413B7AE9100469BCF /* ASOCADController_Area.h in Headers */,
+				03A5114913B7AF0E00469BCF /* ASOCADController_Line.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -362,6 +386,9 @@
 				03C305161347B5FA00FB8133 /* ASOCADController.m in Sources */,
 				0373FA6D1349A42C006E41C9 /* ASMapView.m in Sources */,
 				03A3525013B30F480028D87C /* AppDelegate.m in Sources */,
+				03A5114013B7AE6000469BCF /* ASOCADController_Text.m in Sources */,
+				03A5114513B7AE9100469BCF /* ASOCADController_Area.m in Sources */,
+				03A5114A13B7AF0E00469BCF /* ASOCADController_Line.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -374,6 +401,9 @@
 				03A3527E13B31C5E0028D87C /* main.c in Sources */,
 				03A3528613B32B030028D87C /* ASOCADController.m in Sources */,
 				03A3528713B32B060028D87C /* ocdimport.c in Sources */,
+				03A5114113B7AE6000469BCF /* ASOCADController_Text.m in Sources */,
+				03A5114613B7AE9100469BCF /* ASOCADController_Area.m in Sources */,
+				03A5114B13B7AF0E00469BCF /* ASOCADController_Line.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
