@@ -26,7 +26,7 @@
     // Load the font name and size.
     rawBuffer = text->fontname;
     NSString *fontName = [NSString stringWithCString:rawBuffer encoding:NSASCIIStringEncoding];
-    CGFloat fontSize = ((CGFloat)text->fontsize)*3.42; // 1 pt = 1/72 inch = 0.3527777 mm.
+    CGFloat fontSize = ((CGFloat)text->fontsize)*72.0/2.54 / 10.0;
     if (text->weight == 700) fontName = [fontName stringByAppendingString:@" Bold"];
     
     CTFontRef font = CTFontCreateWithName((CFStringRef)fontName, fontSize, NULL);
@@ -40,7 +40,7 @@
             font = oldFont;
         }
     }
-    string = [string stringByReplacingOccurrencesOfString:@"\r\n" withString:@"\n"];
+    string = [string stringByReplacingOccurrencesOfString:@"\r\n" withString:@"\r"];
     
     CTParagraphStyleSetting pss[20];
     CTTextAlignment align = kCTLeftTextAlignment;
@@ -101,11 +101,17 @@
         pss[i].value = &tabs;
         i++;
     }
-    
-    CGFloat linespacing = ((CGFloat)(text->linespacing))/10.0 + CTFontGetLeading(font);
-    pss[i].spec = kCTParagraphStyleSpecifierLineSpacing;
+
+    CGFloat maxLineHeight = ((CGFloat)(text->linespacing)) *2.07; // TODO: fix this magic number.
+    pss[i].spec = kCTParagraphStyleSpecifierMaximumLineHeight;
     pss[i].valueSize = sizeof(CGFloat);
-    pss[i].value = &linespacing;
+    pss[i].value = &maxLineHeight;
+    i++;
+    
+    CGFloat minLineHeight = maxLineHeight;
+    pss[i].spec = kCTParagraphStyleSpecifierMinimumLineHeight;
+    pss[i].valueSize = sizeof(CGFloat);
+    pss[i].value = &minLineHeight;
     i++;
     
     CGFloat paraspacing = 0.0;
@@ -118,6 +124,12 @@
     pss[i].spec = kCTParagraphStyleSpecifierParagraphSpacingBefore;
     pss[i].valueSize = sizeof(CGFloat);
     pss[i].value = &paraspacingBefore;
+    i++;
+    
+    CGFloat leading = 0.0;
+    pss[i].spec = kCTParagraphStyleSpecifierLineSpacing;
+    pss[i].valueSize = sizeof(CGFloat);
+    pss[i].value = &leading;
     i++;
     
     CTParagraphStyleRef pstyle = CTParagraphStyleCreate(pss, i);
@@ -134,15 +146,11 @@
     CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(attrString);
     CFRelease(attrString);
     
-    
-    NSLog(@"number of coords: %d", e->nCoordinates);
+
     CGMutablePathRef p = CGPathCreateMutable();
     CGRect r;
     if (e->angle != 0 && e->angle != 3600) {
-        for (i = 0; i < e->nCoordinates; i++) {
-            NSLog(@"%d %d %d", i, e->coords[i].x >> 8, e->coords[i].y >> 8);
-        }
-        
+
         CATransform3D transform = CATransform3DIdentity;
         transform = CATransform3DRotate(transform, pi/180.0 * e->angle / 10.0, 0.0, 0.0, 1.0);
         transform = CATransform3DTranslate(transform, -CGRectGetMidX(r), -CGRectGetMidY(r), 0.0);
@@ -167,8 +175,11 @@
         r.origin.x = xmin;
         r.origin.y = ymin;
         if (text->alignment == 0)
-            r.size.width = (xmax-xmin) * 1.1;
+            r.size.width = (xmax-xmin) * 1.0;
         r.size.height = ymax-ymin;
+        
+        r.origin.y += ((CGFloat)text->paraspacing)*2.07;
+        
         CGPathAddRect(p, NULL, r);
     }
     CTFrameRef frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0,0), p, NULL);

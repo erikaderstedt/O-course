@@ -254,6 +254,7 @@
     tiledLayer.name = @"tiled";
     tiledLayer.needsDisplayOnBoundsChange = YES;
     tiledLayer.backgroundColor = CGColorCreateGenericRGB(1.0, 1.0, 1.0, 1.0);
+    tiledLayer.tileSize = CGSizeMake(512.0, 512.0);
     
     tiledLayer.levelsOfDetail = 15;
     tiledLayer.levelsOfDetailBias = 2;

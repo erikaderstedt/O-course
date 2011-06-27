@@ -488,18 +488,21 @@ CFArrayRef CreateColorArray () {
             if (frame != NULL) {
                 CGContextSaveGState(ctx);
                 CGContextSetTextMatrix(ctx, CGAffineTransformIdentity);
+                //CGFloat debugColor[4] = {1.0,0.0,0.0,1.0};
+                //CGContextSetStrokeColor(ctx, debugColor);
+                //CGContextStrokePath(ctx); 
+                /*
                 NSValue *transform = [d objectForKey:@"transform"];
                 if (transform != nil) {
                     CATransform3D t = [transform CATransform3DValue];
                     CGAffineTransform at = CATransform3DGetAffineTransform(t);
                     NSLog(@"%f %f", at.b, at.c);
                     CGContextConcatCTM(ctx, at);
-                    CGFloat debugColor[4] = {1.0,0.0,0.0,1.0};
                     CGContextSetStrokeColor(ctx, debugColor );
                     CGContextBeginPath(ctx);
                     CGContextAddPath(ctx, path);
                     CGContextStrokePath(ctx);
-                }
+                } */
                 CTFrameDraw(frame, ctx);                
                 CGContextRestoreGState(ctx);
             }

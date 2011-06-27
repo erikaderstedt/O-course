@@ -250,7 +250,7 @@ struct ocad_text_symbol {
     uint16_t fontsize; // 10x the size in pt.
     int16_t weight; // 400: normal. 700: bold
     uint8_t italic;
-
+    uint8_t character_set;
     int16_t charspacing;
     int16_t wordspacing;
     int16_t alignment;  // 0: bottom left
@@ -290,8 +290,6 @@ struct ocad_text_symbol {
     int16_t frame_top;
     int16_t frame_color;
     int16_t frame_width;
-    int16_t reserved5;
-    int16_t reserved4;
     int16_t frame_shadow_offset_x;
     int16_t frame_shadow_offset_y;
 };
@@ -322,8 +320,8 @@ struct ocad_line_text_symbol {
     uint16_t fontcolor;
     uint16_t fontsize; // 10x the size in pt.
     int16_t weight; // 400: normal. 700: bold
-    uint16_t italic;
-    uint8_t reserved0;
+    uint8_t italic;
+    uint8_t character_set;
     int16_t charspacing;
     int16_t wordspacing;
     int16_t alignment;  // 0: bottom left
@@ -346,8 +344,6 @@ struct ocad_line_text_symbol {
     uint8_t reserved2[32];
     int16_t frame_color;
     int16_t frame_width;
-    int16_t reserved5;
-    int16_t reserved4;
     int16_t frame_shadow_offset_x;
     int16_t frame_shadow_offset_y;
 };

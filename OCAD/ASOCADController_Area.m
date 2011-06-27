@@ -30,11 +30,10 @@
 								  e->coords[c+2].x >> 8, e->coords[c+2].y >> 8);
             c += 2;
             
-        } else      if (e->coords[c].y & 2) {
+        } else if (e->coords[c].y & 2) {
 			CGPathCloseSubpath(p);
 			CGPathMoveToPoint(p, NULL, e->coords[c].x >> 8, e->coords[c].y >> 8);
-        }
-        else {
+        } else {
 			CGPathAddLineToPoint(p, NULL, e->coords[c].x >> 8, e->coords[c].y >> 8);
         }
     }
@@ -43,8 +42,6 @@
 	CGPathRelease(p);
 	return d;
 }
-
-
 
 - (CGColorRef)areaColorForSymbol:(struct ocad_area_symbol *)a transform:(CGAffineTransform)transform {
     CGColorSpaceRef cspace = CGColorSpaceCreatePattern(NULL);
