@@ -230,7 +230,7 @@
 	if (tentativeNewOrigin.y < 0.0) tentativeNewOrigin.y = 0.0;
 	if (tentativeNewOrigin.x + v.size.width > NSMaxX(f)) tentativeNewOrigin.x = NSMaxX(f) - v.size.width;
 	if (tentativeNewOrigin.y + v.size.height > NSMaxY(f)) tentativeNewOrigin.y = NSMaxY(f) - v.size.height;
-	[cv scrollToPoint:tentativeNewOrigin];
+	[cv scrollToPoint:NSPointFromCGPoint(tentativeNewOrigin)];
 	[CATransaction commit];
 
 	[tiledLayer performSelector:@selector(setNeedsDisplay) withObject:nil afterDelay:1.0];

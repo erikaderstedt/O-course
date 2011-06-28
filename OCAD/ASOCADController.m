@@ -104,33 +104,46 @@ CFArrayRef CreateColorArray () {
         [self createAreaSymbolColors];
 
         [self createCache];
-		free(ocdf);
     }
     return self;
 }
 
 - (void)dealloc {
-	[renderingQueue waitUntilAllOperationsAreFinished];
-	[renderingQueue release];
 	[areaSymbolColors release];
 	[colors release];
-	[cachedDrawingInformation release];
+    if (cachedDrawingInfo != NULL) {
+        int i = 0;
+        for (i = 0; i < num_cached_objects; i++) {
+            if (cachedDrawingInfo[i].path != NULL) CGPathRelease(cachedDrawingInfo[i].path);
+            if (cachedDrawingInfo[i].strokeColor != NULL) CGColorRelease(cachedDrawingInfo[i].strokeColor);
+            if (cachedDrawingInfo[i].fillColor != NULL) CGColorRelease(cachedDrawingInfo[i].fillColor);
+            if (cachedDrawingInfo[i].frame != NULL) CFRelease(cachedDrawingInfo[i].frame);
+        }
+        free(cachedDrawingInfo);
+        cachedDrawingInfo = NULL;
+    }
+    if (ocdf != NULL) {
+        free(ocdf);
+        ocdf = NULL;
+    }
     
     CGColorRelease(blackColor);
 	
 	[super dealloc];
 }
 
-- (NSRect)mapBounds {
+- (CGRect)mapBounds {
     CGPathRef thePath;
 	CGRect pathBounds;
 	CGRect wholeMap = CGRectMake(0.0,0.0,0.0,0.0);
 	BOOL firstSet = NO;
+    int i;
     
-	if ([cachedDrawingInformation count] == 0) return NSZeroRect;
+	if (cachedDrawingInfo == NULL) return CGRectZero;
 	
-	for (NSDictionary *cachedData in cachedDrawingInformation) {
-		thePath = (CGPathRef)[cachedData objectForKey:@"path"];
+    for (i = num_cached_objects - 1; i >= 0; i--) {        
+		thePath = (CGPathRef)cachedDrawingInfo[i].path;
+        
 		if (thePath != NULL) {
             pathBounds = CGPathGetPathBoundingBox(thePath);
             if (firstSet)
@@ -145,13 +158,11 @@ CFArrayRef CreateColorArray () {
 }
 
 - (NSInteger)symbolNumberAtPosition:(CGPoint)p {
-	NSEnumerator *cacheEnumerator = [cachedDrawingInformation reverseObjectEnumerator];
-	NSDictionary *info;
-	while ((info = [cacheEnumerator nextObject])) {
-		CGPathRef path = (CGPathRef)[info objectForKey:@"path"];
-		if (CGPathContainsPoint(path, NULL, p, true)) {
+	int i;
+    for (i = num_cached_objects - 1; i >= 0; i--) {        
+		if (CGPathContainsPoint(cachedDrawingInfo[i].path, NULL, p, true)) {
             // TODO: store the symbol number in the cache, and return that instead.
-            return 1;
+            return cachedDrawingInfo[i].symbol->symnum;
         }
 	}
 	
@@ -232,19 +243,19 @@ CFArrayRef CreateColorArray () {
 }
 
 - (void)createCache {
-
-    if (ocdf == NULL) {
-        if (cachedDrawingInformation != nil) {
-            [cachedDrawingInformation release];
-            cachedDrawingInformation = nil;
-        }
-        return;
+    if (cachedDrawingInfo != NULL) {
+        num_cached_objects = 0;
+        free(cachedDrawingInfo);
+        cachedDrawingInfo = NULL;
     }
+    
+    if (ocdf == NULL) return;
+    
     NSMutableArray *invocations = [NSMutableArray arrayWithCapacity:4];
     NSMethodSignature *ms = [self methodSignatureForSelector:@selector(createCacheFromIndex:upToButNotIncludingIndex:)];
     NSOperationQueue *queue = [[NSOperationQueue alloc] init];
     [queue setMaxConcurrentOperationCount:CONCURRENCY];
-    
+
     NSInteger i, num = ocdf->num_objects, start = 0, stop;
     for (i = 0; i < CONCURRENCY; i++) {
         NSInvocation *inv = [NSInvocation invocationWithMethodSignature:ms];
@@ -258,24 +269,64 @@ CFArrayRef CreateColorArray () {
         [invocations addObject:op];
         [queue addOperation:op];
     }
-    
-    if (cachedDrawingInformation != nil) {
-        [cachedDrawingInformation removeAllObjects];
-    } else {
-        cachedDrawingInformation = [NSMutableArray arrayWithCapacity:10000];
-    }
-    
+        
     [queue waitUntilAllOperationsAreFinished];
+    
+    // Count the number of objects.
+    NSInteger frags = 0, j,k;
+
     for (i = 0; i < 7; i++) {
         for (NSInvocationOperation *op in invocations) {
-            [cachedDrawingInformation addObjectsFromArray:[[op result] objectAtIndex:i]];
+            frags += [[[op result] objectAtIndex:i] count];
         }
     }
+    cachedDrawingInfo = calloc(frags, sizeof(struct ocad_cache));
+    if (cachedDrawingInfo == NULL) {
+        return;
+    }
+    
+    j = 0;
+    for (i = 0; i < 7; i++) {
+        for (NSInvocationOperation *op in invocations) { 
+            NSArray *items= [[op result] objectAtIndex:i];
+            for (NSDictionary *item in items) {
+                cachedDrawingInfo[j].fillColor = (CGColorRef)[item objectForKey:@"fillColor"];
+                cachedDrawingInfo[j].strokeColor = (CGColorRef)[item objectForKey:@"strokeColor"];
+                cachedDrawingInfo[j].path = (CGPathRef)[item objectForKey:@"path"];
+                cachedDrawingInfo[j].frame  =(CTFrameRef)[item objectForKey:@"frame"];
+                cachedDrawingInfo[j].angle = [[item objectForKey:@"angle"] doubleValue];
+                cachedDrawingInfo[j].midpoint = CGPointMake([[item objectForKey:@"midX"] doubleValue], [[item objectForKey:@"midY"] doubleValue]);
+                cachedDrawingInfo[j].capStyle = (CGLineCap)[[item objectForKey:@"capStyle"] intValue];
+                cachedDrawingInfo[j].joinStyle = (CGLineJoin)[[item objectForKey:@"joinStyle"] intValue];
+                cachedDrawingInfo[j].width = [[item objectForKey:@"width"] doubleValue];
+                cachedDrawingInfo[j].symbol = [[item objectForKey:@"symbol"] pointerValue];
+                NSArray *dashes = [item objectForKey:@"dashes"];
+                if (dashes != nil) {
+                    cachedDrawingInfo[j].num_dashes = (int)[dashes count];
+                    k = 0;
+                    for (NSNumber *dash in dashes) {
+                        cachedDrawingInfo[j].dashes[k++] = [dash doubleValue];
+                    }
+                }
+                if (cachedDrawingInfo[j].path != NULL) CGPathRetain(cachedDrawingInfo[j].path);
+                if (cachedDrawingInfo[j].strokeColor != NULL) CGColorRetain(cachedDrawingInfo[j].strokeColor);
+                if (cachedDrawingInfo[j].fillColor != NULL) CGColorRetain(cachedDrawingInfo[j].fillColor);
+                if (cachedDrawingInfo[j].frame != NULL) CFRetain(cachedDrawingInfo[j].frame);
+                
+                if (cachedDrawingInfo[j].path != NULL) {
+                    cachedDrawingInfo[j].boundingBox = CGPathGetBoundingBox(cachedDrawingInfo[j].path);
+                }
+                j++;
+                
+            }
+        }
+    }
+    num_cached_objects = (int)frags;
+    
     for (NSInvocationOperation *op in invocations) {
         [op release];
     }
     [queue release];
-	[cachedDrawingInformation retain];
 }
 
 
@@ -444,23 +495,26 @@ CFArrayRef CreateColorArray () {
 // CATiledLayer delegate stuff. Also used by the quicklook plugin.
 // In the latter case, layer will be NULL.
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
-    for (NSDictionary *d in cachedDrawingInformation) {
-        CGPathRef path = (CGPathRef)[d objectForKey:@"path"];
-        CGColorRef strokeColor = (CGColorRef)[d objectForKey:@"strokeColor"];
-        CGColorRef fillColor = (CGColorRef)[d objectForKey:@"fillColor"];
-        CTFrameRef frame = (CTFrameRef)[d objectForKey:@"frame"];
-        NSNumber *capStyle = [d objectForKey:@"capStyle"];
-        NSNumber *joinStyle = [d objectForKey:@"joinStyle"];
-        NSNumber *width = [d objectForKey:@"width"];
-        CGContextSetTextDrawingMode(ctx, kCGTextFill);
-        CGContextSetTextMatrix(ctx, CGAffineTransformIdentity);
-        if (CGRectIntersectsRect(CGPathGetBoundingBox(path), CGContextGetClipBoundingBox(ctx))) {
+    CGContextSetTextDrawingMode(ctx, kCGTextFill);
+    int i;
+    
+    // TODO: Perhaps we can multithread this by rendering into bitmaps and then compositing those bitmaps on top of each other.
+    CGRect clipBox = CGContextGetClipBoundingBox(ctx);
+    for (i = 0; i < num_cached_objects; i++) {
+        CGPathRef path = cachedDrawingInfo[i].path;
+        CGColorRef strokeColor = cachedDrawingInfo[i].strokeColor;
+        CGColorRef fillColor = cachedDrawingInfo[i].fillColor;
+        CTFrameRef frame = cachedDrawingInfo[i].frame;
+        CGRect bb = cachedDrawingInfo[i].boundingBox;
+        if (CGRectIntersectsRect(bb, clipBox)) {
             CGContextBeginPath(ctx);
             CGContextAddPath(ctx,path);
             if (fillColor != NULL) {
                 if (CGColorGetPattern(fillColor) != NULL) {
-                    struct ocad_area_symbol *area = (struct ocad_area_symbol *)[[d objectForKey:@"symbol"] pointerValue];
-                    CGAffineTransform matrix = CGContextGetCTM(ctx);                    
+                    struct ocad_area_symbol *area = (struct ocad_area_symbol *)cachedDrawingInfo[i].symbol;
+                    CGAffineTransform matrix = CGContextGetCTM(ctx);
+                    if (cachedDrawingInfo[i].angle != 0.0) 
+                        matrix = CGAffineTransformRotate(matrix, cachedDrawingInfo[i].angle);
                     CGContextSetFillColorWithColor(ctx, [self areaColorForSymbol:area transform:matrix]);
                 } else {
                     CGContextSetFillColorWithColor(ctx, fillColor);
@@ -469,32 +523,25 @@ CFArrayRef CreateColorArray () {
             }
             if (strokeColor != NULL) {
                 CGContextSetStrokeColorWithColor(ctx, strokeColor);
-                CGContextSetLineWidth(ctx, [width doubleValue]);
-                NSMutableArray *dashes = [d valueForKey:@"dashes"];
-                if (dashes != nil) {
-                    CGFloat dashValues[4];
-                    int i = 0;
-                    for (NSNumber *dValue in dashes) {
-                        dashValues[i++] = [dValue doubleValue];
-                    }
-                    CGContextSetLineDash(ctx, 0.0, dashValues, i);
+                CGContextSetLineWidth(ctx, cachedDrawingInfo[i].width);
+                if (cachedDrawingInfo[i].num_dashes) {
+                    CGContextSetLineDash(ctx, 0.0, cachedDrawingInfo[i].dashes, cachedDrawingInfo[i].num_dashes);
                 } else {
                     CGContextSetLineDash(ctx, 0.0, NULL, 0);
                 }
-                if (joinStyle != NULL) CGContextSetLineJoin(ctx, (enum CGLineJoin)[joinStyle integerValue]);
-                if (capStyle != NULL) CGContextSetLineCap(ctx, (enum CGLineCap)[capStyle integerValue]);
+                CGContextSetLineJoin(ctx, cachedDrawingInfo[i].capStyle);
+                CGContextSetLineCap(ctx, cachedDrawingInfo[i].joinStyle);
                 CGContextStrokePath(ctx);
             }
             if (frame != NULL) {
                 CGContextSaveGState(ctx);
-                NSNumber *angle = [d objectForKey:@"angle"];
-                CGFloat alpha = [angle doubleValue]*pi/180.0;
-                if (angle != nil) {
-                    CGFloat x0 = [[d objectForKey:@"midX"] doubleValue];
-                    CGFloat y0 = [[d objectForKey:@"midY"] doubleValue];
+
+                CGFloat alpha = cachedDrawingInfo[i].angle*pi/180.0;
+                if (alpha != 0.0) {
+                    CGPoint m = cachedDrawingInfo[i].midpoint;
                     CGAffineTransform at = CGAffineTransformMake(cos(alpha), sin(alpha), -sin(alpha), cos(alpha), 
-                                                                 y0*sin(alpha)+ x0*(1.0-cos(alpha)), 
-                                                                 -x0*sin(alpha) + y0*(1.0-cos(alpha))); 
+                                                                 m.y*sin(alpha)+ m.x*(1.0-cos(alpha)), 
+                                                                 -m.x*sin(alpha) + m.y*(1.0-cos(alpha))); 
                     CGContextConcatCTM(ctx, at);
                } else {
                     CGContextSetTextMatrix(ctx, CGAffineTransformIdentity);                    

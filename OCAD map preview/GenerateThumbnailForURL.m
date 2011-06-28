@@ -22,7 +22,7 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
    // Get the bounds.
     // Calculate appropriate scaling, so that the longest dimension is 2048 pixels, and the other is scaled with
     // a preserved aspect ratio.
-    CGRect r = NSRectToCGRect([ocad mapBounds]);
+    CGRect r = [ocad mapBounds];
     CGFloat scalingFactor;
     scalingFactor = ((r.size.height/maxSize.height > r.size.width/maxSize.width)?(r.size.height/maxSize.height):(r.size.width/maxSize.width)) / 2048.0;
     

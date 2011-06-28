@@ -38,7 +38,7 @@
 @interface ASMapView : NSView {
 	id <ASMapProvider> mapProvider;
 	NSAffineTransform *currentTransform;
-	NSRect mapBounds;
+	CGRect mapBounds;
 
 	NSMutableArray *imageCaches;
 	NSImage *cachedImage;

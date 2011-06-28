@@ -15,7 +15,7 @@
 - (NSInteger)symbolNumberAtPosition:(CGPoint)p;
  */
 
-- (NSRect)mapBounds; // In native coordinates.
+- (CGRect)mapBounds; // In native coordinates.
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx;
 
 @end

@@ -26,7 +26,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
     // Get the bounds.
     // Calculate appropriate scaling, so that the longest dimension is 2048 pixels, and the other is scaled with
     // a preserved aspect ratio.
-    CGRect r = NSRectToCGRect([ocad mapBounds]);
+    CGRect r = [ocad mapBounds];
     CGFloat scalingFactor;
     scalingFactor = ((r.size.height/requestedHeight > r.size.width/requestedWidth)?(r.size.height/requestedHeight):(r.size.width/requestedWidth));
     CGSize previewSize = CGSizeMake(r.size.width / scalingFactor, r.size.height / scalingFactor);

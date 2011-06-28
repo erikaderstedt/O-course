@@ -11,12 +11,30 @@
 #import "ASMapProvider.h"
 #import "ocdimport.h"
 
+struct ocad_cache {
+    CGRect      boundingBox;
+    CGPathRef   path;
+    CGColorRef  fillColor;
+    CGColorRef  strokeColor;
+    CTFrameRef  frame;
+    CGLineCap   capStyle;
+    CGLineJoin  joinStyle;
+    CGFloat     width;
+    struct ocad_symbol *symbol;
+    CGFloat     angle;
+    CGPoint     midpoint;
+    
+    CGFloat     dashes[4];
+    int         num_dashes;
+};
+
 void ColorRelease (CFAllocatorRef allocator,const void *value);
 CFArrayRef CreateColorArray();
 
 @interface ASOCADController : NSObject <ASMapProvider> {
 @private
-  	NSMutableArray *cachedDrawingInformation;
+    struct  ocad_cache *cachedDrawingInfo;
+    int     num_cached_objects;
 
     NSString *ocd_path;
     struct ocad_file *ocdf;
@@ -27,8 +45,6 @@ CFArrayRef CreateColorArray();
     NSArray *colors;
     CGColorRef blackColor;
     NSMutableDictionary *areaSymbolColors;
-	
-	NSOperationQueue *renderingQueue;
 }
 - (id)initWithOCADFile:(NSString *)path;
 
