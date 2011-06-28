@@ -187,7 +187,6 @@
         CGPathRelease(p);
         p = CGPathCreateMutable();
         CGPathAddRect(p, NULL, r);
-        NSLog(@"%f %f %f %f", r.origin.x, r.origin.y, r.size.width, r.size.height);
     } else {  
         int xmin, xmax, ymin, ymax;
         xmin = xmax = e->coords[0].x >> 8;
