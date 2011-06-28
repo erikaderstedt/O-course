@@ -487,22 +487,18 @@ CFArrayRef CreateColorArray () {
             }
             if (frame != NULL) {
                 CGContextSaveGState(ctx);
-                CGContextSetTextMatrix(ctx, CGAffineTransformIdentity);
-                //CGFloat debugColor[4] = {1.0,0.0,0.0,1.0};
-                //CGContextSetStrokeColor(ctx, debugColor);
-                //CGContextStrokePath(ctx); 
-                /*
-                NSValue *transform = [d objectForKey:@"transform"];
-                if (transform != nil) {
-                    CATransform3D t = [transform CATransform3DValue];
-                    CGAffineTransform at = CATransform3DGetAffineTransform(t);
-                    NSLog(@"%f %f", at.b, at.c);
+                NSNumber *angle = [d objectForKey:@"angle"];
+                CGFloat alpha = [angle doubleValue]*pi/180.0;
+                if (angle != nil) {
+                    CGFloat x0 = [[d objectForKey:@"midX"] doubleValue];
+                    CGFloat y0 = [[d objectForKey:@"midY"] doubleValue];
+                    CGAffineTransform at = CGAffineTransformMake(cos(alpha), sin(alpha), -sin(alpha), cos(alpha), 
+                                                                 y0*sin(alpha)+ x0*(1.0-cos(alpha)), 
+                                                                 -x0*sin(alpha) + y0*(1.0-cos(alpha))); 
                     CGContextConcatCTM(ctx, at);
-                    CGContextSetStrokeColor(ctx, debugColor );
-                    CGContextBeginPath(ctx);
-                    CGContextAddPath(ctx, path);
-                    CGContextStrokePath(ctx);
-                } */
+               } else {
+                    CGContextSetTextMatrix(ctx, CGAffineTransformIdentity);                    
+                }
                 CTFrameDraw(frame, ctx);                
                 CGContextRestoreGState(ctx);
             }

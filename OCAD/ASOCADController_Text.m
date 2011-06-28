@@ -30,7 +30,10 @@
     if (text->weight == 700) fontName = [fontName stringByAppendingString:@" Bold"];
     
     CTFontRef font = CTFontCreateWithName((CFStringRef)fontName, fontSize, NULL);
-    if (font == NULL) font = CTFontCreateWithName(CFSTR("Lucida Grande"), fontSize, NULL);
+    if (font == NULL) {
+        NSLog(@"Replacing '%@' with Lucida Grande", fontName);
+        font = CTFontCreateWithName(CFSTR("Lucida Grande"), fontSize, NULL);
+    }
     if (text->italic) {
         CTFontRef oldFont = font;
         font = CTFontCreateCopyWithSymbolicTraits(oldFont, fontSize, NULL, kCTFontItalicTrait, kCTFontItalicTrait);
@@ -149,19 +152,44 @@
 
     CGMutablePathRef p = CGPathCreateMutable();
     CGRect r;
+    
+    int midx = 0, midy = 0, x, y;
+    for (i = 0; i < 4 && i < e->nCoordinates; i++) {
+        x = e->coords[i].x >> 8;
+        y = e->coords[i].y >> 8;
+        midx += x;
+        midy += y;
+    }
+    midy /= e->nCoordinates;
+    midx /= e->nCoordinates;
+    
     if (e->angle != 0 && e->angle != 3600) {
-
-        CATransform3D transform = CATransform3DIdentity;
-        transform = CATransform3DRotate(transform, pi/180.0 * e->angle / 10.0, 0.0, 0.0, 1.0);
-        transform = CATransform3DTranslate(transform, -CGRectGetMidX(r), -CGRectGetMidY(r), 0.0);
-        CGAffineTransform at = CATransform3DGetAffineTransform(transform);
+        // Look at the first 4 coordinates.
+        // Transform each point by -angle.
+        // Get the size of that rect.
+        // Get the midpoint of that rect.
+        // Translate the midpoint back +angle.
+        // Calculate r from the midpoint + size.
+        
+        CGPoint midpoint = CGPointMake(midx, midy);
+        CGFloat alpha = ((CGFloat)e->angle)*pi/180.0/10.0;
+        alpha = -alpha;
+        CGAffineTransform at = CGAffineTransformMake(cos(alpha), sin(alpha), -sin(alpha), cos(alpha), 
+                                                     midpoint.x*(1.0-cos(alpha))  +midpoint.y*sin(alpha),
+                                                     -midpoint.x*sin(alpha) + midpoint.y*(1.0-cos(alpha)));
+        
         CGPathMoveToPoint(p, &at, e->coords[0].x >> 8, e->coords[0].y >> 8);
         for (i = 1; i < e->nCoordinates; i++) {
             CGPathAddLineToPoint(p, &at, e->coords[i].x >> 8, e->coords[i].y >> 8);
         }
-        r = CGPathGetBoundingBox(p);
-    } else { 
-        int xmin, xmax, ymin, ymax, x, y;
+        r = CGRectIntegral(CGPathGetBoundingBox(p));
+            
+        CGPathRelease(p);
+        p = CGPathCreateMutable();
+        CGPathAddRect(p, NULL, r);
+        NSLog(@"%f %f %f %f", r.origin.x, r.origin.y, r.size.width, r.size.height);
+    } else {  
+        int xmin, xmax, ymin, ymax;
         xmin = xmax = e->coords[0].x >> 8;
         ymin = ymax = e->coords[0].y >> 8;
         for (i = 1; i < e->nCoordinates; i++) {
@@ -196,10 +224,10 @@
     CGPathRelease(p);
     
     if (e->angle != 0 && e->angle != 3600) {
-        CATransform3D transform = CATransform3DIdentity;
-        transform = CATransform3DRotate(transform, pi/180.0 * e->angle / 10.0, 0.0, 0.0, 1.0);
-        transform = CATransform3DTranslate(transform, -CGRectGetMidX(r), -CGRectGetMidY(r), 0.0);
-        [d setObject:[NSValue valueWithCATransform3D:transform] forKey:@"transform"];
+        [d setObject:[NSNumber numberWithDouble:((CGFloat)e->angle)/10.0] forKey:@"angle"];
+
+        [d setObject:[NSNumber numberWithInt:midx] forKey:@"midX"];
+        [d setObject:[NSNumber numberWithInt:midy] forKey:@"midY"];
     }
     
     return d;    
