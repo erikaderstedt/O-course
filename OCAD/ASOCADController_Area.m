@@ -301,8 +301,7 @@ void draw404 (void * info,CGContextRef context) {
 // Undergrowth: slow running 84x1
 // Undergrowth: difficult to run 42x1
 void draw407or409 (void * info,CGContextRef context) {
-    CGFloat color[4] = {0.357,0.725,0.467,1.000};
-    CGContextSetFillColor(context, color);
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 7));
     CGContextFillRect(context, CGRectMake(0.0,0.0,12.0,1.0));
 }
 
