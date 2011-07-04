@@ -24,6 +24,10 @@
         return [NSArray array];
     }
     
+    if (line != NULL && line->start_d_size != 0) {
+        NSLog(@"start on %d", line->symnum);
+    }
+    
     if (line != NULL && (line->dbl_width != 0)) {
 		CGMutablePathRef left = CGPathCreateMutable();
 		CGMutablePathRef right = CGPathCreateMutable();
@@ -187,14 +191,21 @@
 		[mainLine setObject:(id)p forKey:@"path"];
         [cachedData addObject:mainLine];
     }
+    
+    // Symbol elements along the line.
+    // If prim_sym_dist > 0 and nprim_sym > 1, we must render two symbols.
     if (line != NULL && line->prim_d_size) {
         float phase = (float)line->end_length;
         float interval = (float)line->main_length;
+        float last_symbol_position;
+        float next_interval;
         float distance = -phase;
         float angle;
         float x, y, xp, yp;
-        int nprim_syms = 0;
+        int current_prim_sym = 1;
         
+        next_interval = interval;
+        last_symbol_position = distance;
         for (c = 0; c < e->nCoordinates - 1; c++) {
             x = (float)(e->coords[c].x >> 8);
             y = (float)(e->coords[c].y >> 8);
@@ -219,13 +230,19 @@
                     xp = powf(1.0-t, 3)*x + 3.0 * powf(1.0-t, 2.0) * t * xb1 + 3.0*(1.0-t)*t*t*xb2 + t*t*t*x2;
                     yp = powf(1.0-t, 3)*y + 3.0 * powf(1.0-t, 2.0) * t * yb1 + 3.0*(1.0-t)*t*t*yb2 + t*t*t*y2;
                     distance += sqrtf((xp - xp0)*(xp - xp0) + (yp - yp0)*(yp - yp0));
-                    if (distance > nprim_syms*interval) {
+                    if (distance - last_symbol_position > next_interval) {
                         angle = [[self class] angleBetweenPoint:NSMakePoint(xp0, yp0) andPoint:NSMakePoint(xp, yp)];
                         [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)line->coords 
                                                                           atPoint:NSMakePoint(xp, yp) 
                                                                         withAngle:angle 
                                                                     totalDataSize:0]];
-                        nprim_syms ++;
+                        last_symbol_position += next_interval;
+                        if (++current_prim_sym > line->nprim_sym) {
+                            current_prim_sym = line->nprim_sym;
+                            next_interval = interval;
+                        } else {
+                            next_interval = line->prim_sym_dist;
+                        }
                     }
                     xp0 = xp; yp0 = yp;
                 }
@@ -239,16 +256,21 @@
                 segment_distance = sqrtf((x2-x)*(x2-x) + (y2-y)*(y2-y));
                 
                 while (space_left) {
-                    distance += nprim_syms * interval - distance;
-                    if (distance < initial_distance + segment_distance) {
+                    if (last_symbol_position + next_interval < initial_distance + segment_distance) {
                         // Ok, it fit
-                        nprim_syms ++;                        
                         angle = [[self class] angleBetweenPoint:NSMakePoint(x, y) andPoint:NSMakePoint(x2, y2)];
+                        last_symbol_position += next_interval;
                         [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)line->coords 
-                                                                          atPoint:NSMakePoint(x + cos(angle)*(distance - initial_distance), y + sin(angle)*(distance - initial_distance)) 
+                                                                          atPoint:NSMakePoint(x + cos(angle)*(last_symbol_position - initial_distance), y + sin(angle)*(last_symbol_position - initial_distance)) 
                                                                         withAngle:angle 
                                                                     totalDataSize:0]];
-                        
+                        if (++current_prim_sym > line->nprim_sym) {
+                            current_prim_sym = line->nprim_sym;
+                            next_interval = interval;
+                        } else {
+                            next_interval = line->prim_sym_dist;
+                        }
+
                     } else {
                         space_left = NO;
                         distance = initial_distance + segment_distance;
@@ -257,6 +279,37 @@
             }
         }
     }
+    
+    if (line != NULL && line->start_d_size != 0 && e->nCoordinates > 1) {
+        float x, y, x0, y0;
+        x = e->coords[0].x >> 8;
+        y = e->coords[0].y >> 8;
+        x0 = e->coords[1].x >> 8;
+        y0 = e->coords[1].y >> 8;
+        float angle = [[self class] angleBetweenPoint:NSMakePoint(x, y) andPoint:NSMakePoint(x0,y0)];
+        struct TDPoly *p = line->coords;
+        p += line->prim_d_size + line->sec_d_size + line->corner_d_size;
+        [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)p
+                                                          atPoint:NSMakePoint(x, y) 
+                                                        withAngle:angle 
+                                                    totalDataSize:0]];
+    }
+
+    if (line != NULL && line->end_d_size != 0 && e->nCoordinates > 1) {
+        float x, y, x0, y0;
+        x = e->coords[e->nCoordinates - 1].x >> 8;
+        y = e->coords[e->nCoordinates - 1].y >> 8;
+        x0 = e->coords[e->nCoordinates - 2].x >> 8;
+        y0 = e->coords[e->nCoordinates - 2].y >> 8;
+        float angle = [[self class] angleBetweenPoint:NSMakePoint(x0, y0) andPoint:NSMakePoint(x,y)];
+        struct TDPoly *p = line->coords;
+        p += line->prim_d_size + line->sec_d_size + line->corner_d_size + line->start_d_size;
+        [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)p
+                                                          atPoint:NSMakePoint(x, y) 
+                                                        withAngle:angle 
+                                                    totalDataSize:0]];
+    }
+    
     return [NSArray arrayWithObjects:cachedData, roadCache, nil];
     
 }
