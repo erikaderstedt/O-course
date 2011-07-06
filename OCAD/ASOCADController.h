@@ -28,9 +28,6 @@ struct ocad_cache {
     int         num_dashes;
 };
 
-void ColorRelease (CFAllocatorRef allocator,const void *value);
-CFArrayRef CreateColorArray();
-
 @interface ASOCADController : NSObject <ASMapProvider> {
 @private
     struct  ocad_cache *cachedDrawingInfo;
@@ -42,12 +39,12 @@ CFArrayRef CreateColorArray();
     struct LRect *boundingBox;
     struct LRect currentBox;
     
-    NSArray *colors;
+    CFMutableArrayRef colors;
     CGColorRef blackColor;
     NSMutableDictionary *areaSymbolColors;
 }
 - (id)initWithOCADFile:(NSString *)path;
-
+- (void)parseColorStrings;
 - (CGColorRef)colorWithNumber:(int)color_number;
 
 - (NSArray *)createCacheFromIndex:(NSInteger)start upToButNotIncludingIndex:(NSInteger)stop;

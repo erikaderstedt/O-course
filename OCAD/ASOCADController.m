@@ -16,52 +16,15 @@
 #define PARALLELIZATION 2
 #define CONCURRENCY (1 << PARALLELIZATION)
 
+void ColorRelease (CFAllocatorRef allocator,const void *value);
+void ColorRetain (CFAllocatorRef allocator,const void *value);
+
 void ColorRelease (CFAllocatorRef allocator,const void *value) {
     CGColorRelease((CGColorRef)value);
 }
 
-CFArrayRef CreateColorArray () {
-    CGColorRef colors[30] = {
-    /* 0 Svart */            CGColorCreateGenericRGB(0.0,0.0,0.0,1.0),
-    /* 1 Berg i dagen */    CGColorCreateGenericRGB(0.698,0.702,0.698,1.000),
-    /* 2 Mindre vatten */   CGColorCreateGenericRGB(0.000,0.576,0.773,1.000),
-    /* 3 Vatten */          CGColorCreateGenericRGB(0.537,0.745,0.859,1.000), 
-    /* 4 Höjdkurva */       CGColorCreateGenericRGB(0.745,0.427,0.180,1.000),
-    /* 5 Asfalt */          CGColorCreateGenericRGB(0.867,0.675,0.486,1.000),
-    /* 6 Mkt svårlöpt */    CGColorCreateGenericRGB(0.212,0.663,0.345,1.000), 
-    /* 7 Svårlöpt */        CGColorCreateGenericRGB(0.545,0.769,0.557,1.000),
-    /* 8 Löphindrande */    CGColorCreateGenericRGB(0.773,0.875,0.745,1.000),
-    /* 9 Odlad mark */      CGColorCreateGenericRGB(0.953,0.722,0.357,1.000),
-    /* 10 Öppet sandomr. */ CGColorCreateGenericRGB(0.976,0.847,0.635,1.000),
-    /* 11 Påtryck */        CGColorCreateGenericRGB(0.835,0.102,0.490,1.000),
-    /* 12 Tomtmark */       CGColorCreateGenericRGB(0.631,0.616,0.255,1.000),
-    /* 13 Vitt */           CGColorCreateGenericRGB(1.000,1.000,1.000,1.000),
-    /* 14 Vitt */           CGColorCreateGenericRGB(1.000,0.000,0.000,1.000),
-    /* 15 Brown 50 % */     CGColorCreateGenericRGB(0.867,0.675,0.486,1.000),
-    /* 16 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-    /* 17 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-    /* 18 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-    /* 19 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-    /* 20 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-    /* 21 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-    /* 22 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-    /* 23 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-    /* 24 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-    /* 25 Roads  */		    CGColorCreateGenericRGB(0.0,0.0,0.0,1.0),
-    /* 26 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-    /* 27 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-    /* 28 Reserved % */     CGColorCreateGenericRGB(0.000,0.000,0.000,0.000),
-        /* 29 Water? */         CGColorCreateGenericRGB(0.537,0.745,0.859,1.000) };
-    CFArrayCallBacks callbacks;
-    callbacks.version = 0;
-    callbacks.retain = NULL;
-    callbacks.release = &ColorRelease;
-    callbacks.copyDescription = NULL;
-    callbacks.equal = NULL;
-    
-    CFArrayRef c = CFArrayCreate(NULL, (const void **)colors, 30, &callbacks);
-    
-    return c;
+void ColorRetain (CFAllocatorRef allocator,const void *value) {
+    CGColorRetain((CGColorRef)value);
 }
 
 @implementation ASOCADController
@@ -77,9 +40,9 @@ CFArrayRef CreateColorArray () {
 	//		symbol - NSNumber (NSInteger)
 	//		angle - NSNumber (float)
     if ((self = [super init])) {
-        blackColor = CGColorCreateGenericRGB(0.0,0.0,0.0,1.0);
+        blackColor = CGColorCreateGenericCMYK(0.0,0.0,0.0,1.0,1.0);
         
-        colors = (NSArray *)CreateColorArray();
+//        colors = (NSArray *)CreateColorArray();
 
         if (ocdf != NULL) {
             free(ocdf);
@@ -92,6 +55,8 @@ CFArrayRef CreateColorArray () {
         load_symbols(ocdf);
         load_objects(ocdf);
         load_strings(ocdf);
+        
+        [self parseColorStrings];
         
         boundingBox = calloc(sizeof(struct LRect), 1);
         get_bounding_box(ocdf, boundingBox);
@@ -108,9 +73,65 @@ CFArrayRef CreateColorArray () {
     return self;
 }
 
+- (void)parseColorStrings {
+    int i, index, highest;
+    CGFloat components[5];
+    CFArrayCallBacks callbacks;
+    
+    callbacks.version = 0;
+    callbacks.retain = &ColorRetain;
+    callbacks.release = &ColorRelease;
+    callbacks.copyDescription = NULL;
+    callbacks.equal = NULL;
+    
+    highest = -1;
+    for (i = 0; i < ocdf->num_strings; i++) {
+        if (ocdf->string_rec_types[i] != 9) continue;
+        NSString *s = [NSString stringWithCString:ocdf->strings[i] encoding:NSISOLatin1StringEncoding];
+        NSArray *a = [s componentsSeparatedByString:@"\t"];
+        for (NSString *component in a) {
+            if ([component hasPrefix:@"n"]) {
+                index = [[component substringFromIndex:1] intValue];
+                if (index > highest) highest = index;
+            } 
+        }
+    }
+    
+    colors = CFArrayCreateMutable(NULL, highest + 1, &callbacks);
+    for (i = 0; i <= highest+1; i++) {
+        CFArraySetValueAtIndex(colors, i, blackColor);
+    }
+    
+    CGColorSpaceRef cspace = CGColorSpaceCreateWithName(kCGColorSpaceGenericCMYK);
+    for (i = 0; i < ocdf->num_strings; i++) {
+        if (ocdf->string_rec_types[i] != 9) continue;
+        NSString *s = [NSString stringWithCString:ocdf->strings[i] encoding:NSISOLatin1StringEncoding];
+        NSArray *a = [s componentsSeparatedByString:@"\t"];
+        for (NSString *component in a) {
+            if ([component hasPrefix:@"n"]) {
+                index = [[component substringFromIndex:1] intValue];
+            } else if ([component hasPrefix:@"c"]) {
+                components[0] = 0.01*[[component substringFromIndex:1] intValue];
+            } else if ([component hasPrefix:@"m"]) {
+                components[1] = 0.01*[[component substringFromIndex:1] intValue];
+            } else if ([component hasPrefix:@"y"]) {
+                components[2] = 0.01*[[component substringFromIndex:1] intValue];
+            } else if ([component hasPrefix:@"k"]) {
+                components[3] = 0.01*[[component substringFromIndex:1] intValue];
+            } else if ([component hasPrefix:@"t"]) {
+                components[4] = 0.01*[[component substringFromIndex:1] intValue];
+            }
+        }
+        CFArraySetValueAtIndex(colors, index, CGColorCreate(cspace, components));
+    }
+    CGColorSpaceRelease(cspace);
+
+}
+
 - (void)dealloc {
 	[areaSymbolColors release];
-	[colors release];
+    if (colors != NULL) CFRelease(colors);
+
     if (cachedDrawingInfo != NULL) {
         int i = 0;
         for (i = 0; i < num_cached_objects; i++) {
@@ -184,7 +205,7 @@ CFArrayRef CreateColorArray () {
     enum ocad_object_type type;
 	NSArray *a, *b;
 	struct ocad_area_symbol *area;
-    CGColorRef black = (CGColorRef)[colors objectAtIndex:0];
+    CGColorRef black = (CGColorRef)CFArrayGetValueAtIndex(colors, 0);
     
     for (i = start; i < stop; i++) {
         e = ocdf->elements[i];
@@ -439,8 +460,8 @@ CFArrayRef CreateColorArray () {
 }
 
 - (CGColorRef)colorWithNumber:(int)color_number {
-    if (color_number < [colors count]) {
-        return (CGColorRef)[colors objectAtIndex:color_number];
+    if (color_number < CFArrayGetCount(colors)) {
+        return (CGColorRef)CFArrayGetValueAtIndex(colors, color_number);
     } else {
         return blackColor;
     }
@@ -529,8 +550,8 @@ CFArrayRef CreateColorArray () {
                 } else {
                     CGContextSetLineDash(ctx, 0.0, NULL, 0);
                 }
-                CGContextSetLineJoin(ctx, cachedDrawingInfo[i].capStyle);
-                CGContextSetLineCap(ctx, cachedDrawingInfo[i].joinStyle);
+                CGContextSetLineCap(ctx, (CGLineCap)cachedDrawingInfo[i].capStyle);
+                CGContextSetLineJoin(ctx, cachedDrawingInfo[i].joinStyle);
                 CGContextStrokePath(ctx);
             }
             if (frame != NULL) {

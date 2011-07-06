@@ -356,7 +356,7 @@ struct ocad_symbol_block {
 struct ocad_string_index {
     uint32_t position;
     uint32_t len;
-    uint32_t rectype;
+    int32_t rectype;
     uint32_t objectindex;
 };
 
@@ -419,9 +419,14 @@ struct ocad_file_header {
     uint16_t subversion;
     uint32_t symbolindex;
     uint32_t objectindex;
-    uint64_t stringindex;
+    uint32_t reserved0;
+    uint32_t reserved1;
+    uint32_t reserved2;
+    uint32_t reserved3;
+    uint32_t stringindex;
     uint32_t filenamepos;
     uint32_t filenamesize;
+    uint32_t reserved4;
 };
 
 struct ocad_file {
@@ -436,7 +441,8 @@ struct ocad_file {
     struct ocad_object_index **objects;
     
     int num_strings;
-    struct ocad_string_index **strings;
+    char **strings;
+    int *string_rec_types;
 };
 
 // Functions

@@ -135,11 +135,7 @@
         CGColorRef c;
         
         if (a->hatch_mode == 0 && a->structure_mode == 0) {
-            if (a->colors[0] >= [colors count]) {
-                c = blackColor;
-            } else {
-                c = (CGColorRef)[colors objectAtIndex:a->colors[0]];
-            }
+            c = [self colorWithNumber:a->colors[0]];
             CGColorRetain(c);
         } else {
             c = [self areaColorForSymbol:a transform:CGAffineTransformIdentity];
@@ -338,11 +334,12 @@ void draw415 (void * info, CGContextRef context) {
 }
 
 void drawUnknown( void *info, CGContextRef context) {
-    CGFloat cols[4];
+    CGFloat cols[5];
     cols[0] = 1.0;
-    cols[1] = 0.0;
+    cols[1] = 1.0;
     cols[2] = 0.0;
-    cols[3] = 1.0;
+    cols[3] = 0.0;
+    cols[4] = 1.0;
     CGContextSetFillColor(context, cols);
     CGContextFillRect(context, CGRectMake(0.0,0.0,80.0,80.0));
 }

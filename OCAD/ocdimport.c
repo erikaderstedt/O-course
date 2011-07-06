@@ -9,6 +9,7 @@
 #include "ocdimport.h"
 #include "stdlib.h"
 #include <sys/stat.h>
+#include "string.h"
 
 int load_file(struct ocad_file *f, const char *path) {
     /*
@@ -51,7 +52,10 @@ void unload_file(struct ocad_file *f) {
     if (f->symbols != NULL) free(f->symbols);
     if (f->elements != NULL) free(f->elements);
     if (f->objects != NULL) free(f->objects);
-    if (f->strings != NULL) free(f->objects);
+    if (f->strings != NULL) {
+        free(f->strings);
+        free(f->string_rec_types);
+    }
 }
 
 void load_symbols(struct ocad_file *f) {
@@ -124,7 +128,8 @@ void load_strings(struct ocad_file *f) {
     int k,j = 0;
     long i;
     struct ocad_string_index_block *b;
-
+    struct ocad_string_index *s;
+    
     i = f->header->stringindex;
     while (i != 0) {
         b = (struct ocad_string_index_block *)((f->data) + i);
@@ -136,20 +141,26 @@ void load_strings(struct ocad_file *f) {
     }
     f->num_strings = j;
 
-    f->strings = calloc(sizeof(struct ocad_string_index *), f->num_strings);
-    
+    f->strings = calloc(sizeof(char *), f->num_strings);
+    f->string_rec_types = calloc(sizeof(int), f->num_strings);
     i = f->header->stringindex;
     j = 0;
+    int currentstring = 0;
     while (i != 0) {
         b = (struct ocad_string_index_block *)((f->data) + i);
         
         for (k = 0; k < 256 && b->indices[k].position != 0; k++) {
-            f->strings[j + k] = &(b->indices[k]);
+            s = &(b->indices[k]);
+            f->string_rec_types[currentstring] = s->rectype;
+            f->strings[currentstring] = (char *)(f->data + s->position);
+            
+            currentstring ++;
         }
         
         j += k;
         i = b->nextindexblock;
     }
+    f->num_strings = currentstring;
    
 }
 

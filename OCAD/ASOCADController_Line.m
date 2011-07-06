@@ -150,10 +150,10 @@
         CGColorRef mainColor;
 		NSMutableDictionary *mainLine = [NSMutableDictionary dictionaryWithCapacity:5];
         
-        if (line != NULL && line->line_color < [colors count]) 
-            mainColor = (CGColorRef)[colors objectAtIndex:line->line_color];
-        else if (e->color < [colors count])
-            mainColor = (CGColorRef)[colors objectAtIndex:e->color];
+        if (line != NULL && line->line_color < CFArrayGetCount(colors)) 
+            mainColor = (CGColorRef)CFArrayGetValueAtIndex(colors, line->line_color);
+        else if (e->color < CFArrayGetCount(colors))
+            mainColor = (CGColorRef)CFArrayGetValueAtIndex(colors, e->color);
         else
             mainColor = blackColor;
         
@@ -206,6 +206,7 @@
         
         next_interval = interval;
         last_symbol_position = distance;
+        
         for (c = 0; c < e->nCoordinates - 1; c++) {
             x = (float)(e->coords[c].x >> 8);
             y = (float)(e->coords[c].y >> 8);
