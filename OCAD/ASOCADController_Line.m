@@ -119,11 +119,14 @@
         free(angles);
         
         roadCache = [NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_fill_color], @"strokeColor", 
+                     [NSValue valueWithPointer:e->symbol], @"symbol",
 					 road, @"path", [NSNumber numberWithFloat:line->dbl_width + line->dbl_left_width*0.5 + line->dbl_right_width*0.5], @"width", nil];
         [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_left_color], @"strokeColor", 
+                               [NSValue valueWithPointer:e->symbol], @"symbol",
 							   left, @"path",[NSNumber numberWithInt:line->dbl_left_width], @"width", 
 							   [NSNumber numberWithInt:kCGLineCapSquare], @"capStyle", nil]];
         [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_right_color], @"strokeColor", 
+                               [NSValue valueWithPointer:e->symbol], @"symbol",
 							   right, @"path",[NSNumber numberWithInt:line->dbl_right_width], @"width", 
 							   [NSNumber numberWithInt:kCGLineCapSquare], @"capStyle", nil]];
     }
@@ -144,7 +147,11 @@
                 struct ocad_symbol_element *se = (struct ocad_symbol_element *)(line->coords + line->prim_d_size + line->sec_d_size);
                 
                 float angle = [[self class] angleForCoords:e->coords ofLength:e->nCoordinates atIndex:c];
-                [cachedData addObjectsFromArray:[self cacheSymbolElements:se atPoint:NSMakePoint(e->coords[c].x >> 8, e->coords[c].y >> 8) withAngle:angle totalDataSize:(se->ncoords + 2)]];
+                [cachedData addObjectsFromArray:[self cacheSymbolElements:se 
+                                                                  atPoint:NSMakePoint(e->coords[c].x >> 8, e->coords[c].y >> 8) 
+                                                                withAngle:angle 
+                                                            totalDataSize:(se->ncoords + 2)
+                                                                   symbol:e->symbol]];
             }
         }
         CGColorRef mainColor;
@@ -189,6 +196,7 @@
         }
 		[mainLine setObject:(id)mainColor forKey:@"strokeColor"];
 		[mainLine setObject:(id)p forKey:@"path"];
+        [mainLine setObject:[NSValue valueWithPointer:e->symbol] forKey:@"symbol"];
         [cachedData addObject:mainLine];
     }
     
@@ -236,7 +244,8 @@
                         [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)line->coords 
                                                                           atPoint:NSMakePoint(xp, yp) 
                                                                         withAngle:angle 
-                                                                    totalDataSize:0]];
+                                                                    totalDataSize:0
+                                                                           symbol:e->symbol]];
                         last_symbol_position += next_interval;
                         if (++current_prim_sym > line->nprim_sym) {
                             current_prim_sym = line->nprim_sym;
@@ -264,7 +273,8 @@
                         [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)line->coords 
                                                                           atPoint:NSMakePoint(x + cos(angle)*(last_symbol_position - initial_distance), y + sin(angle)*(last_symbol_position - initial_distance)) 
                                                                         withAngle:angle 
-                                                                    totalDataSize:0]];
+                                                                    totalDataSize:0
+                                                                           symbol:e->symbol]];
                         if (++current_prim_sym > line->nprim_sym) {
                             current_prim_sym = line->nprim_sym;
                             next_interval = interval;
@@ -293,7 +303,8 @@
         [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)p
                                                           atPoint:NSMakePoint(x, y) 
                                                         withAngle:angle 
-                                                    totalDataSize:0]];
+                                                    totalDataSize:0
+                                                           symbol:e->symbol]];
     }
 
     if (line != NULL && line->end_d_size != 0 && e->nCoordinates > 1) {
@@ -308,7 +319,8 @@
         [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)p
                                                           atPoint:NSMakePoint(x, y) 
                                                         withAngle:angle 
-                                                    totalDataSize:0]];
+                                                    totalDataSize:0
+                                                           symbol:e->symbol]];
     }
     
     return [NSArray arrayWithObjects:cachedData, roadCache, nil];

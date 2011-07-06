@@ -53,6 +53,7 @@ struct ocad_cache {
 - (NSArray *)cachedDrawingInfoForPointObject:(struct ocad_element *)e;
 - (NSDictionary *)cachedDrawingInfoForRectangleObject:(struct ocad_element *)e;
 - (NSArray *)cacheSymbolElements:(struct ocad_symbol_element *)se atPoint:(NSPoint)origin withAngle:(float)angle totalDataSize:(uint16_t)data_size;
+- (NSArray *)cacheSymbolElements:(struct ocad_symbol_element *)se atPoint:(NSPoint)origin withAngle:(float)angle totalDataSize:(uint16_t)data_size symbol:(struct ocad_symbol *)symbol;
 
 + (float)angleBetweenPoint:(NSPoint)p1 andPoint:(NSPoint)p2;
 + (float)angleForCoords:(struct TDPoly *)coords ofLength:(int)total atIndex:(int)i;

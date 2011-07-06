@@ -178,7 +178,12 @@
 #pragma mark -
 
 - (void)mouseDown:(NSEvent *)theEvent {
-	NSLog(@"mouse down");
+    NSPoint p = [theEvent locationInWindow];
+    p = [self convertPoint:p fromView:nil];
+    p = [tiledLayer convertPoint:p fromLayer:[self layer]];
+
+    NSLog(@"Symbol number: %d", [self.mapProvider symbolNumberAtPosition:p]);
+
 }
 
 - (BOOL)isOpaque {

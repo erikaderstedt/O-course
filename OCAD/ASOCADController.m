@@ -179,13 +179,22 @@ void ColorRetain (CFAllocatorRef allocator,const void *value) {
 }
 
 - (NSInteger)symbolNumberAtPosition:(CGPoint)p {
-	int i;
-    for (i = num_cached_objects - 1; i >= 0; i--) {        
-		if (CGPathContainsPoint(cachedDrawingInfo[i].path, NULL, p, true)) {
-            // TODO: store the symbol number in the cache, and return that instead.
-            return cachedDrawingInfo[i].symbol->symnum;
+	int i, bestIndex = -1;
+    CGFloat minArea = HUGE_VALF, area;
+    for (i = num_cached_objects - 1; i >= 0; i--) {
+        if (CGRectContainsPoint(cachedDrawingInfo[i].boundingBox, p)) {
+            area = cachedDrawingInfo[i].boundingBox.size.width * cachedDrawingInfo[i].boundingBox.size.height;
+            if (area < minArea) {
+                minArea = area;
+                bestIndex = i;
+            }
         }
 	}
+    if (bestIndex >= 0) {
+        struct ocad_symbol *p;
+        p = cachedDrawingInfo[bestIndex].symbol;
+        if (p != NULL) return p->symnum / 1000;
+    }
 	
 	return 0;
 }
@@ -362,7 +371,8 @@ void ColorRetain (CFAllocatorRef allocator,const void *value) {
     return [self cacheSymbolElements:(struct ocad_symbol_element *)(point->points) 
                              atPoint:NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8) 
                            withAngle:angle 
-                       totalDataSize:point->datasize];
+                       totalDataSize:point->datasize
+                              symbol:e->symbol];
 }
 
 - (NSDictionary *)cachedDrawingInfoForRectangleObject:(struct ocad_element *)e {
@@ -387,9 +397,9 @@ void ColorRetain (CFAllocatorRef allocator,const void *value) {
     CGColorRef color = [self colorWithNumber:rect->colors[0]];
     
     if (rect->line_width != 0) {
-        d = [NSDictionary dictionaryWithObjectsAndKeys:(id)color,@"strokeColor",p, @"path",[NSNumber numberWithInt:rect->line_width], @"width", nil];
+        d = [NSDictionary dictionaryWithObjectsAndKeys:(id)color,@"strokeColor",p, @"path",[NSNumber numberWithInt:rect->line_width], @"width", [NSValue valueWithPointer:rect], @"symbol", nil];
     } else {
-		d = [NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", p, @"path", nil];
+		d = [NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", p, @"path", [NSValue valueWithPointer:rect], @"symbol",nil];
 	}
 	CGPathRelease(p);
 	
@@ -397,6 +407,10 @@ void ColorRetain (CFAllocatorRef allocator,const void *value) {
 }
 
 - (NSArray *)cacheSymbolElements:(struct ocad_symbol_element *)se atPoint:(NSPoint)origin withAngle:(float)angle totalDataSize:(uint16_t)data_size {
+    return [self cacheSymbolElements:se atPoint:origin withAngle:angle totalDataSize:data_size symbol:NULL];
+}
+
+- (NSArray *)cacheSymbolElements:(struct ocad_symbol_element *)se atPoint:(NSPoint)origin withAngle:(float)angle totalDataSize:(uint16_t)data_size symbol:(struct ocad_symbol *)symbol {
 	CGAffineTransform at = CGAffineTransformIdentity;
 	at = CGAffineTransformTranslate(at, origin.x, origin.y);
     if (angle != 0.0) at = CGAffineTransformRotate(at, angle);
@@ -420,7 +434,9 @@ void ColorRetain (CFAllocatorRef allocator,const void *value) {
 				
                 [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"strokeColor", 
 								  path, @"path", 
-								  [NSNumber numberWithInt:se->line_width], @"width",nil]];
+								  [NSNumber numberWithInt:se->line_width], @"width",
+                                  [NSValue valueWithPointer:symbol], @"symbol",
+                                  nil]];
                 break;
             case 2: /* Area */
 				CGPathMoveToPoint(path, &at, se->points[0].x >> 8, se->points[0].y >> 8);
@@ -434,7 +450,8 @@ void ColorRetain (CFAllocatorRef allocator,const void *value) {
                     }
                 }
 				CGPathCloseSubpath(path);
-                [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", path, @"path", nil]];
+                [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", path, @"path", 
+                                  [NSValue valueWithPointer:symbol], @"symbol", nil]];
                 break;
             case 3:
             case 4: /* Dot. */
@@ -442,9 +459,11 @@ void ColorRetain (CFAllocatorRef allocator,const void *value) {
                 if (se->symbol_type == 3) {
 					[cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"strokeColor", 
 									  path, @"path", 
+                                      [NSValue valueWithPointer:symbol], @"symbol",
 									  [NSNumber numberWithInt:se->line_width], @"width",nil]];
                 } else {
-                    [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", path, @"path", nil]];
+                    [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", path, @"path", 
+                                      [NSValue valueWithPointer:symbol], @"symbol", nil]];
                 }
                 break;
             default:

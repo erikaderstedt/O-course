@@ -10,11 +10,8 @@
 #import <QuartzCore/QuartzCore.h>
 
 @protocol ASMapProvider <NSObject>
-/*
-- (void)beginRenderingMapWithSize:(NSSize)sz fromSourceRect:(NSRect)sourceRect whenDone:(void (^)(NSImage *i))completionBlock;
-- (NSInteger)symbolNumberAtPosition:(CGPoint)p;
- */
 
+- (NSInteger)symbolNumberAtPosition:(CGPoint)p;
 - (CGRect)mapBounds; // In native coordinates.
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx;
 

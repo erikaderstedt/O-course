@@ -228,6 +228,9 @@
         [d setObject:[NSNumber numberWithInt:midx] forKey:@"midX"];
         [d setObject:[NSNumber numberWithInt:midy] forKey:@"midY"];
     }
+    if (e->symbol != NULL) {
+        [d setObject:[NSValue valueWithPointer:e->symbol] forKey:@"symbol"];
+    }
     
     return d;    
 }
