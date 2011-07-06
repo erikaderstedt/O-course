@@ -367,7 +367,7 @@ void ColorRetain (CFAllocatorRef allocator,const void *value) {
     
     
     float angle = 0.0;
-    if (e->angle != -1) angle = ((float)(e->angle)) / 10.0;
+    if (e->angle != -1) angle = ((float)(e->angle)) / 10.0 * pi / 180.0;
     return [self cacheSymbolElements:(struct ocad_symbol_element *)(point->points) 
                              atPoint:NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8) 
                            withAngle:angle 
