@@ -142,21 +142,21 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         if (ocdf->string_rec_types[i] != 9) continue;
         
         NSString *s = [NSString stringWithCString:ocdf->strings[i] encoding:NSISOLatin1StringEncoding];
-        NSLog(@"set color string %@", s);
         NSArray *a = [s componentsSeparatedByString:@"\t"];
+        components[4] = 1.0;
         for (NSString *component in a) {
             if ([component hasPrefix:@"n"]) {
                 index = [[component substringFromIndex:1] intValue];
             } else if ([component hasPrefix:@"c"]) {
-                components[0] = 0.01*[[component substringFromIndex:1] intValue];
+                components[0] = 0.01*[[component substringFromIndex:1] floatValue];
             } else if ([component hasPrefix:@"m"]) {
-                components[1] = 0.01*[[component substringFromIndex:1] intValue];
+                components[1] = 0.01*[[component substringFromIndex:1] floatValue];
             } else if ([component hasPrefix:@"y"]) {
-                components[2] = 0.01*[[component substringFromIndex:1] intValue];
+                components[2] = 0.01*[[component substringFromIndex:1] floatValue];
             } else if ([component hasPrefix:@"k"]) {
-                components[3] = 0.01*[[component substringFromIndex:1] intValue];
+                components[3] = 0.01*[[component substringFromIndex:1] floatValue];
             } else if ([component hasPrefix:@"t"]) {
-                components[4] = 0.01*[[component substringFromIndex:1] intValue];
+                components[4] = 0.01*[[component substringFromIndex:1] floatValue];
             }
         }
 
