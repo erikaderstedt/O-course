@@ -17,14 +17,15 @@
 #define CONCURRENCY (1 << PARALLELIZATION)
 
 void ColorRelease (CFAllocatorRef allocator,const void *value);
-void ColorRetain (CFAllocatorRef allocator,const void *value);
+const void *ColorRetain (CFAllocatorRef allocator,const void *value);
 
 void ColorRelease (CFAllocatorRef allocator,const void *value) {
     CGColorRelease((CGColorRef)value);
 }
 
-void ColorRetain (CFAllocatorRef allocator,const void *value) {
+const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     CGColorRetain((CGColorRef)value);
+    return value;
 }
 
 @implementation ASOCADController
