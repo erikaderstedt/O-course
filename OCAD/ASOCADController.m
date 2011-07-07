@@ -42,8 +42,6 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
 	//		angle - NSNumber (float)
     if ((self = [super init])) {
         blackColor = CGColorCreateGenericCMYK(0.0,0.0,0.0,1.0,1.0);
-        
-//        colors = (NSArray *)CreateColorArray();
 
         if (ocdf != NULL) {
             free(ocdf);
@@ -98,15 +96,53 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         }
     }
     
+    if (highest < 33) highest = 33;
+    
     colors = CFArrayCreateMutable(NULL, highest + 1, &callbacks);
-    for (i = 0; i <= highest+1; i++) {
-        CFArraySetValueAtIndex(colors, i, blackColor);
-    }
+    CGColorRef c;
+    /* Set the default colors. */
+    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 1.000000, 1.000000); CFArraySetValueAtIndex(colors, 0, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 0.300000, 1.000000); CFArraySetValueAtIndex(colors, 1, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.870000, 0.180000, 0.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 2, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.430000, 0.090000, 0.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 3, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 0.680000, 0.910000, 0.340000, 1.000000); CFArraySetValueAtIndex(colors, 4, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 0.280000, 0.410000, 0.050000, 1.000000); CFArraySetValueAtIndex(colors, 5, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.710000, 0.000000, 0.910000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 6, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.440000, 0.000000, 0.560000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 7, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.230000, 0.000000, 0.270000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 8, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 0.270000, 0.790000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 9, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 0.100000, 0.600000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 10, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 1.000000, 0.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 11, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.380000, 0.270000, 1.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 12, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 13, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 1.000000, 1.000000); CFArraySetValueAtIndex(colors, 14, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 0.280000, 0.410000, 0.050000, 1.000000); CFArraySetValueAtIndex(colors, 15, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 0.050000, 0.160000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 16, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 0.500000, 0.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 17, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 0.200000, 0.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 18, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 0.500000, 1.000000); CFArraySetValueAtIndex(colors, 19, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.170000, 0.030000, 0.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 20, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 0.140000, 0.160000, 0.030000, 1.000000); CFArraySetValueAtIndex(colors, 21, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 0.300000, 1.000000); CFArraySetValueAtIndex(colors, 22, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 0.150000, 1.000000); CFArraySetValueAtIndex(colors, 23, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 0.060000, 1.000000); CFArraySetValueAtIndex(colors, 24, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 1.000000, 1.000000); CFArraySetValueAtIndex(colors, 25, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 26, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.240000, 0.000000, 0.710000, 0.140000, 1.000000); CFArraySetValueAtIndex(colors, 27, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.010000, 0.000000, 0.430000, 0.140000, 1.000000); CFArraySetValueAtIndex(colors, 28, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 29, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 30, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 31, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 0.180000, 0.560000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 32, c); CGColorRelease(c); 
+    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 1.000000, 1.000000); CFArraySetValueAtIndex(colors, 33, c); CGColorRelease(c);
+
     
     CGColorSpaceRef cspace = CGColorSpaceCreateWithName(kCGColorSpaceGenericCMYK);
     for (i = 0; i < ocdf->num_strings; i++) {
         if (ocdf->string_rec_types[i] != 9) continue;
+        
         NSString *s = [NSString stringWithCString:ocdf->strings[i] encoding:NSISOLatin1StringEncoding];
+        NSLog(@"set color string %@", s);
         NSArray *a = [s componentsSeparatedByString:@"\t"];
         for (NSString *component in a) {
             if ([component hasPrefix:@"n"]) {
@@ -123,8 +159,10 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
                 components[4] = 0.01*[[component substringFromIndex:1] intValue];
             }
         }
+
         CFArraySetValueAtIndex(colors, index, CGColorCreate(cspace, components));
     }
+
     CGColorSpaceRelease(cspace);
 
 }
