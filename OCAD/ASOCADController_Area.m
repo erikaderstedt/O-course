@@ -42,7 +42,7 @@
     if (e->angle != 0 && e->angle != 3600) {
         angle = [NSNumber numberWithDouble:((CGFloat)e->angle)*pi/180.0/10.0];
     }
-    NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:(id)daColor, @"fillColor", p, @"path", [NSValue valueWithPointer:area],@"symbol", angle, @"angle", nil];
+    NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:(id)daColor, @"fillColor", p, @"path", [NSValue valueWithPointer:e],@"element", angle, @"angle", nil];
 	CGPathRelease(p);
 	return d;
 }

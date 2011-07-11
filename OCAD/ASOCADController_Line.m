@@ -24,47 +24,45 @@
         return [NSArray array];
     }
     
-    if (line != NULL && line->start_d_size != 0) {
-        NSLog(@"start on %d", line->symnum);
-    }
-    
     if (line != NULL && (line->dbl_width != 0)) {
 		CGMutablePathRef left = CGPathCreateMutable();
 		CGMutablePathRef right = CGPathCreateMutable();
 		CGMutablePathRef road = CGPathCreateMutable();
         
-        NSPoint p0 = NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8);
+        NSPoint p0 = NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8), p1;
 		CGPathMoveToPoint(road, NULL, p0.x, p0.y);
         
         // For each point
-        BOOL angleSet = NO;
         float angle = 0.0, thisAngle, nextangle;
-        float *angles = calloc(sizeof(float), e->nCoordinates), *currentAngle = angles;
+        float *angles = calloc(sizeof(float), e->nCoordinates);
+        int angleIndex = 0;
+       
         for (c = 1; c < e->nCoordinates; c++) {
-            NSPoint p1 = NSMakePoint(e->coords[c].x >> 8, e->coords[c].y >> 8);
-            NSPoint p2 = NSMakePoint(e->coords[c + 1].x >> 8, e->coords[c + 1].y >> 8);
-            NSPoint p3 = NSMakePoint(e->coords[c+2].x >> 8, e->coords[c+2].y >> 8);
-            
-            thisAngle = [[self class] angleBetweenPoint:p1 andPoint:p0];      
-            if (angleSet) {
-                angle = (thisAngle + angle)*0.5; 
+            p1 = NSMakePoint(e->coords[c].x >> 8, e->coords[c].y >> 8);
+            thisAngle = [[self class] angleBetweenPoint:p0 andPoint:p1];      
+            if (angleIndex > 0) {
+                angles[angleIndex] = (thisAngle + angles[angleIndex-1])*0.5; 
             } else {
-                angleSet = YES;
-                angle = thisAngle;
+                angles[angleIndex] = thisAngle;
             }
-            *currentAngle = angle;
-            currentAngle ++;
             
             if (e->coords[c].x & 1) {
                 // Bezier curve.
+                NSPoint p2 = NSMakePoint(e->coords[c + 1].x >> 8, e->coords[c + 1].y >> 8);
+                NSAssert(e->coords[c+1].x & 2, @"Next is not the second control point");
+                NSPoint p3 = NSMakePoint(e->coords[c+2].x >> 8, e->coords[c+2].y >> 8);
+
 				CGPathAddCurveToPoint(road, NULL, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
                 c += 2;
-                p0 = p2; angleSet = NO;
+                // 3 coordinates and 2 angles consumed.
+                p0 = p3;
+                angles[++angleIndex] = [[self class] angleBetweenPoint:p2 andPoint:p3];
             } else {
                 p0 = p1;
 				CGPathAddLineToPoint(road, NULL, p1.x, p1.y);
             }
             
+            angleIndex ++;
         }
         
         // Get the angle to the next normal point. 
@@ -72,35 +70,36 @@
         // Create the path to the next point in the normal manner.
         // Be sure to watch for gaps in the left / right lines.
         
-        currentAngle = angles;
-		NSPoint p1;
-		p1 = [[self class] translatePoint:NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8) distance:(line->dbl_width) angle:(*currentAngle + pi/2)]; 
+        angleIndex = 0;
+		p1 = [[self class] translatePoint:NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8) distance:(line->dbl_width) angle:(angles[0] + pi/2)]; 
 		CGPathMoveToPoint(left, NULL, p1.x, p1.y);
-		p1 = [[self class] translatePoint:NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8) distance:(line->dbl_width) angle:(*currentAngle - pi/2)];
+		p1 = [[self class] translatePoint:NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8) distance:(line->dbl_width) angle:(angles[0] - pi/2)];
 		CGPathMoveToPoint(right, NULL, p1.x, p1.y);
         
         for (c = 1; c < e->nCoordinates; c++) {
-            angle = *currentAngle;
-            currentAngle++;
+            angle = angles[angleIndex];
             
-            NSPoint p1 = NSMakePoint(e->coords[c].x >> 8, e->coords[c].y >> 8);
-            NSPoint p2 = NSMakePoint(e->coords[c + 1].x >> 8, e->coords[c + 1].y >> 8);
-            NSPoint p3 = NSMakePoint(e->coords[c+2].x >> 8, e->coords[c+2].y >> 8);
+            p1 = NSMakePoint(e->coords[c].x >> 8, e->coords[c].y >> 8);
             NSPoint p1l, p2l, p3l, p1r, p2r, p3r;
             p1l = [[self class] translatePoint:p1 distance:(line->dbl_width) angle:(angle + pi/2)];
             p1r = [[self class] translatePoint:p1 distance:(line->dbl_width) angle:(angle - pi/2)];
             
             if (e->coords[c].x & 1) {
-                nextangle = *currentAngle;
+                NSPoint p2 = NSMakePoint(e->coords[c + 1].x >> 8, e->coords[c + 1].y >> 8);
+                NSPoint p3 = NSMakePoint(e->coords[c+2].x >> 8, e->coords[c+2].y >> 8);
+
+                nextangle = angles[++angleIndex];
                 // Bezier curve.
                 p2l = [[self class] translatePoint:p2 distance:(line->dbl_width) angle:(nextangle + pi/2)];
                 p3l = [[self class] translatePoint:p3 distance:(line->dbl_width) angle:(nextangle + pi/2)];
                 p2r = [[self class] translatePoint:p2 distance:(line->dbl_width) angle:(nextangle - pi/2)];
                 p3r = [[self class] translatePoint:p3 distance:(line->dbl_width) angle:(nextangle - pi/2)];
                 
-                CGPathAddCurveToPoint(left, NULL, p1l.x, p1l.y, p2l.x, p2l.y, p3l.x, p3l.y);
-				CGPathAddCurveToPoint(right, NULL, p1r.x, p1r.y, p2r.x, p2r.y, p3r.x, p3r.y);
-                c += 2;
+//                CGPathAddCurveToPoint(left, NULL, p1l.x, p1l.y, p2l.x, p2l.y, p3l.x, p3l.y);
+//				CGPathAddCurveToPoint(right, NULL, p1r.x, p1r.y, p2r.x, p2r.y, p3r.x, p3r.y);
+                CGPathAddLineToPoint(left, NULL, p3l.x, p3l.y);
+                CGPathAddLineToPoint(right, NULL, p3r.x, p3r.y);
+                c += 2; // A total of 3 coordinates and 2 angles consumed.
                 
             } else {
                 if (e->coords[c].x & 4) {
@@ -115,20 +114,22 @@
 					CGPathAddLineToPoint(right, NULL, p1r.x, p1r.y);
 				}
             }
+            angleIndex ++;
         }
+
         free(angles);
         
         roadCache = [NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_fill_color], @"strokeColor", 
-                     [NSValue valueWithPointer:e->symbol], @"symbol",
+                     [NSValue valueWithPointer:e], @"element",
 					 road, @"path", [NSNumber numberWithFloat:line->dbl_width + line->dbl_left_width*0.5 + line->dbl_right_width*0.5], @"width", nil];
         [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_left_color], @"strokeColor", 
-                               [NSValue valueWithPointer:e->symbol], @"symbol",
+                               [NSValue valueWithPointer:e], @"element",
 							   left, @"path",[NSNumber numberWithInt:line->dbl_left_width], @"width", 
 							   [NSNumber numberWithInt:kCGLineCapSquare], @"capStyle", nil]];
         [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_right_color], @"strokeColor", 
-                               [NSValue valueWithPointer:e->symbol], @"symbol",
+                               [NSValue valueWithPointer:e], @"element",
 							   right, @"path",[NSNumber numberWithInt:line->dbl_right_width], @"width", 
-							   [NSNumber numberWithInt:kCGLineCapSquare], @"capStyle", nil]];
+							   [NSNumber numberWithInt:kCGLineCapSquare], @"capStyle", nil]]; 
     }
     if (e->linewidth != 0 || (line != NULL && line->line_width != 0)) {
 		CGPathMoveToPoint(p, NULL, e->coords[0].x >> 8, e->coords[0].y >> 8);
@@ -151,7 +152,7 @@
                                                                   atPoint:NSMakePoint(e->coords[c].x >> 8, e->coords[c].y >> 8) 
                                                                 withAngle:angle 
                                                             totalDataSize:(se->ncoords + 2)
-                                                                   symbol:e->symbol]];
+                                                                   element:e]];
             }
         }
         CGColorRef mainColor;
@@ -196,7 +197,7 @@
         }
 		[mainLine setObject:(id)mainColor forKey:@"strokeColor"];
 		[mainLine setObject:(id)p forKey:@"path"];
-        [mainLine setObject:[NSValue valueWithPointer:e->symbol] forKey:@"symbol"];
+        [mainLine setObject:[NSValue valueWithPointer:e] forKey:@"element"];
         [cachedData addObject:mainLine];
     }
     
@@ -245,7 +246,7 @@
                                                                           atPoint:NSMakePoint(xp, yp) 
                                                                         withAngle:angle 
                                                                     totalDataSize:0
-                                                                           symbol:e->symbol]];
+                                                                           element:e]];
                         last_symbol_position += next_interval;
                         if (++current_prim_sym > line->nprim_sym) {
                             current_prim_sym = line->nprim_sym;
@@ -274,7 +275,7 @@
                                                                           atPoint:NSMakePoint(x + cos(angle)*(last_symbol_position - initial_distance), y + sin(angle)*(last_symbol_position - initial_distance)) 
                                                                         withAngle:angle 
                                                                     totalDataSize:0
-                                                                           symbol:e->symbol]];
+                                                                           element:e]];
                         if (++current_prim_sym > line->nprim_sym) {
                             current_prim_sym = line->nprim_sym;
                             next_interval = interval;
@@ -304,7 +305,7 @@
                                                           atPoint:NSMakePoint(x, y) 
                                                         withAngle:angle 
                                                     totalDataSize:0
-                                                           symbol:e->symbol]];
+                                                           element:e]];
     }
 
     if (line != NULL && line->end_d_size != 0 && e->nCoordinates > 1) {
@@ -320,7 +321,7 @@
                                                           atPoint:NSMakePoint(x, y) 
                                                         withAngle:angle 
                                                     totalDataSize:0
-                                                           symbol:e->symbol]];
+                                                           element:e]];
     }
     
     return [NSArray arrayWithObjects:cachedData, roadCache, nil];
