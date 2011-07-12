@@ -531,15 +531,7 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
 
 
 + (float)angleBetweenPoint:(NSPoint)p1 andPoint:(NSPoint)p2 {
-    float dx = p2.x - p1.x;
-    float dy = p2.y - p1.y;
-    if (dx == 0) {
-        if (dy > 0) return pi / 2;
-        return 3.0*pi / 2;
-    }
-    float t = atan(dy/dx);
-    if (dx < 0) t += pi;
-    return t;    
+    return atan2(p2.y - p1.y, p2.x - p1.x);
 }
 
 + (float)angleForCoords:(struct TDPoly *)coords ofLength:(int)total atIndex:(int)i {

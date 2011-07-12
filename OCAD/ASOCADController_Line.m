@@ -39,9 +39,12 @@
        
         for (c = 1; c < e->nCoordinates; c++) {
             p1 = NSMakePoint(e->coords[c].x >> 8, e->coords[c].y >> 8);
-            thisAngle = [[self class] angleBetweenPoint:p0 andPoint:p1];      
+            thisAngle = [[self class] angleBetweenPoint:p0 andPoint:p1];
+            
             if (angleIndex > 0) {
-                angles[angleIndex] = (thisAngle + angles[angleIndex-1])*0.5; 
+                // We want to calculate the average between this angle and the last. If the angle "wraps"
+                // (i.e., one angle is very small and the other is near 2*pi), we cannot take the arithmetic average.
+                angles[angleIndex] = atan2f(sinf(thisAngle)+sinf(angles[angleIndex - 1]), cosf(thisAngle) + cosf(angles[angleIndex - 1]));
             } else {
                 angles[angleIndex] = thisAngle;
             }
@@ -54,7 +57,7 @@
 
 				CGPathAddCurveToPoint(road, NULL, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
                 c += 2;
-                // 3 coordinates and 2 angles consumed.
+                // 3 coordinates consumed and 2 angles consumed.
                 p0 = p3;
                 angles[++angleIndex] = [[self class] angleBetweenPoint:p2 andPoint:p3];
             } else {
@@ -95,10 +98,8 @@
                 p2r = [[self class] translatePoint:p2 distance:(line->dbl_width) angle:(nextangle - pi/2)];
                 p3r = [[self class] translatePoint:p3 distance:(line->dbl_width) angle:(nextangle - pi/2)];
                 
-//                CGPathAddCurveToPoint(left, NULL, p1l.x, p1l.y, p2l.x, p2l.y, p3l.x, p3l.y);
-//				CGPathAddCurveToPoint(right, NULL, p1r.x, p1r.y, p2r.x, p2r.y, p3r.x, p3r.y);
-                CGPathAddLineToPoint(left, NULL, p3l.x, p3l.y);
-                CGPathAddLineToPoint(right, NULL, p3r.x, p3r.y);
+                CGPathAddCurveToPoint(left, NULL, p1l.x, p1l.y, p2l.x, p2l.y, p3l.x, p3l.y);
+				CGPathAddCurveToPoint(right, NULL, p1r.x, p1r.y, p2r.x, p2r.y, p3r.x, p3r.y);
                 c += 2; // A total of 3 coordinates and 2 angles consumed.
                 
             } else {
