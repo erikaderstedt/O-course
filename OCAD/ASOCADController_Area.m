@@ -42,6 +42,7 @@
     if (e->angle != 0 && e->angle != 3600) {
         angle = [NSNumber numberWithDouble:((CGFloat)e->angle)*pi/180.0/10.0];
     }
+  
     NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:(id)daColor, @"fillColor", p, @"path", [NSValue valueWithPointer:e],@"element", angle, @"angle", nil];
 	CGPathRelease(p);
 	return d;
@@ -51,10 +52,19 @@
     CGColorSpaceRef cspace = CGColorSpaceCreatePattern(NULL);
     CGPatternRef pattern;
     void *drawFunction;
+    void *info;
+    CGColorRef cs[2];
+    int i;
+    for (i = 0; i < a->ncolors; i++) {
+        cs[i] = [self colorWithNumber:a->colors[i]];
+    }
+    info = cs[0];
+    
     CGRect pRect;
     switch (a->symnum / 1000) {
         case 211:
             drawFunction = &draw211;
+            info = (void *)CFArrayCreate(NULL, (const void **)cs, 2, NULL);
             pRect = CGRectMake(0.0, 0.0, 45.0, 45.0);
             break;
         case 309:
@@ -75,6 +85,7 @@
             break;
         case 404:
             drawFunction = &draw404;
+            info = (void *)CFArrayCreate(NULL, (const void **)cs, 2, NULL);
             pRect = CGRectMake(0.0, 0.0, 99.0, 99.0);
             break;
         case 407:
@@ -87,14 +98,17 @@
             break;
         case 412:
             drawFunction = &draw412;
+            info = (void *)CFArrayCreate(NULL, (const void **)cs, 2, NULL);
             pRect = CGRectMake(0.0, 0.0, 80.0, 80.0);
             break;
         case 413:
             drawFunction = &draw413;
+            info = (void *)CFArrayCreate(NULL, (const void **)cs, 2, NULL);
             pRect = CGRectMake(0.0, 0.0, 170.0, 190.0);
             break;
         case 415:
             drawFunction = &draw415;
+            info = (void *)CFArrayCreate(NULL, (const void **)cs, 2, NULL);
             pRect = CGRectMake(0.0, 0.0, 80.0, 80.0);
             break;
         case 528:
@@ -105,13 +119,17 @@
             drawFunction = &draw709;
             pRect = CGRectMake(0.0, 0.0, 60.0, 1.0);
             break;
-        default:
+        default:/*
+            if (a->hatch_mode == 1) {
+                if (a->hatch_angle1 == 0
+            }*/
             drawFunction = &drawUnknown;
+            info = blackColor;
             pRect = CGRectMake(0.0, 0.0, 80.0, 80.0);
             break;
     }
     const CGPatternCallbacks callbacks = {0, drawFunction, NULL};
-    pattern = CGPatternCreate(colors, pRect, transform, pRect.size.width, pRect.size.height, kCGPatternTilingConstantSpacing, true, &callbacks);
+    pattern = CGPatternCreate(info, pRect, transform, pRect.size.width, pRect.size.height, kCGPatternTilingConstantSpacing, true, &callbacks);
     CGFloat components[1] = {1.0};
     CGColorRef c = CGColorCreateWithPattern(cspace, pattern, components);
     CGColorSpaceRelease(cspace);
@@ -238,9 +256,9 @@
 
 // Open sandy ground. 45x45
 void draw211 (void * info,CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 10));
-    CGContextFillRect(context, CGRectMake(0.0, 0.0, 45.0, 45.0));
     CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 0));
+    CGContextFillRect(context, CGRectMake(0.0, 0.0, 45.0, 45.0));
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 1));
     CGContextBeginPath(context);
     CGContextAddEllipseInRect(context, CGRectMake(0.0, 0.0, 18.0, 18.0));
     CGContextFillPath(context);
@@ -248,19 +266,19 @@ void draw211 (void * info,CGContextRef context) {
 
 // Uncrossable marsh 1x50
 void draw309 (void * info,CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 2));
+    CGContextSetFillColorWithColor(context, (CGColorRef)info);
     CGContextFillRect(context, CGRectMake(0.0, 25.0, 1.0, 25.0));
 }
 
 // Marsh 1x30
 void draw310 (void * info,CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 2));
+    CGContextSetFillColorWithColor(context, (CGColorRef)info);
     CGContextFillRect(context, CGRectMake(0.0, 20.0, 1.0, 10.0));
 }
 
 // Indistinct marsh 115x60
 void draw311 (void * info,CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 2));
+    CGContextSetFillColorWithColor(context, (CGColorRef)info);
     CGContextFillRect(context, CGRectMake(12.0, 20.0, 90.0, 10.0));
     CGContextFillRect(context, CGRectMake(0.0, 50.0, 45.0, 10.0));
     CGContextFillRect(context, CGRectMake(70.0, 50.0, 45.0, 10.0));
@@ -268,9 +286,7 @@ void draw311 (void * info,CGContextRef context) {
 
 // Open land with scattered trees 71x71
 void draw402 (void * info,CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 13));
-    CGContextFillRect(context, CGRectMake(0.0,0.0,71.0,71.0));
-    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 9));
+    CGContextSetFillColorWithColor(context, (CGColorRef)info);
     CGContextBeginPath(context);
     CGContextAddEllipseInRect(context, CGRectMake(-20.0, -20.0, 40.0, 40.0));
     CGContextAddEllipseInRect(context, CGRectMake(51.0, -20.0, 40.0, 40.0));
@@ -282,9 +298,9 @@ void draw402 (void * info,CGContextRef context) {
 
 // Rough open land with scattered trees 99x99
 void draw404 (void * info,CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 9));
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 0));
     CGContextFillRect(context, CGRectMake(0.0,0.0,99.0,99.0));
-    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 13));
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 1));
     CGContextBeginPath(context);
     CGContextAddEllipseInRect(context, CGRectMake(-28.0, -28.0, 55.0, 55.0));
     CGContextAddEllipseInRect(context, CGRectMake(71.0, -28.0, 55.0, 55.0));
@@ -297,15 +313,15 @@ void draw404 (void * info,CGContextRef context) {
 // Undergrowth: slow running 84x1
 // Undergrowth: difficult to run 42x1
 void draw407or409 (void * info,CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 7));
+    CGContextSetFillColorWithColor(context, (CGColorRef)info);
     CGContextFillRect(context, CGRectMake(0.0,0.0,12.0,1.0));
 }
 
 // Orchard 80x80
 void draw412 (void * info,CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 9));
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 0));
     CGContextFillRect(context, CGRectMake(0.0,0.0,80.0,80.0));
-    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 6));
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 1));
     CGContextBeginPath(context);
     CGContextAddEllipseInRect(context, CGRectMake(18.0, 18.0, 45.0, 45.0));
     CGContextFillPath(context);
@@ -314,9 +330,9 @@ void draw412 (void * info,CGContextRef context) {
 
 // Vineyard 170x190
 void draw413 (void * info,CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 9));
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 0));
     CGContextFillRect(context, CGRectMake(0.0,0.0,170.0, 190.0));
-    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 6));
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 1));
     CGContextFillRect(context, CGRectMake(0.0, 0.0, 20.0, 65.0));
     CGContextFillRect(context, CGRectMake(0.0, 125.0, 20.0, 65.0));
     CGContextFillRect(context, CGRectMake(85.0, 30.0, 20.0, 130.0));
@@ -324,33 +340,27 @@ void draw413 (void * info,CGContextRef context) {
 
 // Cultivated land 80x80
 void draw415 (void * info, CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 9));
-    CGContextFillRect(context, CGRectMake(0.0,0.0,80.0,80.0));
     CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 0));
+    CGContextFillRect(context, CGRectMake(0.0,0.0,80.0,80.0));
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 1));
     CGContextBeginPath(context);
     CGContextAddEllipseInRect(context, CGRectMake(30.0, 30.0, 20.0, 20.0));
     CGContextFillPath(context);
 }
 
 void drawUnknown( void *info, CGContextRef context) {
-    CGFloat cols[5];
-    cols[0] = 1.0;
-    cols[1] = 1.0;
-    cols[2] = 0.0;
-    cols[3] = 0.0;
-    cols[4] = 1.0;
-    CGContextSetFillColor(context, cols);
+    CGContextSetFillColorWithColor(context, (CGColorRef)info);
     CGContextFillRect(context, CGRectMake(0.0,0.0,80.0,80.0));
 }
 
 // Permanently out of bounds 75x1
 void draw528 (void * info, CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 0));
+    CGContextSetFillColorWithColor(context, (CGColorRef)info);
     CGContextFillRect(context, CGRectMake(0.0,0.0,25.0,1.0));
 }
 
 // Out-of-bounds area 60x1
 void draw709 (void * info, CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 11));
+    CGContextSetFillColorWithColor(context, (CGColorRef)info);
     CGContextFillRect(context, CGRectMake(0.0,0.0,25.0,1.0));
 }

@@ -180,14 +180,15 @@ struct ocad_area_symbol {
     int16_t hatch_dist;
     int16_t hatch_angle1;
     int16_t hatch_angle2;
-    uint16_t fill_enabled;
-    uint16_t border_enabled;
-    uint16_t structure_mode;
+    uint8_t fill_enabled;
+    uint8_t border_enabled;
+    uint16_t structure_mode;    //
     uint16_t structure_width;
     uint16_t structure_height;
     uint16_t structure_angle;
     uint16_t reserved;
     uint16_t data_size;
+    struct TDPoly coords[1024];
 };
 
 struct ocad_rectangle_symbol {
