@@ -48,7 +48,7 @@ struct ocad_cache {
 - (void)parseColorStrings;
 - (CGColorRef)colorWithNumber:(int)color_number;
 
-- (NSArray *)createCacheFromIndex:(NSInteger)start upToButNotIncludingIndex:(NSInteger)stop;
+- (NSArray *)createCacheFromIndex:(NSInteger)start upToButNotIncludingIndex:(NSInteger)stop step:(NSInteger)step;
 - (void)createCache;
 
 - (NSArray *)cachedDrawingInfoForPointObject:(struct ocad_element *)e;

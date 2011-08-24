@@ -136,7 +136,6 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     c = CGColorCreateGenericCMYK(0.000000, 0.180000, 0.560000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 32, c); CGColorRelease(c); 
     c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 1.000000, 1.000000); CFArraySetValueAtIndex(colors, 33, c); CGColorRelease(c);
 
-    
     CGColorSpaceRef cspace = CGColorSpaceCreateWithName(kCGColorSpaceGenericCMYK);
     for (i = 0; i < ocdf->num_strings; i++) {
         if (ocdf->string_rec_types[i] != 9) continue;
@@ -221,6 +220,9 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     
     // This find the path with the smallest area that contains the
     // point. This will not yield the correct result in some cases.
+    // Better:
+    // - First look for point objects that fit.
+    // - Then look at line objects which are sufficiently close. 
     // TODO: more work.
 	int i, bestIndex = -1;
     CGFloat minArea = HUGE_VALF, area;
@@ -242,14 +244,8 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
 	return 0;
 }
 
-- (NSArray *)createCacheFromIndex:(NSInteger)start upToButNotIncludingIndex:(NSInteger)stop {
-    NSMutableArray *nonBlackAreas = [NSMutableArray arrayWithCapacity:100];
-    NSMutableArray *lines = [NSMutableArray arrayWithCapacity:10000];
-    NSMutableArray *blackLines = [NSMutableArray arrayWithCapacity:10000];
-    NSMutableArray *rectangles = [NSMutableArray arrayWithCapacity:100];
-    NSMutableArray *blackAreas = [NSMutableArray arrayWithCapacity:100];
-    NSMutableArray *strings = [NSMutableArray arrayWithCapacity:100];
-    NSMutableArray *pointObjects = [NSMutableArray arrayWithCapacity:10000];
+- (NSArray *)createCacheFromIndex:(NSInteger)start upToButNotIncludingIndex:(NSInteger)stop step:(NSInteger)step {
+    NSMutableArray *objects = [NSMutableArray arrayWithCapacity:10000];
     
     NSInteger i;
     struct ocad_element *e;
@@ -257,9 +253,8 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     enum ocad_object_type type;
 	NSArray *a, *b;
 	struct ocad_area_symbol *area;
-    CGColorRef black = (CGColorRef)CFArrayGetValueAtIndex(colors, 0);
-    
-    for (i = start; i < stop; i++) {
+
+    for (i = start; i < stop; i += step) {
         e = ocdf->elements[i];
         o = ocdf->objects[i];
         if (o->status != 1) continue;
@@ -267,44 +262,33 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
 		switch (type) {
 			case ocad_area_object:
 				area = (struct ocad_area_symbol *)(e->symbol);
-				if (area && area->fill_enabled && area->fill_color) {
-					[nonBlackAreas addObject:[self cachedDrawingInfoForAreaObject:e]];
-				}
-				if (area == NULL || (!area->fill_enabled || (area->fill_color == 0))) {
-					[blackAreas addObject:[self cachedDrawingInfoForAreaObject:e]];
+				if (area) {
+					[objects addObject:[self cachedDrawingInfoForAreaObject:e]];
 				}
 				break;
 			case ocad_line_object:
 				a = [self cachedDrawingInfoForLineObject:e];
                 if ([a count] == 2) {
                     NSDictionary *mainLine = [a objectAtIndex:1];
-                    if ((CGColorRef)[mainLine objectForKey:@"strokeColor"] == black) {
-                        [blackLines addObject:mainLine];
-                    } else {
-                        [lines addObject:mainLine];
-                    }
+                    [objects addObject:mainLine];
                 }
 				if ([a count] > 0) {
                     b = [a objectAtIndex:0];
                     for (NSDictionary *linePart in b) {
-                        if ((CGColorRef)[linePart objectForKey:@"strokeColor"] == black) {
-                            [blackLines addObject:linePart];
-                        } else {
-                            [lines addObject:linePart];
-                        }
+                        [objects addObject:linePart];
                     }
                 }
 				break;
 			case ocad_rectangle_object:
-				[rectangles addObject:[self cachedDrawingInfoForRectangleObject:e]];
+                [objects addObject:[self cachedDrawingInfoForRectangleObject:e]];
 				break;
 			case ocad_point_object:
-				[pointObjects addObjectsFromArray:[self cachedDrawingInfoForPointObject:e]];
+				[objects addObjectsFromArray:[self cachedDrawingInfoForPointObject:e]];
 				break;
             case ocad_unformatted_text_object:
             case ocad_formatted_text_object:
             case ocad_line_text_object:
-                [strings addObject:[self cachedDrawingInfoForTextObject:e]];
+                [objects addObject:[self cachedDrawingInfoForTextObject:e]];
                 break;
 			default:
 				break;
@@ -312,7 +296,7 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
 
     }
 
-    return [NSArray arrayWithObjects:nonBlackAreas, lines, rectangles, blackAreas, pointObjects, strings, blackLines, nil];
+    return objects;
 }
 
 - (void)createCache {
@@ -325,19 +309,22 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     if (ocdf == NULL) return;
     
     NSMutableArray *invocations = [NSMutableArray arrayWithCapacity:4];
-    NSMethodSignature *ms = [self methodSignatureForSelector:@selector(createCacheFromIndex:upToButNotIncludingIndex:)];
+    NSMethodSignature *ms = [self methodSignatureForSelector:@selector(createCacheFromIndex:upToButNotIncludingIndex:step:)];
     NSOperationQueue *queue = [[NSOperationQueue alloc] init];
     [queue setMaxConcurrentOperationCount:CONCURRENCY];
 
-    NSInteger i, num = ocdf->num_objects, start = 0, stop;
+    NSInteger i, num = ocdf->num_objects, start = 0, stop,step;
     for (i = 0; i < CONCURRENCY; i++) {
         NSInvocation *inv = [NSInvocation invocationWithMethodSignature:ms];
         [inv setTarget:self];
-        [inv setSelector:@selector(createCacheFromIndex:upToButNotIncludingIndex:)];
-        start = i * (num >> PARALLELIZATION); //start = 0;
-        stop = (i != (CONCURRENCY - 1))?((i+1)*(num >> PARALLELIZATION)):num;// stop = num;
+        [inv setSelector:@selector(createCacheFromIndex:upToButNotIncludingIndex:step:)];
+
+        start = i;
+        stop = num;
+        step = CONCURRENCY;
         [inv setArgument:&start atIndex:2];
         [inv setArgument:&stop atIndex:3];
+        [inv setArgument:&step atIndex:4];
         NSInvocationOperation *op = [[NSInvocationOperation alloc] initWithInvocation:inv];
         [invocations addObject:op];
         [queue addOperation:op];
@@ -348,50 +335,47 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     // Count the number of objects.
     NSInteger frags = 0, j,k;
 
-    for (i = 0; i < 7; i++) {
-        for (NSInvocationOperation *op in invocations) {
-            frags += [[[op result] objectAtIndex:i] count];
-        }
+    for (NSInvocationOperation *op in invocations) {
+        frags += [[op result] count];
     }
+
     cachedDrawingInfo = calloc(frags, sizeof(struct ocad_cache));
     if (cachedDrawingInfo == NULL) {
         return;
     }
     
     j = 0;
-    for (i = 0; i < 7; i++) {
-        for (NSInvocationOperation *op in invocations) { 
-            NSArray *items= [[op result] objectAtIndex:i];
-            for (NSDictionary *item in items) {
-                cachedDrawingInfo[j].fillColor = (CGColorRef)[item objectForKey:@"fillColor"];
-                cachedDrawingInfo[j].strokeColor = (CGColorRef)[item objectForKey:@"strokeColor"];
-                cachedDrawingInfo[j].path = (CGPathRef)[item objectForKey:@"path"];
-                cachedDrawingInfo[j].frame  =(CTFrameRef)[item objectForKey:@"frame"];
-                cachedDrawingInfo[j].angle = [[item objectForKey:@"angle"] doubleValue];
-                cachedDrawingInfo[j].midpoint = CGPointMake([[item objectForKey:@"midX"] doubleValue], [[item objectForKey:@"midY"] doubleValue]);
-                cachedDrawingInfo[j].capStyle = (CGLineCap)[[item objectForKey:@"capStyle"] intValue];
-                cachedDrawingInfo[j].joinStyle = (CGLineJoin)[[item objectForKey:@"joinStyle"] intValue];
-                cachedDrawingInfo[j].width = [[item objectForKey:@"width"] doubleValue];
-                cachedDrawingInfo[j].element = [[item objectForKey:@"element"] pointerValue];
-
-                NSArray *dashes = [item objectForKey:@"dashes"];
-                if (dashes != nil) {
-                    cachedDrawingInfo[j].num_dashes = (int)[dashes count];
-                    k = 0;
-                    for (NSNumber *dash in dashes) {
-                        cachedDrawingInfo[j].dashes[k++] = [dash doubleValue];
-                    }
+    for (NSInvocationOperation *op in invocations) { 
+        NSArray *items= [op result];
+        for (NSDictionary *item in items) {
+            cachedDrawingInfo[j].fillColor = (CGColorRef)[item objectForKey:@"fillColor"];
+            cachedDrawingInfo[j].strokeColor = (CGColorRef)[item objectForKey:@"strokeColor"];
+            cachedDrawingInfo[j].path = (CGPathRef)[item objectForKey:@"path"];
+            cachedDrawingInfo[j].frame  =(CTFrameRef)[item objectForKey:@"frame"];
+            cachedDrawingInfo[j].angle = [[item objectForKey:@"angle"] doubleValue];
+            cachedDrawingInfo[j].midpoint = CGPointMake([[item objectForKey:@"midX"] doubleValue], [[item objectForKey:@"midY"] doubleValue]);
+            cachedDrawingInfo[j].capStyle = (CGLineCap)[[item objectForKey:@"capStyle"] intValue];
+            cachedDrawingInfo[j].joinStyle = (CGLineJoin)[[item objectForKey:@"joinStyle"] intValue];
+            cachedDrawingInfo[j].width = [[item objectForKey:@"width"] doubleValue];
+            cachedDrawingInfo[j].element = [[item objectForKey:@"element"] pointerValue];
+            
+            NSArray *dashes = [item objectForKey:@"dashes"];
+            if (dashes != nil) {
+                cachedDrawingInfo[j].num_dashes = (int)[dashes count];
+                k = 0;
+                for (NSNumber *dash in dashes) {
+                    cachedDrawingInfo[j].dashes[k++] = [dash doubleValue];
                 }
-                if (cachedDrawingInfo[j].path != NULL) CGPathRetain(cachedDrawingInfo[j].path);
-                if (cachedDrawingInfo[j].strokeColor != NULL) CGColorRetain(cachedDrawingInfo[j].strokeColor);
-                if (cachedDrawingInfo[j].fillColor != NULL) CGColorRetain(cachedDrawingInfo[j].fillColor);
-                if (cachedDrawingInfo[j].frame != NULL) CFRetain(cachedDrawingInfo[j].frame);
-                if (cachedDrawingInfo[j].path != NULL) {
-                    cachedDrawingInfo[j].boundingBox = CGPathGetBoundingBox(cachedDrawingInfo[j].path);
-                }
-                j++;
-                
             }
+            if (cachedDrawingInfo[j].path != NULL) CGPathRetain(cachedDrawingInfo[j].path);
+            if (cachedDrawingInfo[j].strokeColor != NULL) CGColorRetain(cachedDrawingInfo[j].strokeColor);
+            if (cachedDrawingInfo[j].fillColor != NULL) CGColorRetain(cachedDrawingInfo[j].fillColor);
+            if (cachedDrawingInfo[j].frame != NULL) CFRetain(cachedDrawingInfo[j].frame);
+            if (cachedDrawingInfo[j].path != NULL) {
+                cachedDrawingInfo[j].boundingBox = CGPathGetBoundingBox(cachedDrawingInfo[j].path);
+            }
+            j++;
+            
         }
     }
     
