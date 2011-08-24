@@ -373,6 +373,7 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
                 cachedDrawingInfo[j].joinStyle = (CGLineJoin)[[item objectForKey:@"joinStyle"] intValue];
                 cachedDrawingInfo[j].width = [[item objectForKey:@"width"] doubleValue];
                 cachedDrawingInfo[j].element = [[item objectForKey:@"element"] pointerValue];
+
                 NSArray *dashes = [item objectForKey:@"dashes"];
                 if (dashes != nil) {
                     cachedDrawingInfo[j].num_dashes = (int)[dashes count];
@@ -385,7 +386,6 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
                 if (cachedDrawingInfo[j].strokeColor != NULL) CGColorRetain(cachedDrawingInfo[j].strokeColor);
                 if (cachedDrawingInfo[j].fillColor != NULL) CGColorRetain(cachedDrawingInfo[j].fillColor);
                 if (cachedDrawingInfo[j].frame != NULL) CFRetain(cachedDrawingInfo[j].frame);
-                
                 if (cachedDrawingInfo[j].path != NULL) {
                     cachedDrawingInfo[j].boundingBox = CGPathGetBoundingBox(cachedDrawingInfo[j].path);
                 }
@@ -394,7 +394,20 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
             }
         }
     }
+    
     num_cached_objects = (int)frags;
+    sortedCache = calloc(num_cached_objects, sizeof(struct ocad_cache *));
+    for (i = 0; i < num_cached_objects; i++)
+        sortedCache[i] = cachedDrawingInfo + i;
+    
+    psort_b(sortedCache, num_cached_objects, sizeof(struct ocad_cache *), ^(const void *o1, const void *o2) {
+        struct ocad_cache *c1 = *(struct ocad_cache **)o1;
+        struct ocad_cache *c2 = *(struct ocad_cache **)o2;
+        struct ocad_element *e1 = c1->element;
+        struct ocad_element *e2 = c2->element;
+        
+        return ((int)(e2->color)) - ((int)(e1->color)); 
+    });
     
     for (NSInvocationOperation *op in invocations) {
         [op release];
@@ -571,24 +584,25 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
     CGContextSetTextDrawingMode(ctx, kCGTextFill);
     int i;
+    struct ocad_cache *cache;
     
-    // TODO: Perhaps we can multithread this by rendering into bitmaps and then compositing those bitmaps on top of each other.
     CGRect clipBox = CGContextGetClipBoundingBox(ctx);
     for (i = 0; i < num_cached_objects; i++) {
-        CGPathRef path = cachedDrawingInfo[i].path;
-        CGColorRef strokeColor = cachedDrawingInfo[i].strokeColor;
-        CGColorRef fillColor = cachedDrawingInfo[i].fillColor;
-        CTFrameRef frame = cachedDrawingInfo[i].frame;
-        CGRect bb = cachedDrawingInfo[i].boundingBox;
+        cache = sortedCache[i];
+        CGPathRef path = cache->path;
+        CGColorRef strokeColor = cache->strokeColor;
+        CGColorRef fillColor = cache->fillColor;
+        CTFrameRef frame = cache->frame;
+        CGRect bb = cache->boundingBox;
         if (CGRectIntersectsRect(bb, clipBox)) {
             CGContextBeginPath(ctx);
             CGContextAddPath(ctx,path);
             if (fillColor != NULL) {
                 if (CGColorGetPattern(fillColor) != NULL) {
-                    struct ocad_area_symbol *area = (struct ocad_area_symbol *)cachedDrawingInfo[i].element->symbol;
+                    struct ocad_area_symbol *area = (struct ocad_area_symbol *)cache->element->symbol;
                     CGAffineTransform matrix = CGContextGetCTM(ctx);
-                    if (cachedDrawingInfo[i].angle != 0.0) 
-                        matrix = CGAffineTransformRotate(matrix, cachedDrawingInfo[i].angle);
+                    if (cache->angle != 0.0) 
+                        matrix = CGAffineTransformRotate(matrix, cache->angle);
                     CGContextSetFillColorWithColor(ctx, [self areaColorForSymbol:area transform:matrix]);
                 } else {
                     CGContextSetFillColorWithColor(ctx, fillColor);
@@ -597,22 +611,22 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
             }
             if (strokeColor != NULL) {
                 CGContextSetStrokeColorWithColor(ctx, strokeColor);
-                CGContextSetLineWidth(ctx, cachedDrawingInfo[i].width);
-                if (cachedDrawingInfo[i].num_dashes) {
-                    CGContextSetLineDash(ctx, 0.0, cachedDrawingInfo[i].dashes, cachedDrawingInfo[i].num_dashes);
+                CGContextSetLineWidth(ctx, cache->width);
+                if (cache->num_dashes) {
+                    CGContextSetLineDash(ctx, 0.0, cache->dashes, cache->num_dashes);
                 } else {
                     CGContextSetLineDash(ctx, 0.0, NULL, 0);
                 }
-                CGContextSetLineCap(ctx, (CGLineCap)cachedDrawingInfo[i].capStyle);
-                CGContextSetLineJoin(ctx, cachedDrawingInfo[i].joinStyle);
+                CGContextSetLineCap(ctx, (CGLineCap)cache->capStyle);
+                CGContextSetLineJoin(ctx, cache->joinStyle);
                 CGContextStrokePath(ctx);
             }
             if (frame != NULL) {
                 CGContextSaveGState(ctx);
 
-                CGFloat alpha = cachedDrawingInfo[i].angle*pi/180.0;
+                CGFloat alpha = cache->angle*pi/180.0;
                 if (alpha != 0.0) {
-                    CGPoint m = cachedDrawingInfo[i].midpoint;
+                    CGPoint m = cache->midpoint;
                     CGAffineTransform at = CGAffineTransformMake(cos(alpha), sin(alpha), -sin(alpha), cos(alpha), 
                                                                  m.y*sin(alpha)+ m.x*(1.0-cos(alpha)), 
                                                                  -m.x*sin(alpha) + m.y*(1.0-cos(alpha))); 

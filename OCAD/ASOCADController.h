@@ -31,6 +31,7 @@ struct ocad_cache {
 @interface ASOCADController : NSObject <ASMapProvider> {
 @private
     struct  ocad_cache *cachedDrawingInfo;
+    struct  ocad_cache **sortedCache;
     int     num_cached_objects;
 
     NSString *ocd_path;
