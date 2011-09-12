@@ -278,8 +278,7 @@
                                                                     totalDataSize:0
                                                                            element:e]];
                         if (++current_prim_sym > line->nprim_sym) {
-                            current_prim_sym = line->nprim_sym;
-                            next_interval = interval;
+                            space_left = NO;
                         } else {
                             next_interval = line->prim_sym_dist;
                         }
