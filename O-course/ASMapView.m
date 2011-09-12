@@ -180,9 +180,7 @@
 - (void)mouseDown:(NSEvent *)theEvent {
     NSPoint p = [theEvent locationInWindow];
     p = [self convertPoint:p fromView:nil];
-    p = [tiledLayer convertPoint:p fromLayer:[self layer]];
-
-    NSLog(@"Symbol number: %d", [self.mapProvider symbolNumberAtPosition:p]);
+    p = NSPointFromCGPoint([tiledLayer convertPoint:NSPointToCGPoint(p) fromLayer:[self layer]]);
 
 }
 
