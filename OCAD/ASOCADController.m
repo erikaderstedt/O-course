@@ -579,9 +579,9 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
 
     // The behavior of the pattern matrix has changed subtly from 10.6 to 10.7.
     if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber10_6) {
-        baseMatrix = CGContextGetCTM(ctx);    
-    } else {
         baseMatrix = CGAffineTransformIdentity;
+    } else {
+        baseMatrix = CGContextGetCTM(ctx);    
     }
     
     for (i = 0; i < num_cached_objects; i++) {
