@@ -13,6 +13,7 @@
 - (NSDictionary *)cachedDrawingInfoForAreaObject:(struct ocad_element *)e {
     struct ocad_area_symbol *area = (struct ocad_area_symbol *)(e->symbol);
     int c;
+    NSMutableArray *result = [NSMutableArray arrayWithCapacity:5];
     
     if (e->nCoordinates == 0 ||
         area == NULL ||
@@ -44,10 +45,13 @@
     if (e->angle != 0 && e->angle != 3600) {
         angle = [NSNumber numberWithDouble:((CGFloat)e->angle)/10.0];
     }
-  
-    NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:(id)daColor, @"fillColor", p, @"path", [NSValue valueWithPointer:e],@"element", angle, @"angle", nil];
+
+    if (area->fill_enabled) {
+        CGColorRef fillColor = [self colorWithNumber:area->fill_color];
+        [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)fillColor, @"fillColor", p, @"path", [NSValue valueWithPointer:e],@"element", angle, @"angle", nil]];
+    }
 	CGPathRelease(p);
-	return d;
+	return result;
 }
 
 - (CGColorRef)areaColorForSymbol:(struct ocad_area_symbol *)a transform:(CGAffineTransform)transform {

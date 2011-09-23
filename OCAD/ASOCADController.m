@@ -268,7 +268,7 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
 			case ocad_area_object:
 				area = (struct ocad_area_symbol *)(e->symbol);
 				if (area) {
-					[objects addObject:[self cachedDrawingInfoForAreaObject:e]];
+					[objects addObjectsFromArray:[self cachedDrawingInfoForAreaObject:e]];
 				}
 				break;
 			case ocad_line_object:

@@ -25,7 +25,7 @@ void draw709 (void * info, CGContextRef context);
 
 @interface ASOCADController (ASOCADController_Area)
 
-- (NSDictionary *)cachedDrawingInfoForAreaObject:(struct ocad_element *)e;
+- (NSArray *)cachedDrawingInfoForAreaObject:(struct ocad_element *)e;
 - (void)createAreaSymbolColors;
 - (CGColorRef)areaColorForSymbol:(struct ocad_area_symbol *)a transform:(CGAffineTransform)transform;
 
