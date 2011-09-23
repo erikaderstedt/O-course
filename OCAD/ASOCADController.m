@@ -135,7 +135,11 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 31, c); CGColorRelease(c); 
     c = CGColorCreateGenericCMYK(0.000000, 0.180000, 0.560000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 32, c); CGColorRelease(c); 
     c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 1.000000, 1.000000); CFArraySetValueAtIndex(colors, 33, c); CGColorRelease(c);
-
+    
+    for (i = 34; i < highest + 1; i++) {
+        CFArraySetValueAtIndex(colors, i, blackColor);
+    }
+    
     CGColorSpaceRef cspace = CGColorSpaceCreateWithName(kCGColorSpaceGenericCMYK);
     for (i = 0; i < ocdf->num_strings; i++) {
         if (ocdf->string_rec_types[i] != 9) continue;
