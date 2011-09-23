@@ -590,7 +590,7 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
                     struct ocad_area_symbol *area = (struct ocad_area_symbol *)cache->element->symbol;
                     CGAffineTransform matrix = CGContextGetCTM(ctx);
                     if (cache->angle != 0.0) 
-                        matrix = CGAffineTransformRotate(matrix, cache->angle);
+                        matrix = CGAffineTransformRotate(matrix, cache->angle * pi / 180.0);
                     CGContextSetFillColorWithColor(ctx, [self areaColorForSymbol:area transform:matrix]);
                 } else {
                     CGContextSetFillColorWithColor(ctx, fillColor);

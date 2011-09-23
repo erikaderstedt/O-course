@@ -22,6 +22,8 @@
 	CGMutablePathRef p = CGPathCreateMutable();
 	CGPathMoveToPoint(p, NULL, e->coords[0].x >> 8, e->coords[0].y >> 8);
     
+    // TODO: Handle the case where (e->coords[c].x & 8) is true.
+    // TODO: Handle the case where (area->border_enabled) is true.
     for (c = 0; c < e->nCoordinates; c++) {
         if (e->coords[c].x & 1) {
             // Bezier curve.
@@ -40,7 +42,7 @@
     CGColorRef daColor = (CGColorRef)[areaSymbolColors objectForKey:[NSNumber numberWithInt:area->symnum]];
     NSNumber *angle = nil;
     if (e->angle != 0 && e->angle != 3600) {
-        angle = [NSNumber numberWithDouble:((CGFloat)e->angle)*pi/180.0/10.0];
+        angle = [NSNumber numberWithDouble:((CGFloat)e->angle)/10.0];
     }
   
     NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:(id)daColor, @"fillColor", p, @"path", [NSValue valueWithPointer:e],@"element", angle, @"angle", nil];
