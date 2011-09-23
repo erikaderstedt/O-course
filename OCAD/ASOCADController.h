@@ -12,20 +12,21 @@
 #import "ocdimport.h"
 
 struct ocad_cache {
-    CGRect      boundingBox;
-    CGPathRef   path;
-    CGColorRef  fillColor;
-    CGColorRef  strokeColor;
-    CTFrameRef  frame;
-    CGLineCap   capStyle;
-    CGLineJoin  joinStyle;
-    CGFloat     width;
-    struct ocad_element *element;
-    CGFloat     angle;
-    CGPoint     midpoint;
+    CGRect      boundingBox;       // The path bounding box is cached because determining it is a fairly expensive operation.
+    CGPathRef   path;              
+    CGColorRef  fillColor;          // Fill color if the path is to be filled.
+    CGColorRef  strokeColor;        // Stroke color if the path should be stroked.
+    CTFrameRef  frame;              // A text frame (text objects only).
+    CGPoint     midpoint;           // The frame midpoint, about which rotations apply (text objects only).
     
-    CGFloat     dashes[4];
-    int         num_dashes;
+    CGLineCap   capStyle;           // Line cap style (lines only).
+    CGLineJoin  joinStyle;          // Line join style (lines only).
+    CGFloat     width;              // Line width (lines only).
+    CGFloat     dashes[4];          // Dashes (lines only).
+    int         num_dashes;         // Number of dashes (lines only).
+    
+    struct ocad_element *element;   // The OCAD element. Used for sorting the cache according to the base element color.
+    CGFloat     angle;              // Angle (degrees). Used to rotate text objects and to rotate the pattern matrix for areas.    
 };
 
 @interface ASOCADController : NSObject <ASMapProvider> {
