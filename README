@@ -1,22 +1,8 @@
-OCAD-compatible orienteering course software.
-10.6+
-Image drawing can be further optimized, by drawing into multiple images and then compositing the images.
+OCAD-kompatibelt banläggningsprogram. 
 
+Se ASMapProvider.h för kontraktet mellan ASMapView och den klass som tillhandahåller kartan (bakgrundsbilden). Klassen bestäms av ASOcourseDocument. F.n. finns bara ASOCADController som map provider.
 
-1. View frame size changes:
-	- If existing operation to re-render is in progress, cancel it.
-	- Start operation to re-render.
-	- When operation finishes, use performSelector: onMainThread: to switch out the cached image and refresh the window. Put this code in the completion block.
-2. Zoom changes are handled in the same way.
+ASOCADController läser först in hela OCAD-filen (via ocdimport.c). Därefter går den igenom alla objekt i filen och skapar en cache innehållandes f.f.a. en CGPathRef. Det gör att själva uppritningen blir enkel. Cachen är sorterad i uppritningsordning (fungerar inte riktigt f.n.). Själva skapandet av cachen delas upp över flera tråda
 
-9/4 	Map view
-16/4 	Toolbar, add control points.
-		Detect symbol type.
-30/4 	Control definition view.
-6/5		List of courses
-13/5	Numbers / lines overlay
-20/5	Begin layout mode
-27/5	Apply border + name
-4/6		Logo, north arrow, scale indicator, control definition + custom text.
-11/6	Eraser
-18/6	Choose which symbol types to render.
+I somras hittade jag purple-pen, som är ett open-source banläggningsprogram för PC skrivet i C#. Där kan man kika på hur den författaren tolkat vissa fält i OCAD.
+
