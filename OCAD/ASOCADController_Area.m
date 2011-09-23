@@ -52,8 +52,100 @@
             [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)daColor, @"fillColor", p, @"path", [NSValue valueWithPointer:e],@"element", nil]];
         }
     }
-	CGPathRelease(p);
+
+    if (area->structure_mode != 0) {
+        CGColorRef structureColor = [self structureColorForSymbol:area];
+        [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)structureColor, @"fillColor", p, @"path", [NSValue valueWithPointer:e],@"element", nil]];
+    }
+    
+    CGPathRelease(p);
 	return result;
+}
+
+- (CGColorRef)structureColorForSymbol:(struct ocad_area_symbol *)a {
+    CGColorSpaceRef cspace = CGColorSpaceCreatePattern(NULL);
+    CGPatternRef pattern;
+    void *info;
+    CGAffineTransform transform = CGAffineTransformIdentity;
+    int c;
+    CGRect pRect;
+    struct ocad_symbol_element *se = (struct ocad_symbol_element *)(a->coords);
+    
+    // Assume that there is only one symbol element. I'm not sure how they would repeat otherwise.
+    NSAssert(a->data_size == se->ncoords + 2, @"Invalid number of coordinates! Is there more than one symbol element for this area symbol?");
+    NSAssert(a->structure_mode == 1 || a->structure_mode == 2, @"Invalid structure mode!");
+    if (a->structure_mode == 1) {
+        pRect = CGRectMake(0.0, 0.0, a->structure_width, a->structure_height);
+    } else {
+        pRect = CGRectMake(0.0, 0.0, a->structure_width * 1.5, a->structure_height * 2.0);
+    } 
+    
+    if (a->structure_angle != 0) {
+        transform = CGAffineTransformRotate(transform, ((double)a->structure_angle) * pi / 180.0 / 10.0);
+    }
+    
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGColorRef color = [self colorWithNumber:se->color];
+    
+    switch (se->symbol_type) {
+        case 1: /* Line */
+            CGPathMoveToPoint(path, NULL, se->points[0].x >> 8, se->points[0].y >> 8);
+            for (c = 1; c < se->ncoords; c++) {
+                CGPathAddLineToPoint(path, NULL, se->points[c].x >> 8, se->points[c].y >> 8);
+            }
+            break;
+        case 2: /* Area */
+            CGPathMoveToPoint(path, NULL, se->points[0].x >> 8, se->points[0].y >> 8);
+            for (c = 1; c < se->ncoords; c++) {
+                if (se->points[c].x & 1) {
+                    CGPathAddCurveToPoint(path, NULL, se->points[c].x >> 8, se->points[c].y >> 8, 
+                                          se->points[c + 1].x >> 8, se->points[c + 1].y >> 8, 
+                                          se->points[c + 2].x >> 8, se->points[c + 2].y >> 8);                       
+                    c += 2;
+                } else {
+                    CGPathAddLineToPoint(path, NULL, se->points[c].x >> 8, se->points[c].y >> 8);
+                }
+            }
+            CGPathCloseSubpath(path);
+            break;
+        case 3:
+        case 4: /* Dot. */
+            CGPathAddEllipseInRect(path, NULL, CGRectMake(-(se->diameter / 2) + (se->points[0].x >> 8), -(se->diameter / 2) + (se->points[0].y >> 8), se->diameter, se->diameter));
+            break;
+        default:
+            break;
+    }
+    
+    // Supply the path, the color, the symbol element pointer and the structure mode to the pattern drawing function.
+    // We need the symbol element to determine what to do with the path and to set the line width for lines.
+    void *args[7]; int num_args = 5;
+    args[0] = path;
+    args[1] = color;
+    args[2] = (void *)CFNumberCreate(NULL, kCFNumberSInt16Type, &(se->symbol_type));
+    args[3] = (void *)CFNumberCreate(NULL, kCFNumberSInt16Type, &(se->line_width));
+    args[4] = (void *)CFNumberCreate(NULL, kCFNumberSInt16Type, &(a->structure_mode));
+    if (a->structure_mode == 2) {
+        args[5] = (void *)CFNumberCreate(NULL, kCFNumberSInt16Type, &(a->structure_width));
+        args[6] = (void *)CFNumberCreate(NULL, kCFNumberSInt16Type, &(a->structure_height));
+        num_args += 2;
+    }
+    info = (void *)CFArrayCreate(NULL, (const void **)args, num_args, &kCFTypeArrayCallBacks);
+    CFRelease((CFNumberRef)args[2]);
+    CFRelease((CFNumberRef)args[3]);
+    CFRelease((CFNumberRef)args[4]);
+    if (a->structure_mode == 2) {
+        CFRelease((CFNumberRef)args[5]);
+        CFRelease((CFNumberRef)args[6]);
+    }
+
+    const CGPatternCallbacks callbacks = {0, &drawStructured, NULL};
+    pattern = CGPatternCreate(info, pRect, transform, pRect.size.width, pRect.size.height, kCGPatternTilingConstantSpacing, true, &callbacks);
+    CGFloat components[1] = {1.0};
+    CGColorRef structureColor = CGColorCreateWithPattern(cspace, pattern, components);
+    CGColorSpaceRelease(cspace);
+    CGPatternRelease(pattern);
+    
+    return structureColor;
 }
 
 - (CGColorRef)hatchColorForSymbol:(struct ocad_area_symbol *)a index:(int)index {    
@@ -87,7 +179,9 @@
     double width = (double)(a->hatch_line_width);
     args[1] = (void *)CFNumberCreate(NULL, kCFNumberDoubleType, &width);
     args[2] = (void *)CFNumberCreate(NULL, kCFNumberIntType, &direction);
-    info = (void *)CFArrayCreate(NULL, (const void **)args, 3, NULL);
+    info = (void *)CFArrayCreate(NULL, (const void **)args, 3, &kCFTypeArrayCallBacks);
+    CFRelease((CFNumberRef)args[1]);
+    CFRelease((CFNumberRef)args[2]);
     
     const CGPatternCallbacks callbacks = {0, &drawHatched, NULL};
     pattern = CGPatternCreate(info, pRect, transform, pRect.size.width, pRect.size.height, kCGPatternTilingConstantSpacing, true, &callbacks);
@@ -97,201 +191,6 @@
     CGPatternRelease(pattern);
     
     return c;
-}
-
-- (CGColorRef)areaColorForSymbol:(struct ocad_area_symbol *)a transform:(CGAffineTransform)transform {
-    CGColorSpaceRef cspace = CGColorSpaceCreatePattern(NULL);
-    CGPatternRef pattern;
-    void *drawFunction;
-    void *info;
-    info = [self colorWithNumber:a->colors[a->ncolors - 1]];
-    
-    CGRect pRect;
-
-    switch (a->symnum / 1000) {
-        case 211:
-            drawFunction = &draw211;
-            pRect = CGRectMake(0.0, 0.0, 45.0, 45.0);
-            break;
-        case 309:
-            drawFunction = &draw309;
-            pRect = CGRectMake(0.0, 0.0, 1.0, 50.0);
-            break;
-        case 310:
-            drawFunction = &draw310;
-            pRect = CGRectMake(0.0, 0.0, 1.0, 30.0);
-            break;
-        case 311:
-            drawFunction = &draw311;
-            pRect = CGRectMake(0.0, 0.0, 115.0, 60.0);
-            break;
-        case 402:
-            drawFunction = &draw402;
-            pRect = CGRectMake(0.0, 0.0, 71.0, 71.0);
-            break;
-        case 404:
-            drawFunction = &draw404;
-            pRect = CGRectMake(0.0, 0.0, 99.0, 99.0);
-            break;
-        case 407:
-            drawFunction = &draw407or409;
-            pRect = CGRectMake(0.0, 0.0, 84.0, 1.0);
-            break;
-        case 409:
-            drawFunction = &draw407or409;
-            pRect = CGRectMake(0.0, 0.0, 42.0, 1.0);
-            break;
-        case 412:
-            drawFunction = &draw412;
-            pRect = CGRectMake(0.0, 0.0, 80.0, 80.0);
-            break;
-        case 413:
-            drawFunction = &draw413;
-            pRect = CGRectMake(0.0, 0.0, 170.0, 190.0);
-            break;
-        case 415:
-            drawFunction = &draw415;
-            pRect = CGRectMake(0.0, 0.0, 80.0, 80.0);
-            break;
-        case 528:
-            drawFunction = &draw528;
-            pRect = CGRectMake(0.0, 0.0, 75.0, 1.0);
-            break;
-        case 709:
-            drawFunction = &draw709;
-            pRect = CGRectMake(0.0, 0.0, 60.0, 1.0);
-            break;
-        default:/*
-            if (a->hatch_mode == 1) {
-                if (a->hatch_angle1 == 0
-            }*/
-            drawFunction = &drawUnknown;
-            info = blackColor;
-            pRect = CGRectMake(0.0, 0.0, 80.0, 80.0);
-            break;
-    }
-    const CGPatternCallbacks callbacks = {0, drawFunction, NULL};
-    pattern = CGPatternCreate(info, pRect, transform, pRect.size.width, pRect.size.height, kCGPatternTilingConstantSpacing, true, &callbacks);
-    CGFloat components[1] = {1.0};
-    CGColorRef c = CGColorCreateWithPattern(cspace, pattern, components);
-    CGColorSpaceRelease(cspace);
-    CGPatternRelease(pattern);
-    
-    return c;
-}
-
-- (void)createAreaSymbolColors {
-    NSInteger i;
-    struct ocad_area_symbol *a;
-    NSNumber *key;
-    
-    if (areaSymbolColors != nil) [areaSymbolColors release];
-    areaSymbolColors = [[NSMutableDictionary alloc] initWithCapacity:200];
-    
-    for (i = 0; i < ocdf->num_symbols; i++) {
-        a = (struct ocad_area_symbol *)ocdf->symbols[i];
-        if ((enum ocad_object_type)a->otp != ocad_area_object) continue;
-        key = [NSNumber numberWithInt:a->symnum];
-        CGColorRef c;
-        
-        if (a->hatch_mode == 0 && a->structure_mode == 0) {
-            c = [self colorWithNumber:a->colors[0]];
-            CGColorRetain(c);
-        } else {
-            c = [self areaColorForSymbol:a transform:CGAffineTransformIdentity];
-            /*
-             NSImage *image = [self patternImageForSymbolNumber: a->symnum / 1000];
-             if (image != nil) {
-             c = [NSColor colorWithPatternImage:image];
-             } else {
-             // Parse the color format.
-             if (a->hatch_mode == 1 && (a->hatch_angle1 == 900 || a->hatch_angle1 == 0)) {
-             // Horizontal or vertical stripes.
-             if (a->hatch_angle1 == 900) {
-             NSImage *pattern = [[NSImage alloc] initWithSize:NSMakeSize(a->hatch_line_width + a->hatch_dist, 1.0)];
-             [pattern lockFocus];
-             if (a->fill_enabled) 
-             [[self colorWithNumber:a->fill_color] set];
-             else
-             [[NSColor clearColor] set];
-             [NSBezierPath fillRect:NSMakeRect(0.0, 0.0, a->hatch_line_width + a->hatch_dist, 1.0)];
-             [[self colorWithNumber:a->hatch_color] set];
-             [NSBezierPath fillRect:NSMakeRect(0.0, 0.0, a->hatch_line_width, 1.0)];
-             [pattern unlockFocus];
-             c = [NSColor colorWithPatternImage:[pattern autorelease]];
-             } else {
-             NSImage *pattern = [[NSImage alloc] initWithSize:NSMakeSize(1.0, a->hatch_line_width + a->hatch_dist)];
-             [pattern lockFocus];
-             if (a->fill_enabled) 
-             [[self colorWithNumber:a->fill_color] set];
-             else
-             [[NSColor clearColor] set];
-             [NSBezierPath fillRect:NSMakeRect(0.0, 0.0, 1.0, a->hatch_line_width + a->hatch_dist)];
-             [[self colorWithNumber:a->hatch_color] set];
-             [NSBezierPath fillRect:NSMakeRect(0.0, 0.0, 1.0, a->hatch_line_width)];
-             [pattern unlockFocus];
-             c = [NSColor colorWithPatternImage:[pattern autorelease]];
-             }
-             } else {
-             NSSize sz;
-             
-             // Calculate the size.
-             float spacing = a->hatch_line_width + a->hatch_dist;
-             
-             sz = NSMakeSize(spacing * 2.0 * fabs(cosf(((float)a->hatch_angle1) / 10.0 * pi / 180.0)), 
-             spacing * 2.0 * fabs(sinf(((float)a->hatch_angle1) / 10.0 * pi / 180.0)));
-             
-             if (a->hatch_mode == 2) {
-             NSSize sz2;
-             
-             sz2 = NSMakeSize(spacing * 2.0 * fabs(cosf(((float)a->hatch_angle2) / 10.0 * pi / 180.0)), 
-             spacing * 2.0 * fabs(sinf(((float)a->hatch_angle2) / 10.0 * pi / 180.0)));
-             
-             }
-             
-             sz = NSMakeSize(roundf(sz.width), roundf(sz.height));
-             float side = sz.width;
-             NSImage *pattern = [[NSImage alloc] initWithSize:sz];
-             [pattern lockFocus];
-             if (a->fill_enabled) 
-             [[self colorWithNumber:a->fill_color] set];
-             else
-             [[NSColor clearColor] set];
-             [NSBezierPath fillRect:NSMakeRect(0.0, 0.0, side, side)];
-             [[self colorWithNumber:a->hatch_color] set];
-             int hm, angle, j;
-             float f_angle;
-             NSPoint baseStart, baseEnd;
-             for (hm = a->hatch_mode; hm; hm --) {
-             NSBezierPath *path = [NSBezierPath bezierPath];
-             angle = *(&(a->hatch_angle1) + (hm - 1));
-             f_angle = ((float)angle) / 10.0 * pi / 180.0;
-             if (f_angle < 0) {
-             baseStart = NSMakePoint(0.0, sz.height);
-             baseEnd = NSMakePoint(-tanf(f_angle)*sz.height, 0.0);
-             } else {
-             baseStart = NSMakePoint(0.0, 0.0);
-             baseEnd = NSMakePoint(tanf(f_angle)*sz.height, sz.height);
-             
-             }
-             for (j = -5; j <= 5; j++) {
-             [path moveToPoint:NSMakePoint(baseStart.x + cosf(f_angle - pi/2)*spacing * j, baseStart.y + sinf(f_angle - pi/2)*spacing*j)];
-             [path lineToPoint:NSMakePoint(baseEnd.x + cosf(f_angle - pi/2)*spacing * j, baseEnd.y + sinf(f_angle - pi/2)*spacing*j)];
-             }
-             [path setLineWidth:a->hatch_line_width];
-             [path stroke];
-             }
-             [pattern unlockFocus];
-             c = [NSColor colorWithPatternImage:[pattern autorelease]];
-             }
-             }
-             */
-            
-        }
-        
-        [areaSymbolColors setObject:(id)c forKey:key];
-        CGColorRelease(c);
-    }
 }
 
 @end
@@ -312,103 +211,61 @@ void drawHatched(void *info, CGContextRef context) {
     }    
 }
 
-// Open sandy ground. 45x45
-void draw211 (void * info,CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)info);
-    CGContextBeginPath(context);
-    CGContextAddEllipseInRect(context, CGRectMake(0.0, 0.0, 18.0, 18.0));
-    CGContextFillPath(context);
-}
-
-// Uncrossable marsh 1x50
-void draw309 (void * info,CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)info);
-    CGContextFillRect(context, CGRectMake(0.0, 25.0, 1.0, 25.0));
-}
-
-// Marsh 1x30
-void draw310 (void * info,CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)info);
-    CGContextFillRect(context, CGRectMake(0.0, 20.0, 1.0, 10.0));
-}
-
-// Indistinct marsh 115x60
-void draw311 (void * info,CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)info);
-    CGContextFillRect(context, CGRectMake(12.0, 20.0, 90.0, 10.0));
-    CGContextFillRect(context, CGRectMake(0.0, 50.0, 45.0, 10.0));
-    CGContextFillRect(context, CGRectMake(70.0, 50.0, 45.0, 10.0));
-}
-
-// Open land with scattered trees 71x71
-void draw402 (void * info,CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)info);
-    CGContextBeginPath(context);
-    CGContextAddEllipseInRect(context, CGRectMake(-20.0, -20.0, 40.0, 40.0));
-    CGContextAddEllipseInRect(context, CGRectMake(51.0, -20.0, 40.0, 40.0));
-    CGContextAddEllipseInRect(context, CGRectMake(-20.0, 51.0, 40.0, 40.0));
-    CGContextAddEllipseInRect(context, CGRectMake(51.0, 51.0, 40.0, 40.0));
-    CGContextAddEllipseInRect(context, CGRectMake(15.0, 15.0, 40.0, 40.0));
-    CGContextFillPath(context);
-}
-
-// Rough open land with scattered trees 99x99
-void draw404 (void * info,CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)info);
-    CGContextBeginPath(context);
-    CGContextAddEllipseInRect(context, CGRectMake(-28.0, -28.0, 55.0, 55.0));
-    CGContextAddEllipseInRect(context, CGRectMake(71.0, -28.0, 55.0, 55.0));
-    CGContextAddEllipseInRect(context, CGRectMake(-28.0, 71.0, 55.0, 55.0));
-    CGContextAddEllipseInRect(context, CGRectMake(71.0, 71.0, 55.0, 55.0));
-    CGContextAddEllipseInRect(context, CGRectMake(22.0, 22.0, 55.0, 55.0));
-    CGContextFillPath(context);
-}
-
-// Undergrowth: slow running 84x1
-// Undergrowth: difficult to run 42x1
-void draw407or409 (void * info,CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)info);
-    CGContextFillRect(context, CGRectMake(0.0,0.0,12.0,1.0));
-}
-
-// Orchard 80x80
-void draw412 (void * info,CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)info);
-    CGContextBeginPath(context);
-    CGContextAddEllipseInRect(context, CGRectMake(18.0, 18.0, 45.0, 45.0));
-    CGContextFillPath(context);
+void drawStructured(void *info, CGContextRef context) {
+    CFArrayRef inputValues = (CFArrayRef)info;
+    CGPathRef path = CFArrayGetValueAtIndex(inputValues, 0);
+    CGColorRef color = (CGColorRef)CFArrayGetValueAtIndex(inputValues, 1);
+    int16_t type, line_width, structure_mode;
     
-}
-
-// Vineyard 170x190
-void draw413 (void * info,CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)info);
-    CGContextFillRect(context, CGRectMake(0.0, 0.0, 20.0, 65.0));
-    CGContextFillRect(context, CGRectMake(0.0, 125.0, 20.0, 65.0));
-    CGContextFillRect(context, CGRectMake(85.0, 30.0, 20.0, 130.0));
-}
-
-// Cultivated land 80x80
-void draw415 (void * info, CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)info);
+    // For structure_mode 2
+    int16_t width, height; 
+    CGAffineTransform transform1;
+    CGAffineTransform transform2;
+    
+    CFNumberGetValue((CFNumberRef)CFArrayGetValueAtIndex(inputValues, 2), kCFNumberSInt16Type, &type);
+    CFNumberGetValue((CFNumberRef)CFArrayGetValueAtIndex(inputValues, 3), kCFNumberSInt16Type, &line_width);
+    CFNumberGetValue((CFNumberRef)CFArrayGetValueAtIndex(inputValues, 4), kCFNumberSInt16Type, &structure_mode);
+    if (structure_mode == 2) {
+        CFNumberGetValue((CFNumberRef)CFArrayGetValueAtIndex(inputValues, 5), kCFNumberSInt16Type, &width);
+        CFNumberGetValue((CFNumberRef)CFArrayGetValueAtIndex(inputValues, 6), kCFNumberSInt16Type, &height);
+        CGContextSaveGState(context);
+        
+        // Translate the context -0.5*width, 1.0*height.
+        transform1 = CGAffineTransformMakeTranslation(-0.5*((CGFloat)width), (CGFloat)height);
+        
+        // Translate the context 1.0*width.
+        transform2 = CGAffineTransformMakeTranslation(1.0*((CGFloat)width), 0.0);
+    }
     CGContextBeginPath(context);
-    CGContextAddEllipseInRect(context, CGRectMake(30.0, 30.0, 20.0, 20.0));
-    CGContextFillPath(context);
-}
+    CGContextAddPath(context, path);
+    switch (type) {
+        case 1:
+        case 3:
+            CGContextSetStrokeColorWithColor(context, color);
+            CGContextSetLineWidth(context, (CGFloat)line_width);
+            CGContextStrokePath(context);
+            if (structure_mode == 2) {
+                CGContextConcatCTM(context, transform1);
+                CGContextStrokePath(context);
+                CGContextConcatCTM(context, transform2);
+                CGContextStrokePath(context);                
+            }
+            break;
+        case 2:
+        case 4:
+            CGContextSetFillColorWithColor(context, color);
+            CGContextFillPath(context);
+            if (structure_mode == 2) {
+                CGContextConcatCTM(context, transform1);
+                CGContextFillPath(context);
+                CGContextConcatCTM(context, transform2);
+                CGContextFillPath(context);                
+            }
+        default:
+            break;
+    }
 
-void drawUnknown( void *info, CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)info);
-    CGContextFillRect(context, CGRectMake(0.0,0.0,80.0,80.0));
-}
-
-// Permanently out of bounds 75x1
-void draw528 (void * info, CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)info);
-    CGContextFillRect(context, CGRectMake(0.0,0.0,25.0,1.0));
-}
-
-// Out-of-bounds area 60x1
-void draw709 (void * info, CGContextRef context) {
-    CGContextSetFillColorWithColor(context, (CGColorRef)info);
-    CGContextFillRect(context, CGRectMake(0.0,0.0,25.0,1.0));
+    if (structure_mode == 2) {
+        CGContextRestoreGState(context);
+    }
 }

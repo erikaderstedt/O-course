@@ -65,9 +65,6 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         currentBox.upper_right.x = boundingBox->upper_right.x;
         currentBox.upper_right.y = boundingBox->upper_right.y;
         
-        // Set up a dictionary of color objects, keyed with symbol numbers.
-        [self createAreaSymbolColors];
-
         [self createCache];
     }
     return self;
