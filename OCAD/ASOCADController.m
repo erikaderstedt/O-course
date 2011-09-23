@@ -6,6 +6,7 @@
 //  Copyright 2011 Aderstedt Software AB. All rights reserved.
 //
 
+#import <Cocoa/Cocoa.h>
 #import "ASOCADController.h"
 #import "ocdimport.h"
 #import <QuartzCore/QuartzCore.h>
@@ -573,8 +574,16 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     CGContextSetTextDrawingMode(ctx, kCGTextFill);
     int i;
     struct ocad_cache *cache;
-    
+    CGAffineTransform baseMatrix, matrix;
     CGRect clipBox = CGContextGetClipBoundingBox(ctx);
+
+    // The behavior of the pattern matrix has changed subtly from 10.6 to 10.7.
+    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber10_6) {
+        baseMatrix = CGContextGetCTM(ctx);    
+    } else {
+        baseMatrix = CGAffineTransformIdentity;
+    }
+    
     for (i = 0; i < num_cached_objects; i++) {
         cache = sortedCache[i];
         CGPathRef path = cache->path;
@@ -588,9 +597,10 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
             if (fillColor != NULL) {
                 if (CGColorGetPattern(fillColor) != NULL) {
                     struct ocad_area_symbol *area = (struct ocad_area_symbol *)cache->element->symbol;
-                    CGAffineTransform matrix = CGContextGetCTM(ctx);
                     if (cache->angle != 0.0) 
-                        matrix = CGAffineTransformRotate(matrix, cache->angle * pi / 180.0);
+                        matrix = CGAffineTransformRotate(baseMatrix, cache->angle * pi / 180.0);
+                    else
+                        matrix = baseMatrix;
                     CGContextSetFillColorWithColor(ctx, [self areaColorForSymbol:area transform:matrix]);
                 } else {
                     CGContextSetFillColorWithColor(ctx, fillColor);
