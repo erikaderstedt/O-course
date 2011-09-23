@@ -595,16 +595,20 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
             CGContextBeginPath(ctx);
             CGContextAddPath(ctx,path);
             if (fillColor != NULL) {
-                if (CGColorGetPattern(fillColor) != NULL) {
-                    struct ocad_area_symbol *area = (struct ocad_area_symbol *)cache->element->symbol;
-                    if (cache->angle != 0.0) 
-                        matrix = CGAffineTransformRotate(baseMatrix, cache->angle * pi / 180.0);
-                    else
-                        matrix = baseMatrix;
-                    CGContextSetFillColorWithColor(ctx, [self areaColorForSymbol:area transform:matrix]);
-                } else {
-                    CGContextSetFillColorWithColor(ctx, fillColor);
-                }
+                /*
+                 if (CGColorGetPattern(fillColor) != NULL) {
+                 struct ocad_area_symbol *area = (struct ocad_area_symbol *)cache->element->symbol;
+                 if (cache->angle != 0.0) 
+                 matrix = CGAffineTransformRotate(baseMatrix, cache->angle * pi / 180.0);
+                 else
+                 matrix = baseMatrix;
+                 CGContextSetFillColorWithColor(ctx, [self areaColorForSymbol:area transform:matrix]);
+                 } else {
+                 CGContextSetFillColorWithColor(ctx, fillColor);
+                 }
+                 */
+                // TODO: check if this works on snow leopard.
+                CGContextSetFillColorWithColor(ctx, fillColor);
                 CGContextEOFillPath(ctx);
             }
             if (strokeColor != NULL) {

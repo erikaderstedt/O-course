@@ -22,11 +22,13 @@ void draw415 (void * info, CGContextRef context);
 void drawUnknown( void *info, CGContextRef context);
 void draw528 (void * info, CGContextRef context);
 void draw709 (void * info, CGContextRef context);
+void drawHatched (void * info, CGContextRef context);
+
 
 @interface ASOCADController (ASOCADController_Area)
 
 - (NSArray *)cachedDrawingInfoForAreaObject:(struct ocad_element *)e;
 - (void)createAreaSymbolColors;
 - (CGColorRef)areaColorForSymbol:(struct ocad_area_symbol *)a transform:(CGAffineTransform)transform;
-
+- (CGColorRef)hatchColorForSymbol:(struct ocad_area_symbol *)a index:(int)index;
 @end

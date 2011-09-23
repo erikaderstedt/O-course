@@ -46,16 +46,57 @@
         [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)fillColor, @"fillColor", p, @"path", [NSValue valueWithPointer:e],@"element", nil]];
     }
     
-    if (area->hatch_mode != 0 || area->structure_mode != 0) {
-        CGColorRef daColor = (CGColorRef)[areaSymbolColors objectForKey:[NSNumber numberWithInt:area->symnum]];
-        NSNumber *angle = nil;
-        if (e->angle != 0 && e->angle != 3600) {
-            angle = [NSNumber numberWithDouble:((CGFloat)e->angle)/10.0];
+    if (area->hatch_mode != 0) {
+        for (c = 0; c < area->hatch_mode; c++) {
+            CGColorRef daColor = [self hatchColorForSymbol:area index:c];
+            [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)daColor, @"fillColor", p, @"path", [NSValue valueWithPointer:e],@"element", nil]];
         }
-        [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)daColor, @"fillColor", p, @"path", [NSValue valueWithPointer:e],@"element", angle, @"angle", nil]];
     }
 	CGPathRelease(p);
 	return result;
+}
+
+- (CGColorRef)hatchColorForSymbol:(struct ocad_area_symbol *)a index:(int)index {    
+    // TODO: We do not support hatched symbols that have an "external" rotation applied using the element angle. Fix!
+    CGColorSpaceRef cspace = CGColorSpaceCreatePattern(NULL);
+    CGPatternRef pattern;
+    void *info;
+    CGAffineTransform transform = CGAffineTransformIdentity;
+    
+    NSAssert(a->hatch_mode != 0, @"This symbol does not have a hatch pattern!");
+    NSAssert(index < a->hatch_mode, @"Invalid hatch index.");
+    NSAssert(a->hatch_mode <= 2, @"Hatch mode needs to be less than or equal to 2.");
+    
+    int angle = (index == 0)?(a->hatch_angle1):(a->hatch_angle2);
+    int direction = 0;
+    CGRect pRect;
+    if (angle % 900 == 0) {
+        if (angle == 0) { // Horizontal pattern.
+            pRect = CGRectMake(0.0, 0.0, 1.0, a->hatch_dist);
+        } else { // Vertical pattern.
+            direction = 1;
+            pRect = CGRectMake(0.0, 0.0, a->hatch_dist, 1.0);
+        }
+    } else {
+        pRect = CGRectMake(0.0, 0.0, 1.0, a->hatch_dist);
+        transform = CGAffineTransformRotate(transform, ((double)angle) * pi / 180.0 / 10.0);
+    }
+
+    void *args[3];
+    args[0] = [self colorWithNumber:a->hatch_color];
+    double width = (double)(a->hatch_line_width);
+    args[1] = (void *)CFNumberCreate(NULL, kCFNumberDoubleType, &width);
+    args[2] = (void *)CFNumberCreate(NULL, kCFNumberIntType, &direction);
+    info = (void *)CFArrayCreate(NULL, (const void **)args, 3, NULL);
+    
+    const CGPatternCallbacks callbacks = {0, &drawHatched, NULL};
+    pattern = CGPatternCreate(info, pRect, transform, pRect.size.width, pRect.size.height, kCGPatternTilingConstantSpacing, true, &callbacks);
+    CGFloat components[1] = {1.0};
+    CGColorRef c = CGColorCreateWithPattern(cspace, pattern, components);
+    CGColorSpaceRelease(cspace);
+    CGPatternRelease(pattern);
+    
+    return c;
 }
 
 - (CGColorRef)areaColorForSymbol:(struct ocad_area_symbol *)a transform:(CGAffineTransform)transform {
@@ -66,6 +107,7 @@
     info = [self colorWithNumber:a->colors[a->ncolors - 1]];
     
     CGRect pRect;
+
     switch (a->symnum / 1000) {
         case 211:
             drawFunction = &draw211;
@@ -253,6 +295,22 @@
 }
 
 @end
+
+void drawHatched(void *info, CGContextRef context) {
+    // Color is at 0 index, line width is at 1 index, direction is at 2 index.
+    CGContextSetFillColorWithColor(context, (CGColorRef)CFArrayGetValueAtIndex((CFArrayRef)info, 0));
+    CFNumberRef n = (CFNumberRef)CFArrayGetValueAtIndex((CFArrayRef)info, 1);    
+    double width;
+    int direction;
+    CFNumberGetValue(n, kCFNumberDoubleType, &width);
+    n = (CFNumberRef)CFArrayGetValueAtIndex((CFArrayRef)info, 2);
+    CFNumberGetValue(n, kCFNumberIntType, &direction);
+    if (direction == 0) {
+        CGContextFillRect(context, CGRectMake(0.0, 0.0, 1.0, width));
+    } else {
+        CGContextFillRect(context, CGRectMake(0.0, 0.0, width, 1.0));        
+    }    
+}
 
 // Open sandy ground. 45x45
 void draw211 (void * info,CGContextRef context) {
