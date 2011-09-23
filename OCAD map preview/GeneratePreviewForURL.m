@@ -3,6 +3,8 @@
 #include <QuickLook/QuickLook.h>
 #include "ASOCADController.h"
 
+OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview, CFURLRef url, CFStringRef contentTypeUTI, CFDictionaryRef options);
+void CancelPreviewGeneration(void* thisInterface, QLPreviewRequestRef preview);
 /* -----------------------------------------------------------------------------
    Generate a preview for file
 

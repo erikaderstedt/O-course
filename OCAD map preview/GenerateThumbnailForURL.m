@@ -3,6 +3,9 @@
 #include <QuickLook/QuickLook.h>
 #include "ASOCADController.h"
 
+OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thumbnail, CFURLRef url, CFStringRef contentTypeUTI, CFDictionaryRef options, CGSize maxSize);
+void CancelThumbnailGeneration(void* thisInterface, QLThumbnailRequestRef thumbnail);
+
 /* -----------------------------------------------------------------------------
     Generate a thumbnail for file
 
