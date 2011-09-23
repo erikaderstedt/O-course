@@ -53,12 +53,15 @@
     CATiledLayer *tiledLayer;
     CGFloat _zoom;
 	CGFloat minZoom;
+    
+    NSButton *chooseButton;
 }
 @property(nonatomic,retain) id <ASMapProvider> mapProvider;
 @property(nonatomic,retain) NSImage *cachedImage;
 @property(nonatomic,assign) BOOL showMagnifyingGlass;
 @property(nonatomic,assign) CGFloat zoom;
 @property(nonatomic,retain) NSAffineTransform *currentTransform;
+@property(nonatomic,retain) IBOutlet NSButton *chooseButton;
 
 - (void)mapLoaded;
 - (CGFloat)calculateMinimumZoomForFrame:(NSRect)frame;

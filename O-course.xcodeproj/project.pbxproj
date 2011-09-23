@@ -43,6 +43,7 @@
 		03A5114A13B7AF0E00469BCF /* ASOCADController_Line.m in Sources */ = {isa = PBXBuildFile; fileRef = 03A5114813B7AF0E00469BCF /* ASOCADController_Line.m */; };
 		03A5114B13B7AF0E00469BCF /* ASOCADController_Line.m in Sources */ = {isa = PBXBuildFile; fileRef = 03A5114813B7AF0E00469BCF /* ASOCADController_Line.m */; };
 		03C305161347B5FA00FB8133 /* ASOCADController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03C305151347B5FA00FB8133 /* ASOCADController.m */; };
+		03F2C76B142C72600053A47F /* Project.m in Sources */ = {isa = PBXBuildFile; fileRef = 03F2C76A142C72600053A47F /* Project.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -112,6 +113,8 @@
 		03C305141347B5FA00FB8133 /* ASOCADController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASOCADController.h; sourceTree = "<group>"; };
 		03C305151347B5FA00FB8133 /* ASOCADController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASOCADController.m; sourceTree = "<group>"; };
 		03C305171347B60B00FB8133 /* ASMapProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASMapProvider.h; sourceTree = "<group>"; };
+		03F2C769142C725F0053A47F /* Project.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Project.h; path = "O-course/Project.h"; sourceTree = "<group>"; };
+		03F2C76A142C72600053A47F /* Project.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Project.m; path = "O-course/Project.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -189,6 +192,7 @@
 		032001C312FE9EF900707BA5 /* O-course */ = {
 			isa = PBXGroup;
 			children = (
+				03F2C76C142C81040053A47F /* Model objects */,
 				032001CF12FE9EF900707BA5 /* ASOcourseDocument.h */,
 				032001D012FE9EF900707BA5 /* ASOcourseDocument.m */,
 				0373FA6B1349A42C006E41C9 /* ASMapView.h */,
@@ -259,6 +263,16 @@
 				03A3527F13B31C5E0028D87C /* OCAD map preview-Prefix.pch */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		03F2C76C142C81040053A47F /* Model objects */ = {
+			isa = PBXGroup;
+			children = (
+				03F2C769142C725F0053A47F /* Project.h */,
+				03F2C76A142C72600053A47F /* Project.m */,
+			);
+			name = "Model objects";
+			path = ..;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -389,6 +403,7 @@
 				03A5114013B7AE6000469BCF /* ASOCADController_Text.m in Sources */,
 				03A5114513B7AE9100469BCF /* ASOCADController_Area.m in Sources */,
 				03A5114A13B7AF0E00469BCF /* ASOCADController_Line.m in Sources */,
+				03F2C76B142C72600053A47F /* Project.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -504,6 +519,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "O-course/O_course-Prefix.pch";
 				INFOPLIST_FILE = "O-course/O_course-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -519,6 +535,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "O-course/O_course-Prefix.pch";
 				INFOPLIST_FILE = "O-course/O_course-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};

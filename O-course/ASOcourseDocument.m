@@ -9,18 +9,32 @@
 #import "ASOcourseDocument.h"
 #import "ASOCADController.h"
 #import "ASMapView.h"
+#import "Project.h"
 
 @implementation ASOcourseDocument
 @synthesize mapView;
 
-- (id)init
-{
-    self = [super init];
+- (id)initWithType:(NSString *)type error:(NSError **)error {
+    self = [super initWithType:type error:error];
     if (self) {
         // Add your subclass-specific initialization here.
         // If an error occurs here, send a [self release] message and return nil.
+        
+        // Create a project object.
+        [NSEntityDescription insertNewObjectForEntityForName:@"Project" inManagedObjectContext:[self managedObjectContext]];
     }
     return self;
+}
+
+- (Project *)project {
+    NSFetchRequest *request = [[self managedObjectModel] fetchRequestTemplateForName:@"THE_PROJECT"];
+    NSError *error = nil;
+    NSArray *results = [[self managedObjectContext] executeFetchRequest:request error:&error];
+    if (results == nil || [results count] == 0) {
+        NSLog(@"Error fetching project: %@", error);
+        NSAssert(0, @"No use continuing now :(");
+    }
+    return [results objectAtIndex:0];
 }
 
 - (NSString *)windowNibName
@@ -39,16 +53,48 @@
 #endif 
 }
 
-
 + (BOOL)autosavesInPlace {
     return YES;
 }
 
-- (void)awakeFromNib {
-//    ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:@"/Users/erik/Documents/Orientering/OCAD-filer/Kastellegarden_ver_1_3_100302.ocd"];
-	ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:@"/Users/erik/Documents/Orientering/OCAD-filer/Stor-kungälv_1_06_090426_ocad 9.ocd"];
-    mapView.mapProvider = o;
+- (IBAction)chooseBackgroundMap:(id)sender {
+    NSOpenPanel *op = [NSOpenPanel openPanel];
+    [op setAllowedFileTypes:[NSArray arrayWithObjects:@"pdf",@"ocd", @"tiff",@"jpg",@"jpeg",@"gif",@"tif", nil]];
+    [op setAllowsOtherFileTypes:YES];
+    [op setAllowsMultipleSelection:NO];
+    [op beginSheetModalForWindow:[mapView window] completionHandler:^(NSInteger result) {
+        if (result == NSOKButton) {
+            NSURL *u = [op URL];
+            NSAssert([u isFileURL], @"Not a file URL!");
+            [self project].map = [u path];        
+        }
+    }
+    ];
+}
+
+- (void)updateMap:(NSNotification *)n {
+    NSString *path = [[self project] valueForKey:@"map"];
+    if (path == nil) {
+        mapView.mapProvider = nil;
+    } else if ([[path pathExtension] isEqualToString:@"ocd"]) {
+        ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:path];
+        mapView.mapProvider = o;
+        [o autorelease];
+    } else {
+        NSAssert(0, @"Other background types aren't supported yet.");
+    }
+    
     [mapView mapLoaded];
+}
+
+- (void)awakeFromNib {
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateMap:) name:@"ASMapChangedNotification" object:[self managedObjectContext]];
+    
+    [self updateMap:nil];
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (IBAction)zoomIn:(id)sender {

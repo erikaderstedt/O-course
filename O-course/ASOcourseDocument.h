@@ -9,10 +9,16 @@
 #import <Cocoa/Cocoa.h>
 
 @class ASMapView;
+@class Project;
+
 @interface ASOcourseDocument : NSPersistentDocument {
 @private
 	ASMapView *mapView;
 }
 @property (nonatomic,retain) IBOutlet ASMapView *mapView;
+
+- (Project *)project;
+- (IBAction)chooseBackgroundMap:(id)sender;
+- (void)updateMap:(NSNotification *)n;
 
 @end

@@ -9,7 +9,7 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
-				<string>.courses</string>
+				<string>courses</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
 			<string>compass bezel</string>

@@ -16,6 +16,7 @@
 @synthesize cachedImage;
 @synthesize showMagnifyingGlass;
 @synthesize currentTransform;
+@synthesize chooseButton;
 
 - (id)initWithFrame:(NSRect)frame {
     self = [super initWithFrame:frame];
@@ -42,6 +43,7 @@
 	[_magnifyingGlass release];
 	[lozenge release];
 	[mask release];
+    [chooseButton release];
 	
 	[super dealloc];
 }
@@ -250,28 +252,42 @@
 }
 
 - (void)mapLoaded {
-	mapBounds = [mapProvider mapBounds];
     
-    tiledLayer = [CATiledLayer layer];
-    tiledLayer.delegate = mapProvider;
-    tiledLayer.name = @"tiled";
-    tiledLayer.needsDisplayOnBoundsChange = YES;
-    tiledLayer.backgroundColor = CGColorCreateGenericRGB(1.0, 1.0, 1.0, 1.0);
-    tiledLayer.tileSize = CGSizeMake(512.0, 512.0);
+    if (mapProvider != nil) {
+        [[self chooseButton] setHidden:YES];
+        if (tiledLayer == nil) {
+            
+            mapBounds = [mapProvider mapBounds];
+            
+            tiledLayer = [CATiledLayer layer];
+            tiledLayer.name = @"tiled";
+            tiledLayer.needsDisplayOnBoundsChange = YES;
+            tiledLayer.backgroundColor = CGColorCreateGenericRGB(1.0, 1.0, 1.0, 1.0);
+            tiledLayer.tileSize = CGSizeMake(512.0, 512.0);
+            
+            tiledLayer.levelsOfDetail = 15;
+            tiledLayer.levelsOfDetailBias = 2;
+            [tiledLayer retain];
+            
+            tiledLayer.anchorPoint = CGPointMake(0.0, 0.0);
+            tiledLayer.bounds = mapBounds;
+            tiledLayer.position = CGPointMake(0.0, 0.0);
+            
+        }
+        tiledLayer.delegate = mapProvider;
+        [[self layer] addSublayer:tiledLayer];
+        
+        // Calculate the initial zoom as the minimum zoom.
+        minZoom = [self calculateMinimumZoomForFrame:[self frame]];
+        [self setZoom:minZoom*3.0];
+    } else {
+        [[self chooseButton] setHidden:NO];
+        if (tiledLayer != nil) {
+            tiledLayer.delegate = nil;
+            [tiledLayer removeFromSuperlayer];
+        }
+    }
     
-    tiledLayer.levelsOfDetail = 15;
-    tiledLayer.levelsOfDetailBias = 2;
-    [tiledLayer retain];
-    
-    tiledLayer.anchorPoint = CGPointMake(0.0, 0.0);
-    tiledLayer.bounds = mapBounds;
-	tiledLayer.position = CGPointMake(0.0, 0.0);
-    [[self layer] addSublayer:tiledLayer];
-    
-	// Calculate the initial zoom as the minimum zoom.
-	minZoom = [self calculateMinimumZoomForFrame:[self frame]];
-    [self setZoom:minZoom*3.0];
-
 	[self setNeedsDisplay:YES];
 }
 /*
