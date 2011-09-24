@@ -43,6 +43,7 @@
 		03A5114A13B7AF0E00469BCF /* ASOCADController_Line.m in Sources */ = {isa = PBXBuildFile; fileRef = 03A5114813B7AF0E00469BCF /* ASOCADController_Line.m */; };
 		03A5114B13B7AF0E00469BCF /* ASOCADController_Line.m in Sources */ = {isa = PBXBuildFile; fileRef = 03A5114813B7AF0E00469BCF /* ASOCADController_Line.m */; };
 		03C305161347B5FA00FB8133 /* ASOCADController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03C305151347B5FA00FB8133 /* ASOCADController.m */; };
+		03CE92A3142E6C06003EBECD /* MyDocumentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03CE92A2142E6C06003EBECD /* MyDocumentController.m */; };
 		03F2C76B142C72600053A47F /* Project.m in Sources */ = {isa = PBXBuildFile; fileRef = 03F2C76A142C72600053A47F /* Project.m */; };
 /* End PBXBuildFile section */
 
@@ -113,6 +114,8 @@
 		03C305141347B5FA00FB8133 /* ASOCADController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASOCADController.h; sourceTree = "<group>"; };
 		03C305151347B5FA00FB8133 /* ASOCADController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASOCADController.m; sourceTree = "<group>"; };
 		03C305171347B60B00FB8133 /* ASMapProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASMapProvider.h; sourceTree = "<group>"; };
+		03CE92A1142E6C06003EBECD /* MyDocumentController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyDocumentController.h; sourceTree = "<group>"; };
+		03CE92A2142E6C06003EBECD /* MyDocumentController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyDocumentController.m; sourceTree = "<group>"; };
 		03F2C769142C725F0053A47F /* Project.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Project.h; path = "O-course/Project.h"; sourceTree = "<group>"; };
 		03F2C76A142C72600053A47F /* Project.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Project.m; path = "O-course/Project.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -192,6 +195,8 @@
 		032001C312FE9EF900707BA5 /* O-course */ = {
 			isa = PBXGroup;
 			children = (
+				03CE92A1142E6C06003EBECD /* MyDocumentController.h */,
+				03CE92A2142E6C06003EBECD /* MyDocumentController.m */,
 				03F2C76C142C81040053A47F /* Model objects */,
 				032001CF12FE9EF900707BA5 /* ASOcourseDocument.h */,
 				032001D012FE9EF900707BA5 /* ASOcourseDocument.m */,
@@ -404,6 +409,7 @@
 				03A5114513B7AE9100469BCF /* ASOCADController_Area.m in Sources */,
 				03A5114A13B7AF0E00469BCF /* ASOCADController_Line.m in Sources */,
 				03F2C76B142C72600053A47F /* Project.m in Sources */,
+				03CE92A3142E6C06003EBECD /* MyDocumentController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -28,6 +28,24 @@
 			<key>NSPersistentStoreTypeKey</key>
 			<string>SQLite</string>
 		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>ocd</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>compass bezel</string>
+			<key>CFBundleTypeMIMETypes</key>
+			<array>
+				<string>application/ocad</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>OCAD map</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>NSDocumentClass</key>
+			<string>ASOcourseDocument</string>
+		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
