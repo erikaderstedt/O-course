@@ -575,15 +575,7 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     CGContextSetTextDrawingMode(ctx, kCGTextFill);
     int i;
     struct ocad_cache *cache;
-    CGAffineTransform baseMatrix, matrix;
     CGRect clipBox = CGContextGetClipBoundingBox(ctx);
-
-    // The behavior of the pattern matrix has changed subtly from 10.6 to 10.7.
-    if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber10_6) {
-        baseMatrix = CGAffineTransformIdentity;
-    } else {
-        baseMatrix = CGContextGetCTM(ctx);    
-    }
     
     for (i = 0; i < num_cached_objects; i++) {
         cache = sortedCache[i];
@@ -596,19 +588,6 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
             CGContextBeginPath(ctx);
             CGContextAddPath(ctx,path);
             if (fillColor != NULL) {
-                /*
-                 if (CGColorGetPattern(fillColor) != NULL) {
-                 struct ocad_area_symbol *area = (struct ocad_area_symbol *)cache->element->symbol;
-                 if (cache->angle != 0.0) 
-                 matrix = CGAffineTransformRotate(baseMatrix, cache->angle * pi / 180.0);
-                 else
-                 matrix = baseMatrix;
-                 CGContextSetFillColorWithColor(ctx, [self areaColorForSymbol:area transform:matrix]);
-                 } else {
-                 CGContextSetFillColorWithColor(ctx, fillColor);
-                 }
-                 */
-                // TODO: check if this works on snow leopard.
                 CGContextSetFillColorWithColor(ctx, fillColor);
                 CGContextEOFillPath(ctx);
             }
