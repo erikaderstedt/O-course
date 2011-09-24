@@ -231,6 +231,7 @@
     if (e->symbol != NULL) {
         [d setObject:[NSValue valueWithPointer:e] forKey:@"element"];
     }
+    [d setObject:[NSNumber numberWithInt:e->color] forKey:@"colornum"];
     
     return d;    
 }

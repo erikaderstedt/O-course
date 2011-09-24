@@ -121,13 +121,16 @@
         free(angles);
         
         roadCache = [NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_fill_color], @"strokeColor", 
+                     [NSNumber numberWithInt:line->dbl_fill_color],@"colornum",
                      [NSValue valueWithPointer:e], @"element",
 					 road, @"path", [NSNumber numberWithFloat:line->dbl_width + line->dbl_left_width*0.5 + line->dbl_right_width*0.5], @"width", nil];
         [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_left_color], @"strokeColor", 
+                               [NSNumber numberWithInt:line->dbl_left_color],@"colornum",
                                [NSValue valueWithPointer:e], @"element",
 							   left, @"path",[NSNumber numberWithInt:line->dbl_left_width], @"width", 
 							   [NSNumber numberWithInt:kCGLineCapSquare], @"capStyle", nil]];
         [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_right_color], @"strokeColor", 
+                               [NSNumber numberWithInt:line->dbl_right_color],@"colornum",
                                [NSValue valueWithPointer:e], @"element",
 							   right, @"path",[NSNumber numberWithInt:line->dbl_right_width], @"width", 
 							   [NSNumber numberWithInt:kCGLineCapSquare], @"capStyle", nil]]; 
@@ -199,6 +202,7 @@
 		[mainLine setObject:(id)mainColor forKey:@"strokeColor"];
 		[mainLine setObject:(id)p forKey:@"path"];
         [mainLine setObject:[NSValue valueWithPointer:e] forKey:@"element"];
+        [mainLine setObject:[NSNumber numberWithInt:e->color] forKey:@"colornum"];
         [cachedData addObject:mainLine];
     }
     

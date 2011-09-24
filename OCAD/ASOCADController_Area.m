@@ -44,21 +44,26 @@
 
     if (area->fill_enabled) {
         CGColorRef fillColor = [self colorWithNumber:area->fill_color];
-        [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)fillColor, @"fillColor", p, @"path", [NSValue valueWithPointer:e],@"element", nil]];
+        [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)fillColor, @"fillColor", p, @"path", 
+                           [NSNumber numberWithInt:area->fill_color], @"colornum",
+                           [NSValue valueWithPointer:e],@"element", nil]];
     }
     
     if (area->hatch_mode > 0) {
         [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:[hatchColors objectForKey:[NSNumber numberWithInt:area->symnum]], @"fillColor", 
+                           [NSNumber numberWithInt:area->hatch_color], @"colornum",
                            p, @"path", [NSValue valueWithPointer:e],@"element", nil]];
         if (area->hatch_mode == 2) {
-            [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:[secondaryHatchColors objectForKey:[NSNumber numberWithInt:area->symnum]], @"fillColor", 
+            [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:[secondaryHatchColors objectForKey:[NSNumber numberWithInt:area->symnum]], @"fillColor",
+                               [NSNumber numberWithInt:area->hatch_color], @"colornum",
                                p, @"path", [NSValue valueWithPointer:e],@"element", nil]];            
         }
     }
 
     if (area->structure_mode != 0) {
         [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:[structureColors objectForKey:[NSNumber numberWithInt:area->symnum]], @"fillColor", 
-                                                                      p, @"path", [NSValue valueWithPointer:e],@"element", nil]];
+                           [NSNumber numberWithInt:((struct ocad_symbol_element *)area->coords)->color], @"colornum",
+                           p, @"path", [NSValue valueWithPointer:e],@"element", nil]];
     }
     
     CGPathRelease(p);

@@ -364,6 +364,7 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
             cachedDrawingInfo[j].joinStyle = (CGLineJoin)[[item objectForKey:@"joinStyle"] intValue];
             cachedDrawingInfo[j].width = [[item objectForKey:@"width"] doubleValue];
             cachedDrawingInfo[j].element = [[item objectForKey:@"element"] pointerValue];
+            cachedDrawingInfo[j].colornum = [[item objectForKey:@"colornum"] intValue];
             
             NSArray *dashes = [item objectForKey:@"dashes"];
             if (dashes != nil) {
@@ -393,10 +394,8 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     psort_b(sortedCache, num_cached_objects, sizeof(struct ocad_cache *), ^(const void *o1, const void *o2) {
         struct ocad_cache *c1 = *(struct ocad_cache **)o1;
         struct ocad_cache *c2 = *(struct ocad_cache **)o2;
-        struct ocad_element *e1 = c1->element;
-        struct ocad_element *e2 = c2->element;
         
-        return ((int)(e2->color)) - ((int)(e1->color)); 
+        return c2->colornum - c1->colornum;
     });
     
     for (NSInvocationOperation *op in invocations) {
@@ -443,9 +442,15 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     CGColorRef color = [self colorWithNumber:rect->colors[0]];
     
     if (rect->line_width != 0) {
-        d = [NSDictionary dictionaryWithObjectsAndKeys:(id)color,@"strokeColor",p, @"path",[NSNumber numberWithInt:rect->line_width], @"width", [NSValue valueWithPointer:e], @"element", nil];
+        d = [NSDictionary dictionaryWithObjectsAndKeys:(id)color,@"strokeColor",
+             p, @"path",[NSNumber numberWithInt:rect->line_width], @"width", 
+             [NSValue valueWithPointer:e], @"element", 
+             [NSNumber numberWithInt:e->color], @"colornum", nil];
     } else {
-		d = [NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", p, @"path", [NSValue valueWithPointer:e], @"element",nil];
+		d = [NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", 
+             p, @"path", 
+             [NSValue valueWithPointer:e], @"element",
+             [NSNumber numberWithInt:e->color], @"colornum", nil];
 	}
 	CGPathRelease(p);
 	
@@ -482,6 +487,7 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
 								  path, @"path", 
 								  [NSNumber numberWithInt:se->line_width], @"width",
                                   [NSValue valueWithPointer:element], @"element",
+                                  [NSNumber numberWithInt:se->color], @"colornum",
                                   nil]];
                 break;
             case 2: /* Area */
@@ -497,6 +503,7 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
                 }
 				CGPathCloseSubpath(path);
                 [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", path, @"path", 
+                                  [NSNumber numberWithInt:se->color], @"colornum",
                                   [NSValue valueWithPointer:element], @"element", nil]];
                 break;
             case 3:
@@ -505,10 +512,12 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
                 if (se->symbol_type == 3) {
 					[cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"strokeColor", 
 									  path, @"path", 
+                                      [NSNumber numberWithInt:se->color], @"colornum",
                                       [NSValue valueWithPointer:element], @"element",
 									  [NSNumber numberWithInt:se->line_width], @"width",nil]];
                 } else {
                     [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", path, @"path", 
+                                      [NSNumber numberWithInt:se->color], @"colornum",
                                       [NSValue valueWithPointer:element], @"element", nil]];
                 }
                 break;

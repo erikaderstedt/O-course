@@ -25,7 +25,8 @@ struct ocad_cache {
     CGFloat     dashes[4];          // Dashes (lines only).
     int         num_dashes;         // Number of dashes (lines only).
     
-    struct ocad_element *element;   // The OCAD element. Used for sorting the cache according to the base element color.
+    struct ocad_element *element;   // The OCAD element. Used for hittesting.
+    int         colornum;           // Color. Used to sort the cache by color.
     CGFloat     angle;              // Angle (degrees). Used to rotate text objects and to rotate the pattern matrix for areas.    
 };
 
