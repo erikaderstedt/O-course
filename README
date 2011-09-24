@@ -1,8 +1,8 @@
-OCAD-kompatibelt banläggningsprogram. 
+OCAD-kompatibelt banl√§ggningsprogram. 
 
-Se ASMapProvider.h för kontraktet mellan ASMapView och den klass som tillhandahåller kartan (bakgrundsbilden). Klassen bestäms av ASOcourseDocument. F.n. finns bara ASOCADController som map provider.
+Se ASMapProvider.h f√∂r kontraktet mellan ASMapView och den klass som tillhandah√•ller kartan (bakgrundsbilden). Klassen best√§ms av ASOcourseDocument. F.n. finns bara ASOCADController som map provider.
 
-ASOCADController läser först in hela OCAD-filen (via ocdimport.c). Därefter går den igenom alla objekt i filen och skapar en cache innehållandes f.f.a. en CGPathRef. Det gör att själva uppritningen blir enkel. Cachen är sorterad i uppritningsordning (fungerar inte riktigt f.n.). Själva skapandet av cachen delas upp över flera tråda
+ASOCADController l√§ser f√∂rst in hela OCAD-filen (via ocdimport.c). D√§refter g√•r den igenom alla objekt i filen och skapar en cache inneh√•llandes f.f.a. en CGPathRef. Det g√∂r att sj√§lva uppritningen blir enkel. Cachen √§r sorterad i uppritningsordning (fungerar inte riktigt f.n.). Sj√§lva skapandet av cachen delas upp √∂ver flera tr√•da
 
-I somras hittade jag purple-pen, som är ett open-source banläggningsprogram för PC skrivet i C#. Där kan man kika på hur den författaren tolkat vissa fält i OCAD.
+I somras hittade jag purple-pen, som √§r ett open-source banl√§ggningsprogram f√∂r PC skrivet i C#. D√§r kan man kika p√• hur den f√∂rfattaren tolkat vissa f√§lt i OCAD.
 
