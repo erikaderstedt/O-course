@@ -43,7 +43,10 @@ struct ocad_cache {
     
     CFMutableArrayRef colors;
     CGColorRef blackColor;
-    NSMutableDictionary *areaSymbolColors;
+    
+    NSMutableDictionary *structureColors;
+    NSMutableDictionary *hatchColors;
+    NSMutableDictionary *secondaryHatchColors;
 }
 - (id)initWithOCADFile:(NSString *)path;
 - (void)parseColorStrings;

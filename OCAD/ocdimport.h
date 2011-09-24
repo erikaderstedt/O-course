@@ -185,7 +185,7 @@ struct ocad_area_symbol {
     uint16_t structure_mode;    //
     uint16_t structure_width;
     uint16_t structure_height;
-    uint16_t structure_angle;
+    int16_t structure_angle;
     uint16_t reserved;
     uint16_t data_size;
     struct TDPoly coords[1024];

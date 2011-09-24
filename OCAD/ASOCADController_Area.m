@@ -25,6 +25,7 @@
     
     // TODO: Handle the case where (e->coords[c].x & 8) is true.
     // TODO: Handle the case where (area->border_enabled) is true.
+    // TODO: render the border.
     for (c = 0; c < e->nCoordinates; c++) {
         if (e->coords[c].x & 1) {
             // Bezier curve.
@@ -46,20 +47,98 @@
         [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)fillColor, @"fillColor", p, @"path", [NSValue valueWithPointer:e],@"element", nil]];
     }
     
-    if (area->hatch_mode != 0) {
-        for (c = 0; c < area->hatch_mode; c++) {
-            CGColorRef daColor = [self hatchColorForSymbol:area index:c];
-            [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)daColor, @"fillColor", p, @"path", [NSValue valueWithPointer:e],@"element", nil]];
+    if (area->hatch_mode > 0) {
+        [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:[hatchColors objectForKey:[NSNumber numberWithInt:area->symnum]], @"fillColor", 
+                           p, @"path", [NSValue valueWithPointer:e],@"element", nil]];
+        if (area->hatch_mode == 2) {
+            [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:[secondaryHatchColors objectForKey:[NSNumber numberWithInt:area->symnum]], @"fillColor", 
+                               p, @"path", [NSValue valueWithPointer:e],@"element", nil]];            
         }
     }
 
     if (area->structure_mode != 0) {
-        CGColorRef structureColor = [self structureColorForSymbol:area];
-        [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)structureColor, @"fillColor", p, @"path", [NSValue valueWithPointer:e],@"element", nil]];
+        [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:[structureColors objectForKey:[NSNumber numberWithInt:area->symnum]], @"fillColor", 
+                                                                      p, @"path", [NSValue valueWithPointer:e],@"element", nil]];
     }
     
     CGPathRelease(p);
 	return result;
+}
+
+- (void)createAreaSymbolColors {
+    // Create the pattern colors for each symbol in the database.
+    NSMethodSignature *ms;
+    NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+    NSInvocation *inv;
+    [queue setMaxConcurrentOperationCount:3];
+    ms = [self methodSignatureForSelector:@selector(createStructureColors)];
+    inv = [NSInvocation invocationWithMethodSignature:ms];
+    [inv setTarget:self];
+    [inv setSelector:@selector(createStructureColors)];
+    [queue addOperation:[[[NSInvocationOperation alloc] initWithInvocation:inv] autorelease]];
+    
+    ms = [self methodSignatureForSelector:@selector(createHatchColors)];
+    inv = [NSInvocation invocationWithMethodSignature:ms];
+    [inv setTarget:self];
+    [inv setSelector:@selector(createHatchColors)];
+    [queue addOperation:[[[NSInvocationOperation alloc] initWithInvocation:inv] autorelease]];
+
+    ms = [self methodSignatureForSelector:@selector(createSecondaryHatchColors)];
+    inv = [NSInvocation invocationWithMethodSignature:ms];
+    [inv setTarget:self];
+    [inv setSelector:@selector(createSecondaryHatchColors)];
+    [queue addOperation:[[[NSInvocationOperation alloc] initWithInvocation:inv] autorelease]];
+
+    [queue waitUntilAllOperationsAreFinished];
+
+}
+
+- (void)createStructureColors {
+    structureColors = [NSMutableDictionary dictionaryWithCapacity:100];
+    int i;
+    struct ocad_area_symbol *area;
+    
+    for (i = 0; i < ocdf->num_symbols; i++) {
+        if (ocdf->symbols[i]->otp != ocad_area_object) continue;
+        area = (struct ocad_area_symbol *)(ocdf->symbols[i]);
+        if (area->structure_mode == 0) continue;
+        
+        [structureColors setObject:(id)[self structureColorForSymbol:area] forKey:[NSNumber numberWithInt:area->symnum]];
+    }
+    
+    [structureColors retain];
+}
+
+- (void)createHatchColors {
+    hatchColors = [NSMutableDictionary dictionaryWithCapacity:100];
+    int i;
+    struct ocad_area_symbol *area;
+    
+    for (i = 0; i < ocdf->num_symbols; i++) {
+        if (ocdf->symbols[i]->otp != ocad_area_object) continue;
+        area = (struct ocad_area_symbol *)(ocdf->symbols[i]);
+        if (area->hatch_mode == 0) continue;
+        
+        [hatchColors setObject:(id)[self hatchColorForSymbol:area index:0] forKey:[NSNumber numberWithInt:area->symnum]];
+    }
+    
+    [hatchColors retain];
+}
+
+- (void)createSecondaryHatchColors {
+    secondaryHatchColors = [NSMutableDictionary dictionaryWithCapacity:100];
+    int i;
+    struct ocad_area_symbol *area;
+    
+    for (i = 0; i < ocdf->num_symbols; i++) {
+        if (ocdf->symbols[i]->otp != ocad_area_object) continue;
+        area = (struct ocad_area_symbol *)(ocdf->symbols[i]);
+        if (area->hatch_mode != 2) continue;
+        
+        [secondaryHatchColors setObject:(id)[self hatchColorForSymbol:area index:1] forKey:[NSNumber numberWithInt:area->symnum]];
+    }
+    
+    [secondaryHatchColors retain];    
 }
 
 - (CGColorRef)structureColorForSymbol:(struct ocad_area_symbol *)a {
@@ -74,12 +153,12 @@
     // Assume that there is only one symbol element. I'm not sure how they would repeat otherwise.
     NSAssert(a->data_size == se->ncoords + 2, @"Invalid number of coordinates! Is there more than one symbol element for this area symbol?");
     NSAssert(a->structure_mode == 1 || a->structure_mode == 2, @"Invalid structure mode!");
-    if (a->structure_mode == 1) {
-        pRect = CGRectMake(0.0, 0.0, a->structure_width, a->structure_height);
-    } else {
-        pRect = CGRectMake(0.0, 0.0, a->structure_width * 1.5, a->structure_height * 2.0);
+
+    pRect = CGRectMake(-0.5*((CGFloat)a->structure_width), -0.5*((CGFloat)a->structure_height), a->structure_width, a->structure_height);
+    if (a->structure_mode == 2) {
+        pRect.size.height = 2.0*pRect.size.height;
     } 
-    
+
     if (a->structure_angle != 0) {
         transform = CGAffineTransformRotate(transform, ((double)a->structure_angle) * pi / 180.0 / 10.0);
     }
@@ -225,47 +304,53 @@ void drawStructured(void *info, CGContextRef context) {
     CFNumberGetValue((CFNumberRef)CFArrayGetValueAtIndex(inputValues, 2), kCFNumberSInt16Type, &type);
     CFNumberGetValue((CFNumberRef)CFArrayGetValueAtIndex(inputValues, 3), kCFNumberSInt16Type, &line_width);
     CFNumberGetValue((CFNumberRef)CFArrayGetValueAtIndex(inputValues, 4), kCFNumberSInt16Type, &structure_mode);
+
+    
     if (structure_mode == 2) {
         CFNumberGetValue((CFNumberRef)CFArrayGetValueAtIndex(inputValues, 5), kCFNumberSInt16Type, &width);
         CFNumberGetValue((CFNumberRef)CFArrayGetValueAtIndex(inputValues, 6), kCFNumberSInt16Type, &height);
-        CGContextSaveGState(context);
         
         // Translate the context -0.5*width, 1.0*height.
         transform1 = CGAffineTransformMakeTranslation(-0.5*((CGFloat)width), (CGFloat)height);
         
         // Translate the context 1.0*width.
-        transform2 = CGAffineTransformMakeTranslation(1.0*((CGFloat)width), 0.0);
+        transform2 = CGAffineTransformMakeTranslation((CGFloat)width, 0.0);
+        CGContextSaveGState(context);
     }
-    CGContextBeginPath(context);
-    CGContextAddPath(context, path);
+
+    CGPathDrawingMode mode;
     switch (type) {
         case 1:
         case 3:
-            CGContextSetStrokeColorWithColor(context, color);
             CGContextSetLineWidth(context, (CGFloat)line_width);
-            CGContextStrokePath(context);
-            if (structure_mode == 2) {
-                CGContextConcatCTM(context, transform1);
-                CGContextStrokePath(context);
-                CGContextConcatCTM(context, transform2);
-                CGContextStrokePath(context);                
-            }
+            CGContextSetLineCap(context, kCGLineCapButt); // TODO: support rounded line ends (flags element in symbol_element structure).
+            CGContextSetStrokeColorWithColor(context, color);
+            mode = kCGPathStroke;
             break;
         case 2:
         case 4:
             CGContextSetFillColorWithColor(context, color);
-            CGContextFillPath(context);
-            if (structure_mode == 2) {
-                CGContextConcatCTM(context, transform1);
-                CGContextFillPath(context);
-                CGContextConcatCTM(context, transform2);
-                CGContextFillPath(context);                
-            }
+            mode = kCGPathEOFill;
+            break;
         default:
             break;
     }
-
+    
+    CGContextBeginPath(context);
+    CGContextAddPath(context, path);
+    CGContextDrawPath(context, mode);
+    
     if (structure_mode == 2) {
+        CGContextBeginPath(context);
+        CGContextConcatCTM(context, transform1);
+        CGContextAddPath(context, path);
+        CGContextDrawPath(context, mode);
+
+        CGContextBeginPath(context);
+        CGContextConcatCTM(context, transform2);
+        CGContextAddPath(context, path);
+        CGContextDrawPath(context, mode);    
+
         CGContextRestoreGState(context);
     }
 }

@@ -15,6 +15,10 @@ void drawStructured(void *info, CGContextRef context);
 @interface ASOCADController (ASOCADController_Area)
 
 - (NSArray *)cachedDrawingInfoForAreaObject:(struct ocad_element *)e;
+- (void)createAreaSymbolColors;
+- (void)createStructureColors;
+- (void)createHatchColors;
+- (void)createSecondaryHatchColors;
 
 - (CGColorRef)hatchColorForSymbol:(struct ocad_area_symbol *)a index:(int)index;
 - (CGColorRef)structureColorForSymbol:(struct ocad_area_symbol *)a;
