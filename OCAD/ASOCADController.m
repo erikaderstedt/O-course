@@ -395,7 +395,11 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         struct ocad_cache *c1 = *(struct ocad_cache **)o1;
         struct ocad_cache *c2 = *(struct ocad_cache **)o2;
         
-        return c2->colornum - c1->colornum;
+        int j = c2->element->color - c1->element->color;
+        if (j == 0) {
+            return c2->colornum - c1->colornum;
+        }
+        return j;
     });
     
     for (NSInvocationOperation *op in invocations) {
