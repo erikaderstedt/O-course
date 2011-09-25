@@ -44,6 +44,7 @@ struct ocad_cache {
     
     CFMutableArrayRef colors;
     CGColorRef blackColor;
+    int *colorList;
     
     NSMutableDictionary *structureColors;
     NSMutableDictionary *hatchColors;

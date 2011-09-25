@@ -72,7 +72,7 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
 }
 
 - (void)parseColorStrings {
-    int i, index, highest;
+    int i, j, index, highest;
     CGFloat components[5];
     CFArrayCallBacks callbacks;
     
@@ -139,6 +139,9 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         CFArraySetValueAtIndex(colors, i, blackColor);
     }
     
+    colorList = calloc(highest + 1, sizeof(int));
+    j = 0;
+    
     CGColorSpaceRef cspace = CGColorSpaceCreateWithName(kCGColorSpaceGenericCMYK);
     for (i = 0; i < ocdf->num_strings; i++) {
         if (ocdf->string_rec_types[i] != 9) continue;
@@ -162,6 +165,9 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
             }
         }
 
+        // The ordering of the colors as they appear in the file is important. We need to sort the colors in this order.
+        // Use a C array where the color index (0-33 or highest) lead to the ordinal.
+        colorList[index] = j++;
         CFArraySetValueAtIndex(colors, index, CGColorCreate(cspace, components));
     }
 
@@ -191,6 +197,7 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         free(ocdf);
         ocdf = NULL;
     }
+    free(colorList);
     
     CGColorRelease(blackColor);
 	
@@ -394,12 +401,7 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     psort_b(sortedCache, num_cached_objects, sizeof(struct ocad_cache *), ^(const void *o1, const void *o2) {
         struct ocad_cache *c1 = *(struct ocad_cache **)o1;
         struct ocad_cache *c2 = *(struct ocad_cache **)o2;
-        
-        int j = c2->element->color - c1->element->color;
-        if (j == 0) {
-            return c2->colornum - c1->colornum;
-        }
-        return j;
+        return colorList[c2->colornum] - colorList[c1->colornum];
     });
     
     for (NSInvocationOperation *op in invocations) {
