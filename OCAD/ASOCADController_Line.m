@@ -73,10 +73,12 @@
         // Create the path to the next point in the normal manner.
         // Be sure to watch for gaps in the left / right lines.
         
+        float translateDistanceLeft = 0.5*((float)line->dbl_width) + 0.5*((float)line->dbl_left_width);
+        float translateDistanceRight = 0.5*((float)line->dbl_width) + 0.5*((float)line->dbl_right_width);
         angleIndex = 0;
-		p1 = [[self class] translatePoint:NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8) distance:(line->dbl_width) angle:(angles[0] + pi/2)]; 
+		p1 = [[self class] translatePoint:NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8) distance:translateDistanceLeft angle:(angles[0] + pi/2)]; 
 		CGPathMoveToPoint(left, NULL, p1.x, p1.y);
-		p1 = [[self class] translatePoint:NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8) distance:(line->dbl_width) angle:(angles[0] - pi/2)];
+		p1 = [[self class] translatePoint:NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8) distance:translateDistanceRight angle:(angles[0] - pi/2)];
 		CGPathMoveToPoint(right, NULL, p1.x, p1.y);
         
         for (c = 1; c < e->nCoordinates; c++) {
@@ -84,8 +86,8 @@
             
             p1 = NSMakePoint(e->coords[c].x >> 8, e->coords[c].y >> 8);
             NSPoint p1l, p2l, p3l, p1r, p2r, p3r;
-            p1l = [[self class] translatePoint:p1 distance:(line->dbl_width) angle:(angle + pi/2)];
-            p1r = [[self class] translatePoint:p1 distance:(line->dbl_width) angle:(angle - pi/2)];
+            p1l = [[self class] translatePoint:p1 distance:translateDistanceLeft angle:(angle + pi/2)];
+            p1r = [[self class] translatePoint:p1 distance:translateDistanceRight angle:(angle - pi/2)];
             
             if (e->coords[c].x & 1) {
                 NSPoint p2 = NSMakePoint(e->coords[c + 1].x >> 8, e->coords[c + 1].y >> 8);
@@ -93,10 +95,10 @@
 
                 nextangle = angles[++angleIndex];
                 // Bezier curve.
-                p2l = [[self class] translatePoint:p2 distance:(line->dbl_width) angle:(nextangle + pi/2)];
-                p3l = [[self class] translatePoint:p3 distance:(line->dbl_width) angle:(nextangle + pi/2)];
-                p2r = [[self class] translatePoint:p2 distance:(line->dbl_width) angle:(nextangle - pi/2)];
-                p3r = [[self class] translatePoint:p3 distance:(line->dbl_width) angle:(nextangle - pi/2)];
+                p2l = [[self class] translatePoint:p2 distance:translateDistanceLeft angle:(nextangle + pi/2)];
+                p3l = [[self class] translatePoint:p3 distance:translateDistanceLeft angle:(nextangle + pi/2)];
+                p2r = [[self class] translatePoint:p2 distance:translateDistanceRight angle:(nextangle - pi/2)];
+                p3r = [[self class] translatePoint:p3 distance:translateDistanceRight angle:(nextangle - pi/2)];
                 
                 CGPathAddCurveToPoint(left, NULL, p1l.x, p1l.y, p2l.x, p2l.y, p3l.x, p3l.y);
 				CGPathAddCurveToPoint(right, NULL, p1r.x, p1r.y, p2r.x, p2r.y, p3r.x, p3r.y);
@@ -123,7 +125,7 @@
         roadCache = [NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_fill_color], @"strokeColor", 
                      [NSNumber numberWithInt:line->dbl_fill_color],@"colornum",
                      [NSValue valueWithPointer:e], @"element",
-					 road, @"path", [NSNumber numberWithFloat:line->dbl_width + line->dbl_left_width*0.5 + line->dbl_right_width*0.5], @"width", nil];
+					 road, @"path", [NSNumber numberWithFloat:line->dbl_width], @"width", nil];
         [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_left_color], @"strokeColor", 
                                [NSNumber numberWithInt:line->dbl_left_color],@"colornum",
                                [NSValue valueWithPointer:e], @"element",
