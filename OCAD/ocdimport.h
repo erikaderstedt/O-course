@@ -447,6 +447,8 @@ struct ocad_file {
 };
 
 // Functions
+int supported_version(const char *path);
+
 int load_file(struct ocad_file *f, const char *path);
 void unload_file(struct ocad_file *f);
 void load_symbols(struct ocad_file *f);

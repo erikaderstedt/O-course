@@ -42,12 +42,16 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
 	//		symbol - NSNumber (NSInteger)
 	//		angle - NSNumber (float)
     if ((self = [super init])) {
-        blackColor = CGColorCreateGenericCMYK(0.0,0.0,0.0,1.0,1.0);
 
         if (ocdf != NULL) {
             free(ocdf);
             ocdf = NULL;
         }
+        
+        if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
+            return nil;
+        }
+        
         ocdf = calloc(sizeof(struct ocad_file), 1);
         
         // Load the OCD file.
@@ -56,6 +60,8 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         load_objects(ocdf);
         load_strings(ocdf);
         
+        blackColor = CGColorCreateGenericCMYK(0.0,0.0,0.0,1.0,1.0);
+
         [self parseColorStrings];
         
         boundingBox = calloc(sizeof(struct LRect), 1);
@@ -197,9 +203,9 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         free(ocdf);
         ocdf = NULL;
     }
-    free(colorList);
     
-    CGColorRelease(blackColor);
+    if (colorList != NULL) free(colorList);    
+    if (blackColor != NULL) CGColorRelease(blackColor);
 	
 	[super dealloc];
 }

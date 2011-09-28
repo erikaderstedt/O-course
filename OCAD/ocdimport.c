@@ -11,6 +11,26 @@
 #include <sys/stat.h>
 #include "string.h"
 
+int supported_version(const char *path) {
+    struct ocad_file_header *header;
+    int s;
+    FILE *fp;
+    
+    fp = fopen(path,"r");
+    if (fp == NULL) {
+        return 0;
+    }
+
+    header = calloc(1, sizeof(struct ocad_file_header));
+    fread(header,1, sizeof(struct ocad_file_header), fp);
+    fclose(fp);
+    
+    s = (header->version == 9 || header->version == 10);
+    free(header);
+    
+    return s;
+}
+
 int load_file(struct ocad_file *f, const char *path) {
     /*
      Read the entire file into memory.
