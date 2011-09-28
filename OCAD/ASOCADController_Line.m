@@ -7,39 +7,7 @@
 //
 
 #import "ASOCADController_Line.h"
-
-float ocad_distance_between_points(float p1x, float p1y, float p2x, float p2y);
-float regular_distance_between_points(float p1x, float p1y, float p2x, float p2y);
-CGPoint bezierCurvePoint(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint p1);
-void splitBezier(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint p1, CGPoint *points);
-
-#define BEZIER_STEP ((float)0.025);
-
-@interface CoordinateTransverser : NSObject {
-@private
-    int currentIndex;
-    CGFloat currentFraction;
-    BOOL nothingLeft;
-    
-    struct TDPoly *_coords;
-    int _num_coords;
-    CGMutablePathRef _path;
-}
-
-- (id)initWith:(int)num_coords coordinates:(struct TDPoly *)coords withPath:(CGMutablePathRef)path;
-- (BOOL)endHasBeenReached;
-- (BOOL)onFirstSegment;
-- (BOOL)onLastSegment;
-
-- (CGPoint)advanceDistance:(CGFloat)distance;
-- (CGPoint)advanceDistance:(CGFloat)distance stroke:(BOOL)s;
-
-- (CGFloat)lengthOfElementAtIndex:(int)i nextElement:(int *)next;
-- (CGFloat)lengthOfCurrentSegment;
-- (CGFloat)lengthOfSegmentAtIndex:(int)i nextSegment:(int *)next;
-- (float)lengthOfEntirePath;
-
-@end
+#import "CoordinateTransverser.h"
 
 @implementation ASOCADController (ASOCADController_Line)
 
@@ -47,8 +15,6 @@ void splitBezier(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint p1, CGPo
     struct ocad_line_symbol *line = (struct ocad_line_symbol *)(e->symbol);
     int c;
 	
-	CGMutablePathRef p = CGPathCreateMutable();
-    
     NSDictionary *roadCache = nil;
     NSMutableArray *cachedData = [NSMutableArray arrayWithCapacity:10];
     
@@ -61,7 +27,7 @@ void splitBezier(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint p1, CGPo
 		CGMutablePathRef right = CGPathCreateMutable();
 		CGMutablePathRef road = CGPathCreateMutable();
         
-        NSPoint p0 = NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8), p1;
+        CGPoint p0 = CGPointMake(e->coords[0].x >> 8, e->coords[0].y >> 8), p1;
 		CGPathMoveToPoint(road, NULL, p0.x, p0.y);
         
         // For each point
@@ -70,8 +36,8 @@ void splitBezier(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint p1, CGPo
         int angleIndex = 0;
        
         for (c = 1; c < e->nCoordinates; c++) {
-            p1 = NSMakePoint(e->coords[c].x >> 8, e->coords[c].y >> 8);
-            thisAngle = [[self class] angleBetweenPoint:p0 andPoint:p1];
+            p1 = CGPointMake(e->coords[c].x >> 8, e->coords[c].y >> 8);
+            thisAngle = angle_between_points(p0, p1);
             
             if (angleIndex > 0) {
                 // We want to calculate the average between this angle and the last. If the angle "wraps"
@@ -83,15 +49,15 @@ void splitBezier(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint p1, CGPo
             
             if (e->coords[c].x & 1) {
                 // Bezier curve.
-                NSPoint p2 = NSMakePoint(e->coords[c + 1].x >> 8, e->coords[c + 1].y >> 8);
+                CGPoint p2 = CGPointMake(e->coords[c + 1].x >> 8, e->coords[c + 1].y >> 8);
                 NSAssert(e->coords[c+1].x & 2, @"Next is not the second control point");
-                NSPoint p3 = NSMakePoint(e->coords[c+2].x >> 8, e->coords[c+2].y >> 8);
+                CGPoint p3 = CGPointMake(e->coords[c+2].x >> 8, e->coords[c+2].y >> 8);
 
 				CGPathAddCurveToPoint(road, NULL, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
                 c += 2;
                 // 3 coordinates consumed and 2 angles consumed.
                 p0 = p3;
-                angles[++angleIndex] = [[self class] angleBetweenPoint:p2 andPoint:p3];
+                angles[++angleIndex] = angle_between_points(p2, p3);
             } else {
                 p0 = p1;
 				CGPathAddLineToPoint(road, NULL, p1.x, p1.y);
@@ -176,14 +142,14 @@ void splitBezier(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint p1, CGPo
     
     // Create the path for the main line. 
     if (e->linewidth != 0 || (line != NULL && line->line_width != 0)) {
-        float x = e->coords[0].x >> 8;
-        float y = e->coords[0].y >> 8;
-		 CGPathMoveToPoint(p, NULL, x, y);
-        
-        if (line != NULL && line->main_length != 0) { // A dashed line.
-            
-            CoordinateTransverser *ct = [[CoordinateTransverser alloc] initWith:e->nCoordinates coordinates:e->coords withPath:p];
-            
+        CGMutablePathRef path = CGPathCreateMutable();        
+
+        CoordinateTransverser *ct = [[CoordinateTransverser alloc] initWith:e->nCoordinates coordinates:e->coords withPath:path];
+        CGPoint p0 = [ct currentPoint];
+        CGPathMoveToPoint(path, NULL, p0.x, p0.y);
+
+        if (line != NULL && line->main_gap != 0) { // A dashed line.
+
             while (![ct endHasBeenReached]) {
                 
                 int total_gaps = 0, gaps;
@@ -197,6 +163,10 @@ void splitBezier(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint p1, CGPo
                 
                 // Get the distance to the next corner point.
                 distance_to_next_cornerpoint = [ct lengthOfCurrentSegment];
+                if (distance_to_next_cornerpoint == 0.0) {
+                    [ct advanceSegmentWhileStroking:NO];
+                    continue;
+                }
                 
                 // If we are at the start of the line, the first dash of the segment should be 'end-length'.
                 first_dash = [ct onFirstSegment]?line->end_length:line->main_length;
@@ -235,30 +205,11 @@ void splitBezier(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint p1, CGPo
                 }
                 [ct advanceDistance:last_dash stroke:YES];
             }
-            [ct release];
       
         } else {
-            for (c = 0; c < e->nCoordinates; c++) {
-                if (e->coords[c].x & 1) {
-                    // Bezier curve.
-                    CGPathAddCurveToPoint(p, NULL, e->coords[c].x >> 8, e->coords[c].y >> 8, e->coords[c+1].x >> 8, e->coords[c+1].y >> 8, e->coords[c+2].x >> 8, e->coords[c+2].y >> 8);
-                    c += 2;
-                    
-                } else {
-                    CGPathAddLineToPoint(p, NULL, e->coords[c].x >> 8, e->coords[c].y >> 8);
-                }
-                
-                if (e->coords[c].y & 1 && line != NULL && line->corner_d_size != 0) {
-                    struct ocad_symbol_element *se = (struct ocad_symbol_element *)(line->coords + line->prim_d_size + line->sec_d_size);
-                    
-                    float angle = [[self class] angleForCoords:e->coords ofLength:e->nCoordinates atIndex:c];
-                    [cachedData addObjectsFromArray:[self cacheSymbolElements:se 
-                                                                      atPoint:NSMakePoint(e->coords[c].x >> 8, e->coords[c].y >> 8) 
-                                                                    withAngle:angle 
-                                                                totalDataSize:(se->ncoords + 2)
-                                                                      element:e]];
-                }
-            }
+            do {
+                [ct advanceSegmentWhileStroking:YES];
+            } while (![ct endHasBeenReached]);
         }
 
         NSMutableDictionary *mainLine = [NSMutableDictionary dictionaryWithCapacity:5];
@@ -268,7 +219,7 @@ void splitBezier(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint p1, CGPo
         [mainLine setObject:(id)[self colorWithNumber:colornum] forKey:@"strokeColor"];
         [mainLine setObject:[NSNumber numberWithInt:colornum] forKey:@"colornum"];
         [mainLine setObject:[NSNumber numberWithFloat:linewidth] forKey:@"width"];
-        [mainLine setObject:(id)p forKey:@"path"];
+        [mainLine setObject:(id)path forKey:@"path"];
         [mainLine setObject:[NSValue valueWithPointer:e] forKey:@"element"];
         
         if (line != NULL) {
@@ -289,7 +240,30 @@ void splitBezier(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint p1, CGPo
         }        
         
         [cachedData addObject:mainLine];
+        [ct release];
+        CGPathRelease(path);
+
     }
+/*
+    // Draw corner points (like symbol 516 for example).
+    if (line != NULL && line->corner_d_size) {
+        CoordinateTransverser *ct = [[CoordinateTransverser alloc] initWith:e->nCoordinates coordinates:e->coords withPath:NULL];
+    
+        CGPoint p;
+        struct ocad_symbol_element *se = (struct ocad_symbol_element *)(line->coords + line->prim_d_size + line->sec_d_size);
+        
+        // Corner points are placed where coords[i].y & 1 in the interior of the path. At the ends the start and end symbols are placed instead.
+        while (![ct endHasBeenReached]) {
+            p = [ct advanceSegmentWhileStroking:NO];
+            if ([ct atCornerPoint] && ![ct endHasBeenReached]) {
+                [cachedData addObjectsFromArray:[self cacheSymbolElements:se 
+                                                                  atPoint:p
+                                                                withAngle:[ct currentAngle]
+                                                            totalDataSize:(se->ncoords + 2)
+                                                                  element:e]];
+            }            
+        }
+    } */
     
     // Symbol elements along the line.
     // If prim_sym_dist > 0 and nprim_sym > 1, we must render two symbols.
@@ -331,7 +305,7 @@ void splitBezier(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint p1, CGPo
                     yp = powf(1.0-t, 3)*y + 3.0 * powf(1.0-t, 2.0) * t * yb1 + 3.0*(1.0-t)*t*t*yb2 + t*t*t*y2;
                     distance += sqrtf((xp - xp0)*(xp - xp0) + (yp - yp0)*(yp - yp0));
                     if (distance - last_symbol_position > next_interval) {
-                        angle = [[self class] angleBetweenPoint:NSMakePoint(xp0, yp0) andPoint:NSMakePoint(xp, yp)];
+                        angle = angle_between_points(CGPointMake(xp0,yp0), CGPointMake(xp, yp));
                         [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)line->coords 
                                                                           atPoint:NSMakePoint(xp, yp) 
                                                                         withAngle:angle 
@@ -359,7 +333,7 @@ void splitBezier(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint p1, CGPo
                 while (space_left) {
                     if (last_symbol_position + next_interval < initial_distance + segment_distance) {
                         // Ok, it fit
-                        angle = [[self class] angleBetweenPoint:NSMakePoint(x, y) andPoint:NSMakePoint(x2, y2)];
+                        angle = angle_between_points(CGPointMake(x,y),CGPointMake(x2,y2));
                         last_symbol_position += next_interval;
                         [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)line->coords 
                                                                           atPoint:NSMakePoint(x + cos(angle)*(last_symbol_position - initial_distance), y + sin(angle)*(last_symbol_position - initial_distance)) 
@@ -387,7 +361,7 @@ void splitBezier(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint p1, CGPo
         y = e->coords[0].y >> 8;
         x0 = e->coords[1].x >> 8;
         y0 = e->coords[1].y >> 8;
-        float angle = [[self class] angleBetweenPoint:NSMakePoint(x, y) andPoint:NSMakePoint(x0,y0)];
+        float angle = angle_between_points(CGPointMake(x,y), CGPointMake(x0,y0));
         struct TDPoly *p = line->coords;
         p += line->prim_d_size + line->sec_d_size + line->corner_d_size;
         [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)p
@@ -403,7 +377,7 @@ void splitBezier(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint p1, CGPo
         y = e->coords[e->nCoordinates - 1].y >> 8;
         x0 = e->coords[e->nCoordinates - 2].x >> 8;
         y0 = e->coords[e->nCoordinates - 2].y >> 8;
-        float angle = [[self class] angleBetweenPoint:NSMakePoint(x0, y0) andPoint:NSMakePoint(x,y)];
+        float angle = angle_between_points(CGPointMake(x0,y0), CGPointMake(x,y));
         struct TDPoly *p = line->coords;
         p += line->prim_d_size + line->sec_d_size + line->corner_d_size + line->start_d_size;
         [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)p
@@ -419,244 +393,4 @@ void splitBezier(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint p1, CGPo
 
 @end
 
-float ocad_distance_between_points(float p1x, float p1y, float p2x, float p2y) {
-    // According to purple-pen, OCAD does not calculate distance normally. Instead it is approximated using the 'Bizarro' (their name)
-    // distance metric.
-    
-    float dx = p2x - p1x;
-    float dy = p2y - p1y;
-    float bd = fmaxf(dx, dy);
-    float ld = fminf(dx, dy);
-    return 0.5*(bd+ld);    
-}
 
-float regular_distance_between_points(float p1x, float p1y, float p2x, float p2y) {
-    return sqrtf((p2x-p1x)*(p2x-p1x) + (p2y-p1y)*(p2y-p1y));
-}
-
-CGPoint bezierCurvePoint(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint p1) {
-    CGPoint bp;
-    bp.x = p1.x*t*t*t + cp2.x*t*t*(1.0-t) + cp1.x*t*(1.0-t)*(1.0-t) + p0.x*(1.0-t)*(1.0-t)*(1.0-t);
-    bp.y = p1.y*t*t*t + cp2.y*t*t*(1.0-t) + cp1.y*t*(1.0-t)*(1.0-t) + p0.y*(1.0-t)*(1.0-t)*(1.0-t);
-    return bp;
-}
-
-void splitBezier(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint p1, CGPoint *points) {
-    float s = 1.0 - t;
-    CGPoint f00t, f01t, f11t, f0tt, f1tt, fttt;
-    
-    f00t.x = s * p0.x + t * cp1.x;
-    f00t.y = s * p0.y + t * cp1.y;
-    f01t.x = s * cp1.x + t * cp2.x;
-    f01t.y = s * cp1.y + t * cp2.y;
-    f11t.x = s * cp2.x + t * p1.x;
-    f11t.y = s * cp2.y + t * p1.y;
-    f0tt.x = s * f00t.x + t * f01t.x;
-    f0tt.y = s * f00t.y + t * f01t.y;
-    f1tt.x = s * f01t.x + t * f11t.x;
-    f1tt.y = s * f01t.y + t * f11t.y;
-    fttt.x = s * f0tt.x + t * f1tt.x;
-    fttt.y = s * f0tt.y + t * f1tt.y;
-    
-    points[0] = p0;
-    points[1] = f00t;
-    points[2] = f0tt;
-    points[3] = fttt;
-    points[4] = fttt;
-    points[5] = f1tt;
-    points[6] = f11t;
-    points[7] = p1;
-}
-
-
-@implementation CoordinateTransverser
-
-- (id)initWith:(int)num_coords coordinates:(struct TDPoly *)coords withPath:(CGMutablePathRef)path {
-    if ((self = [super init])) {
-        _coords = coords;
-        _path = path;
-        _num_coords = num_coords;
-        
-        if (_path != NULL) {
-            CGPathRetain(_path);
-        }
-        
-        currentIndex = 0;
-        currentFraction = 0.0;
-        nothingLeft = NO;
-    }
-    return self;
-}
-
-- (void)dealloc {
-    if (_path != NULL) {
-        CGPathRelease(_path);
-    }
-    [super dealloc];
-}
-
-- (BOOL)endHasBeenReached {
-    return _num_coords == currentIndex;
-}
-    
-- (BOOL)onFirstSegment {
-    return currentIndex == 0;
-}
-    
-- (BOOL)onLastSegment {
-    int i;
-    for (i = currentIndex + 1; i < _num_coords; i++) {
-        if (_coords[i].x & 1) return NO;
-    }
-    return YES;
-}
-
-- (CGFloat)lengthOfElementAtIndex:(int)i nextElement:(int *)next {
-    // Calculate the length of a single element (straight line or bezier curve).
-    int steps;
-    CGPoint p0, p1;
-    CGFloat d;
-    
-    p0 = CGPointMake(_coords[i].x >> 8, _coords[i].y >> 8);
-    p1 = CGPointMake(_coords[i + 1].x >> 8, _coords[i + 1].y >> 8);
-  
-    if (_coords[i].x & 1) {
-        CGPoint cp1, cp2, pa, pb;
-        float bezierParameter;
-        
-        pa = p0;
-        d = 0;
-        for (bezierParameter = 0.025; bezierParameter < 1.0; bezierParameter += 0.025) {
-            pb = bezierCurvePoint(bezierParameter, p0, cp1, cp2, p1);
-            d += regular_distance_between_points(pa.x, pa.y, pb.x, pb.y);
-            pa = pb;
-        }
-
-        steps = 3;
-    } else {
-        d = regular_distance_between_points(p1.x, p1.y, p0.x, p0.y);
-        steps = 1;
-    }
-    
-    if (next != NULL) {
-        *next = i + steps;
-    }
-    
-    return d; 
-}
-
-                                                
-- (CGFloat)lengthOfCurrentSegment {
-    return [self lengthOfSegmentAtIndex:currentIndex nextSegment:NULL];
-}
-
-- (CGFloat)lengthOfSegmentAtIndex:(int)i nextSegment:(int *)next {
-    // Calculate the length of a single segment (up until the next corner point).
-    CGFloat d = 0.0;
-    int j;
-    
-    do {
-        d += [self lengthOfElementAtIndex:i nextElement:&j];
-        i = j;
-    } while (i != _num_coords && ((_coords[i].x & 1) == 0));
-    
-    if (next != NULL) {
-        *next = i;
-    }
-    
-    return d;
-    
-}
-
-- (float)lengthOfEntirePath {
-    int i, j;
-    float d = 0.0;
-    
-    for (i = 0; i < _num_coords; i = j) {
-        d += [self lengthOfElementAtIndex:i nextElement:&j];
-    }
-    
-    return d;
-}
-
-- (CGPoint)advanceDistance:(CGFloat)distance {
-    return [self advanceDistance:distance stroke:NO];
-}
-
-- (CGPoint)advanceDistance:(CGFloat)distance stroke:(BOOL)stroke {
-    float remaining_distance = distance;
-    float t;
-    CGPoint p0, p1, cp1, cp2;
-    CGPoint buffer1[8], buffer2[8];
-    CGPoint stop;
-    
-    p0 = CGPointMake(_coords[currentIndex].x >> 8, _coords[currentIndex].y >> 8);
-    
-    while (remaining_distance > 0 && currentIndex < _num_coords) {
-        if ((_coords[currentIndex].x & 1) == 0) {
-            p1 = CGPointMake(_coords[currentIndex + 1].x >> 8, _coords[currentIndex + 1].y >> 8);
-            CGFloat d = regular_distance_between_points(p1.x, p1.y, p0.x, p0.y);
-            if ((1.0 - currentFraction)*d < remaining_distance) {
-                // The entire segment will be consumed.
-                if (_path != NULL) {
-                    if (stroke) {
-                        CGPathAddLineToPoint(_path, NULL, p1.x, p1.y);
-                    } else {
-                        CGPathMoveToPoint(_path, NULL, p1.x, p1.y);
-                    }
-                }
-                remaining_distance -= (1.0 - currentFraction)*d;
-                currentFraction = 0.0;
-                currentIndex ++;
-            } else {
-                // There will be some left.
-                float newFraction = remaining_distance / d + currentFraction;
-                stop.x = p0.x*(1.0-newFraction) + p1.x*newFraction;
-                stop.y = p0.y*(1.0-newFraction) + p1.y*newFraction;
-                if (_path != NULL) {
-                    if (stroke) {
-                        CGPathAddLineToPoint(_path, NULL, stop.x, stop.y);
-                    } else {
-                        CGPathMoveToPoint(_path, NULL, stop.x, stop.y);
-                    }
-                }
-                currentFraction = newFraction;
-            }
-        } else {
-            p1 = CGPointMake(_coords[currentIndex + 3].x >> 8, _coords[currentIndex + 3].y >> 8);
-            cp1 = CGPointMake(_coords[currentIndex + 1].x >> 8, _coords[currentIndex + 1].y >> 8);
-            cp2 = CGPointMake(_coords[currentIndex + 2].x >> 8, _coords[currentIndex + 2].y >> 8);
-            CGPoint bp, p;
-            
-            p = bezierCurvePoint(currentFraction, p0, cp1, cp2, p1);
-
-            for (t = currentFraction + 0.025; t <= 1.0 && remaining_distance > 0.0; t++) {
-                bp = bezierCurvePoint(t, p0, cp1, cp2, p1);
-                remaining_distance -= regular_distance_between_points(p.x, p.y, bp.x, bp.y);
-            }
-            
-            // ABSOLUTELY TODO: better handling of the case where remaining_distance is zero and when it is not zero.
-            if (_path != NULL) {
-                if (stroke) {
-                    // Construct a new bezier curve from currentFraction to t.
-                    splitBezier(currentFraction, p0, cp1, cp2, p1, buffer1);
-                    splitBezier((t - currentFraction)/(1.0-currentFraction), buffer1[4], buffer1[5],buffer1[6],buffer1[7], buffer2);
-                    CGPathAddCurveToPoint(_path, NULL, buffer2[1].x, buffer2[1].y, buffer2[2].x, buffer2[2].y, buffer2[3].x, buffer2[3].y);
-                } else {
-                    CGPathMoveToPoint(_path, NULL, bp.x, bp.y);
-                }
-            }
-            if (remaining_distance == 0.0) {
-                currentFraction = t;
-            } else {
-                currentFraction = 0.0;
-                currentIndex += 3;
-            }
-        }
-    }
-    
-    return stop;
-}
-
-
-@end

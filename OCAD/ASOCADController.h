@@ -60,8 +60,6 @@ struct ocad_cache {
 - (NSArray *)cacheSymbolElements:(struct ocad_symbol_element *)se atPoint:(NSPoint)origin withAngle:(float)angle totalDataSize:(uint16_t)data_size;
 - (NSArray *)cacheSymbolElements:(struct ocad_symbol_element *)se atPoint:(NSPoint)origin withAngle:(float)angle totalDataSize:(uint16_t)data_size element:(struct ocad_element *)element;
 
-+ (float)angleBetweenPoint:(NSPoint)p1 andPoint:(NSPoint)p2;
-+ (float)angleForCoords:(struct TDPoly *)coords ofLength:(int)total atIndex:(int)i;
 + (NSPoint)translatePoint:(NSPoint)p distance:(float)distance angle:(float)angle;
 
 @end

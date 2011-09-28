@@ -539,36 +539,6 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     }
 }
 
-
-+ (float)angleBetweenPoint:(NSPoint)p1 andPoint:(NSPoint)p2 {
-    return atan2(p2.y - p1.y, p2.x - p1.x);
-}
-
-+ (float)angleForCoords:(struct TDPoly *)coords ofLength:(int)total atIndex:(int)i {
-    float angle;
-    // Crossbar, for symbols 515, 516, 517 et.c.
-    if (i == total - 1) {
-        if (i > 0) {
-            angle = [self angleBetweenPoint:NSMakePoint(coords[i-1].x >> 8, coords[i-1].y >> 8) 
-                                      andPoint:NSMakePoint(coords[i].x >> 8, coords[i].y >> 8)];
-        } else {
-            // Only one point
-            angle = 0.0;
-        }
-    } else if (i == 0) {
-        angle = [self angleBetweenPoint:NSMakePoint(coords[i].x >> 8, coords[i].y >> 8) 
-                                  andPoint:NSMakePoint(coords[i+1].x >> 8, coords[i+1].y >> 8)];
-        
-    } else {
-        angle = ([self angleBetweenPoint:NSMakePoint(coords[i].x >> 8, coords[i].y >> 8) 
-                                   andPoint:NSMakePoint(coords[i+1].x >> 8, coords[i+1].y >> 8)] + 
-                 [self angleBetweenPoint:NSMakePoint(coords[i-1].x >> 8, coords[i-1].y >> 8) 
-                                   andPoint:NSMakePoint(coords[i].x >> 8, coords[i].y >> 8)]) * 0.5;
-    }
-    
-    return angle;
-}
-
 + (NSPoint)translatePoint:(NSPoint)p distance:(float)distance angle:(float)angle {
     NSPoint q;
     q.x = p.x + cosf(angle)*distance;
