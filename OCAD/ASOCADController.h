@@ -47,8 +47,11 @@ struct ocad_cache {
     NSMutableDictionary *structureColors;
     NSMutableDictionary *hatchColors;
     NSMutableDictionary *secondaryHatchColors;
+    
+    NSMutableArray *backgroundImages;
 }
 - (id)initWithOCADFile:(NSString *)path;
+- (void)loadBackgroundImagesRelativeToPath:(NSString *)basePath;
 - (void)parseColorStrings;
 - (CGColorRef)colorWithNumber:(int)color_number;
 
