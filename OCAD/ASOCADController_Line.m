@@ -244,7 +244,7 @@
         CGPathRelease(path);
 
     }
-/*
+
     // Draw corner points (like symbol 516 for example).
     if (line != NULL && line->corner_d_size) {
         CoordinateTransverser *ct = [[CoordinateTransverser alloc] initWith:e->nCoordinates coordinates:e->coords withPath:NULL];
@@ -263,7 +263,8 @@
                                                                   element:e]];
             }            
         }
-    } */
+        [ct release];
+    } 
     
     // Symbol elements along the line.
     // If prim_sym_dist > 0 and nprim_sym > 1, we must render two symbols.
@@ -354,37 +355,34 @@
             }
         }
     }
-    
-    if (line != NULL && line->start_d_size != 0 && e->nCoordinates > 1) {
-        float x, y, x0, y0;
-        x = e->coords[0].x >> 8;
-        y = e->coords[0].y >> 8;
-        x0 = e->coords[1].x >> 8;
-        y0 = e->coords[1].y >> 8;
-        float angle = angle_between_points(CGPointMake(x,y), CGPointMake(x0,y0));
-        struct TDPoly *p = line->coords;
-        p += line->prim_d_size + line->sec_d_size + line->corner_d_size;
-        [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)p
-                                                          atPoint:NSMakePoint(x, y) 
-                                                        withAngle:angle 
-                                                    totalDataSize:0
-                                                           element:e]];
-    }
 
     if (line != NULL && line->end_d_size != 0 && e->nCoordinates > 1) {
-        float x, y, x0, y0;
-        x = e->coords[e->nCoordinates - 1].x >> 8;
-        y = e->coords[e->nCoordinates - 1].y >> 8;
-        x0 = e->coords[e->nCoordinates - 2].x >> 8;
-        y0 = e->coords[e->nCoordinates - 2].y >> 8;
-        float angle = angle_between_points(CGPointMake(x0,y0), CGPointMake(x,y));
+        CoordinateTransverser *ct = [[CoordinateTransverser alloc] initWith:e->nCoordinates coordinates:e->coords withPath:NULL];
+        
+        CGPoint p0, p1;
+        CGFloat angle;
         struct TDPoly *p = line->coords;
         p += line->prim_d_size + line->sec_d_size + line->corner_d_size + line->start_d_size;
+       
+        // Draw both starting and ending symbol elements using the end symbol. The start symbol is not used?
+        p0 = [ct coordinateAtIndex:0];
+        p1 = [ct coordinateAtIndex:1];
+        angle = angle_between_points(p0, p1);
         [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)p
-                                                          atPoint:NSMakePoint(x, y) 
+                                                          atPoint:p0 
+                                                        withAngle:angle 
+                                                    totalDataSize:0
+                                                          element:e]];
+        
+        p0 = [ct coordinateAtIndex:e->nCoordinates - 1];
+        p1 = [ct coordinateAtIndex:e->nCoordinates - 2];
+        angle = angle_between_points(p1, p0);
+        [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)p
+                                                          atPoint:p0 
                                                         withAngle:angle 
                                                     totalDataSize:0
                                                            element:e]];
+        [ct release];
     }
     
     return [NSArray arrayWithObjects:cachedData, roadCache, nil];
