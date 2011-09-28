@@ -269,91 +269,41 @@
     // Symbol elements along the line.
     // If prim_sym_dist > 0 and nprim_sym > 1, we must render two symbols.
     if (line != NULL && line->prim_d_size) {
-        float phase = (float)line->end_length;
-        float interval = (float)line->main_length;
-        float last_symbol_position;
-        float next_interval;
-        float distance = -phase;
-        float angle;
-        float x, y, xp, yp;
-        int current_prim_sym = 1;
-        
-        next_interval = interval;
-        last_symbol_position = distance;
-        
-        for (c = 0; c < e->nCoordinates - 1; c++) {
-            x = (float)(e->coords[c].x >> 8);
-            y = (float)(e->coords[c].y >> 8);
-            
-            if (e->coords[c + 1].x & 1) {
-                // Track the bezier curve to find places to put symbols.
-                
-                float t;
-                float x2, y2;
-                float xp0, yp0;
-                float xb1, yb1, xb2, yb2;
-                
-                x2 = (float)(e->coords[c + 3].x >> 8);
-                y2 = (float)(e->coords[c + 3].y >> 8);
-                xb2 = (float)(e->coords[c + 2].x >> 8);
-                yb2 = (float)(e->coords[c + 2].y >> 8);
-                xb1 = (float)(e->coords[c + 1].x >> 8);
-                yb1 = (float)(e->coords[c + 1].y >> 8);
-                
-                yp0 = y; xp0 = x;
-                for (t = 0.025; t < 1.0; t+= 0.025) {
-                    xp = powf(1.0-t, 3)*x + 3.0 * powf(1.0-t, 2.0) * t * xb1 + 3.0*(1.0-t)*t*t*xb2 + t*t*t*x2;
-                    yp = powf(1.0-t, 3)*y + 3.0 * powf(1.0-t, 2.0) * t * yb1 + 3.0*(1.0-t)*t*t*yb2 + t*t*t*y2;
-                    distance += sqrtf((xp - xp0)*(xp - xp0) + (yp - yp0)*(yp - yp0));
-                    if (distance - last_symbol_position > next_interval) {
-                        angle = angle_between_points(CGPointMake(xp0,yp0), CGPointMake(xp, yp));
-                        [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)line->coords 
-                                                                          atPoint:NSMakePoint(xp, yp) 
-                                                                        withAngle:angle 
-                                                                    totalDataSize:0
-                                                                           element:e]];
-                        last_symbol_position += next_interval;
-                        if (++current_prim_sym > line->nprim_sym) {
-                            current_prim_sym = line->nprim_sym;
-                            next_interval = interval;
-                        } else {
-                            next_interval = line->prim_sym_dist;
-                        }
-                    }
-                    xp0 = xp; yp0 = yp;
-                }
-                c += 2;
-            } else {
-                float x2, y2;
-                float segment_distance, initial_distance = distance;
-                BOOL space_left = YES;
-                x2 = (float)(e->coords[c + 1].x >> 8);
-                y2 = (float)(e->coords[c + 1].y >> 8);
-                segment_distance = sqrtf((x2-x)*(x2-x) + (y2-y)*(y2-y));
-                
-                while (space_left) {
-                    if (last_symbol_position + next_interval < initial_distance + segment_distance) {
-                        // Ok, it fit
-                        angle = angle_between_points(CGPointMake(x,y),CGPointMake(x2,y2));
-                        last_symbol_position += next_interval;
-                        [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)line->coords 
-                                                                          atPoint:NSMakePoint(x + cos(angle)*(last_symbol_position - initial_distance), y + sin(angle)*(last_symbol_position - initial_distance)) 
-                                                                        withAngle:angle 
-                                                                    totalDataSize:0
-                                                                           element:e]];
-                        if (++current_prim_sym > line->nprim_sym) {
-                            space_left = NO;
-                        } else {
-                            next_interval = line->prim_sym_dist;
-                        }
+        CoordinateTransverser *ct = [[CoordinateTransverser alloc] initWith:e->nCoordinates coordinates:e->coords withPath:NULL];
+        CGFloat all = [ct lengthOfEntirePath];
+        CGFloat distance, initial;
 
-                    } else {
-                        space_left = NO;
-                        distance = initial_distance + segment_distance;
-                    }
-                }
+        // For double symbols, like 524. 
+        CGFloat spacing = line->prim_sym_dist; 
+        
+        distance = line->main_length;
+        initial = line->end_length;
+        
+        // Enforce at least one symbol.
+        if (initial * 2.0 + distance + spacing > all) {
+            initial = 0.5*all - 0.5*spacing;
+            distance = all;
+        }
+        
+        CGPoint p;
+        int prim_sym_index = 0;
+        
+        p = [ct advanceDistance:initial];
+        while (![ct endHasBeenReached]) {
+            [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)line->coords 
+                                                              atPoint:p 
+                                                            withAngle:[ct currentAngle] 
+                                                        totalDataSize:0
+                                                              element:e]];
+            if (prim_sym_index < line->nprim_sym) {
+                p = [ct advanceDistance:spacing];
+                prim_sym_index ++;
+            } else {
+                p = [ct advanceDistance:distance];
+                prim_sym_index = 0;
             }
         }
+        [ct release];
     }
 
     if (line != NULL && line->end_d_size != 0 && e->nCoordinates > 1) {

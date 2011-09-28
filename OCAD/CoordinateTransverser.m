@@ -172,7 +172,7 @@ CGFloat angle_between_points(CGPoint p1, CGPoint p2) {
     int i, j;
     float d = 0.0;
     
-    for (i = 0; i < _num_coords; i = j) {
+    for (i = 0; i < _num_coords - 1; i = j) {
         d += [self lengthOfElementAtIndex:i nextElement:&j];
     }
     
