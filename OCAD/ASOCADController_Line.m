@@ -296,7 +296,7 @@
                                                             withAngle:[ct currentAngle] 
                                                         totalDataSize:0
                                                               element:e]];
-            if (prim_sym_index < line->nprim_sym) {
+            if (prim_sym_index < line->nprim_sym - 1) {
                 p = [ct advanceDistance:spacing];
                 prim_sym_index ++;
             } else {
