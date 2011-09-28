@@ -69,13 +69,8 @@ CGFloat angle_between_points(CGPoint p1, CGPoint p2) {
         _path = path;
         _num_coords = num_coords;
         
-        if (_path != NULL) {
-            CGPathRetain(_path);
-        }
-        
-        currentIndex = 0;
-        currentFraction = 0.0;
-        nothingLeft = NO;
+        [self reset];
+        [self setPath:path];
     }
     return self;
 }
@@ -85,6 +80,23 @@ CGFloat angle_between_points(CGPoint p1, CGPoint p2) {
         CGPathRelease(_path);
     }
     [super dealloc];
+}
+
+- (void)reset {
+    currentIndex = 0;
+    currentFraction = 0.0;
+    [self setPath:NULL];
+}
+
+- (void)setPath:(CGMutablePathRef)newPath {
+    if (_path != NULL) {
+        CGPathRelease(_path);
+        _path = NULL;
+    }
+    _path = newPath;
+    if (_path != NULL) {
+        CGPathRetain(_path);
+    }
 }
 
 - (CGPoint)coordinateAtIndex:(int)i {

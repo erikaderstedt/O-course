@@ -27,7 +27,6 @@ CGFloat angle_between_points(CGPoint p0, CGPoint p1);
 @private
     int currentIndex;
     CGFloat currentFraction;
-    BOOL nothingLeft;
     
     struct TDPoly *_coords;
     int _num_coords;
@@ -38,6 +37,9 @@ CGFloat angle_between_points(CGPoint p0, CGPoint p1);
 - (BOOL)endHasBeenReached;
 - (BOOL)onFirstSegment;
 - (BOOL)onLastSegment;
+
+- (void)reset;
+- (void)setPath:(CGMutablePathRef)newPath;
 
 - (CGPoint)coordinateAtIndex:(int)i;
 

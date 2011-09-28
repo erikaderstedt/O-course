@@ -22,6 +22,9 @@
         return [NSArray array];
     }
     
+    CoordinateTransverser *ct = [[CoordinateTransverser alloc] initWith:e->nCoordinates coordinates:e->coords withPath:NULL];
+
+    
     if (line != NULL && (line->dbl_width != 0)) {
 		CGMutablePathRef left = CGPathCreateMutable();
 		CGMutablePathRef right = CGPathCreateMutable();
@@ -143,8 +146,10 @@
     // Create the path for the main line. 
     if (e->linewidth != 0 || (line != NULL && line->line_width != 0)) {
         CGMutablePathRef path = CGPathCreateMutable();        
-
-        CoordinateTransverser *ct = [[CoordinateTransverser alloc] initWith:e->nCoordinates coordinates:e->coords withPath:path];
+        
+        [ct reset];
+        [ct setPath:path];
+        
         CGPoint p0 = [ct currentPoint];
         CGPathMoveToPoint(path, NULL, p0.x, p0.y);
 
@@ -240,14 +245,13 @@
         }        
         
         [cachedData addObject:mainLine];
-        [ct release];
         CGPathRelease(path);
 
     }
 
     // Draw corner points (like symbol 516 for example).
     if (line != NULL && line->corner_d_size) {
-        CoordinateTransverser *ct = [[CoordinateTransverser alloc] initWith:e->nCoordinates coordinates:e->coords withPath:NULL];
+        [ct reset];
     
         CGPoint p;
         struct ocad_symbol_element *se = (struct ocad_symbol_element *)(line->coords + line->prim_d_size + line->sec_d_size);
@@ -263,13 +267,12 @@
                                                                   element:e]];
             }            
         }
-        [ct release];
     } 
     
     // Symbol elements along the line.
     // If prim_sym_dist > 0 and nprim_sym > 1, we must render two symbols.
     if (line != NULL && line->prim_d_size) {
-        CoordinateTransverser *ct = [[CoordinateTransverser alloc] initWith:e->nCoordinates coordinates:e->coords withPath:NULL];
+        [ct reset];
         CGFloat all = [ct lengthOfEntirePath];
         CGFloat distance, initial;
 
@@ -303,11 +306,10 @@
                 prim_sym_index = 0;
             }
         }
-        [ct release];
     }
 
     if (line != NULL && line->end_d_size != 0 && e->nCoordinates > 1) {
-        CoordinateTransverser *ct = [[CoordinateTransverser alloc] initWith:e->nCoordinates coordinates:e->coords withPath:NULL];
+        [ct reset];
         
         CGPoint p0, p1;
         CGFloat angle;
@@ -332,8 +334,8 @@
                                                         withAngle:angle 
                                                     totalDataSize:0
                                                            element:e]];
-        [ct release];
     }
+    [ct release];
     
     return [NSArray arrayWithObjects:cachedData, roadCache, nil];
     
