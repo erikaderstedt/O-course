@@ -14,3 +14,4 @@
 - (NSArray *)cachedDrawingInfoForLineObject:(struct ocad_element *)e;
 
 @end
+

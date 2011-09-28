@@ -22,8 +22,6 @@ struct ocad_cache {
     CGLineCap   capStyle;           // Line cap style (lines only).
     CGLineJoin  joinStyle;          // Line join style (lines only).
     CGFloat     width;              // Line width (lines only).
-    CGFloat     dashes[4];          // Dashes (lines only).
-    int         num_dashes;         // Number of dashes (lines only).
     
     struct ocad_element *element;   // The OCAD element. Used for hittesting.
     int         colornum;           // Color. Used to sort the cache by color.

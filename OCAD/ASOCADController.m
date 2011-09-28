@@ -372,15 +372,7 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
             cachedDrawingInfo[j].width = [[item objectForKey:@"width"] doubleValue];
             cachedDrawingInfo[j].element = [[item objectForKey:@"element"] pointerValue];
             cachedDrawingInfo[j].colornum = [[item objectForKey:@"colornum"] intValue];
-            
-            NSArray *dashes = [item objectForKey:@"dashes"];
-            if (dashes != nil) {
-                cachedDrawingInfo[j].num_dashes = (int)[dashes count];
-                k = 0;
-                for (NSNumber *dash in dashes) {
-                    cachedDrawingInfo[j].dashes[k++] = [dash doubleValue];
-                }
-            }
+
             if (cachedDrawingInfo[j].path != NULL) CGPathRetain(cachedDrawingInfo[j].path);
             if (cachedDrawingInfo[j].strokeColor != NULL) CGColorRetain(cachedDrawingInfo[j].strokeColor);
             if (cachedDrawingInfo[j].fillColor != NULL) CGColorRetain(cachedDrawingInfo[j].fillColor);
@@ -609,11 +601,6 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
             if (strokeColor != NULL) {
                 CGContextSetStrokeColorWithColor(ctx, strokeColor);
                 CGContextSetLineWidth(ctx, cache->width);
-                if (cache->num_dashes) {
-                    CGContextSetLineDash(ctx, 0.0, cache->dashes, cache->num_dashes);
-                } else {
-                    CGContextSetLineDash(ctx, 0.0, NULL, 0);
-                }
                 CGContextSetLineCap(ctx, (CGLineCap)cache->capStyle);
                 CGContextSetLineJoin(ctx, cache->joinStyle);
                 CGContextStrokePath(ctx);
