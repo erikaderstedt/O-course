@@ -24,7 +24,7 @@
     
     CoordinateTransverser *ct = [[CoordinateTransverser alloc] initWith:e->nCoordinates coordinates:e->coords withPath:NULL];
 
-    
+    // TODO: convert this to use CoordinateTransverser. Will enable dashed double lines (e.g. roads under construction).
     if (line != NULL && (line->dbl_width != 0)) {
 		CGMutablePathRef left = CGPathCreateMutable();
 		CGMutablePathRef right = CGPathCreateMutable();
@@ -270,7 +270,7 @@
     } 
     
     // Symbol elements along the line.
-    // If prim_sym_dist > 0 and nprim_sym > 1, we must render two symbols.
+    // TODO: add support for main_gap.
     if (line != NULL && line->prim_d_size) {
         [ct reset];
         CGFloat all = [ct lengthOfEntirePath];
