@@ -141,8 +141,6 @@
 							   [NSNumber numberWithInt:kCGLineCapSquare], @"capStyle", nil]]; 
     }
     
-    NSAssert(line != NULL, @"Line was null!");
-    
     // Create the path for the main line. 
     if (e->linewidth != 0 || (line != NULL && line->line_width != 0)) {
         CGMutablePathRef path = CGPathCreateMutable();        
