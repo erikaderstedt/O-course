@@ -15,4 +15,8 @@
 - (CGRect)mapBounds; // In native coordinates.
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx;
 
+- (BOOL)supportsBrownImage;
+- (void)setBrownImage:(BOOL)bi;
+- (BOOL)brownImage;
+
 @end

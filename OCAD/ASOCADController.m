@@ -204,6 +204,19 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
 	[super dealloc];
 }
 
+- (BOOL)supportsBrownImage {
+    return supportsBrown;
+}
+
+// Caller is responsible for refreshing the view.
+- (void)setBrownImage:(BOOL)bi {
+    brownActivated = YES;
+}
+
+- (BOOL)brownImage {
+    return brownActivated;
+}
+
 - (CGRect)mapBounds {
     CGPathRef thePath;
 	CGRect pathBounds;
@@ -396,6 +409,26 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         return colorList[c2->colornum] - colorList[c1->colornum];
     });
     
+    // Prepare for 'brown only' mode.
+    int nSymbolIndex, snum, browncolor = -1;
+    for (nSymbolIndex = 0; nSymbolIndex < ocdf->num_symbols; nSymbolIndex++) {
+        snum = ocdf->symbols[nSymbolIndex]->symnum / 1000;
+        if (snum > 100 && snum < 200) {
+            browncolor = ((struct ocad_line_symbol *)ocdf->symbols[nSymbolIndex])->line_color;
+            break;
+        }
+        
+    }
+    if (browncolor == -1) {
+        supportsBrown = NO;
+    } else {
+        supportsBrown = YES;
+        brown_start = 0;
+        while (sortedCache[brown_start]->colornum != browncolor) brown_start++;
+        brown_stop = brown_start;
+        while (sortedCache[brown_stop]->colornum == browncolor) brown_stop++;
+    }
+    
     for (NSInvocationOperation *op in invocations) {
         [op release];
     }
@@ -554,7 +587,16 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     struct ocad_cache *cache;
     CGRect clipBox = CGContextGetClipBoundingBox(ctx);
     
-    for (i = 0; i < num_cached_objects; i++) {
+    int start, stop;
+    if (brownActivated) {
+        start = brown_start;
+        stop = brown_stop;
+    } else {
+        start = 0;
+        stop = num_cached_objects;
+    }
+    
+    for (i = start; i < stop; i++) {
         cache = sortedCache[i];
         CGPathRef path = cache->path;
         CGColorRef strokeColor = cache->strokeColor;

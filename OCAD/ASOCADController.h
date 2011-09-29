@@ -26,6 +26,7 @@ struct ocad_cache {
     struct ocad_element *element;   // The OCAD element. Used for hittesting.
     int         colornum;           // Color. Used to sort the cache by color.
     CGFloat     angle;              // Angle (degrees). Used to rotate text objects and to rotate the pattern matrix for areas.    
+
 };
 
 @interface ASOCADController : NSObject <ASMapProvider> {
@@ -47,6 +48,11 @@ struct ocad_cache {
     NSMutableDictionary *structureColors;
     NSMutableDictionary *hatchColors;
     NSMutableDictionary *secondaryHatchColors;
+    
+    int         brown_start;
+    int         brown_stop;
+    BOOL        supportsBrown;
+    BOOL        brownActivated;
 }
 - (id)initWithOCADFile:(NSString *)path;
 - (void)parseColorStrings;
