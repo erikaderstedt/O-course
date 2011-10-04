@@ -141,8 +141,6 @@
 							   [NSNumber numberWithInt:kCGLineCapSquare], @"capStyle", nil]]; 
     }
     
-    NSAssert(line != NULL, @"Line was null!");
-    
     // Create the path for the main line. 
     if (e->linewidth != 0 || (line != NULL && line->line_width != 0)) {
         CGMutablePathRef path = CGPathCreateMutable();        
@@ -298,7 +296,7 @@
                                                             withAngle:[ct currentAngle] 
                                                         totalDataSize:0
                                                               element:e]];
-            if (prim_sym_index < line->nprim_sym) {
+            if (prim_sym_index < line->nprim_sym - 1) {
                 p = [ct advanceDistance:spacing];
                 prim_sym_index ++;
             } else {

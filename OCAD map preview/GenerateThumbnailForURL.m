@@ -22,6 +22,10 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
     
     ASOCADController *ocad = [[ASOCADController alloc] initWithOCADFile:[(NSURL *)url path]];
     
+    if (ocad == nil) {
+        [pool release];
+        return noErr;
+    }
    // Get the bounds.
     // Calculate appropriate scaling, so that the longest dimension is 2048 pixels, and the other is scaled with
     // a preserved aspect ratio.

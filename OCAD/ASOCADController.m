@@ -42,12 +42,16 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
 	//		symbol - NSNumber (NSInteger)
 	//		angle - NSNumber (float)
     if ((self = [super init])) {
-        blackColor = CGColorCreateGenericCMYK(0.0,0.0,0.0,1.0,1.0);
 
         if (ocdf != NULL) {
             free(ocdf);
             ocdf = NULL;
         }
+        
+        if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
+            return nil;
+        }
+        
         ocdf = calloc(sizeof(struct ocad_file), 1);
         
         // Load the OCD file.
@@ -56,6 +60,8 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         load_objects(ocdf);
         load_strings(ocdf);
         
+        blackColor = CGColorCreateGenericCMYK(0.0,0.0,0.0,1.0,1.0);
+
         [self parseColorStrings];
         
         boundingBox = calloc(sizeof(struct LRect), 1);
@@ -67,6 +73,8 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         
         [self createAreaSymbolColors];
         [self createCache];
+        
+        [self loadBackgroundImagesRelativeToPath:[path stringByDeletingLastPathComponent]];
     }
     return self;
 }
@@ -175,10 +183,64 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
 
 }
 
+- (void)loadBackgroundImagesRelativeToPath:(NSString *)basePath {
+    int i;
+    
+    backgroundImages = [[NSMutableArray alloc] initWithCapacity:5];
+    
+    for (i = 0; i < ocdf->num_strings; i++) {
+        if (ocdf->string_rec_types[i] != 8) continue;
+
+        NSArray *a = [[NSString stringWithCString:ocdf->strings[i] encoding:NSISOLatin1StringEncoding] componentsSeparatedByString:@"\t"];
+        NSString *path = [a objectAtIndex:0];
+        
+        NSMutableDictionary *backgroundImage = [NSMutableDictionary dictionaryWithCapacity:10];
+        
+        if (![[NSFileManager defaultManager] fileExistsAtPath:[basePath stringByAppendingPathComponent:path]]) {
+            // Initiate a Spotlight search for the file.
+            // Handle the result 'lazily'
+        } else {
+            
+            if ([[path pathExtension] isEqualToString:@"ocd"] ) {
+                ASOCADController *map = [[ASOCADController alloc] initWithOCADFile:[basePath stringByAppendingPathComponent:path]];
+                if (map != nil) {
+                    [backgroundImage setObject:map forKey:@"mapProvider"];
+                    [map release];
+                } else {
+                    continue;
+                }
+            } else {
+                NSLog(@"Background file %@ is not yet supported.", path);
+                continue;
+            }
+        }
+        /*
+         si_BackgroundMap[list] = 8 (background maps)
+         --------------------------------------------
+         // First = file name
+         // a = angle omega
+         // b = angle phi
+         // d = dim
+         // o = render with spot colors
+         // p = assigned to spot color
+         // q = subtract from spot color (0=normal, 1=subtract)
+         // r = visible in draft mode (0=hidden, 1=visible)
+         // s = visible in normal mode (0=hidden, 1=visible)
+         // t = transparent
+         // x = offset x
+         // y = offset y
+         // u = pixel size x
+         // v = pixel size y
+         */
+        [backgroundImages addObject:backgroundImage];
+    }
+}
+
 - (void)dealloc {
     [structureColors release];
     [hatchColors release];
     [secondaryHatchColors release];
+    [backgroundImages release];
     
     if (colors != NULL) CFRelease(colors);
 
@@ -197,9 +259,9 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         free(ocdf);
         ocdf = NULL;
     }
-    free(colorList);
     
-    CGColorRelease(blackColor);
+    if (colorList != NULL) free(colorList);    
+    if (blackColor != NULL) CGColorRelease(blackColor);
 	
 	[super dealloc];
 }
@@ -582,6 +644,10 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
 // CATiledLayer delegate stuff. Also used by the quicklook plugin.
 // In the latter case, layer will be NULL.
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
+    for (NSDictionary *background in backgroundImages) {
+        id <ASMapProvider> map = [background objectForKey:@"mapProvider"];
+        [map drawLayer:layer inContext:ctx];
+    }
     CGContextSetTextDrawingMode(ctx, kCGTextFill);
     int i;
     struct ocad_cache *cache;

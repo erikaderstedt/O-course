@@ -53,8 +53,12 @@ struct ocad_cache {
     int         brown_stop;
     BOOL        supportsBrown;
     BOOL        brownActivated;
+
+    NSMutableArray *backgroundImages;
+
 }
 - (id)initWithOCADFile:(NSString *)path;
+- (void)loadBackgroundImagesRelativeToPath:(NSString *)basePath;
 - (void)parseColorStrings;
 - (CGColorRef)colorWithNumber:(int)color_number;
 

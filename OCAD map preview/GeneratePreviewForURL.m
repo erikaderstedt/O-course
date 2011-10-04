@@ -21,6 +21,11 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
     
     ASOCADController *ocad = [[ASOCADController alloc] initWithOCADFile:[(NSURL *)url path]];
     
+    if (ocad == nil) {
+        [pool release];
+        return noErr;
+    }
+    
     CGFloat requestedWidth = [[(NSDictionary *)options objectForKey:(id)kQLPreviewPropertyWidthKey] doubleValue];
     CGFloat requestedHeight = [[(NSDictionary *)options objectForKey:(id)kQLPreviewPropertyHeightKey] doubleValue];
     if (requestedWidth == 0.0) requestedWidth = 2048.0;
