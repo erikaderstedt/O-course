@@ -167,8 +167,7 @@ void load_objects(struct ocad_file *f) {
             i = b->nextindexblock;
         }
     }
-    f->num_objects = j;
-    f->elements = calloc(sizeof(struct ocad_element *), f->num_objects);
+    f->elements = calloc(sizeof(struct ocad_element *), j);
     
     i = f->header->objectindex;
     j = 0;
@@ -191,6 +190,7 @@ void load_objects(struct ocad_file *f) {
             
             for (k = 0; k < 256 && b8->indices[k].position != 0; k++) {
                 struct ocad8_object_index *objindex = &(b8->indices[k]);
+                if (objindex->symnum == 0) continue;
                 
                 if (r.lower_left.x > objindex->rc.lower_left.x) r.lower_left.x = objindex->rc.lower_left.x;
                 if (r.lower_left.y > objindex->rc.lower_left.y) r.lower_left.y = objindex->rc.lower_left.y;
@@ -204,10 +204,9 @@ void load_objects(struct ocad_file *f) {
                 } else {
                     element->color = 0;
                 }
-                f->elements[j + k] = element;                
+                f->elements[j++] = element;                
             }
             
-            j += k;
             i = b8->nextindexblock;
         }
     } else {
@@ -216,6 +215,7 @@ void load_objects(struct ocad_file *f) {
             
             for (k = 0; k < 256 && b->indices[k].position != 0; k++) {
                 struct ocad_object_index *objindex = &(b->indices[k]);
+                if (objindex->status != 1) continue;
                 
                 if (r.lower_left.x > objindex->rc.lower_left.x) r.lower_left.x = objindex->rc.lower_left.x;
                 if (r.lower_left.y > objindex->rc.lower_left.y) r.lower_left.y = objindex->rc.lower_left.y;
@@ -223,19 +223,19 @@ void load_objects(struct ocad_file *f) {
                 if (r.upper_right.y < objindex->rc.upper_right.y) r.upper_right.y = objindex->rc.upper_right.y;
 
                 element = (struct ocad_element *)((f->data) + (objindex->position));
-                if (objindex->status != 1) {
+                if (objindex->status != 1 || element->symnum == 0) {
                     element->obj_type = ocad_hidden_object;
                 } else {
                     element->symbol = symbol_by_number(f, element->symnum);
                 }
-                f->elements[j + k] = element;                
+                f->elements[j++] = element;                
             }
             
-            j += k;
             i = b->nextindexblock;
         }   
     }
     
+    f->num_objects = j;
     f->bbox = r;
 }
 
@@ -361,7 +361,7 @@ struct ocad_element *convert_ocad8_element(struct ocad8_element *source) {
     dest->nText = source->nText;
     dest->angle = source->angle;
     memcpy(&(dest->coords[0]), &(source->coords[0]), source->nCoordinates * sizeof(struct TDPoly));
-    if (dest->nText > 0) {
+    if (source->nText > 0) {
         memcpy(&(dest->coords[dest->nCoordinates]), &(source->coords[dest->nCoordinates]), dest->nText * sizeof(struct TDPoly));
     }
     
