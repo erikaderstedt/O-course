@@ -113,6 +113,10 @@
 		03A5114313B7AE9100469BCF /* ASOCADController_Area.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASOCADController_Area.m; sourceTree = "<group>"; };
 		03A5114713B7AF0E00469BCF /* ASOCADController_Line.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASOCADController_Line.h; sourceTree = "<group>"; };
 		03A5114813B7AF0E00469BCF /* ASOCADController_Line.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASOCADController_Line.m; sourceTree = "<group>"; };
+		03AAFEC11443874D008567E3 /* OCAD10Format.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = OCAD10Format.txt; sourceTree = "<group>"; };
+		03AAFEC21443874D008567E3 /* OCAD8Format.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = OCAD8Format.txt; sourceTree = "<group>"; };
+		03AAFEC31443874D008567E3 /* OCAD9Format.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = OCAD9Format.pdf; sourceTree = "<group>"; };
+		03AAFEC41443874D008567E3 /* OCAD9Format.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = OCAD9Format.txt; sourceTree = "<group>"; };
 		03B90D3914330A530033216D /* CoordinateTransverser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoordinateTransverser.h; sourceTree = "<group>"; };
 		03B90D3A14330A530033216D /* CoordinateTransverser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoordinateTransverser.m; sourceTree = "<group>"; };
 		03C305141347B5FA00FB8133 /* ASOCADController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASOCADController.h; sourceTree = "<group>"; };
@@ -153,6 +157,7 @@
 		032001AE12FE9EF900707BA5 = {
 			isa = PBXGroup;
 			children = (
+				03AAFEC01443874D008567E3 /* Specs */,
 				033D6872134B05AE00502CA8 /* Resources */,
 				033D67D2134AE9B500502CA8 /* OCAD */,
 				03C305171347B60B00FB8133 /* ASMapProvider.h */,
@@ -276,6 +281,17 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		03AAFEC01443874D008567E3 /* Specs */ = {
+			isa = PBXGroup;
+			children = (
+				03AAFEC11443874D008567E3 /* OCAD10Format.txt */,
+				03AAFEC21443874D008567E3 /* OCAD8Format.txt */,
+				03AAFEC31443874D008567E3 /* OCAD9Format.pdf */,
+				03AAFEC41443874D008567E3 /* OCAD9Format.txt */,
+			);
+			path = Specs;
+			sourceTree = "<group>";
+		};
 		03F2C76C142C81040053A47F /* Model objects */ = {
 			isa = PBXGroup;
 			children = (
@@ -346,6 +362,7 @@
 		032001B012FE9EF900707BA5 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastUpgradeCheck = 0420;
 				ORGANIZATIONNAME = "Aderstedt Software AB";
 			};
 			buildConfigurationList = 032001B312FE9EF900707BA5 /* Build configuration list for PBXProject "O-course" */;

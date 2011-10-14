@@ -62,24 +62,22 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         
         blackColor = CGColorCreateGenericCMYK(0.0,0.0,0.0,1.0,1.0);
 
-        [self parseColorStrings];
+        [self parseColors];
         
-        boundingBox = calloc(sizeof(struct LRect), 1);
-        get_bounding_box(ocdf, boundingBox);
-        currentBox.lower_left.x = boundingBox->lower_left.x;
-        currentBox.lower_left.y = boundingBox->lower_left.y;
-        currentBox.upper_right.x = boundingBox->upper_right.x;
-        currentBox.upper_right.y = boundingBox->upper_right.y;
+        currentBox = ocdf->bbox;
         
         [self createAreaSymbolColors];
         [self createCache];
         
         [self loadBackgroundImagesRelativeToPath:[path stringByDeletingLastPathComponent]];
+
+        free(ocdf);
+        ocdf = NULL;
     }
     return self;
 }
 
-- (void)parseColorStrings {
+- (void)parseColors {
     int i, j, index, highest;
     CGFloat components[5];
     CFArrayCallBacks callbacks;
@@ -91,19 +89,25 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     callbacks.equal = NULL;
     
     highest = -1;
-    for (i = 0; i < ocdf->num_strings; i++) {
-        if (ocdf->string_rec_types[i] != 9) continue;
-        NSString *s = [NSString stringWithCString:ocdf->strings[i] encoding:NSISOLatin1StringEncoding];
-        NSArray *a = [s componentsSeparatedByString:@"\t"];
-        for (NSString *component in a) {
-            if ([component hasPrefix:@"n"]) {
-                index = [[component substringFromIndex:1] intValue];
-                if (index > highest) highest = index;
-            } 
+    if (ocdf->header->version != 8) {
+        for (i = 0; i < ocdf->num_strings; i++) {
+            if (ocdf->string_rec_types[i] != 9) continue;
+            NSString *s = [NSString stringWithCString:ocdf->strings[i] encoding:NSISOLatin1StringEncoding];
+            NSArray *a = [s componentsSeparatedByString:@"\t"];
+            for (NSString *component in a) {
+                if ([component hasPrefix:@"n"]) {
+                    index = [[component substringFromIndex:1] intValue];
+                    if (index > highest) highest = index;
+                } 
+            }
+        }
+    } else {
+        for (i = 0; i < ocdf->ocad8info->nColors; i++) {
+            index = ocdf->ocad8info->colors[i].color_number;
+            if (index > highest) highest = index;
         }
     }
-    
-    if (highest < 33) highest = 33;
+    if (highest < 33) highest = 33;    
     
     colors = CFArrayCreateMutable(NULL, highest + 1, &callbacks);
     CGColorRef c;
@@ -151,36 +155,51 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     j = 0;
     
     CGColorSpaceRef cspace = CGColorSpaceCreateWithName(kCGColorSpaceGenericCMYK);
-    for (i = 0; i < ocdf->num_strings; i++) {
-        if (ocdf->string_rec_types[i] != 9) continue;
-        
-        NSString *s = [NSString stringWithCString:ocdf->strings[i] encoding:NSISOLatin1StringEncoding];
-        NSArray *a = [s componentsSeparatedByString:@"\t"];
-        components[4] = 1.0;
-        for (NSString *component in a) {
-            if ([component hasPrefix:@"n"]) {
-                index = [[component substringFromIndex:1] intValue];
-            } else if ([component hasPrefix:@"c"]) {
-                components[0] = 0.01*[[component substringFromIndex:1] floatValue];
-            } else if ([component hasPrefix:@"m"]) {
-                components[1] = 0.01*[[component substringFromIndex:1] floatValue];
-            } else if ([component hasPrefix:@"y"]) {
-                components[2] = 0.01*[[component substringFromIndex:1] floatValue];
-            } else if ([component hasPrefix:@"k"]) {
-                components[3] = 0.01*[[component substringFromIndex:1] floatValue];
-            } else if ([component hasPrefix:@"t"]) {
-                components[4] = 0.01*[[component substringFromIndex:1] floatValue];
+    
+    if (ocdf->header->version != 8) {
+        for (i = 0; i < ocdf->num_strings; i++) {
+            if (ocdf->string_rec_types[i] != 9) continue;
+            
+            NSString *s = [NSString stringWithCString:ocdf->strings[i] encoding:NSISOLatin1StringEncoding];
+            NSArray *a = [s componentsSeparatedByString:@"\t"];
+            components[4] = 1.0;
+            for (NSString *component in a) {
+                if ([component hasPrefix:@"n"]) {
+                    index = [[component substringFromIndex:1] intValue];
+                } else if ([component hasPrefix:@"c"]) {
+                    components[0] = 0.01*[[component substringFromIndex:1] floatValue];
+                } else if ([component hasPrefix:@"m"]) {
+                    components[1] = 0.01*[[component substringFromIndex:1] floatValue];
+                } else if ([component hasPrefix:@"y"]) {
+                    components[2] = 0.01*[[component substringFromIndex:1] floatValue];
+                } else if ([component hasPrefix:@"k"]) {
+                    components[3] = 0.01*[[component substringFromIndex:1] floatValue];
+                } else if ([component hasPrefix:@"t"]) {
+                    components[4] = 0.01*[[component substringFromIndex:1] floatValue];
+                }
             }
+            
+            // The ordering of the colors as they appear in the file is important. We need to sort the colors in this order.
+            // Use a C array where the color index (0-33 or highest) lead to the ordinal.
+            colorList[index] = j++;
+            CFArraySetValueAtIndex(colors, index, CGColorCreate(cspace, components));
         }
-
-        // The ordering of the colors as they appear in the file is important. We need to sort the colors in this order.
-        // Use a C array where the color index (0-33 or highest) lead to the ordinal.
-        colorList[index] = j++;
-        CFArraySetValueAtIndex(colors, index, CGColorCreate(cspace, components));
+    } else {
+        for (i = 0; i < ocdf->ocad8info->nColors; i++) {
+            struct ocad8_color_info *ci = ocdf->ocad8info->colors + i;
+            index = ci->color_number;
+            components[0] = 0.005*ci->cyan;
+            components[1] = 0.005*ci->magenta;
+            components[2] = 0.005*ci->yellow;
+            components[3] = 0.005*ci->black;
+            components[4] = 1.0;
+            colorList[index] = j++;
+            CFArraySetValueAtIndex(colors, index, CGColorCreate(cspace, components));            
+        }
     }
-
+    
     CGColorSpaceRelease(cspace);
-
+    
 }
 
 - (void)loadBackgroundImagesRelativeToPath:(NSString *)basePath {
@@ -337,15 +356,12 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     
     NSInteger i;
     struct ocad_element *e;
-    struct ocad_object_index *o;
     enum ocad_object_type type;
 	NSArray *a, *b;
 	struct ocad_area_symbol *area;
 
     for (i = start; i < stop; i += step) {
         e = ocdf->elements[i];
-        o = ocdf->objects[i];
-        if (o->status != 1) continue;
         type = (enum ocad_object_type)(e->obj_type);
 		switch (type) {
 			case ocad_area_object:
@@ -432,6 +448,9 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         return;
     }
     
+    // OCAD8: does not return a consistent number of num_cached_objects.
+    // Indicates that we are reading from somewhere we shouldn't, or not filling the correct memory.
+    
     j = 0;
     for (NSInvocationOperation *op in invocations) { 
         NSArray *items= [op result];
@@ -486,9 +505,9 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     } else {
         supportsBrown = YES;
         brown_start = 0;
-        while (sortedCache[brown_start]->colornum != browncolor) brown_start++;
+        while (brown_start < num_cached_objects && sortedCache[brown_start]->colornum != browncolor) brown_start++;
         brown_stop = brown_start;
-        while (sortedCache[brown_stop]->colornum == browncolor) brown_stop++;
+        while (brown_stop < num_cached_objects && sortedCache[brown_stop]->colornum == browncolor) brown_stop++;
     }
     
     for (NSInvocationOperation *op in invocations) {

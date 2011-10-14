@@ -8,10 +8,10 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include "ocdimport.h"
 
-enum ocad_object_type {
-    ocad_hidden_object = 0,
-    ocad_point_object,
+enum ocad8_object_type {
+    ocad_point_object = 1,
     ocad_line_object,
     ocad_area_object,
     ocad_unformatted_text_object,
@@ -28,31 +28,6 @@ struct TDPoly {
 struct LRect {
     struct TDPoly lower_left;
     struct TDPoly upper_right;
-};
-
-struct ocad_element {
-    int32_t symnum;
-    uint8_t obj_type;
-    uint8_t reserved0;
-    int16_t angle;
-    int32_t nCoordinates;
-    int16_t nText;
-    uint16_t reserved1;
-    uint32_t color;
-    uint16_t linewidth;
-    uint16_t diamflags;
-    
-#if __LP64__
-    struct ocad_symbol *symbol;
-#else
-    struct ocad_symbol *symbol;
-    uint32_t dummy;
-#endif
-    uint8_t mark;
-    uint8_t reserved3;
-    uint16_t reserved4;
-    uint32_t height;
-    struct TDPoly coords[1];
 };
 
 struct ocad_symbol_element {
@@ -111,7 +86,7 @@ struct ocad_point_symbol {
     
     uint16_t datasize;
     uint16_t reserved;
-    struct TDPoly points[0];
+    struct TDPoly points[256];
 };
 
 struct ocad_line_symbol {
@@ -407,33 +382,38 @@ struct ocad_object_index {
     uint16_t reserved2;
 };
 
+struct ocad_element {
+    int32_t symnum;
+    uint8_t obj_type;
+    uint8_t reserved0;
+    int16_t angle;
+    int32_t nCoordinates;
+    int16_t nText;
+    uint16_t reserved1;
+    uint32_t color;
+    uint16_t linewidth;
+    uint16_t diamflags;
+    
+#if __LP64__
+    struct ocad_symbol *symbol;
+#else
+    struct ocad_symbol *symbol;
+    uint32_t dummy;
+#endif
+    uint8_t mark;
+    uint8_t reserved3;
+    uint16_t reserved4;
+    uint32_t height;
+    struct TDPoly coords[1];
+};
+
 struct ocad_object_index_block {
     uint32_t nextindexblock;
     struct ocad_object_index indices[256];
 };
 
-//
-// File header is the same for 8/9/10
-struct ocad_file_header {
-    uint16_t ocadmark;
-    uint8_t filetype;
-    uint8_t status;
-    uint16_t version;
-    uint16_t subversion;
-    uint32_t symbolindex;
-    uint32_t objectindex;
-    uint32_t reserved0;
-    uint32_t reserved1;
-    uint32_t reserved2;
-    uint32_t reserved3;
-    uint32_t stringindex;
-    uint32_t filenamepos;
-    uint32_t filenamesize;
-    uint32_t reserved4;
-};
 
-//
-// This is not what is stored on disk.
+
 struct ocad_file {
     unsigned char *data;
     struct ocad_file_header *header;
@@ -443,173 +423,14 @@ struct ocad_file {
     
     int num_objects;
     struct ocad_element **elements;
+    struct ocad_object_index **objects;
     
     int num_strings;
     char **strings;
     int *string_rec_types;
-    
-    struct LRect bbox;
-    
-    struct ocad8_symbol_header *ocad8info;
 };
 
-//
-// OCAD 8
-//
-
-// The OCAD9/10 element has 40 bytes before the coordinates.
-// Here we have 2+1+1+6+2+4+16 = 32 bytes.
-struct ocad8_element {
-    int16_t symnum;         
-    uint8_t obj_type;
-    uint8_t in_unicode;     // Otherwise ASCII? Or Latin-US?
-    int16_t nCoordinates;   
-    int16_t nText;
-    int16_t angle;
-    uint16_t reserved1;
-    uint32_t resheight;
-    uint8_t reserved2[16];
-    struct TDPoly coords[1];
-};
-
-struct ocad8_object_index {
-    struct LRect rc;
-    uint32_t position;
-    uint16_t nCoordinates;
-    int16_t symnum;
-};
-
-struct ocad8_object_index_block {
-    uint32_t nextindexblock;
-    struct ocad8_object_index indices[256];
-};
-
-struct ocad8_color_info {
-    int16_t color_number;
-    uint16_t reserved;
-    uint8_t cyan;   // 0 - 200 ?
-    uint8_t magenta;
-    uint8_t yellow;
-    uint8_t black;
-    char color_name[32];
-    char sep_percentage[32];
-};
-
-struct ocad8_symbol_header {
-    uint16_t nColors;
-    uint16_t nColorSep;
-    uint16_t cyan_frequency;
-    int16_t cyan_angle;
-    uint16_t magenta_frequency;
-    int16_t magenta_angle;
-    uint16_t yellow_frequency;
-    int16_t yellow_angle;
-    uint16_t black_frequency;
-    int16_t black_angle;
-    uint16_t reserved1;
-    int16_t reserved2;
-    struct ocad8_color_info colors[256];
-};
-
-struct ocad8_symbol {
-    uint16_t size;
-    uint16_t symnum; // * 10.
-    uint16_t  otp;
-    uint8_t  symtype;
-    uint8_t  flags;
-    uint16_t extent;
-    uint16_t selected;
-    uint8_t status;
-    uint16_t reserved2;
-    uint16_t reserved3;
-    uint16_t filepos;
-    uint8_t color_bitfield[32];
-    uint8_t desclength;
-    char description[31];
-    uint8_t iconbits[264]; // Kontrolldefinition.
-};
-
-struct ocad8_point_symbol {
-    struct ocad8_symbol base;
-    
-    uint16_t datasize;
-    uint16_t reserved;
-    
-    struct TDPoly coords[0];
-};
-
-struct ocad8_line_symbol {
-    struct ocad8_symbol base;
-    
-    // Line symbol
-    uint16_t line_color;
-    uint16_t line_width;
-    uint16_t line_style;
-    int16_t dist_from_start;
-    int16_t dist_from_end;
-    int16_t main_length;
-    int16_t end_length;
-    int16_t main_gap;
-    int16_t sec_gap;
-    int16_t end_gap;
-    int16_t min_sym; // Minimum # gaps per symbol - 1.
-    int16_t nprim_sym;
-    int16_t prim_sym_dist;
-    uint16_t dbl_mode;
-    uint16_t dbl_flags;
-    int16_t dbl_fill_color;
-    int16_t dbl_left_color;
-    int16_t dbl_right_color;
-    int16_t dbl_width;
-    int16_t dbl_left_width;
-    int16_t dbl_right_width;
-    int16_t dbl_length; // Dash distance a.
-    int16_t dbl_gap; // Dash gap.
-    int16_t reserved0;
-    int16_t reserved1[2];
-    uint16_t dec_mode;
-    int16_t dec_last; // Last symbol.
-    int16_t reserved2;
-    int16_t frame_line_color;
-    int16_t frame_line_width;
-    int16_t frame_line_style;
-    uint16_t prim_d_size;
-    uint16_t sec_d_size;
-    uint16_t corner_d_size;
-    uint16_t start_d_size;
-    uint16_t end_d_size;
-    int16_t reserved3;
-    struct TDPoly coords[1024];
-};
-
-struct ocad8_area_symbol {
-    struct ocad8_symbol base;
-    
-    uint16_t reserved2;
-    uint16_t fill_on;
-    int16_t fill_color;
-    int16_t hatch_mode;
-    int16_t hatch_color;
-    int16_t hatch_line_width;
-    int16_t hatch_dist;
-    int16_t hatch_angle1;
-    int16_t hatch_angle2;
-    uint8_t fill_enabled;
-    uint8_t border_enabled;
-    uint16_t structure_mode;    //
-    uint16_t structure_width;
-    uint16_t structure_height;
-    int16_t structure_angle;
-    uint16_t reserved;
-    uint16_t data_size;
-    struct TDPoly coords[1024];
-};
-
-
-//
-#pragma mark Functions
-//
-
+// Functions
 int supported_version(const char *path);
 
 int load_file(struct ocad_file *f, const char *path);
@@ -620,7 +441,3 @@ void load_strings(struct ocad_file *f);
 
 struct ocad_symbol *symbol_by_number(struct ocad_file *ocdf, int32_t symnum);
 void get_bounding_box(struct ocad_file *ocdf, struct LRect *r);
-
-// OCAD8 handling
-struct ocad_symbol *convert_ocad8_symbol(struct ocad8_symbol *source_base);
-struct ocad_element *convert_ocad8_element(struct ocad8_element *source);

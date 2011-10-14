@@ -38,7 +38,6 @@ struct ocad_cache {
     NSString *ocd_path;
     struct ocad_file *ocdf;
     
-    struct LRect *boundingBox;
     struct LRect currentBox;
     
     CFMutableArrayRef colors;
@@ -59,7 +58,7 @@ struct ocad_cache {
 }
 - (id)initWithOCADFile:(NSString *)path;
 - (void)loadBackgroundImagesRelativeToPath:(NSString *)basePath;
-- (void)parseColorStrings;
+- (void)parseColors;
 - (CGColorRef)colorWithNumber:(int)color_number;
 
 - (NSArray *)createCacheFromIndex:(NSInteger)start upToButNotIncludingIndex:(NSInteger)stop step:(NSInteger)step;

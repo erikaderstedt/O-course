@@ -44,7 +44,7 @@ int load_file(struct ocad_file *f, const char *path) {
         return 0;
     }
     
-    f->data = calloc(s.st_size, sizeof(unsigned char));
+    f->data = calloc((unsigned long)s.st_size, sizeof(unsigned char));
     if (f->data == NULL) {
         fprintf(stderr, "Could not allocate memory.\n");
         return 0;
@@ -57,21 +57,41 @@ int load_file(struct ocad_file *f, const char *path) {
         return 0;
     }
     
-    if (fread(f->data, sizeof(unsigned char), s.st_size, fp) != s.st_size) {
+    if (fread(f->data, sizeof(unsigned char), (unsigned long)s.st_size, fp) != s.st_size) {
         fprintf(stderr, "Could not read all data.\n");
         fclose(fp);
         return 0;
     }
     
     f->header = (struct ocad_file_header *)(f->data);
+    if (f->header->version == 8) {
+        f->ocad8info = (struct ocad8_symbol_header *)(f->data + sizeof(struct ocad_file_header));
+    } else {
+        f->ocad8info = NULL;
+    }
     return 1;
 }
 
 void unload_file(struct ocad_file *f) {
     free(f->data);
-    if (f->symbols != NULL) free(f->symbols);
-    if (f->elements != NULL) free(f->elements);
-    if (f->objects != NULL) free(f->objects);
+    if (f->symbols != NULL) {
+        if (f->header->version == 8) {
+            int i;
+            for (i = 0; i < f->num_symbols; i++) {
+                free(f->symbols[i]);
+            }
+        }
+        free(f->symbols);
+    }
+    if (f->elements != NULL) {
+        if (f->header->version == 8) {
+            int i;
+            for (i = 0; i < f->num_objects; i++) {
+                free(f->elements[i]);
+            }
+        }
+        free(f->elements);
+    }
     if (f->strings != NULL) {
         free(f->strings);
         free(f->string_rec_types);
@@ -82,6 +102,7 @@ void load_symbols(struct ocad_file *f) {
     int k, j = 0;
     long i;
     struct ocad_symbol_block *b;
+    int version8 = (f->header->version == 8);
     
     i = f->header->symbolindex;
     
@@ -102,8 +123,13 @@ void load_symbols(struct ocad_file *f) {
         b = (struct ocad_symbol_block *)((f->data) + i);
         
         for (k = 0; k < 256 && j < f->num_symbols; k++) {
-            f->symbols[j++] = (struct ocad_symbol *)((f->data) + b->symbol_indices[k]);
-            f->symbols[j-1]->description[30] = 0;
+            if (version8) {
+                f->symbols[j] = convert_ocad8_symbol((struct ocad8_symbol *)((f->data) + b->symbol_indices[k]));
+            } else {
+                f->symbols[j] = (struct ocad_symbol *)((f->data) + b->symbol_indices[k]);
+            }
+            f->symbols[j]->description[30] = 0;
+            j++;
         }
         i = b->nextsymbolblock;
     }
@@ -114,34 +140,103 @@ void load_objects(struct ocad_file *f) {
     int k, j = 0;
     long i;
     struct ocad_object_index_block *b;
+    struct ocad8_object_index_block *b8;
+    struct ocad_element *element;
+    struct LRect r;
+
+    int version8 = (f->header->version == 8);
     
     i = f->header->objectindex;
-    while (i != 0) {
-        b = (struct ocad_object_index_block *)((f->data) + i);
-        
-        for (k = 0; k < 256 && b->indices[k].position != 0; k++);
-        
-        j += k;
-        i = b->nextindexblock;
+    
+    if (version8) {
+        while (i != 0) {
+            b8 = (struct ocad8_object_index_block *)((f->data) + i);
+            
+            for (k = 0; k < 256 && b8->indices[k].position != 0; k++);
+            
+            j += k;
+            i = b8->nextindexblock;
+        }        
+    } else {
+        while (i != 0) {
+            b = (struct ocad_object_index_block *)((f->data) + i);
+            
+            for (k = 0; k < 256 && b->indices[k].position != 0; k++);
+            
+            j += k;
+            i = b->nextindexblock;
+        }
     }
     f->num_objects = j;
-    f->objects = calloc(sizeof(struct ocad_object_index *), f->num_objects);
     f->elements = calloc(sizeof(struct ocad_element *), f->num_objects);
-
+    
     i = f->header->objectindex;
     j = 0;
-    while (i != 0) {
-        b = (struct ocad_object_index_block *)((f->data) + i);
-        
-        for (k = 0; k < 256 && b->indices[k].position != 0; k++) {
-            f->objects[j + k] = &(b->indices[k]);
-            f->elements[j + k] = (struct ocad_element *)((f->data) + (f->objects[j + k]->position));
-            f->elements[j + k]->symbol = symbol_by_number(f, f->elements[j + k]->symnum);
-        }
-        
-        j += k;
-        i = b->nextindexblock;
+    
+    if (f->num_objects == 0) {
+        r.lower_left.x = 0;
+        r.lower_left.y = 0;
+        r.upper_right.x = 0;
+        r.upper_right.y = 0;
+    } else {
+        r.lower_left.x = 1e30;
+        r.lower_left.y = 1e30;
+        r.upper_right.x = -1e30;
+        r.upper_right.y = -1e30;
     }
+    
+    if (version8) {
+        while (i != 0) {
+            b8 = (struct ocad8_object_index_block *)((f->data) + i);
+            
+            for (k = 0; k < 256 && b8->indices[k].position != 0; k++) {
+                struct ocad8_object_index *objindex = &(b8->indices[k]);
+                
+                if (r.lower_left.x > objindex->rc.lower_left.x) r.lower_left.x = objindex->rc.lower_left.x;
+                if (r.lower_left.y > objindex->rc.lower_left.y) r.lower_left.y = objindex->rc.lower_left.y;
+                if (r.upper_right.x < objindex->rc.upper_right.x) r.upper_right.x = objindex->rc.upper_right.x;
+                if (r.upper_right.y < objindex->rc.upper_right.y) r.upper_right.y = objindex->rc.upper_right.y;
+
+                element = convert_ocad8_element((struct ocad8_element *)((f->data) + (objindex->position)));
+                element->symbol = symbol_by_number(f, element->symnum);
+                if (element->symbol != NULL) {
+                    element->color = element->symbol->colors[0];
+                } else {
+                    element->color = 0;
+                }
+                f->elements[j + k] = element;                
+            }
+            
+            j += k;
+            i = b8->nextindexblock;
+        }
+    } else {
+        while (i != 0) {
+            b = (struct ocad_object_index_block *)((f->data) + i);
+            
+            for (k = 0; k < 256 && b->indices[k].position != 0; k++) {
+                struct ocad_object_index *objindex = &(b->indices[k]);
+                
+                if (r.lower_left.x > objindex->rc.lower_left.x) r.lower_left.x = objindex->rc.lower_left.x;
+                if (r.lower_left.y > objindex->rc.lower_left.y) r.lower_left.y = objindex->rc.lower_left.y;
+                if (r.upper_right.x < objindex->rc.upper_right.x) r.upper_right.x = objindex->rc.upper_right.x;
+                if (r.upper_right.y < objindex->rc.upper_right.y) r.upper_right.y = objindex->rc.upper_right.y;
+
+                element = (struct ocad_element *)((f->data) + (objindex->position));
+                if (objindex->status != 1) {
+                    element->obj_type = ocad_hidden_object;
+                } else {
+                    element->symbol = symbol_by_number(f, element->symnum);
+                }
+                f->elements[j + k] = element;                
+            }
+            
+            j += k;
+            i = b->nextindexblock;
+        }   
+    }
+    
+    f->bbox = r;
 }
 
 void load_strings(struct ocad_file *f) {
@@ -196,32 +291,96 @@ struct ocad_symbol *symbol_by_number(struct ocad_file *ocdf, int32_t symnum) {
     return ocdf->symbols[i];
 }
 
-void get_bounding_box(struct ocad_file *ocdf, struct LRect *r) {
-    int i;
-    struct ocad_object_index *o;
-    
-    if (ocdf->num_objects < 1) {
-        r->lower_left.x = 0;
-        r->lower_left.y = 0;
-        r->upper_right.x = 0;
-        r->upper_right.y = 0;
-        return;
-    }
-    
-    r->lower_left.x = ocdf->objects[0]->rc.lower_left.x;
-    r->lower_left.y = ocdf->objects[0]->rc.lower_left.y;
-    r->upper_right.x = ocdf->objects[0]->rc.upper_right.x;
-    r->upper_right.y = ocdf->objects[0]->rc.upper_right.y;
-        
-    for (i = 1; i < ocdf->num_objects; i++) {
-        o = ocdf->objects[i];
-        
-        if (r->lower_left.x > o->rc.lower_left.x) r->lower_left.x = o->rc.lower_left.x;
-        if (r->lower_left.y > o->rc.lower_left.y) r->lower_left.y = o->rc.lower_left.y;
-        if (r->upper_right.x < o->rc.upper_right.x) r->upper_right.x = o->rc.upper_right.x;
-        if (r->upper_right.y < o->rc.upper_right.y) r->upper_right.y = o->rc.upper_right.y;
-    }
+#define min(x,y) (((x)<(y))?(x):(y))
 
+struct ocad_symbol *convert_ocad8_symbol(struct ocad8_symbol *source) {
+    uint32_t newSize = source->size + sizeof(struct ocad_symbol) - sizeof(struct ocad8_symbol);
+    struct ocad_symbol *dest;
+    
+    if ((dest = (struct ocad_symbol *)calloc(newSize, 1)) == NULL) return NULL;
+
+    // Is this correct? 
+    memcpy(&(dest[1]), &(source[1]), source->size - sizeof(struct ocad8_symbol));
+    
+    switch (source->otp) {
+        case 1:
+            dest->otp = ocad_point_object;
+            break;
+        case 2:
+            if (source->symtype != 0) { 
+                dest->otp = ocad_line_text_object;
+            } else {
+                dest->otp = ocad_line_object;
+            }            
+            break;
+        case 3:
+            dest->otp = ocad_area_object;
+            ((struct ocad_area_symbol *)dest)->fill_enabled = ((struct ocad8_area_symbol *)source)->fill_on;
+            ((struct ocad_area_symbol *)dest)->border_enabled = 0;
+            break;
+        case 4:
+            dest->otp = ocad_formatted_text_object;
+            break;
+        default:
+            dest->otp = 0;
+            break;
+    };
+    
+    // Base symbol
+    dest->symnum = 100*source->symnum;
+    dest->size = source->size;
+    
+    // Parse the color bitfield
+    int j, k;
+    dest->ncolors = 0;
+    for (j = 0; j < 32; j++) {
+        for (k = 0; k < 8; k++) {
+            if (source->color_bitfield[j] & (1 << k)) {
+                dest->colors[dest->ncolors] = j*8 + k;
+                dest->ncolors ++;
+            }
+        }
+    }
+    
+    // Copy the description
+    dest->desclength = source->desclength;
+    strncpy(dest->description, source->description, min(dest->desclength, 30));
+    
+    return dest;
 }
+
+struct ocad_element *convert_ocad8_element(struct ocad8_element *source) {
+    struct ocad_element *dest;
+    uint32_t newSize = (source->nCoordinates + source->nText - 1) * sizeof(struct TDPoly) + sizeof(struct ocad_element);
     
+    if ((dest = (struct ocad_element *)calloc(newSize, 1)) == NULL) return NULL;
     
+    dest->symnum = source->symnum * 100;
+    dest->nCoordinates = source->nCoordinates;
+    dest->nText = source->nText;
+    dest->angle = source->angle;
+    memcpy(&(dest->coords[0]), &(source->coords[0]), source->nCoordinates * sizeof(struct TDPoly));
+    if (dest->nText > 0) {
+        memcpy(&(dest->coords[dest->nCoordinates]), &(source->coords[dest->nCoordinates]), dest->nText * sizeof(struct TDPoly));
+    }
+    
+    switch (source->obj_type) {
+        case 1:
+            dest->obj_type = ocad_point_object;
+            break;
+        case 2:
+            dest->obj_type = ocad_line_object;
+            break;
+        case 3:
+            dest->obj_type = ocad_area_object;
+            break;
+        case 4:
+            dest->obj_type = ocad_formatted_text_object;
+            break;
+        default:
+            dest->obj_type = 0;
+            break;
+    };
+    
+    return dest;
+}

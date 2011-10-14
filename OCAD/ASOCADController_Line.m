@@ -272,36 +272,38 @@
     if (line != NULL && line->prim_d_size) {
         [ct reset];
         CGFloat all = [ct lengthOfEntirePath];
-        CGFloat distance, initial;
-
-        // For double symbols, like 524. 
-        CGFloat spacing = line->prim_sym_dist; 
-        
-        distance = line->main_length;
-        initial = line->end_length;
-        
-        // Enforce at least one symbol.
-        if (initial * 2.0 + distance + spacing > all) {
-            initial = 0.5*all - 0.5*spacing;
-            distance = all;
-        }
-        
-        CGPoint p;
-        int prim_sym_index = 0;
-        
-        p = [ct advanceDistance:initial];
-        while (![ct endHasBeenReached]) {
-            [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)line->coords 
-                                                              atPoint:p 
-                                                            withAngle:[ct currentAngle] 
-                                                        totalDataSize:0
-                                                              element:e]];
-            if (prim_sym_index < line->nprim_sym - 1) {
-                p = [ct advanceDistance:spacing];
-                prim_sym_index ++;
-            } else {
-                p = [ct advanceDistance:distance];
-                prim_sym_index = 0;
+        if (all > 0) {
+            CGFloat distance, initial;
+            
+            // For double symbols, like 524. 
+            CGFloat spacing = line->prim_sym_dist; 
+            
+            distance = line->main_length;
+            initial = line->end_length;
+            
+            // Enforce at least one symbol.
+            if (initial * 2.0 + distance + spacing > all) {
+                initial = 0.5*all - 0.5*spacing;
+                distance = all;
+            }
+            
+            CGPoint p;
+            int prim_sym_index = 0;
+            
+            p = [ct advanceDistance:initial];
+            while (![ct endHasBeenReached]) {
+                [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)line->coords 
+                                                                  atPoint:p 
+                                                                withAngle:[ct currentAngle] 
+                                                            totalDataSize:0
+                                                                  element:e]];
+                if (prim_sym_index < line->nprim_sym - 1) {
+                    p = [ct advanceDistance:spacing];
+                    prim_sym_index ++;
+                } else {
+                    p = [ct advanceDistance:distance];
+                    prim_sym_index = 0;
+                }
             }
         }
     }
