@@ -15,13 +15,20 @@
     
     // Load the actual string
 	char *rawBuffer = (char *)&(e->coords[e->nCoordinates]);
-    char buffer[4096];
+    char buffer[4096], *input_string;
     int i;
-    for (i =0; rawBuffer[i*2] != 0; i++) {
-        buffer[i] = rawBuffer[i*2];
+    
+    if (text && text->character_set == 1) {
+        input_string = rawBuffer;
+    } else {
+        
+        for (i =0; rawBuffer[i*2] != 0; i++) {
+            buffer[i] = rawBuffer[i*2];
+        }
+        buffer[i] = 0;
+        input_string = buffer;
     }
-    buffer[i] = 0;
-    NSString *string = [NSString stringWithCString:buffer encoding:NSASCIIStringEncoding];
+    NSString *string = [NSString stringWithCString:input_string encoding:NSASCIIStringEncoding];
     
     // Load the font name and size.
     rawBuffer = text->fontname;

@@ -320,6 +320,7 @@ struct ocad_symbol *convert_ocad8_symbol(struct ocad8_symbol *source) {
             break;
         case 4:
             dest->otp = ocad_formatted_text_object;
+            ((struct ocad_text_symbol *)dest)->character_set ++; // 0 for OCAD 9, 1 for ASCII, 2 for "Unicode".
             break;
         default:
             dest->otp = 0;
