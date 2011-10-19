@@ -22,6 +22,25 @@
         return [NSArray array];
     }
     
+    CGLineCap capStyle = kCGLineCapButt;
+    CGLineJoin joinStyle = kCGLineJoinBevel;
+    
+    if (line != NULL) {
+        switch (line->line_style) {
+            case 0:
+                // Default, see above.
+                break;
+            case 1:
+                capStyle = kCGLineCapRound;
+                joinStyle = kCGLineJoinRound;
+                break;
+            case 2:
+                capStyle = kCGLineCapButt;
+                joinStyle = kCGLineJoinMiter;
+                break;
+        };
+    }    
+    
     CoordinateTransverser *ct = [[CoordinateTransverser alloc] initWith:e->nCoordinates coordinates:e->coords withPath:NULL];
 
     // TODO: convert this to use CoordinateTransverser. Will enable dashed double lines (e.g. roads under construction).
@@ -123,22 +142,31 @@
 
         free(angles);
         
+        
         if (line->dbl_flags > 0) {
-            roadCache = [NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_fill_color], @"strokeColor", 
+            CGPathRef strokedRoad = CGPathCreateCopyByStrokingPath(road, NULL, (float)line->dbl_width, capStyle, joinStyle, 0.5*((float)line->dbl_width));
+            roadCache = [NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_fill_color], @"fillColor", 
                          [NSNumber numberWithInt:line->dbl_fill_color],@"colornum",
                          [NSValue valueWithPointer:e], @"element",
-                         road, @"path", [NSNumber numberWithFloat:line->dbl_width], @"width", nil];
+                         strokedRoad, @"path", nil];
+            CGPathRelease(strokedRoad);
         }
-        [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_left_color], @"strokeColor", 
+        CGPathRelease(road);
+        CGPathRef strokedLeft = CGPathCreateCopyByStrokingPath(left, NULL, (float)line->dbl_left_width, capStyle, joinStyle, 0.5*((float)line->dbl_left_width));
+        CGPathRef strokedRight = CGPathCreateCopyByStrokingPath(right, NULL, (float)line->dbl_right_width, capStyle, joinStyle, 0.5*((float)line->dbl_right_width));
+        
+        [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_left_color], @"fillColor", 
                                [NSNumber numberWithInt:line->dbl_left_color],@"colornum",
                                [NSValue valueWithPointer:e], @"element",
-							   left, @"path",[NSNumber numberWithInt:line->dbl_left_width], @"width", 
-							   [NSNumber numberWithInt:kCGLineCapSquare], @"capStyle", nil]];
-        [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_right_color], @"strokeColor", 
+							   strokedLeft, @"path", nil]];
+        [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_right_color], @"fillColor", 
                                [NSNumber numberWithInt:line->dbl_right_color],@"colornum",
                                [NSValue valueWithPointer:e], @"element",
-							   right, @"path",[NSNumber numberWithInt:line->dbl_right_width], @"width", 
-							   [NSNumber numberWithInt:kCGLineCapSquare], @"capStyle", nil]]; 
+							   strokedRight, @"path", nil]]; 
+        CGPathRelease(strokedLeft);
+        CGPathRelease(strokedRight);
+        CGPathRelease(left);
+        CGPathRelease(right);
     }
     
     // Create the path for the main line. 
@@ -219,31 +247,16 @@
         int colornum = (line != NULL)?line->line_color:e->color;
         float linewidth = (line != NULL)?line->line_width:e->linewidth;
         
-        [mainLine setObject:(id)[self colorWithNumber:colornum] forKey:@"strokeColor"];
         [mainLine setObject:[NSNumber numberWithInt:colornum] forKey:@"colornum"];
         [mainLine setObject:[NSNumber numberWithFloat:linewidth] forKey:@"width"];
-        [mainLine setObject:(id)path forKey:@"path"];
         [mainLine setObject:[NSValue valueWithPointer:e] forKey:@"element"];
-        
-        if (line != NULL) {
-            switch (line->line_style) {
-                case 0:
-					[mainLine setObject:[NSNumber numberWithInt:kCGLineJoinBevel] forKey:@"joinStyle"];
-					[mainLine setObject:[NSNumber numberWithInt:kCGLineCapButt] forKey:@"capStyle"];
-                    break;
-                case 1:
-					[mainLine setObject:[NSNumber numberWithInt:kCGLineJoinRound] forKey:@"joinStyle"];
-					[mainLine setObject:[NSNumber numberWithInt:kCGLineCapRound] forKey:@"capStyle"];
-                    break;
-                case 2:
-					[mainLine setObject:[NSNumber numberWithInt:kCGLineJoinMiter] forKey:@"joinStyle"];
-					[mainLine setObject:[NSNumber numberWithInt:kCGLineCapButt] forKey:@"capStyle"];
-                    break;
-            };
-        }        
-        
+            
+        CGPathRef strokedPath = CGPathCreateCopyByStrokingPath(path, NULL, linewidth, capStyle, joinStyle, 0.5*linewidth);
+        [mainLine setObject:(id)strokedPath forKey:@"path"];
+        [mainLine setObject:(id)[self colorWithNumber:colornum] forKey:@"fillColor"];
         [cachedData addObject:mainLine];
         CGPathRelease(path);
+        CGPathRelease(strokedPath);
 
     }
 
@@ -342,5 +355,4 @@
 }
 
 @end
-
 
