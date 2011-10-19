@@ -61,7 +61,16 @@ CGFloat angle_between_points(CGPoint p1, CGPoint p2) {
     return atan2(p2.y - p1.y, p2.x - p1.x);
 }
 
+CGPoint translatePoint(CGPoint p, float distance, float angle) {
+    CGPoint q;
+    q.x = p.x + cosf(angle)*distance;
+    q.y = p.y + sinf(angle)*distance;
+    return q;
+}
+
 @implementation CoordinateTransverser
+
+@synthesize translateDistanceLeft, translateDistanceRight;
 
 - (id)initWith:(int)num_coords coordinates:(struct TDPoly *)coords withPath:(CGMutablePathRef)path {
     if ((self = [super init])) {
@@ -79,6 +88,12 @@ CGFloat angle_between_points(CGPoint p1, CGPoint p2) {
     if (_path != NULL) {
         CGPathRelease(_path);
     }
+    if (_leftPath != NULL) {
+        CGPathRelease(_leftPath);
+    }
+    if (_rightPath != NULL) {
+        CGPathRelease(_rightPath);
+    }
     [super dealloc];
 }
 
@@ -86,6 +101,8 @@ CGFloat angle_between_points(CGPoint p1, CGPoint p2) {
     currentIndex = 0;
     currentFraction = 0.0;
     [self setPath:NULL];
+    [self setRightPath:NULL];
+    [self setLeftPath:NULL];
 }
 
 - (void)setPath:(CGMutablePathRef)newPath {
@@ -96,6 +113,44 @@ CGFloat angle_between_points(CGPoint p1, CGPoint p2) {
     _path = newPath;
     if (_path != NULL) {
         CGPathRetain(_path);
+        CGPoint p0 = [self coordinateAtIndex:0];
+        CGPathMoveToPoint(_path, NULL, p0.x, p0.y);
+    }
+}
+
+- (void)setLeftPath:(CGMutablePathRef)newPath {
+    if (_leftPath != NULL) {
+        CGPathRelease(_leftPath);
+        _leftPath = NULL;
+    }
+    _leftPath = newPath;
+    if (_leftPath != NULL) {
+        int j = currentIndex;
+        currentIndex = 0;
+        CGPoint p0 = [self coordinateAtIndex:0];
+        CGFloat a = [self currentAngle];
+        p0 = translatePoint(p0, self.translateDistanceLeft, a + pi/2);
+        CGPathMoveToPoint(_leftPath, NULL, p0.x, p0.y);
+        currentIndex = j;
+        CGPathRetain(_leftPath);
+    }
+}
+
+- (void)setRightPath:(CGMutablePathRef)newPath {
+    if (_rightPath != NULL) {
+        CGPathRelease(_rightPath);
+        _rightPath = NULL;
+    }
+    _rightPath = newPath;
+    if (_rightPath != NULL) {
+        int j = currentIndex;
+        currentIndex = 0;
+        CGPoint p0 = [self coordinateAtIndex:0];
+        CGFloat a = [self currentAngle];
+        p0 = translatePoint(p0, self.translateDistanceRight, a - pi/2);
+        CGPathMoveToPoint(_rightPath, NULL, p0.x, p0.y);
+        currentIndex = j;
+        CGPathRetain(_rightPath);
     }
 }
 
@@ -264,24 +319,80 @@ CGFloat angle_between_points(CGPoint p1, CGPoint p2) {
                 cp1 = [self coordinateAtIndex:currentIndex + 1];
                 cp2 = [self coordinateAtIndex:currentIndex + 2];
                 CGPathAddCurveToPoint(_path, NULL, cp1.x, cp1.y, cp2.x, cp2.y, p1.x, p1.y);
+                if (_leftPath != NULL || _rightPath != NULL) {
+                    CGFloat startAngle = [self currentAngle], stopAngle;
+                    
+                    currentIndex += 3;
+                    stopAngle = [self currentAngle];
+                    currentIndex -= 3;
+                    
+                    // Translate p0 and cp1 according to the start angle, and cp2 and p1 according to the stop angle.
+                    if (_leftPath != NULL) {
+                        CGPoint p1l, cp1l, cp2l;
+                        cp1l = translatePoint(cp1, translateDistanceLeft, startAngle + pi/2);
+                        cp2l = translatePoint(cp2, translateDistanceLeft, stopAngle + pi/2);
+                        p1l = translatePoint(p1, translateDistanceLeft, stopAngle + pi/2);
+                        CGPathAddCurveToPoint(_leftPath, NULL, cp1l.x, cp1l.y, cp2l.x, cp2l.y, p1l.x, p1l.y);
+                    }
+                    if (_rightPath != NULL) {
+                        CGPoint p1r, cp1r, cp2r;
+                        cp1r = translatePoint(cp1, translateDistanceRight, startAngle - pi/2);
+                        cp2r = translatePoint(cp2, translateDistanceRight, stopAngle - pi/2);
+                        p1r = translatePoint(p1, translateDistanceRight, stopAngle - pi/2);
+                        CGPathAddCurveToPoint(_rightPath, NULL, cp1r.x, cp1r.y, cp2r.x, cp2r.y, p1r.x, p1r.y);                       
+                    }
+                }
             }
             currentIndex += 3;
         } else {
-            p1 = [self coordinateAtIndex:currentIndex+1];
+            currentIndex ++;
+            p1 = [self coordinateAtIndex:currentIndex];
             if (stroke) {
                 CGPathAddLineToPoint(_path, NULL, p1.x, p1.y);    
+                if (_leftPath != NULL || _rightPath != NULL) {
+                    CGFloat a;
+                    a = [self currentAngle];
+                    CGPoint pt;
+                    if (_leftPath != NULL) {
+                        pt = translatePoint(p1, translateDistanceLeft, a + pi/2);
+                        CGPathAddLineToPoint(_leftPath, NULL, pt.x, pt.y);
+                    }
+                    if (_rightPath != NULL) {
+                        pt = translatePoint(p1, translateDistanceRight, a - pi/2);
+                        CGPathAddLineToPoint(_rightPath, NULL, pt.x, pt.y);
+                    }
+                }
             }
-            currentIndex ++;
         }
         atNextCornerPoint = ((currentIndex < _num_coords) && CORNERPOINT(currentIndex));
     }
     
-    if (!stroke && _path != NULL) {
-        CGPathMoveToPoint(_path, NULL, p1.x, p1.y);
+    if (!stroke) {
+        if (_path != NULL) {
+            CGPathMoveToPoint(_path, NULL, p1.x, p1.y);
+        }
+        if (_leftPath != NULL || _rightPath != NULL) {
+            CGFloat a = [self currentAngle];
+            CGPoint pt;
+
+            if (_leftPath != NULL) {
+                pt = translatePoint(p1, translateDistanceLeft, a + pi/2);
+                CGPathMoveToPoint(_leftPath, NULL, pt.x, pt.y);
+            }
+            if (_rightPath != NULL) {
+                pt = translatePoint(p1, translateDistanceRight, a - pi/2);
+                CGPathMoveToPoint(_rightPath, NULL, pt.x, pt.y);
+            }
+        }
     }
     
     return p1;
 }
+
+// 
+// Advance distances. These methods do not yet support double lines. That might be a lot of work. The main
+// reason why it isn't done is that I don't have a file with this feature to test on.
+//
 
 - (CGPoint)advanceDistance:(CGFloat)distance {
     return [self advanceDistance:distance stroke:NO];

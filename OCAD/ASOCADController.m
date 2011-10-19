@@ -659,13 +659,6 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     }
 }
 
-+ (NSPoint)translatePoint:(NSPoint)p distance:(float)distance angle:(float)angle {
-    NSPoint q;
-    q.x = p.x + cosf(angle)*distance;
-    q.y = p.y + sinf(angle)*distance;
-    return q;
-}
-
 // CATiledLayer delegate stuff. Also used by the quicklook plugin.
 // In the latter case, layer will be NULL.
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {

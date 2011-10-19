@@ -13,7 +13,6 @@
 
 - (NSArray *)cachedDrawingInfoForLineObject:(struct ocad_element *)e {
     struct ocad_line_symbol *line = (struct ocad_line_symbol *)(e->symbol);
-    int c;
 	
     NSDictionary *roadCache = nil;
     NSMutableArray *cachedData = [NSMutableArray arrayWithCapacity:10];
@@ -44,106 +43,26 @@
     }    
     
     CoordinateTransverser *ct = [[CoordinateTransverser alloc] initWith:e->nCoordinates coordinates:e->coords withPath:NULL];
+    if (line != NULL) {
+        ct.translateDistanceLeft = 0.5*((float)line->dbl_width) + 0.5*((float)line->dbl_left_width);
+        ct.translateDistanceRight = 0.5*((float)line->dbl_width) + 0.5*((float)line->dbl_right_width);
+    }
 
-    // TODO: convert this to use CoordinateTransverser. Will enable dashed double lines (e.g. roads under construction).
+    // TODO: support dashed double lines. Requires a suitable file to test on.
     if (line != NULL && (line->dbl_width != 0)) {
+        [ct reset];
+        
 		CGMutablePathRef left = CGPathCreateMutable();
 		CGMutablePathRef right = CGPathCreateMutable();
 		CGMutablePathRef road = CGPathCreateMutable();
         
-        CGPoint p0 = CGPointMake(e->coords[0].x >> 8, e->coords[0].y >> 8), p1;
-		CGPathMoveToPoint(road, NULL, p0.x, p0.y);
+        [ct setPath:road];
+        [ct setLeftPath:left];
+        [ct setRightPath:right];
         
-        // For each point
-        float angle = 0.0, thisAngle, nextangle;
-        float *angles = calloc(sizeof(float), e->nCoordinates);
-        int angleIndex = 0;
-       
-        for (c = 1; c < e->nCoordinates; c++) {
-            p1 = CGPointMake(e->coords[c].x >> 8, e->coords[c].y >> 8);
-            thisAngle = angle_between_points(p0, p1);
-            
-            if (angleIndex > 0) {
-                // We want to calculate the average between this angle and the last. If the angle "wraps"
-                // (i.e., one angle is very small and the other is near 2*pi), we cannot take the arithmetic average.
-                angles[angleIndex] = atan2f(sinf(thisAngle)+sinf(angles[angleIndex - 1]), cosf(thisAngle) + cosf(angles[angleIndex - 1]));
-            } else {
-                angles[angleIndex] = thisAngle;
-            }
-            
-            if (e->coords[c].x & 1) {
-                // Bezier curve.
-                CGPoint p2 = CGPointMake(e->coords[c + 1].x >> 8, e->coords[c + 1].y >> 8);
-                NSAssert(e->coords[c+1].x & 2, @"Next is not the second control point");
-                CGPoint p3 = CGPointMake(e->coords[c+2].x >> 8, e->coords[c+2].y >> 8);
-
-				CGPathAddCurveToPoint(road, NULL, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
-                c += 2;
-                // 3 coordinates consumed and 2 angles consumed.
-                p0 = p3;
-                angles[++angleIndex] = angle_between_points(p2, p3);
-            } else {
-                p0 = p1;
-				CGPathAddLineToPoint(road, NULL, p1.x, p1.y);
-            }
-            
-            angleIndex ++;
-        }
-        
-        // Get the angle to the next normal point. 
-        // Translate the point half the width to each side.
-        // Create the path to the next point in the normal manner.
-        // Be sure to watch for gaps in the left / right lines.
-        
-        float translateDistanceLeft = 0.5*((float)line->dbl_width) + 0.5*((float)line->dbl_left_width);
-        float translateDistanceRight = 0.5*((float)line->dbl_width) + 0.5*((float)line->dbl_right_width);
-        angleIndex = 0;
-		p1 = [[self class] translatePoint:NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8) distance:translateDistanceLeft angle:(angles[0] + pi/2)]; 
-		CGPathMoveToPoint(left, NULL, p1.x, p1.y);
-		p1 = [[self class] translatePoint:NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8) distance:translateDistanceRight angle:(angles[0] - pi/2)];
-		CGPathMoveToPoint(right, NULL, p1.x, p1.y);
-        
-        for (c = 1; c < e->nCoordinates; c++) {
-            angle = angles[angleIndex];
-            
-            p1 = NSMakePoint(e->coords[c].x >> 8, e->coords[c].y >> 8);
-            NSPoint p1l, p2l, p3l, p1r, p2r, p3r;
-            p1l = [[self class] translatePoint:p1 distance:translateDistanceLeft angle:(angle + pi/2)];
-            p1r = [[self class] translatePoint:p1 distance:translateDistanceRight angle:(angle - pi/2)];
-            
-            if (e->coords[c].x & 1) {
-                NSPoint p2 = NSMakePoint(e->coords[c + 1].x >> 8, e->coords[c + 1].y >> 8);
-                NSPoint p3 = NSMakePoint(e->coords[c+2].x >> 8, e->coords[c+2].y >> 8);
-
-                nextangle = angles[++angleIndex];
-                // Bezier curve.
-                p2l = [[self class] translatePoint:p2 distance:translateDistanceLeft angle:(nextangle + pi/2)];
-                p3l = [[self class] translatePoint:p3 distance:translateDistanceLeft angle:(nextangle + pi/2)];
-                p2r = [[self class] translatePoint:p2 distance:translateDistanceRight angle:(nextangle - pi/2)];
-                p3r = [[self class] translatePoint:p3 distance:translateDistanceRight angle:(nextangle - pi/2)];
-                
-                CGPathAddCurveToPoint(left, NULL, p1l.x, p1l.y, p2l.x, p2l.y, p3l.x, p3l.y);
-				CGPathAddCurveToPoint(right, NULL, p1r.x, p1r.y, p2r.x, p2r.y, p3r.x, p3r.y);
-                c += 2; // A total of 3 coordinates and 2 angles consumed.
-                
-            } else {
-                if (e->coords[c].x & 4) {
-					CGPathMoveToPoint(left, NULL, p1l.x, p1l.y);
-				} else {
-					CGPathAddLineToPoint(left, NULL, p1l.x, p1l.y);
-				}
-				
-                if (e->coords[c].y & 4) {
-					CGPathMoveToPoint(right, NULL, p1r.x, p1r.y);
-				} else {
-					CGPathAddLineToPoint(right, NULL, p1r.x, p1r.y);
-				}
-            }
-            angleIndex ++;
-        }
-
-        free(angles);
-        
+        do {
+            [ct advanceSegmentWhileStroking:YES];
+        } while (![ct endHasBeenReached]);
         
         if (line->dbl_flags > 0) {
             CGPathRef strokedRoad = CGPathCreateCopyByStrokingPath(road, NULL, (float)line->dbl_width, capStyle, joinStyle, 0.5*((float)line->dbl_width));
@@ -177,9 +96,6 @@
         
         [ct reset];
         [ct setPath:path];
-        
-        CGPoint p0 = [ct currentPoint];
-        CGPathMoveToPoint(path, NULL, p0.x, p0.y);
 
         if (line != NULL && line->main_gap != 0) { // A dashed line.
 

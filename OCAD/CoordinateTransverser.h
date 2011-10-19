@@ -19,6 +19,7 @@ CGFloat regular_distance_between_points(CGPoint p1, CGPoint p2);
 CGPoint bezierCurvePoint(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint p1);
 void splitBezier(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint p1, CGPoint *points);
 CGFloat angle_between_points(CGPoint p0, CGPoint p1);
+CGPoint translatePoint(CGPoint p, float distance, float angle);
 
 #define BEZIER_STEPS 100
 #define BEZIER_STEP 0.01
@@ -31,7 +32,15 @@ CGFloat angle_between_points(CGPoint p0, CGPoint p1);
     struct TDPoly *_coords;
     int _num_coords;
     CGMutablePathRef _path;
+    
+    CGMutablePathRef _leftPath;
+    CGMutablePathRef _rightPath;
+    
+    float translateDistanceLeft;
+    float translateDistanceRight;
 }
+@property(nonatomic,assign) float translateDistanceLeft;
+@property(nonatomic,assign) float translateDistanceRight;
 
 - (id)initWith:(int)num_coords coordinates:(struct TDPoly *)coords withPath:(CGMutablePathRef)path;
 - (BOOL)endHasBeenReached;
@@ -41,6 +50,8 @@ CGFloat angle_between_points(CGPoint p0, CGPoint p1);
 
 - (void)reset;
 - (void)setPath:(CGMutablePathRef)newPath;
+- (void)setLeftPath:(CGMutablePathRef)leftPath;
+- (void)setRightPath:(CGMutablePathRef)rightPath;
 
 - (CGPoint)coordinateAtIndex:(int)i;
 
