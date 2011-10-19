@@ -290,61 +290,6 @@
     
 	[self setNeedsDisplay:YES];
 }
-/*
-- (void)setZoom:(double)z {
-	// Calculate a new frame for us.
-	zoom = z;
-
-	[imageCaches removeAllObjects];
-	NSRect r = NSMakeRect(0.0, 0.0, mapBounds.size.width*z, mapBounds.size.height * z);
-	
-	NSAffineTransform *at = [NSAffineTransform transform];
-	
-    NSAffineTransformStruct ts;
-	
-	ts.m12 = 0.0; ts.m21 = 0.0;	
-	ts.tX = - NSMinX(mapBounds)*z;
-	ts.tY = - NSMinY(mapBounds)*z;
-	ts.m11 = z; ts.m22 = z;
-	[at setTransformStruct:ts];
-	self.currentTransform = at;
-	
-	[self setFrame:NSIntegralRect(r)];
-//	[self setNeedsDisplay:YES];
-}
-	*/
-/*
-- (void)setVisibleMapBounds:(NSRect)r {
-	NSSize b = [self bounds].size, ratios, v = r;
-	ratios = NSMakeSize(r.size.width / b.width, r.size.height / b.height);
-	if (ratios.height > ratios.width) {
-		// map is taller than the window.
-		v.size.height = v.size.width * ratios.height / ratios.width;
-		v.origin.y += 0.5*(r.size.height - v.size.height);
-	} else if (ratios.height < ratios.width) {
-		v.size.width = v.size.height * ratios.width / ratios.height;
-		v.origin.x + = 0.5*(r.size.width - v.size.width);
-	}
-	[mapProvider beginRenderingMapWithSize:b fromSourceRect:visibleMapBounds whenDone:^(NSImage *i) {
-		[self performSelectorOnMainThread:@selector(setCachedImage:) withObject:i waitUntilDone:YES];
-		_visibleMapBounds = v;
-		[self setNeedsDisplay:YES];
-	}];
-}
-
-- (void)visibleMapBounds {
-	return _visibleMapBounds;
-}*/
-/*
-
-- (void)setFrameSize:(NSSize)newSize {
-	[super setFrameSize:newSize];
-	[mapProvider beginRenderingMapWithPixelsPerMeter:_pixelsPerMeter fromSourceRect:mapBounds whenDone:^(NSImage *i) {
-		[self performSelectorOnMainThread:@selector(setCachedImage:) withObject:i waitUntilDone:YES];
-		[self setNeedsDisplay:YES];
-	}];
-}
-*/
 
 - (NSRect)convertRectFromMapCoordinates:(NSRect)r {
 	NSPoint p = r.origin;
@@ -367,33 +312,6 @@ static CGFloat randomFloat()
 {
 	return random() / (double)LONG_MAX;
 }
-
-// these methods would be better implemented by taking into account the scale
-// instead of always moving 10 on way or the other
-/*
-- (BOOL)acceptsFirstResponder {
-    return YES;
-}*/
-/*
-- (void)moveRight:(id)sender {
-    tiledLayer.position = CGPointMake(tiledLayer.position.x - 10.0f, 
-                                      tiledLayer.position.y);
-}
-
-- (void)moveLeft:(id)sender {
-    tiledLayer.position = CGPointMake(tiledLayer.position.x + 10.0f,
-                                      tiledLayer.position.y);
-}
-
-- (void)moveUp:(id)sender {
-    tiledLayer.position = CGPointMake(tiledLayer.position.x, 
-                                      tiledLayer.position.y - 10.0f);
-}
-
-- (void)moveDown:(id)sender {
-    tiledLayer.position = CGPointMake(tiledLayer.position.x, 
-                                      tiledLayer.position.y + 10.0f);
-}*/
 
 // CATiledLayer delegate stuff.
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
