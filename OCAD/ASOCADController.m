@@ -38,7 +38,6 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
 	// Cache contains:
 	// 		path - NSBezierPath
 	//		fillcolor - NSColor
-	//		strokecolor - NSColor
 	//		symbol - NSNumber (NSInteger)
 	//		angle - NSNumber (float)
     if ((self = [super init])) {
@@ -543,10 +542,11 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     CGColorRef color = [self colorWithNumber:rect->colors[0]];
     
     if (rect->line_width != 0) {
-        d = [NSDictionary dictionaryWithObjectsAndKeys:(id)color,@"strokeColor",
-             p, @"path",[NSNumber numberWithInt:rect->line_width], @"width", 
+        CGPathRef strokedPath = CGPathCreateCopyByStrokingPath(p, NULL, rect->line_width, kCGLineCapButt, kCGLineJoinBevel, 0.5*((float)rect->line_width));
+        d = [NSDictionary dictionaryWithObjectsAndKeys:(id)color,@"fillColor", strokedPath, @"path",
              [NSValue valueWithPointer:e], @"element", 
              [NSNumber numberWithInt:e->color], @"colornum", nil];
+        CGPathRelease(strokedPath);
     } else {
 		d = [NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", 
              p, @"path", 
@@ -583,13 +583,13 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
                 for (i = 1; i < se->ncoords; i++) {
 					CGPathAddLineToPoint(path, &at, se->points[i].x >> 8, se->points[i].y >> 8);
                 }
+                CGPathRef strokedPath = CGPathCreateCopyByStrokingPath(path, NULL, se->line_width, kCGLineCapButt, kCGLineJoinBevel, 0.5*((float)se->line_width));
 				
-                [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"strokeColor", 
-								  path, @"path", 
-								  [NSNumber numberWithInt:se->line_width], @"width",
+                [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", strokedPath, @"path", 
                                   [NSValue valueWithPointer:element], @"element",
                                   [NSNumber numberWithInt:se->color], @"colornum",
                                   nil]];
+                CGPathRelease(strokedPath);
                 break;
             case 2: /* Area */
 				CGPathMoveToPoint(path, &at, se->points[0].x >> 8, se->points[0].y >> 8);
@@ -611,11 +611,10 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
             case 4: /* Dot. */
 				CGPathAddEllipseInRect(path, &at, CGRectMake(-(se->diameter / 2) + (se->points[0].x >> 8), -(se->diameter / 2) + (se->points[0].y >> 8), se->diameter, se->diameter));
                 if (se->symbol_type == 3) {
-					[cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"strokeColor", 
-									  path, @"path", 
+                    CGPathRef strokedPath = CGPathCreateCopyByStrokingPath(path, NULL, se->line_width, kCGLineCapButt, kCGLineJoinBevel, 0.5*((float)se->line_width));
+					[cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", strokedPath, @"path", 
                                       [NSNumber numberWithInt:se->color], @"colornum",
-                                      [NSValue valueWithPointer:element], @"element",
-									  [NSNumber numberWithInt:se->line_width], @"width",nil]];
+                                      [NSValue valueWithPointer:element], @"element",nil]];
                 } else {
                     [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", path, @"path", 
                                       [NSNumber numberWithInt:se->color], @"colornum",
@@ -629,6 +628,7 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         se_index += nc + 2;
         se ++;
         se = (struct ocad_symbol_element *)(((struct TDPoly *)se) + nc);
+        CGPathRelease(path);
     }
     
     return cache;
