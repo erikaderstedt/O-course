@@ -1,0 +1,11 @@
+O-course är OCAD-kompatibelt banläggningsprogram. Det innehåller också klasser som kan användas till i princip vilket program som helst där man vill rita upp OCAD-filer och/eller ha information om banor och kontrollpunkter. Som exempel har jag tänkt mig:
+- En ersättare till Runoway byggd på Cappuccino, Openlayers och ASOCADController.
+- En app för fritidskartor till iPad.
+- Ett lokalt program för uppspelning av GPS-rutter, typ efter träning.
+- Ett program för storbildsskärmar på tävlingar (?).
+
+Se ASMapProvider.h för kontraktet mellan ASMapView och den klass som tillhandahåller kartan (bakgrundsbilden). Klassen bestäms av ASOcourseDocument. F.n. finns bara ASOCADController som map provider. Vi bör göra ytterligare en map provider för statiska bakgrundsbilder (typ jpg).
+
+ASOCADController läser först in hela OCAD-filen (via ocdimport.c). Därefter går den igenom alla objekt i filen och skapar en cache innehållandes f.f.a. en CGPathRef. Det gör att själva uppritningen blir enkel. Själva skapandet av cachen delas upp över flera trådar. Det finns några buggar i renderingen av kartan. I somras hittade jag purple-pen, som är ett open-source banläggningsprogram för PC skrivet i C#. Där kan man kika på hur den författaren tolkat vissa fält i OCAD. Detta kan vara till stöd om man försöker fixa dessa buggar.
+
+Från mitten av oktober kräver ASOCADController 10.7 / iOS 5.0. Det är CGPathCreateCopyByStrokingPath som gör detta, och den behövs för att hit-testa i kartan. Den gör också själva uppritningen mycket snabbare, eftersom det är snabbare att fylla en path än att "strokea" den. Eftersom vi fortfarande har ganska långt kvar till release är dessa rimliga systemkrav. Bygga för framtiden och allt det där...
