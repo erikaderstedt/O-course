@@ -37,6 +37,7 @@ CGFloat angle_between_points(CGPoint p0, CGPoint p1);
 - (BOOL)endHasBeenReached;
 - (BOOL)onFirstSegment;
 - (BOOL)onLastSegment;
+- (void)goToEnd;
 
 - (void)reset;
 - (void)setPath:(CGMutablePathRef)newPath;

@@ -333,20 +333,22 @@
         p0 = [ct coordinateAtIndex:0];
         p1 = [ct coordinateAtIndex:1];
         angle = angle_between_points(p0, p1);
-        [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)p
-                                                          atPoint:p0 
-                                                        withAngle:angle 
-                                                    totalDataSize:0
-                                                          element:e]];
-        
+        if ([ct atCornerPoint])
+            [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)p
+                                                              atPoint:p0 
+                                                            withAngle:angle 
+                                                        totalDataSize:0
+                                                              element:e]];
+        [ct goToEnd];
         p0 = [ct coordinateAtIndex:e->nCoordinates - 1];
         p1 = [ct coordinateAtIndex:e->nCoordinates - 2];
         angle = angle_between_points(p1, p0);
-        [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)p
-                                                          atPoint:p0 
-                                                        withAngle:angle 
-                                                    totalDataSize:0
-                                                           element:e]];
+        if ([ct atCornerPoint])
+            [cachedData addObjectsFromArray:[self cacheSymbolElements:(struct ocad_symbol_element *)p
+                                                              atPoint:p0 
+                                                            withAngle:angle 
+                                                        totalDataSize:0
+                                                              element:e]];
     }
     [ct release];
     

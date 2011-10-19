@@ -107,6 +107,11 @@ CGFloat angle_between_points(CGPoint p1, CGPoint p2) {
     return currentIndex >= _num_coords - 1;
 }
 
+- (void)goToEnd {
+    currentIndex = _num_coords - 1;
+    currentFraction = 0.0;
+}
+
 - (BOOL)onFirstSegment {
     return currentIndex == 0;
 }
