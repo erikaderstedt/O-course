@@ -345,8 +345,15 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         element = sortedCache[bestIndex]->element;
         return element->symnum / 1000;
     }
+ 
+    i = NSNotFound;
+    for (NSDictionary *background in backgroundImages) {
+        id <ASMapProvider> map = [background objectForKey:@"mapProvider"];
+        i = [map symbolNumberAtPosition:p];
+        if (i != NSNotFound) return i;
+    }
     
-    return 0;
+    return NSNotFound;
 }
 
 - (NSArray *)createCacheFromIndex:(NSInteger)start upToButNotIncludingIndex:(NSInteger)stop step:(NSInteger)step {
