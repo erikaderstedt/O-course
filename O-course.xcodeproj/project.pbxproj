@@ -18,6 +18,10 @@
 		032001E212FE9F1000707BA5 /* ocdimport.c in Sources */ = {isa = PBXBuildFile; fileRef = 032001E012FE9F1000707BA5 /* ocdimport.c */; };
 		033D6818134AF79C00502CA8 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 033D6817134AF79C00502CA8 /* QuartzCore.framework */; };
 		033D6874134B05D100502CA8 /* compass bezel.png in Resources */ = {isa = PBXBuildFile; fileRef = 033D6873134B05D100502CA8 /* compass bezel.png */; };
+		033DA8B1144EFFC600C787F8 /* ASGenericImageController.h in Headers */ = {isa = PBXBuildFile; fileRef = 033DA8AF144EFFC600C787F8 /* ASGenericImageController.h */; };
+		033DA8B2144EFFC600C787F8 /* ASGenericImageController.m in Sources */ = {isa = PBXBuildFile; fileRef = 033DA8B0144EFFC600C787F8 /* ASGenericImageController.m */; };
+		033DA8B3144EFFC600C787F8 /* ASGenericImageController.m in Sources */ = {isa = PBXBuildFile; fileRef = 033DA8B0144EFFC600C787F8 /* ASGenericImageController.m */; };
+		033DA8B7144F04BD00C787F8 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 033DA8B6144F04BD00C787F8 /* AppKit.framework */; };
 		0373FA6D1349A42C006E41C9 /* ASMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0373FA6C1349A42C006E41C9 /* ASMapView.m */; };
 		03A3525013B30F480028D87C /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 03A3524F13B30F480028D87C /* AppDelegate.m */; };
 		03A3526C13B31C5D0028D87C /* QuickLook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03A3526B13B31C5D0028D87C /* QuickLook.framework */; };
@@ -93,6 +97,10 @@
 		033D6817134AF79C00502CA8 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		033D6873134B05D100502CA8 /* compass bezel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "compass bezel.png"; sourceTree = "<group>"; };
 		033DA8A8144EF8E600C787F8 /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = SOURCE_ROOT; };
+		033DA8AF144EFFC600C787F8 /* ASGenericImageController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASGenericImageController.h; sourceTree = "<group>"; };
+		033DA8B0144EFFC600C787F8 /* ASGenericImageController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASGenericImageController.m; sourceTree = "<group>"; };
+		033DA8B4144F049D00C787F8 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		033DA8B6144F04BD00C787F8 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		0373FA6B1349A42C006E41C9 /* ASMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASMapView.h; sourceTree = "<group>"; };
 		0373FA6C1349A42C006E41C9 /* ASMapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASMapView.m; sourceTree = "<group>"; };
 		03A3524E13B30F480028D87C /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -143,6 +151,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				033DA8B7144F04BD00C787F8 /* AppKit.framework in Frameworks */,
 				03A3526C13B31C5D0028D87C /* QuickLook.framework in Frameworks */,
 				03A3526E13B31C5D0028D87C /* ApplicationServices.framework in Frameworks */,
 				03A3527013B31C5D0028D87C /* CoreServices.framework in Frameworks */,
@@ -158,6 +167,8 @@
 		032001AE12FE9EF900707BA5 = {
 			isa = PBXGroup;
 			children = (
+				033DA8B6144F04BD00C787F8 /* AppKit.framework */,
+				033DA8B4144F049D00C787F8 /* AppKit.framework */,
 				03AAFEC01443874D008567E3 /* Specs */,
 				033D6872134B05AE00502CA8 /* Resources */,
 				033D67D2134AE9B500502CA8 /* OCAD */,
@@ -205,6 +216,8 @@
 		032001C312FE9EF900707BA5 /* O-course */ = {
 			isa = PBXGroup;
 			children = (
+				033DA8AF144EFFC600C787F8 /* ASGenericImageController.h */,
+				033DA8B0144EFFC600C787F8 /* ASGenericImageController.m */,
 				03CE92A1142E6C06003EBECD /* MyDocumentController.h */,
 				03CE92A2142E6C06003EBECD /* MyDocumentController.m */,
 				03F2C76C142C81040053A47F /* Model objects */,
@@ -314,6 +327,7 @@
 				03A5113F13B7AE6000469BCF /* ASOCADController_Text.h in Headers */,
 				03A5114413B7AE9100469BCF /* ASOCADController_Area.h in Headers */,
 				03A5114913B7AF0E00469BCF /* ASOCADController_Line.h in Headers */,
+				033DA8B1144EFFC600C787F8 /* ASGenericImageController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -436,6 +450,7 @@
 				03F2C76B142C72600053A47F /* Project.m in Sources */,
 				03CE92A3142E6C06003EBECD /* MyDocumentController.m in Sources */,
 				03B90D3B14330A530033216D /* CoordinateTransverser.m in Sources */,
+				033DA8B2144EFFC600C787F8 /* ASGenericImageController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -452,6 +467,7 @@
 				03A5114613B7AE9100469BCF /* ASOCADController_Area.m in Sources */,
 				03A5114B13B7AF0E00469BCF /* ASOCADController_Line.m in Sources */,
 				03B90D3D143315A10033216D /* CoordinateTransverser.m in Sources */,
+				033DA8B3144EFFC600C787F8 /* ASGenericImageController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

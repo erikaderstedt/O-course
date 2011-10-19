@@ -8,6 +8,7 @@
 
 #import "ASOcourseDocument.h"
 #import "ASOCADController.h"
+#import "ASGenericImageController.h"
 #import "ASMapView.h"
 #import "Project.h"
 
@@ -76,17 +77,18 @@
     NSString *path = [[self project] valueForKey:@"map"];
     if (path == nil) {
         mapView.mapProvider = nil;
-    } else if ([[path pathExtension] isEqualToString:@"ocd"]) {
+    } else {
         if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
             // TODO: initiate a spotlight search to find the file.
             mapView.mapProvider = nil;
-        } else {
+        } else if ([[path pathExtension] isEqualToString:@"ocd"]) {
             ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:path];
             mapView.mapProvider = o;
             [o autorelease];
+        } else {
+            ASGenericImageController *i = [[ASGenericImageController alloc] initWithContentsOfFile:path];
+            mapView.mapProvider = i;
         }
-    } else {
-        NSAssert(0, @"Other background types aren't supported yet.");
     }
     
     [mapView mapLoaded];

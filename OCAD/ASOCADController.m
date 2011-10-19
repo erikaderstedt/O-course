@@ -13,6 +13,7 @@
 #import "ASOCADController_Text.h"
 #import "ASOCADController_Area.h"
 #import "ASOCADController_Line.h"
+#import "ASGenericImageController.h"
 
 #define PARALLELIZATION 2
 #define CONCURRENCY (1 << PARALLELIZATION)
@@ -228,7 +229,11 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
                     continue;
                 }
             } else {
-                NSLog(@"Background file %@ is not yet supported.", path);
+                ASGenericImageController *bg = [[ASGenericImageController alloc] initWithContentsOfFile:[basePath stringByAppendingPathComponent:path]];
+                if (bg != nil) {
+                    [backgroundImage setObject:bg forKey:@"mapProvider"];
+                    [bg release];
+                }
                 continue;
             }
         }
