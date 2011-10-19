@@ -18,7 +18,9 @@
     NSDictionary *roadCache = nil;
     NSMutableArray *cachedData = [NSMutableArray arrayWithCapacity:10];
     
-    if (e->nCoordinates == 0 || (line != NULL && line->status == 2 /* Hidden */)) {
+    if (e->nCoordinates == 0 || 
+        (line != NULL && line->status == 2 /* Hidden */) ||
+        (line != NULL && line->selected == 512 /* Also hidden ? */)) {
         return [NSArray array];
     }
     
@@ -282,7 +284,7 @@
     
     // Symbol elements along the line.
     // TODO: add support for main_gap.
-    if (line != NULL && line->prim_d_size) {
+    if (line != NULL && line->prim_d_size && (line->main_length != 0 || line->prim_sym_dist != 0)) {
         [ct reset];
         CGFloat all = [ct lengthOfEntirePath];
         if (all > 0) {
