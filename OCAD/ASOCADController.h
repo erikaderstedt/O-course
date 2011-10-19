@@ -24,15 +24,6 @@ struct ocad_cache {
 
 };
 
-struct applier_data {
-    BOOL success;
-    CGFloat lineWidth;
-    CGPoint point;
-    
-    CGPoint pathPoint;
-    BOOL started;
-};
-
 @interface ASOCADController : NSObject <ASMapProvider> {
 @private
     struct  ocad_cache *cachedDrawingInfo;
