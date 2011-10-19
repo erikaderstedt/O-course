@@ -253,12 +253,10 @@
 
 - (void)mapLoaded {
     
-    if (mapProvider != nil) {
+    if (self.mapProvider != nil) {
         [[self chooseButton] setHidden:YES];
         if (tiledLayer == nil) {
-            
-            mapBounds = [mapProvider mapBounds];
-            
+
             tiledLayer = [CATiledLayer layer];
             tiledLayer.name = @"tiled";
             tiledLayer.needsDisplayOnBoundsChange = YES;
@@ -270,12 +268,14 @@
             [tiledLayer retain];
             
             tiledLayer.anchorPoint = CGPointMake(0.0, 0.0);
-            tiledLayer.bounds = mapBounds;
             tiledLayer.position = CGPointMake(0.0, 0.0);
             
         }
+        mapBounds = [self.mapProvider mapBounds];
+        tiledLayer.bounds = mapBounds;
         tiledLayer.delegate = mapProvider;
         [[self layer] addSublayer:tiledLayer];
+        [tiledLayer setNeedsDisplayInRect:tiledLayer.bounds];
         
         // Calculate the initial zoom as the minimum zoom.
         minZoom = [self calculateMinimumZoomForFrame:[self frame]];
