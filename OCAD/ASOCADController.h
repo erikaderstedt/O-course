@@ -15,6 +15,7 @@ struct ocad_cache {
     CGRect      boundingBox;       // The path bounding box is cached because determining it is a fairly expensive operation.
     CGPathRef   path;              
     CGColorRef  fillColor;          // Fill color if the path is to be filled.
+    CGPathDrawingMode fillMode;
     CTFrameRef  frame;              // A text frame (text objects only).
     CGPoint     midpoint;           // The frame midpoint, about which rotations apply (text objects only).
     

@@ -461,6 +461,11 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         NSArray *items= [op result];
         for (NSDictionary *item in items) {
             cachedDrawingInfo[j].fillColor = (CGColorRef)[item objectForKey:@"fillColor"];
+            if ([item objectForKey:@"fillMode"]) {
+                cachedDrawingInfo[j].fillMode = (enum CGPathDrawingMode)[[item objectForKey:@"fillMode"] intValue];
+            } else {
+                cachedDrawingInfo[j].fillMode = kCGPathFill;
+            }
             cachedDrawingInfo[j].path = (CGPathRef)[item objectForKey:@"path"];
             cachedDrawingInfo[j].frame  =(CTFrameRef)[item objectForKey:@"frame"];
             cachedDrawingInfo[j].angle = [[item objectForKey:@"angle"] doubleValue];
@@ -686,6 +691,7 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         cache = sortedCache[i];
         CGPathRef path = cache->path;
         CGColorRef fillColor = cache->fillColor;
+        CGPathDrawingMode fillMode = cache->fillMode;
         CTFrameRef frame = cache->frame;
         CGRect bb = cache->boundingBox;
         if (CGRectIntersectsRect(bb, clipBox)) {
@@ -693,7 +699,11 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
             CGContextAddPath(ctx,path);
             if (fillColor != NULL) {
                 CGContextSetFillColorWithColor(ctx, fillColor);
-                CGContextEOFillPath(ctx);
+                if (fillMode == kCGPathEOFill) {
+                    CGContextEOFillPath(ctx);
+                } else {                    
+                    CGContextFillPath(ctx);
+                }
             }
             if (frame != NULL) {
                 CGContextSaveGState(ctx);
