@@ -11,6 +11,21 @@
 
 @implementation ASOCADController (ASOCADController_Line)
 
+- (void)traverse:(CoordinateTransverser *)ct distance:(float)length withSecondaryGapLength:(float)sec_gap {
+    if (sec_gap > 0.0) {
+        float d = 0.5*(length - sec_gap);
+        if (d < 0) {
+            [ct advanceDistance:length stroke:NO];
+        } else {
+            [ct advanceDistance:d stroke:YES];
+            [ct advanceDistance:sec_gap stroke:NO];
+            [ct advanceDistance:d stroke:YES];
+        }
+    } else {
+        [ct advanceDistance:length stroke:YES];
+    }
+}
+
 - (NSArray *)cachedDrawingInfoForLineObject:(struct ocad_element *)e {
     struct ocad_line_symbol *line = (struct ocad_line_symbol *)(e->symbol);
 	
@@ -18,14 +33,14 @@
     NSMutableArray *cachedData = [NSMutableArray arrayWithCapacity:10];
     
     if (e->nCoordinates == 0 || 
-        (line != NULL && line->status == 2 /* Hidden */) ||
+       // Höjder av hjälpkurvor, 103001, har status == 2. (line != NULL && line->status == 2 /* Hidden */) ||
         (line != NULL && line->selected == 512 /* Also hidden ? */)) {
         return [NSArray array];
     }
     
     CGLineCap capStyle = kCGLineCapButt;
     CGLineJoin joinStyle = kCGLineJoinBevel;
-    
+
     if (line != NULL) {
         switch (line->line_style) {
             case 0:
@@ -96,9 +111,9 @@
         
         [ct reset];
         [ct setPath:path];
-
+        
         if (line != NULL && line->main_gap != 0) { // A dashed line.
-
+    
             while (![ct endHasBeenReached]) {
                 
                 int total_gaps = 0, gaps;
@@ -109,6 +124,7 @@
                 float actual_dash_length;
                 float main_length = (float)line->main_length;
                 float main_gap = (float)line->main_gap;
+                float sec_gap = (float)line->sec_gap;
                 
                 // Get the distance to the next corner point.
                 distance_to_next_cornerpoint = [ct lengthOfCurrentSegment];
@@ -116,6 +132,7 @@
                     [ct advanceSegmentWhileStroking:NO];
                     continue;
                 }
+                
                 
                 // If we are at the start of the line, the first dash of the segment should be 'end-length'.
                 first_dash = [ct onFirstSegment]?line->end_length:line->main_length;
@@ -127,32 +144,36 @@
                 // dist = first + gaps*gap_length + (gaps-1)*dash_length + end. Solved for gaps.
                 gaps = ((int)roundf((distance_to_next_cornerpoint + main_length - first_dash - last_dash)/(main_length + main_gap)));
                 
+                if (gaps < 1) gaps = 1;
+                
                 // If the next corner point is the last coordinate, then we need to look at min_gap to know the number of gaps.
                 if ([ct onLastSegment] && line->min_sym != -1 && line->min_sym >= total_gaps) {
-                    gaps = line->min_sym + 1 - total_gaps;
+                    if (gaps < line->min_sym + 1 - total_gaps)
+                        gaps = line->min_sym + 1 - total_gaps;
                 }
                 
-                if (gaps < 1) {
-                    first_dash = distance_to_next_cornerpoint;
-                } else if (gaps == 1) {
+                if (gaps == 1) {
                     first_dash = last_dash = 0.5*(distance_to_next_cornerpoint - main_gap);
                 } else {
-                    // dist = first + gaps*gap_length + (gaps-1)*dash_length + end. Solved for the dash_length.
-                    actual_dash_length = (distance_to_next_cornerpoint - first_dash - last_dash - gaps*main_gap)/(gaps - 1);
+                    // dist = gaps*gap_length + (gaps+1)*dash_length . Solved for the dash_length.
+                    actual_dash_length = (distance_to_next_cornerpoint - gaps*main_gap)/(gaps + 1);
+                    first_dash = actual_dash_length;
+                    last_dash = actual_dash_length;
                 }
                 
                 total_gaps += gaps;
                 
                 // Ok, the calculation is done for this segment. Now traverse it.
                 int gaps_traversed;
-                [ct advanceDistance:first_dash stroke:YES];
+                // Insert secondary gaps into the middle of the dashes.
+                [self traverse:ct distance:first_dash withSecondaryGapLength:sec_gap];
                 for (gaps_traversed = 0; gaps_traversed < gaps; gaps_traversed++) {
                     [ct advanceDistance:main_gap stroke:NO];
                     if (gaps_traversed != gaps - 1) {
-                        [ct advanceDistance:actual_dash_length stroke:YES];
+                        [self traverse:ct distance:actual_dash_length withSecondaryGapLength:sec_gap];
                     }
                 }
-                [ct advanceDistance:last_dash stroke:YES];
+                [self traverse:ct distance:last_dash withSecondaryGapLength:sec_gap];
             }
       
         } else {
@@ -199,7 +220,6 @@
     } 
     
     // Symbol elements along the line.
-    // TODO: add support for main_gap.
     if (line != NULL && line->prim_d_size && (line->main_length != 0 || line->prim_sym_dist != 0)) {
         [ct reset];
         CGFloat all = [ct lengthOfEntirePath];
