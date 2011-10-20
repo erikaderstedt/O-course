@@ -99,7 +99,6 @@
 		033DA8A8144EF8E600C787F8 /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = SOURCE_ROOT; };
 		033DA8AF144EFFC600C787F8 /* ASGenericImageController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASGenericImageController.h; sourceTree = "<group>"; };
 		033DA8B0144EFFC600C787F8 /* ASGenericImageController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASGenericImageController.m; sourceTree = "<group>"; };
-		033DA8B4144F049D00C787F8 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		033DA8B6144F04BD00C787F8 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		0373FA6B1349A42C006E41C9 /* ASMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASMapView.h; sourceTree = "<group>"; };
 		0373FA6C1349A42C006E41C9 /* ASMapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASMapView.m; sourceTree = "<group>"; };
@@ -168,7 +167,6 @@
 			isa = PBXGroup;
 			children = (
 				033DA8B6144F04BD00C787F8 /* AppKit.framework */,
-				033DA8B4144F049D00C787F8 /* AppKit.framework */,
 				03AAFEC01443874D008567E3 /* Specs */,
 				033D6872134B05AE00502CA8 /* Resources */,
 				033D67D2134AE9B500502CA8 /* OCAD */,

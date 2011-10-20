@@ -275,10 +275,12 @@
         tiledLayer.bounds = mapBounds;
         tiledLayer.delegate = mapProvider;
         [[self layer] addSublayer:tiledLayer];
-        [tiledLayer setNeedsDisplayInRect:tiledLayer.bounds];
+        tiledLayer.contents = nil;
+        [tiledLayer setNeedsDisplay];
         
         // Calculate the initial zoom as the minimum zoom.
-        minZoom = [self calculateMinimumZoomForFrame:[self frame]];
+        NSRect cv = [[[self enclosingScrollView] contentView] frame];
+        minZoom = [self calculateMinimumZoomForFrame:cv];
         [self setZoom:minZoom*3.0];
     } else {
         [[self chooseButton] setHidden:NO];
