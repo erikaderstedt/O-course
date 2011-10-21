@@ -50,7 +50,7 @@
                 capStyle = kCGLineCapRound;
                 joinStyle = kCGLineJoinRound;
                 break;
-            case 2:
+            case 4:
                 capStyle = kCGLineCapButt;
                 joinStyle = kCGLineJoinMiter;
                 break;
