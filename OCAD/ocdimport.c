@@ -329,6 +329,8 @@ struct ocad_symbol *convert_ocad8_symbol(struct ocad8_symbol *source) {
     // Parse the color bitfield
     int j, k;
     dest->ncolors = 0;
+    dest->status = source->status;
+    dest->selected = source->selected;
     for (j = 0; j < 32; j++) {
         for (k = 0; k < 8; k++) {
             if (source->color_bitfield[j] & (1 << k)) {
