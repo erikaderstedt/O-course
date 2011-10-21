@@ -83,6 +83,7 @@
             mapView.mapProvider = nil;
         } else if ([[path pathExtension] isEqualToString:@"ocd"]) {
             ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:path];
+            [o prepareCacheWithAreaTransform:CGAffineTransformIdentity];
             mapView.mapProvider = o;
             [o autorelease];
         } else {

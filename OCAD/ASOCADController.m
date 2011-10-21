@@ -32,7 +32,10 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
 
 @implementation ASOCADController
 
-- (id)initWithOCADFile:(NSString *)path {
+@synthesize areaColorTransform;
+@synthesize ocadFilePath;
+
+- (id)initWithOCADFile:(NSString *)_path {
 	// Load the ocad file.
 	// Go through each type of object and get the resulting paths.
 	// Add them to the cache
@@ -48,14 +51,14 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
             ocdf = NULL;
         }
         
-        if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
+        if (![[NSFileManager defaultManager] fileExistsAtPath:_path]) {
             return nil;
         }
         
         ocdf = calloc(sizeof(struct ocad_file), 1);
         
         // Load the OCD file.
-        load_file(ocdf, [path cStringUsingEncoding:NSUTF8StringEncoding]);
+        load_file(ocdf, [_path cStringUsingEncoding:NSUTF8StringEncoding]);
         load_symbols(ocdf);
         load_objects(ocdf);
         load_strings(ocdf);
@@ -66,15 +69,21 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         
         currentBox = ocdf->bbox;
         
-        [self createAreaSymbolColors];
-        [self createCache];
-        
-        [self loadBackgroundImagesRelativeToPath:[path stringByDeletingLastPathComponent]];
+        self.ocadFilePath = _path;
 
-        free(ocdf);
-        ocdf = NULL;
     }
     return self;
+}
+
+- (void)prepareCacheWithAreaTransform:(CGAffineTransform)transform {
+    self.areaColorTransform = transform;
+    [self createAreaSymbolColors];
+    [self createCache];        
+
+    [self loadBackgroundImagesRelativeToPath:[self.ocadFilePath stringByDeletingLastPathComponent]];
+    
+    free(ocdf);
+    ocdf = NULL;
 }
 
 - (void)parseColors {
@@ -211,25 +220,26 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         if (ocdf->string_rec_types[i] != 8) continue;
 
         NSArray *a = [[NSString stringWithCString:ocdf->strings[i] encoding:NSISOLatin1StringEncoding] componentsSeparatedByString:@"\t"];
-        NSString *path = [a objectAtIndex:0];
+        NSString *backgroundFileName = [a objectAtIndex:0];
         
         NSMutableDictionary *backgroundImage = [NSMutableDictionary dictionaryWithCapacity:10];
         
-        if (![[NSFileManager defaultManager] fileExistsAtPath:[basePath stringByAppendingPathComponent:path]]) {
+        if (![[NSFileManager defaultManager] fileExistsAtPath:[basePath stringByAppendingPathComponent:backgroundFileName]]) {
             // Initiate a Spotlight search for the file.
             // Handle the result 'lazily'
         } else {
             
-            if ([[path pathExtension] isEqualToString:@"ocd"] ) {
-                ASOCADController *map = [[ASOCADController alloc] initWithOCADFile:[basePath stringByAppendingPathComponent:path]];
+            if ([[backgroundFileName pathExtension] isEqualToString:@"ocd"] ) {
+                ASOCADController *map = [[ASOCADController alloc] initWithOCADFile:[basePath stringByAppendingPathComponent:backgroundFileName]];
                 if (map != nil) {
+                    [map prepareCacheWithAreaTransform:self.areaColorTransform];
                     [backgroundImage setObject:map forKey:@"mapProvider"];
                     [map release];
                 } else {
                     continue;
                 }
             } else {
-                ASGenericImageController *bg = [[ASGenericImageController alloc] initWithContentsOfFile:[basePath stringByAppendingPathComponent:path]];
+                ASGenericImageController *bg = [[ASGenericImageController alloc] initWithContentsOfFile:[basePath stringByAppendingPathComponent:backgroundFileName]];
                 if (bg != nil) {
                     [backgroundImage setObject:bg forKey:@"mapProvider"];
                     [bg release];
@@ -260,6 +270,8 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
 }
 
 - (void)dealloc {
+    [ocadFilePath release];
+    
     [structureColors release];
     [hatchColors release];
     [secondaryHatchColors release];
@@ -308,7 +320,7 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
 	BOOL firstSet = NO;
     int i;
     
-	if (cachedDrawingInfo == NULL) return CGRectZero;
+	if (cachedDrawingInfo == NULL) return CGRectMake(currentBox.lower_left.x >> 8, currentBox.lower_left.y >> 8, (currentBox.upper_right.x >> 8) - (currentBox.lower_left.x >> 8), (currentBox.upper_right.y >> 8) - (currentBox.lower_left.y >> 8));
 	
     for (i = num_cached_objects - 1; i >= 0; i--) {        
 		thePath = (CGPathRef)cachedDrawingInfo[i].path;
@@ -323,6 +335,7 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
             }
 		}
 	}
+
 	return wholeMap;
 }
 

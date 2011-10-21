@@ -172,17 +172,10 @@ void load_objects(struct ocad_file *f) {
     i = f->header->objectindex;
     j = 0;
     
-    if (f->num_objects == 0) {
-        r.lower_left.x = 0;
-        r.lower_left.y = 0;
-        r.upper_right.x = 0;
-        r.upper_right.y = 0;
-    } else {
-        r.lower_left.x = 1e30;
-        r.lower_left.y = 1e30;
-        r.upper_right.x = -1e30;
-        r.upper_right.y = -1e30;
-    }
+    r.lower_left.x = 1e30;
+    r.lower_left.y = 1e30;
+    r.upper_right.x = -1e30;
+    r.upper_right.y = -1e30;
     
     if (version8) {
         while (i != 0) {
@@ -217,17 +210,19 @@ void load_objects(struct ocad_file *f) {
                 struct ocad_object_index *objindex = &(b->indices[k]);
                 if (objindex->status != 1) continue;
                 
-                if (r.lower_left.x > objindex->rc.lower_left.x) r.lower_left.x = objindex->rc.lower_left.x;
-                if (r.lower_left.y > objindex->rc.lower_left.y) r.lower_left.y = objindex->rc.lower_left.y;
-                if (r.upper_right.x < objindex->rc.upper_right.x) r.upper_right.x = objindex->rc.upper_right.x;
-                if (r.upper_right.y < objindex->rc.upper_right.y) r.upper_right.y = objindex->rc.upper_right.y;
-
                 element = (struct ocad_element *)((f->data) + (objindex->position));
-                if (objindex->status != 1 || element->symnum == 0) {
+                if (element->symnum == 0) {
                     element->obj_type = ocad_hidden_object;
                 } else {
                     element->symbol = symbol_by_number(f, element->symnum);
+                    if (element->symbol != NULL && element->symbol->selected != 512) {
+                        if (r.lower_left.x > objindex->rc.lower_left.x) r.lower_left.x = objindex->rc.lower_left.x;
+                        if (r.lower_left.y > objindex->rc.lower_left.y) r.lower_left.y = objindex->rc.lower_left.y;
+                        if (r.upper_right.x < objindex->rc.upper_right.x) r.upper_right.x = objindex->rc.upper_right.x;
+                        if (r.upper_right.y < objindex->rc.upper_right.y) r.upper_right.y = objindex->rc.upper_right.y;
+                    }
                 }
+
                 f->elements[j++] = element;                
             }
             

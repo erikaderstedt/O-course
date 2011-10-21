@@ -37,15 +37,16 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
     CGFloat scalingFactor;
     scalingFactor = ((r.size.height/requestedHeight > r.size.width/requestedWidth)?(r.size.height/requestedHeight):(r.size.width/requestedWidth));
     CGSize previewSize = CGSizeMake(r.size.width / scalingFactor, r.size.height / scalingFactor);
-    
+ 
+    CGAffineTransform t = CGAffineTransformMake(1.0/scalingFactor, 0.0, 0.0, 1.0/scalingFactor, -CGRectGetMinX(r)/scalingFactor, -CGRectGetMinY(r)/scalingFactor);
+    if (!QLPreviewRequestIsCancelled(preview)) {
+        [ocad prepareCacheWithAreaTransform:t];
+    }
+
     // Since we're halfway (having loaded the file, but not drawn anything), we check
     // to see if we are cancelled.
-    if (!QLPreviewRequestIsCancelled(preview)) {
+    if (!QLPreviewRequestIsCancelled(preview)) {        
         CGContextRef ctx = QLPreviewRequestCreateContext(preview, previewSize, true, NULL);
-        
-        // Set up a transform
-        CGAffineTransform t = CGAffineTransformMake(1.0/scalingFactor, 0.0, 0.0, 1.0/scalingFactor, -CGRectGetMinX(r)/scalingFactor, -CGRectGetMinY(r)/scalingFactor);
-        
         CGContextConcatCTM(ctx, t);
         CGFloat white[4] = {1.0,1.0,1.0,1.0};
         CGContextSetFillColor(ctx, white);

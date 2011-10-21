@@ -1,6 +1,8 @@
 build
 O-course.xcodeproj/*
 !O-course.xcodeproj/project.pbxproj
+!O-course.xcodeproj/xcshareddata
+!O-course.xcodeproj/xcshareddata/*
 .DS_Store
 
 

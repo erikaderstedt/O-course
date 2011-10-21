@@ -34,14 +34,15 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
     scalingFactor = ((r.size.height/maxSize.height > r.size.width/maxSize.width)?(r.size.height/maxSize.height):(r.size.width/maxSize.width)) / 2048.0;
     
     CGSize thumbnailSize = CGSizeMake(r.size.width / scalingFactor, r.size.height / scalingFactor);
+    CGAffineTransform t = CGAffineTransformMake(1.0/scalingFactor, 0.0, 0.0, 1.0/scalingFactor, -CGRectGetMinX(r)/scalingFactor, -CGRectGetMinY(r)/scalingFactor);
     
     // Since we're halfway (having loaded the file, but not drawn anything), we check
     // to see if we are cancelled.
     if (!QLThumbnailRequestIsCancelled(thumbnail)) {
+        [ocad prepareCacheWithAreaTransform:t];
+    }
+    if (!QLThumbnailRequestIsCancelled(thumbnail)) {
         CGContextRef ctx = QLThumbnailRequestCreateContext(thumbnail, thumbnailSize, true, nil);
-        
-        // Set up a transform
-        CGAffineTransform t = CGAffineTransformMake(1.0/scalingFactor, 0.0, 0.0, 1.0/scalingFactor, -CGRectGetMinX(r)/scalingFactor, -CGRectGetMinY(r)/scalingFactor);
         
         CGContextConcatCTM(ctx, t);
         CGFloat white[4] = {1.0,1.0,1.0,1.0};

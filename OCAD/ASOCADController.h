@@ -50,9 +50,16 @@ struct ocad_cache {
     BOOL        brownActivated;
 
     NSMutableArray *backgroundImages;
-
+    
+    CGAffineTransform areaColorTransform;
+    NSString *ocadFilePath;
 }
+@property(nonatomic,assign) CGAffineTransform areaColorTransform;
+@property(nonatomic,retain) NSString *ocadFilePath;
+
 - (id)initWithOCADFile:(NSString *)path;
+- (void)prepareCacheWithAreaTransform:(CGAffineTransform)transform;
+
 - (void)loadBackgroundImagesRelativeToPath:(NSString *)basePath;
 - (void)parseColors;
 - (CGColorRef)colorWithNumber:(int)color_number;
