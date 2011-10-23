@@ -159,8 +159,6 @@
     struct ocad_symbol_element *se = (struct ocad_symbol_element *)(a->coords);
     CGAffineTransform transform = self.areaColorTransform;
 
-    // Assume that there is only one symbol element. I'm not sure how they would repeat otherwise.
-    NSAssert(a->data_size == se->ncoords + 2, @"Invalid number of coordinates! Is there more than one symbol element for this area symbol?");
     NSAssert(a->structure_mode == 1 || a->structure_mode == 2, @"Invalid structure mode!");
 
     pRect = CGRectMake(-0.5*((CGFloat)a->structure_width), -0.5*((CGFloat)a->structure_height), a->structure_width, a->structure_height);
