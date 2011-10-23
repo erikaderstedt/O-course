@@ -10,6 +10,8 @@
 #import "ASMapProvider.h"
 #import <QuartzCore/QuartzCore.h>
 
+#define MAX_ZOOM 1.5
+
 // The map view has several heavy tasks.
 // 1. Show the background map.
 //	  The ASMapProvider

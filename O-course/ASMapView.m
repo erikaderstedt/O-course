@@ -184,6 +184,7 @@
     p = [self convertPoint:p fromView:nil];
     p = NSPointFromCGPoint([tiledLayer convertPoint:NSPointToCGPoint(p) fromLayer:[self layer]]);
 
+    NSLog(@"Clicked symbol number: %ld", [mapProvider symbolNumberAtPosition:p]);
 }
 
 - (BOOL)isOpaque {
@@ -215,7 +216,7 @@
     NSRect v = [cv documentVisibleRect ], f;
     CGPoint midpointBefore, midpointAfter, tentativeNewOrigin, pointInMapCoordinates;
 	
-    if (zoom > 3.0) zoom = 3.0;
+    if (zoom > MAX_ZOOM) zoom = MAX_ZOOM;
     if (zoom < minZoom) zoom = minZoom;
     
 	[CATransaction begin];
@@ -263,7 +264,7 @@
             tiledLayer.backgroundColor = CGColorCreateGenericRGB(1.0, 1.0, 1.0, 1.0);
             tiledLayer.tileSize = CGSizeMake(512.0, 512.0);
             
-            tiledLayer.levelsOfDetail = 15;
+            tiledLayer.levelsOfDetail = 7;
             tiledLayer.levelsOfDetailBias = 2;
             [tiledLayer retain];
             
