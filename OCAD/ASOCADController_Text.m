@@ -28,6 +28,7 @@
         buffer[i] = 0;
         input_string = buffer;
     }
+    
     NSString *string = [NSString stringWithCString:input_string encoding:NSASCIIStringEncoding];
     
     // Load the font name and size.
@@ -37,7 +38,9 @@
     NSString *fontName = [NSString stringWithCString:rawBuffer encoding:NSASCIIStringEncoding];
 
     // Die, Arial, die!
-    fontName = [fontName stringByReplacingOccurrencesOfString:@"Arial" withString:@"Helvetica"];
+    if ([fontName isEqualToString:@"Arial"]) {
+        fontName = @"Helvetica";
+    }
     
     CGFloat fontSize = ((CGFloat)text->fontsize)*conversionFactor;
 
@@ -139,25 +142,6 @@
     pss[i].valueSize = sizeof(CGFloat);
     pss[i].value = &minLineHeight;
     i++;
-    /*
-    CGFloat paraspacing = 0.0;
-    pss[i].spec = kCTParagraphStyleSpecifierParagraphSpacing;
-    pss[i].valueSize = sizeof(CGFloat);
-    pss[i].value = &paraspacing;
-    i++;
-    
-    CGFloat paraspacingBefore = ((CGFloat)(text->linespacing))/conversionFactor - (CGFontGetCapHeight(font)) /conversionFactor; ///(72.0/2.54/10);
-    pss[i].spec = kCTParagraphStyleSpecifierParagraphSpacingBefore;
-    pss[i].valueSize = sizeof(CGFloat);
-    pss[i].value = &paraspacingBefore;
-    i++;*/
-  /*  
-    CGFloat leading = paraspacingBefore;
-    pss[i].spec = kCTParagraphStyleSpecifierLineSpacingAdjustment;
-    pss[i].valueSize = sizeof(CGFloat);
-    pss[i].value = &leading;
-    i++; 
-*/
     
     CTParagraphStyleRef pstyle = CTParagraphStyleCreate(pss, i);
     
@@ -171,7 +155,6 @@
     CFRelease(pstyle);
     
     CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(attrString);
-    CFRelease(attrString);
     
     CGMutablePathRef p = CGPathCreateMutable();
     CGRect r;
@@ -213,7 +196,7 @@
         int xmin, xmax, ymin, ymax;
         xmin = xmax = e->coords[0].x >> 8;
         ymin = ymax = e->coords[0].y >> 8;
-        for (i = 1; i < e->nCoordinates; i++) {
+        for (i = 1; i < e->nCoordinates && i < 4; i++) {
             x = e->coords[i].x >> 8;
             y = e->coords[i].y >> 8;
             if (x < xmin) xmin = x;
@@ -223,25 +206,27 @@
         }
         r.origin.x = xmin;
         r.origin.y = ymin;
-        if (text->alignment == 0)
-            r.size.width = (xmax-xmin) * 1.0;
+        r.size.width = (xmax-xmin) * 1.0;
         r.size.height = ymax-ymin;
         
     }
-    /*
-     OCAD 8 and 9 only support alignment 0 to 3. 
-     TODO: implement this properly.
+
     if (text->alignment <= 3) {
         // Bottom align.
         CFRange fitRange;
+        r.size.height = HUGE_VALF; 
         CGSize sz = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), NULL, r.size, &fitRange);
-        r.size.height = sz.height;
+        r.size.height = sz.height+1.0;
     }
-     */
-
+     
     CGPathAddRect(p, NULL, r);
 
     CTFrameRef frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0,0), p, NULL);
+    CFRange stringRange = CTFrameGetVisibleStringRange(frame);
+    if (stringRange.length != CFAttributedStringGetLength(attrString)) {
+        NSLog(@"Could not display entire string '%@'", string);
+    }
+    CFRelease(attrString);
     CFRelease(framesetter);
     
     CFRelease(font);
