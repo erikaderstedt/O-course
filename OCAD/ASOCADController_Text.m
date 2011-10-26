@@ -31,26 +31,42 @@
     NSString *string = [NSString stringWithCString:input_string encoding:NSASCIIStringEncoding];
     
     // Load the font name and size.
+    CGFloat conversionFactor = (2.54/72.0)*100.0;
     rawBuffer = text->fontname;
+    rawBuffer[text->fontnamelength] = 0;
     NSString *fontName = [NSString stringWithCString:rawBuffer encoding:NSASCIIStringEncoding];
-    CGFloat fontSize = ((CGFloat)text->fontsize)*72.0/2.54 / 10.0;
-    if (text->weight == 700) fontName = [fontName stringByAppendingString:@" Bold"];
+
+    // Die, Arial, die!
+    fontName = [fontName stringByReplacingOccurrencesOfString:@"Arial" withString:@"Helvetica"];
     
-    CTFontRef font = CTFontCreateWithName((CFStringRef)fontName, fontSize, NULL);
+    CGFloat fontSize = ((CGFloat)text->fontsize)*conversionFactor;
+
+    // We need to shrink the font size a bit to fit within the tight bounding rectangles of some text objects.
+    CTFontRef font = CTFontCreateWithName((CFStringRef)fontName, fontSize*0.95, NULL);
     if (font == NULL) {
         NSLog(@"Replacing '%@' with Lucida Grande", fontName);
         font = CTFontCreateWithName(CFSTR("Lucida Grande"), fontSize, NULL);
     }
     if (text->italic) {
         CTFontRef oldFont = font;
-        font = CTFontCreateCopyWithSymbolicTraits(oldFont, fontSize, NULL, kCTFontItalicTrait, kCTFontItalicTrait);
+        font = CTFontCreateCopyWithSymbolicTraits(oldFont, 0.0, NULL, kCTFontItalicTrait, kCTFontItalicTrait);
+        if (font != NULL) {
+            CFRelease(oldFont);
+        } else {
+            font = oldFont;
+        }
+    }    
+    if (text->weight == 700) {
+        CTFontRef oldFont = font;
+        font = CTFontCreateCopyWithSymbolicTraits(oldFont, 0.0, NULL, kCTFontBoldTrait, kCTFontBoldTrait);
         if (font != NULL) {
             CFRelease(oldFont);
         } else {
             font = oldFont;
         }
     }
-    string = [string stringByReplacingOccurrencesOfString:@"\r\n" withString:@"\r"];
+
+    string = [string stringByReplacingOccurrencesOfString:@"\r\n" withString:@"\n"];
     
     CTParagraphStyleSetting pss[20];
     CTTextAlignment align = kCTLeftTextAlignment;
@@ -86,14 +102,14 @@
     
     CGFloat indent_first;
     pss[i].spec = kCTParagraphStyleSpecifierFirstLineHeadIndent;
-    indent_first = text->indent_first;
+    indent_first = text->indent_first * conversionFactor;
     pss[i].valueSize = sizeof(CGFloat);
     pss[i].value = &indent_first;
     i++;
     
     CGFloat indent_other;
     pss[i].spec = kCTParagraphStyleSpecifierHeadIndent;
-    indent_other = text->indent_other;
+    indent_other = text->indent_other * conversionFactor;
     pss[i].valueSize = sizeof(CGFloat);
     pss[i].value = &indent_other;
     i++;
@@ -101,7 +117,7 @@
     int j = 0;
     CTTextTabRef tabArray[32];
     for (j = 0; j < text->number_of_tabs; j++) {
-        CTTextTabRef tt = CTTextTabCreate(kCTLeftTextAlignment, ((CGFloat)text->tabs[j]) + 80.0, NULL);
+        CTTextTabRef tt = CTTextTabCreate(kCTLeftTextAlignment, ((CGFloat)text->tabs[j]), NULL);
         tabArray[j] = tt;
     }
     CFArrayRef tabs = CFArrayCreate(NULL, (const void**) tabArray, text->number_of_tabs, NULL);
@@ -112,35 +128,36 @@
         i++;
     }
 
-    CGFloat maxLineHeight = ((CGFloat)(text->linespacing)) *2.07; // TODO: fix this magic number.
+    CGFloat maxLineHeight = fontSize * ((CGFloat)(text->linespacing))/100.0;
     pss[i].spec = kCTParagraphStyleSpecifierMaximumLineHeight;
     pss[i].valueSize = sizeof(CGFloat);
     pss[i].value = &maxLineHeight;
-    i++;
+    i++; 
     
     CGFloat minLineHeight = maxLineHeight;
     pss[i].spec = kCTParagraphStyleSpecifierMinimumLineHeight;
     pss[i].valueSize = sizeof(CGFloat);
     pss[i].value = &minLineHeight;
     i++;
-    
+    /*
     CGFloat paraspacing = 0.0;
     pss[i].spec = kCTParagraphStyleSpecifierParagraphSpacing;
     pss[i].valueSize = sizeof(CGFloat);
     pss[i].value = &paraspacing;
     i++;
     
-    CGFloat paraspacingBefore = 0.0;
+    CGFloat paraspacingBefore = ((CGFloat)(text->linespacing))/conversionFactor - (CGFontGetCapHeight(font)) /conversionFactor; ///(72.0/2.54/10);
     pss[i].spec = kCTParagraphStyleSpecifierParagraphSpacingBefore;
     pss[i].valueSize = sizeof(CGFloat);
     pss[i].value = &paraspacingBefore;
-    i++;
-    
-    CGFloat leading = 0.0;
-    pss[i].spec = kCTParagraphStyleSpecifierLineSpacing;
+    i++;*/
+  /*  
+    CGFloat leading = paraspacingBefore;
+    pss[i].spec = kCTParagraphStyleSpecifierLineSpacingAdjustment;
     pss[i].valueSize = sizeof(CGFloat);
     pss[i].value = &leading;
-    i++;
+    i++; 
+*/
     
     CTParagraphStyleRef pstyle = CTParagraphStyleCreate(pss, i);
     
@@ -156,7 +173,6 @@
     CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(attrString);
     CFRelease(attrString);
     
-
     CGMutablePathRef p = CGPathCreateMutable();
     CGRect r;
     
@@ -193,7 +209,6 @@
             
         CGPathRelease(p);
         p = CGPathCreateMutable();
-        CGPathAddRect(p, NULL, r);
     } else {  
         int xmin, xmax, ymin, ymax;
         xmin = xmax = e->coords[0].x >> 8;
@@ -212,10 +227,20 @@
             r.size.width = (xmax-xmin) * 1.0;
         r.size.height = ymax-ymin;
         
-        r.origin.y += ((CGFloat)text->paraspacing)*2.07;
-        
-        CGPathAddRect(p, NULL, r);
     }
+    /*
+     OCAD 8 and 9 only support alignment 0 to 3. 
+     TODO: implement this properly.
+    if (text->alignment <= 3) {
+        // Bottom align.
+        CFRange fitRange;
+        CGSize sz = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), NULL, r.size, &fitRange);
+        r.size.height = sz.height;
+    }
+     */
+
+    CGPathAddRect(p, NULL, r);
+
     CTFrameRef frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0,0), p, NULL);
     CFRelease(framesetter);
     
