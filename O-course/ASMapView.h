@@ -8,6 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "ASMapProvider.h"
+#import "ASOverprintProvider.h"
 #import <QuartzCore/QuartzCore.h>
 
 #define MAX_ZOOM 1.5
@@ -39,6 +40,8 @@
 
 @interface ASMapView : NSView {
 	id <ASMapProvider> mapProvider;
+    id <ASOverprintProvider> overprintProvider;
+    
 	NSAffineTransform *currentTransform;
 	CGRect mapBounds;
 

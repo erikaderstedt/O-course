@@ -11,9 +11,14 @@
 #import "ASGenericImageController.h"
 #import "ASMapView.h"
 #import "Project.h"
+#import "ASOverprintProvider.h"
+
+#import "ASOverprintController.h"
+#import "ASCourseController.h"
 
 @implementation ASOcourseDocument
 @synthesize mapView;
+@synthesize overprintController, courseController;
 
 - (id)initWithType:(NSString *)type error:(NSError **)error {
     self = [super initWithType:type error:error];
@@ -99,6 +104,8 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateMap:) name:@"ASMapChangedNotification" object:[self managedObjectContext]];
     
     [self updateMap:nil];
+    
+    [courseController willAppear];
 }
 
 - (void)dealloc {

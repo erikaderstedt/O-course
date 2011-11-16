@@ -184,7 +184,12 @@
     p = [self convertPoint:p fromView:nil];
     p = NSPointFromCGPoint([tiledLayer convertPoint:NSPointToCGPoint(p) fromLayer:[self layer]]);
 
-    NSLog(@"Clicked symbol number: %ld", [mapProvider symbolNumberAtPosition:p]);
+    NSInteger i = [mapProvider symbolNumberAtPosition:p];
+    if (i != NSNotFound) {
+        NSLog(@"Clicked symbol number: %ld", i);
+    } else {
+        NSLog(@"No symbol there.");
+    }
 }
 
 - (BOOL)isOpaque {
@@ -320,6 +325,7 @@ static CGFloat randomFloat()
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
     if (layer == tiledLayer) {
         [mapProvider drawLayer:layer inContext:ctx];
+        [overprintProvider drawLayer:layer inContext:ctx];
     }
 }
 
