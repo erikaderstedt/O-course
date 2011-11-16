@@ -70,6 +70,8 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         currentBox = ocdf->bbox;
         
         self.ocadFilePath = _path;
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(queryResultsUpdated:) name:NSMetadataQueryDidUpdateNotification object:nil];
 
     }
     return self;
@@ -215,18 +217,31 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     int i;
     
     backgroundImages = [[NSMutableArray alloc] initWithCapacity:5];
+    if (spotlightQueries != nil) [spotlightQueries release];
+    spotlightQueries = [[NSMutableArray alloc] initWithCapacity:5];
     
     for (i = 0; i < ocdf->num_strings; i++) {
         if (ocdf->string_rec_types[i] != 8) continue;
 
         NSArray *a = [[NSString stringWithCString:ocdf->strings[i] encoding:NSISOLatin1StringEncoding] componentsSeparatedByString:@"\t"];
         NSString *backgroundFileName = [a objectAtIndex:0];
-        
+        if ([backgroundFileName rangeOfString:@"\\"].location != NSNotFound) {
+            backgroundFileName = [[backgroundFileName componentsSeparatedByString:@"\\"] lastObject];
+        } else {
+            backgroundFileName = [backgroundFileName lastPathComponent];
+        }
+
         NSMutableDictionary *backgroundImage = [NSMutableDictionary dictionaryWithCapacity:10];
         
         if (![[NSFileManager defaultManager] fileExistsAtPath:[basePath stringByAppendingPathComponent:backgroundFileName]]) {
             // Initiate a Spotlight search for the file.
             // Handle the result 'lazily'
+            NSMetadataQuery *query = [[NSMetadataQuery alloc] init];
+            [query setDelegate:self];
+            [query setPredicate:[NSPredicate predicateWithFormat:@"name == %@", backgroundFileName]];
+            [query setSearchScopes:[NSArray arrayWithObject:NSMetadataQueryUserHomeScope]];
+            [spotlightQueries addObject:query];
+            [query release];
         } else {
             
             if ([[backgroundFileName pathExtension] isEqualToString:@"ocd"] ) {
@@ -267,9 +282,18 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
          */
         [backgroundImages addObject:backgroundImage];
     }
+    
+    for (NSMetadataQuery *q in spotlightQueries) {
+        [q startQuery];
+    }
 }
 
-- (void)dealloc {
+- (void)dealloc { 
+    for (NSMetadataQuery *q in spotlightQueries) {
+        [q stopQuery];
+    }
+    [spotlightQueries release];
+    
     [ocadFilePath release];
     
     [structureColors release];

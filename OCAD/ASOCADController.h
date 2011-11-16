@@ -50,6 +50,7 @@ struct ocad_cache {
     BOOL        brownActivated;
 
     NSMutableArray *backgroundImages;
+    NSMutableArray *spotlightQueries;
     
     CGAffineTransform areaColorTransform;
     NSString *ocadFilePath;
