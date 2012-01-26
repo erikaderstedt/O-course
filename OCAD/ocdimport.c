@@ -192,11 +192,13 @@ void load_objects(struct ocad_file *f) {
 
                 element = convert_ocad8_element((struct ocad8_element *)((f->data) + (objindex->position)));
                 element->symbol = symbol_by_number(f, element->symnum);
+                struct ocad_text_symbol *ts = (struct ocad_text_symbol *)element->symbol;
                 if (element->symbol != NULL) {
                     element->color = element->symbol->colors[0];
                 } else {
                     element->color = 0;
                 }
+
                 f->elements[j++] = element;                
             }
             
@@ -304,6 +306,7 @@ struct ocad_symbol *convert_ocad8_symbol(struct ocad8_symbol *source) {
         case 2:
             if (source->symtype != 0) { 
                 dest->otp = ocad_line_text_object;
+                printf("line text!\n");
             } else {
                 dest->otp = ocad_line_object;
             }            
@@ -356,6 +359,13 @@ struct ocad_element *convert_ocad8_element(struct ocad8_element *source) {
     dest->symnum = source->symnum * 100;
     dest->nCoordinates = source->nCoordinates;
     dest->nText = source->nText;
+    if (source->in_unicode > 0) {
+        dest->reserved0 = source->in_unicode;
+        char *s = (char *)(&(source->coords[source->nCoordinates]));
+        printf("s: %s", s);
+    } else {
+        dest->reserved0 = 0;
+    }
     dest->angle = source->angle;
     memcpy(&(dest->coords[0]), &(source->coords[0]), source->nCoordinates * sizeof(struct TDPoly));
     if (source->nText > 0) {
@@ -375,6 +385,12 @@ struct ocad_element *convert_ocad8_element(struct ocad8_element *source) {
         case 4:
             dest->obj_type = ocad_formatted_text_object;
             break;
+        case 5:
+            if (dest->nText > 0) {
+                dest->obj_type = ocad_formatted_text_object;
+            } else {
+                dest->obj_type = ocad_rectangle_object;
+            }
         default:
             dest->obj_type = 0;
             break;

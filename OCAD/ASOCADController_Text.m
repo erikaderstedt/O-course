@@ -17,20 +17,18 @@
 	char *rawBuffer = (char *)&(e->coords[e->nCoordinates]);
     char buffer[4096], *input_string;
     int i;
-    
-    if (text && text->character_set == 1) {
-        input_string = rawBuffer;
-    } else {
-        
+    if (rawBuffer[1] == 0) {
         for (i =0; rawBuffer[i*2] != 0; i++) {
             buffer[i] = rawBuffer[i*2];
         }
         buffer[i] = 0;
         input_string = buffer;
+    } else {
+        input_string = rawBuffer;
     }
     
     NSString *string = [NSString stringWithCString:input_string encoding:NSASCIIStringEncoding];
-    
+
     // Load the font name and size.
     CGFloat conversionFactor = (2.54/72.0)*100.0;
     rawBuffer = text->fontname;
