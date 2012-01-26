@@ -11,4 +11,6 @@
 @interface Project : NSManagedObject
 @property(nonatomic,retain) NSString *map;
 
++ (Project *)projectInManagedObjectContext:(NSManagedObjectContext *)moc;
+
 @end
