@@ -197,6 +197,7 @@
 }
 
 - (CGFloat)calculateMinimumZoomForFrame:(NSRect)frame {
+    if (mapBounds.size.width == 0.0 || mapBounds.size.height == 0.0) return 0.0;
 	return fmax(frame.size.height/mapBounds.size.height, frame.size.width/mapBounds.size.width);
 }
 
@@ -230,7 +231,10 @@
 	midpointBefore = CGPointMake(NSMidX(v), NSMidY(v));
 	pointInMapCoordinates = [tiledLayer convertPoint:midpointBefore fromLayer:[self layer]];
 
-	[self setFrame:NSMakeRect(0.0, 0.0, mapBounds.size.width*zoom, mapBounds.size.height*zoom)];
+    NSRect r = NSMakeRect(0.0, 0.0, mapBounds.size.width*zoom, mapBounds.size.height*zoom);
+    if (r.size.width == 0.0 || r.size.height == 0.0) r.size = NSMakeSize(1.0, 1.0);
+    
+	[self setFrame:r];
 	f = [self frame];
 	
 	tiledLayer.transform = CATransform3DMakeScale(zoom, zoom, 1.0);
