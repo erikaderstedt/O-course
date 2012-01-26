@@ -28,33 +28,4 @@
     
     
 }
-
-#pragma mark ASControlDescriptionProvider
-
-- (NSString *)eventName {
-    
-}
-
-- (NSString *)classNamesForCourse:(id)course {
-    
-}
-
-- (NSString *)numberForCourse:(id)course {
-    
-}
-
-- (NSNumber *)lengthOfCourse:(id)course {
-    
-}
-
-- (NSNumber *)heightClimbForCourse:(id)course {
-    return nil; // Not yet implemented.
-}
-
-// Each item returned by the course object enumerator conforms
-// to <ASControlDescriptionItem>
-- (NSEnumerator *)courseObjectEnumeratorForCourse:(id)course {
-    
-}
-
 @end

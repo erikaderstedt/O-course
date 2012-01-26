@@ -19,7 +19,7 @@
     NSMutableDictionary *regularAttributes;
     NSMutableDictionary *dimensionsAttributes;    
 }
-@property (nonatomic,retain) id <ASControlDescriptionProvider> provider;
+@property (nonatomic,retain) IBOutlet id <ASControlDescriptionProvider> provider;
 @property (nonatomic,retain) id <NSObject> course;
 
 - (void)setup;

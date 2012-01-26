@@ -13,7 +13,6 @@
 - (id)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
     if (self) {
-        NSLog(@"set that");
         [self setMaximumFractionDigits:1];
         [self setMinimumFractionDigits:1];
     }

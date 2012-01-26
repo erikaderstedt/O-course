@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 #import "ASOverprintProvider.h"
-#import "ASControlDescriptionProvider.h"
 
 // Users of the overprint and/or the control description can observe
 // "course" to know when to update.
@@ -18,7 +17,7 @@
 // - The position of the control number depends on the selected course.
 // - No control description can be generated for forked "super"-courses?
 
-@interface ASOverprintController : NSObject <ASOverprintProvider, ASControlDescriptionProvider> {
+@interface ASOverprintController : NSObject <ASOverprintProvider> {
     NSManagedObject *course;
 }
 @property (nonatomic,retain) NSManagedObject *course;

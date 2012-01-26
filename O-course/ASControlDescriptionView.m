@@ -8,8 +8,8 @@
 
 #import "ASControlDescriptionView.h"
 
-#define THICK_LINE  (5.0)
-#define THIN_LINE   (2.0)
+#define THICK_LINE  (3.0)
+#define THIN_LINE   (1.0)
 
 @implementation ASControlDescriptionView
 
@@ -82,6 +82,18 @@
 
 }
 
+- (void)setFrameSize:(NSSize)newSize {
+    
+}
+
+- (void)setCourse:(id<NSObject>)_course {
+    NSObject *oldCourse = course;
+    course = [_course retain];
+    [oldCourse release];
+    
+    [self setNeedsDisplay:YES];
+}
+
 - (NSInteger)numberOfItems {
     NSInteger numberOfItems;
     
@@ -149,7 +161,7 @@
     // Draw the name.
     y -= blockSize;
     if ([self.provider eventName] != nil) {
-        [[self.provider eventName] drawInRect:NSMakeRect(x, y, bounds.size.width, y + blockSize) 
+        [[self.provider eventName] drawInRect:NSMakeRect(x, y, bounds.size.width, blockSize) 
                                withAttributes:boldAttributes];
         [NSBezierPath strokeLineFromPoint:NSMakePoint(x, y) toPoint:NSMakePoint(x + bounds.size.width, y)];
         y -= blockSize;
@@ -157,7 +169,7 @@
     
     // The class names.
     if ([self.provider classNamesForCourse:self.course]) {
-        [[self.provider classNamesForCourse:self.course] drawInRect:NSMakeRect(bounds.origin.x, y, bounds.size.width, y + blockSize) 
+        [[self.provider classNamesForCourse:self.course] drawInRect:NSMakeRect(bounds.origin.x, y, bounds.size.width, blockSize) 
                                                      withAttributes:boldAttributes];
         [NSBezierPath strokeLineFromPoint:NSMakePoint(x, y) toPoint:NSMakePoint(x + bounds.size.width, y)];
         y -= blockSize;       
@@ -165,13 +177,13 @@
     
     // Draw the course and the distance..
     if ([self.provider numberForCourse:self.course] || [self.provider lengthOfCourse:self.course]) {
-        [[self.provider numberForCourse:self.course] drawInRect:NSMakeRect(x, y, 3.0*blockSize, y + blockSize) 
+        [[self.provider numberForCourse:self.course] drawInRect:NSMakeRect(x, y, 3.0*blockSize, blockSize) 
                                                  withAttributes:boldAttributes];
         x += 3.0*blockSize;
-        [[self.provider lengthOfCourse:self.course] drawInRect:NSMakeRect(x, y, 3.0*blockSize, y + blockSize) 
+        [[self.provider lengthOfCourse:self.course] drawInRect:NSMakeRect(x, y, 3.0*blockSize, blockSize) 
                                                  withAttributes:boldAttributes];
         x += 3.0*blockSize;
-        [[self.provider heightClimbForCourse:self.course] drawInRect:NSMakeRect(x, y, 2.0*blockSize, y + blockSize) 
+        [[self.provider heightClimbForCourse:self.course] drawInRect:NSMakeRect(x, y, 2.0*blockSize, blockSize) 
                                                 withAttributes:boldAttributes];
 
         x = bounds.origin.x;

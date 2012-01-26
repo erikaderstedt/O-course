@@ -7,15 +7,21 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "ASControlDescriptionProvider.h"
 
-@interface ASCourseController : NSObject <NSTableViewDataSource, NSTableViewDelegate> {
+@class ASControlDescriptionView;
+
+@interface ASCourseController : NSObject <NSTableViewDataSource, NSTableViewDelegate, ASControlDescriptionProvider> {
     NSManagedObjectContext *managedObjectContext;
     NSArrayController *courses;
     NSTableView *courseTable;
+    
+    ASControlDescriptionView *mainControlDescription;
 }
 @property (nonatomic, retain) IBOutlet NSManagedObjectContext *managedObjectContext;
 @property (nonatomic, retain) IBOutlet NSArrayController *courses;
 @property (nonatomic, retain) IBOutlet NSTableView *courseTable;
+@property (nonatomic, retain) IBOutlet ASControlDescriptionView *mainControlDescription;
 
 - (void)willAppear;
 - (void)willDisappear;

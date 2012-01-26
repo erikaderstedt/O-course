@@ -7,23 +7,26 @@
 //
 
 #import "ASCourseController.h"
+#import "ASControlDescriptionView.h"
+#import "Project.h"
 
 @implementation ASCourseController
 
 @synthesize managedObjectContext;
 @synthesize courses;
 @synthesize courseTable;
+@synthesize mainControlDescription;
 
 - (void)dealloc {
     [managedObjectContext release];
     [courses release];
     [courseTable release];
+    [mainControlDescription release];
     
     [super dealloc];
 }
 
 - (void)willAppear {
-    NSLog(@"Course controller setup");
     [courses addObserver:self forKeyPath:@"arrangedObjects" options:0 context:self];
 }
 
@@ -33,6 +36,7 @@
     // Disconnect outlets to prevent retain loop.
     self.courseTable = nil;
     self.courses = nil;
+    self.mainControlDescription = nil;
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
@@ -88,5 +92,54 @@
     [self.courses setSortDescriptors:[aTableView sortDescriptors]];
     [self.courses rearrangeObjects];
 }
+
+#pragma mark NSTableViewDelegate
+
+- (void)tableViewSelectionDidChange:(NSNotification *)aNotification {
+    NSInteger s = [self.courseTable selectedRow];
+    if (s == -1) {
+        [self.mainControlDescription setCourse:nil];
+    } else if (s == 0) {
+        [self.mainControlDescription setCourse:self]; // "Special" object
+    } else if (s - 1 < [[self.courses arrangedObjects] count]) {
+        [self.mainControlDescription setCourse:[[self.courses arrangedObjects] objectAtIndex:(s-1)]];
+        [self.courses setSelectionIndex:(s-1)];
+    }
+}
+
+
+#pragma mark ASControlDescriptionProvider
+
+- (NSString *)eventName {
+    Project *p = [Project projectInManagedObjectContext:[self managedObjectContext]];
+    return [p valueForKey:@"event"];
+}
+
+- (NSString *)classNamesForCourse:(id)course {
+    return nil;
+}
+
+- (NSString *)numberForCourse:(id)course {
+    return nil;
+    
+}
+
+- (NSNumber *)lengthOfCourse:(id)course {
+    return nil;
+    
+}
+
+- (NSNumber *)heightClimbForCourse:(id)course {
+    return nil; // Not yet implemented.
+}
+
+// Each item returned by the course object enumerator conforms
+// to <ASControlDescriptionItem>
+- (NSEnumerator *)courseObjectEnumeratorForCourse:(id)course {
+    return [[NSArray array] objectEnumerator];
+}
+
+
+
 
 @end

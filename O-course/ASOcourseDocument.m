@@ -27,20 +27,14 @@
         // If an error occurs here, send a [self release] message and return nil.
         
         // Create a project object.
+        NSLog(@"Creating a new project");
         [NSEntityDescription insertNewObjectForEntityForName:@"Project" inManagedObjectContext:[self managedObjectContext]];
     }
     return self;
 }
 
 - (Project *)project {
-    NSFetchRequest *request = [[self managedObjectModel] fetchRequestTemplateForName:@"THE_PROJECT"];
-    NSError *error = nil;
-    NSArray *results = [[self managedObjectContext] executeFetchRequest:request error:&error];
-    if (results == nil || [results count] == 0) {
-        NSLog(@"Error fetching project: %@", error);
-        NSAssert(0, @"No use continuing now :(");
-    }
-    return [results objectAtIndex:0];
+    return [Project projectInManagedObjectContext:[self managedObjectContext]];
 }
 
 - (NSString *)windowNibName
@@ -48,6 +42,26 @@
     // Override returning the nib file name of the document
     // If you need to use a subclass of NSWindowController or if your document supports multiple NSWindowControllers, you should remove this method and override -makeWindowControllers instead.
     return @"ASOcourseDocument";
+}
+
+- (void)setDisplayName:(NSString *)displayNameOrNil {
+    [super setDisplayName:displayNameOrNil];
+
+    NSString *newName = nil;
+    Project *p = [Project projectInManagedObjectContext:[self managedObjectContext]];
+    if (displayNameOrNil != nil) {
+        if (![[p valueForKey:@"event"] isEqualToString:displayNameOrNil]) 
+            newName = displayNameOrNil;
+    } else {
+        NSString *unknown = NSLocalizedString(@"Unknown event", nil);
+        if (![[p valueForKey:@"event"] isEqualToString:unknown])
+            newName = unknown;
+    }
+
+    if (newName != nil) {
+        [p setValue:newName forKey:@"event"];
+        [courseController.mainControlDescription setNeedsDisplay:YES];
+    }
 }
 
 - (void)windowControllerDidLoadNib:(NSWindowController *)aController
@@ -105,7 +119,13 @@
     
     [self updateMap:nil];
     
+    [courseController setManagedObjectContext:[self managedObjectContext]];
     [courseController willAppear];
+}
+
+- (void)windowWillClose:(NSNotification *)notification {
+    [courseController setManagedObjectContext:nil];
+    [courseController willDisappear];
 }
 
 - (void)dealloc {
