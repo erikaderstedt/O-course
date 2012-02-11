@@ -18,10 +18,12 @@
 	ASMapView *mapView;
     ASOverprintController *overprintController;
     ASCourseController *courseController;
+    NSObjectController *projectController;
 }
 @property (nonatomic,retain) IBOutlet ASMapView *mapView;
 @property (nonatomic,retain) IBOutlet ASOverprintController *overprintController;
 @property (nonatomic,retain) IBOutlet ASCourseController *courseController;
+@property (nonatomic,retain) IBOutlet NSObjectController *projectController;
 
 - (Project *)project;
 - (IBAction)chooseBackgroundMap:(id)sender;

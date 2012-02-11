@@ -19,6 +19,7 @@
 @implementation ASOcourseDocument
 @synthesize mapView;
 @synthesize overprintController, courseController;
+@synthesize projectController;
 
 - (id)initWithType:(NSString *)type error:(NSError **)error {
     self = [super initWithType:type error:error];
@@ -27,14 +28,17 @@
         // If an error occurs here, send a [self release] message and return nil.
         
         // Create a project object.
-        NSLog(@"Creating a new project");
         [NSEntityDescription insertNewObjectForEntityForName:@"Project" inManagedObjectContext:[self managedObjectContext]];
+        
+		[[self managedObjectContext] processPendingChanges];
+		[[[self managedObjectContext] undoManager] removeAllActions];
+		[self updateChangeCount:NSChangeCleared];
     }
     return self;
 }
 
 - (Project *)project {
-    return [Project projectInManagedObjectContext:[self managedObjectContext]];
+    return [projectController valueForKeyPath:@"content"];
 }
 
 - (NSString *)windowNibName
@@ -48,10 +52,11 @@
     [super setDisplayName:displayNameOrNil];
 
     NSString *newName = nil;
-    Project *p = [Project projectInManagedObjectContext:[self managedObjectContext]];
+    Project *p = [projectController valueForKey:@"content"];
+    
     if (displayNameOrNil != nil) {
         if (![[p valueForKey:@"event"] isEqualToString:displayNameOrNil]) 
-            newName = displayNameOrNil;
+            newName = displayNameOrNil;        
     } else {
         NSString *unknown = NSLocalizedString(@"Unknown event", nil);
         if (![[p valueForKey:@"event"] isEqualToString:unknown])
@@ -93,8 +98,10 @@
 }
 
 - (void)updateMap:(NSNotification *)n {
-    NSString *path = [[self project] valueForKey:@"map"];
-    if (path == nil) {
+    Project *project = [projectController valueForKey:@"content"];
+    NSString *path = project.map;
+
+    if (project == nil || path == nil) {
         mapView.mapProvider = nil;
     } else {
         if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
@@ -115,21 +122,32 @@
 }
 
 - (void)awakeFromNib {
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateMap:) name:@"ASMapChangedNotification" object:[self managedObjectContext]];
-    
-    [self updateMap:nil];
+    [projectController addObserver:self forKeyPath:@"content.map" options:NSKeyValueObservingOptionInitial context:NULL];
     
     [courseController setManagedObjectContext:[self managedObjectContext]];
     [courseController willAppear];
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
+    [projectController removeObserver:self forKeyPath:@"content.map"];
+    
     [courseController setManagedObjectContext:nil];
     [courseController willDisappear];
 }
 
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    if (object == projectController) {
+        [self updateMap:nil];
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
+}
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [projectController release];
+    
+    [super dealloc];
 }
 
 - (IBAction)zoomIn:(id)sender {
