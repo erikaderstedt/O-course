@@ -28,12 +28,24 @@
             completionHandler(nil, NO, e);
         } else {
             ASOcourseDocument *doc = [self openUntitledDocumentAndDisplay:displayDocument error:nil];
-            [[doc project] setMap:[url path]];
+            [doc setMapURL:url];
             completionHandler(doc, NO, nil);
         }
         return;
     }
     [super openDocumentWithContentsOfURL:url display:YES completionHandler:completionHandler];
 }
+
+- (id)makeUntitledDocumentOfType:(NSString *)typeName error:(NSError **)outError {
+    ASOcourseDocument *doc = [super makeUntitledDocumentOfType:typeName error:outError];
+    
+    NSManagedObjectContext *moc = [doc managedObjectContext];
+    [NSEntityDescription insertNewObjectForEntityForName:@"Project" inManagedObjectContext:moc];
+    [doc updateChangeCount:NSChangeCleared];
+    return doc;
+}
+
+
+
 
 @end

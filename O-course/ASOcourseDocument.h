@@ -28,5 +28,6 @@
 - (Project *)project;
 - (IBAction)chooseBackgroundMap:(id)sender;
 - (void)updateMap:(NSNotification *)n;
+- (void)setMapURL:(NSURL *)u;
 
 @end

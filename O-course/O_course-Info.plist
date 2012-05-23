@@ -70,7 +70,7 @@
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.sports</string>
 	<key>LSMinimumSystemVersion</key>
-	<string>${MACOSX_DEPLOYMENT_TARGET}</string>
+	<string>10.7.4</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>

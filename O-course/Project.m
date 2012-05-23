@@ -10,7 +10,7 @@
 
 @implementation Project
 
-@dynamic map;
+@dynamic mapBookmark;
 
 
 + (Project *)projectInManagedObjectContext:(NSManagedObjectContext *)moc {

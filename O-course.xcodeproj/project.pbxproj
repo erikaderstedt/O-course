@@ -98,6 +98,7 @@
 		032001D912FE9EF900707BA5 /* ASOcourseDocument.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ASOcourseDocument.xcdatamodel; sourceTree = "<group>"; };
 		032001E012FE9F1000707BA5 /* ocdimport.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ocdimport.c; sourceTree = "<group>"; };
 		032001E112FE9F1000707BA5 /* ocdimport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ocdimport.h; sourceTree = "<group>"; };
+		0321D2D4156D13A600180ADE /* O-course.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "O-course.entitlements"; sourceTree = "<group>"; };
 		033D6817134AF79C00502CA8 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		033D6873134B05D100502CA8 /* compass bezel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "compass bezel.png"; sourceTree = "<group>"; };
 		033DA8A8144EF8E600C787F8 /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = SOURCE_ROOT; };
@@ -228,6 +229,7 @@
 		032001C312FE9EF900707BA5 /* O-course */ = {
 			isa = PBXGroup;
 			children = (
+				0321D2D4156D13A600180ADE /* O-course.entitlements */,
 				03EEB2A1147194B900BD9E0F /* Protocols */,
 				033DA8AF144EFFC600C787F8 /* ASGenericImageController.h */,
 				033DA8B0144EFFC600C787F8 /* ASGenericImageController.m */,
@@ -411,7 +413,7 @@
 		032001B012FE9EF900707BA5 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0430;
 				ORGANIZATIONNAME = "Aderstedt Software AB";
 			};
 			buildConfigurationList = 032001B312FE9EF900707BA5 /* Build configuration list for PBXProject "O-course" */;
@@ -599,6 +601,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_ENTITLEMENTS = "O-course/O-course.entitlements";
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -615,6 +619,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_ENTITLEMENTS = "O-course/O-course.entitlements";
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;

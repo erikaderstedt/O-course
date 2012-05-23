@@ -21,22 +21,6 @@
 @synthesize overprintController, courseController;
 @synthesize projectController;
 
-- (id)initWithType:(NSString *)type error:(NSError **)error {
-    self = [super initWithType:type error:error];
-    if (self) {
-        // Add your subclass-specific initialization here.
-        // If an error occurs here, send a [self release] message and return nil.
-        
-        // Create a project object.
-        [NSEntityDescription insertNewObjectForEntityForName:@"Project" inManagedObjectContext:[self managedObjectContext]];
-        
-		[[self managedObjectContext] processPendingChanges];
-		[[[self managedObjectContext] undoManager] removeAllActions];
-		[self updateChangeCount:NSChangeCleared];
-    }
-    return self;
-}
-
 - (Project *)project {
     return [projectController valueForKeyPath:@"content"];
 }
@@ -52,7 +36,7 @@
     [super setDisplayName:displayNameOrNil];
 
     NSString *newName = nil;
-    Project *p = [projectController valueForKey:@"content"];
+    Project *p = [self project];
     
     if (displayNameOrNil != nil) {
         if (![[p valueForKey:@"event"] isEqualToString:displayNameOrNil]) 
@@ -81,6 +65,21 @@
 + (BOOL)autosavesInPlace {
     return YES;
 }
+    
+- (void)setMapURL:(NSURL *)u {
+    // Add a document-scoped bookmark.
+    NSError *error = nil;
+    NSData *bookmarkData = [u bookmarkDataWithOptions:NSURLBookmarkCreationWithSecurityScope | NSURLBookmarkCreationSecurityScopeAllowOnlyReadAccess
+                       includingResourceValuesForKeys:nil 
+                                        relativeToURL:[self fileURL] 
+                                                error:&error];
+    if (bookmarkData == nil) {
+        NSAlert *alert = [NSAlert alertWithError:error];
+        [alert runModal];
+    } else {
+        [[self project] setMapBookmark:bookmarkData];
+    }    
+}
 
 - (IBAction)chooseBackgroundMap:(id)sender {
     NSOpenPanel *op = [NSOpenPanel openPanel];
@@ -88,33 +87,40 @@
     [op setAllowsOtherFileTypes:YES];
     [op setAllowsMultipleSelection:NO];
     [op beginSheetModalForWindow:[mapView window] completionHandler:^(NSInteger result) {
-        if (result == NSOKButton) {
+        if (result == NSFileHandlingPanelOKButton) {
             NSURL *u = [op URL];
             NSAssert([u isFileURL], @"Not a file URL!");
-            [self project].map = [u path];        
+            
+            [self setMapURL:u];
         }
     }
     ];
 }
 
 - (void)updateMap:(NSNotification *)n {
-    Project *project = [projectController valueForKey:@"content"];
-    NSString *path = project.map;
+    Project *project = [self project];
+    NSData *bookmarkData = [project mapBookmark];
 
-    if (project == nil || path == nil) {
+    if (project == nil || bookmarkData == nil) {
         mapView.mapProvider = nil;
     } else {
-        if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
-            // TODO: initiate a spotlight search to find the file.
-            mapView.mapProvider = nil;
-        } else if ([[path pathExtension] isEqualToString:@"ocd"]) {
-            ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:path];
-            [o prepareCacheWithAreaTransform:CGAffineTransformIdentity];
-            mapView.mapProvider = o;
-            [o autorelease];
-        } else {
-            ASGenericImageController *i = [[ASGenericImageController alloc] initWithContentsOfFile:path];
-            mapView.mapProvider = i;
+        BOOL stale;
+        NSError *error = nil;
+        NSURL *u = [NSURL URLByResolvingBookmarkData:bookmarkData options:NSURLBookmarkResolutionWithSecurityScope relativeToURL:[self fileURL] bookmarkDataIsStale:&stale error:&error];
+
+        if (u != nil && !stale) {
+            [u startAccessingSecurityScopedResource];
+            NSString *s = [u path];
+            if ([[s pathExtension] isEqualToString:@"ocd"]) {
+                ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:s];
+                [o prepareCacheWithAreaTransform:CGAffineTransformIdentity];
+                mapView.mapProvider = o;
+                [o autorelease];
+            } else {
+                ASGenericImageController *i = [[ASGenericImageController alloc] initWithContentsOfFile:s];
+                mapView.mapProvider = i;
+            }
+            [u stopAccessingSecurityScopedResource];
         }
     }
     
@@ -122,17 +128,17 @@
 }
 
 - (void)awakeFromNib {
-    [projectController addObserver:self forKeyPath:@"content.map" options:NSKeyValueObservingOptionInitial context:NULL];
+    [self.projectController addObserver:self forKeyPath:@"content.mapBookmark" options:NSKeyValueObservingOptionInitial context:NULL];
     
-    [courseController setManagedObjectContext:[self managedObjectContext]];
-    [courseController willAppear];
+    [self.courseController setManagedObjectContext:[self managedObjectContext]];
+    [self.courseController willAppear];
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
-    [projectController removeObserver:self forKeyPath:@"content.map"];
+    [self.projectController removeObserver:self forKeyPath:@"content.map"];
     
-    [courseController setManagedObjectContext:nil];
-    [courseController willDisappear];
+    [self.courseController setManagedObjectContext:nil];
+    [self.courseController willDisappear];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
