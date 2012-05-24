@@ -41,6 +41,8 @@
     
     NSManagedObjectContext *moc = [doc managedObjectContext];
     [NSEntityDescription insertNewObjectForEntityForName:@"Project" inManagedObjectContext:moc];
+    [moc processPendingChanges];
+    [[moc undoManager] removeAllActions];
     [doc updateChangeCount:NSChangeCleared];
     return doc;
 }

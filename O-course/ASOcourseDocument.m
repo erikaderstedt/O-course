@@ -22,7 +22,7 @@
 @synthesize projectController;
 
 - (Project *)project {
-    return [projectController valueForKeyPath:@"content"];
+    return [Project projectInManagedObjectContext:[self managedObjectContext]];
 }
 
 - (NSString *)windowNibName
@@ -69,7 +69,7 @@
 - (void)setMapURL:(NSURL *)u {
     // Add a document-scoped bookmark.
     NSError *error = nil;
-    NSData *bookmarkData = [u bookmarkDataWithOptions:NSURLBookmarkCreationWithSecurityScope | NSURLBookmarkCreationSecurityScopeAllowOnlyReadAccess
+    NSData *bookmarkData = [u bookmarkDataWithOptions:NSURLBookmarkCreationWithSecurityScope 
                        includingResourceValuesForKeys:nil 
                                         relativeToURL:[self fileURL] 
                                                 error:&error];
@@ -95,6 +95,14 @@
         }
     }
     ];
+}
+
+- (BOOL)readFromURL:(NSURL *)absoluteURL ofType:(NSString *)typeName error:(NSError **)outError {
+    if ([super readFromURL:absoluteURL ofType:typeName error:outError]) {
+        [self updateMap:nil];
+        return YES;
+    }
+    return NO;
 }
 
 - (void)updateMap:(NSNotification *)n {
@@ -135,7 +143,7 @@
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
-    [self.projectController removeObserver:self forKeyPath:@"content.map"];
+    [self.projectController removeObserver:self forKeyPath:@"content.mapBookmark"];
     
     [self.courseController setManagedObjectContext:nil];
     [self.courseController willDisappear];
