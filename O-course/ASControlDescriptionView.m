@@ -303,7 +303,8 @@
         [tapedRoute setLineDash:dashes count:2 phase:0.0];
         [tapedRoute moveToPoint:NSMakePoint(p.x + lineStart, center)];
         if (leaveThisBlank > 0.0) {
-            [tapedRoute lineToPoint:NSMakePoint(p.x + lineStart + 0.5*(6.0*blockSize - lineStart - leaveThisBlank - 0.2*blockSize), center)];
+            CGFloat middle = p.x + 0.5*8.0*blockSize;
+            [tapedRoute lineToPoint:NSMakePoint(middle - 0.5*(leaveThisBlank + 0.2*blockSize), center)];
             [tapedRoute relativeMoveToPoint:NSMakePoint(leaveThisBlank + 0.2*blockSize, 0.0)];
         }
         [tapedRoute lineToPoint:NSMakePoint(p.x + 7.0*blockSize, center)];
