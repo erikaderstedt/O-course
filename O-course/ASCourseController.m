@@ -141,8 +141,7 @@
         return [[course valueForKey:@"controls"] objectEnumerator];
         
     NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"CourseObject"];
-    [fr setSortDescriptors:[NSArray arrayWithObjects:[NSSortDescriptor sortDescriptorWithKey:@"type" ascending:YES],
-                            [NSSortDescriptor sortDescriptorWithKey:@"controlCode" ascending:YES], nil]];
+    [fr setSortDescriptors:[NSArray arrayWithObjects:[NSSortDescriptor sortDescriptorWithKey:@"type" ascending:YES], [NSSortDescriptor sortDescriptorWithKey:@"added" ascending:YES], nil]];
     
     return [[managedObjectContext executeFetchRequest:fr error:nil] objectEnumerator];
 }

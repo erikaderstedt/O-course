@@ -18,6 +18,12 @@
     [self setValue:[NSNumber numberWithInt:_type] forKey:@"type"];
 }
 
+- (void)awakeFromInsert {
+    [super awakeFromInsert];
+    
+    [self setPrimitiveValue:[NSDate date] forKey:@"added"];
+}
+
 @dynamic distance;
 @dynamic controlCode;
 @dynamic whichOfAnySimilarFeature;
