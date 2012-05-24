@@ -216,10 +216,7 @@
         [NSBezierPath strokeLineFromPoint:NSMakePoint(x, y) 
                                   toPoint:NSMakePoint(x + bounds.size.width, y)];
         if (type == kASStart || type == kASRegularControl) { 
-            // Column A.
-            
-            
-            
+
             [self drawThickGridAtOrigin:NSMakePoint(x, y) blockSize:blockSize];
             [self drawThinGridAtOrigin:NSMakePoint(x, y) blockSize:blockSize];
 
@@ -241,6 +238,10 @@
                 // Draw start symbol.
                 [[self bezierPathForStartAtOrigin:NSMakePoint(x, y) usingBlockSize:blockSize] stroke];
                 consecutiveRegularControls = 0;
+            }
+            
+            if ([item whichOfAnySimilarFeature] != nil) {
+                [self drawWhichOfAnySimilarFeatureAtOrigin:NSMakePoint(x,y) usingBlockSize:blockSize];
             }
         } else {
             // Draw any of the different variations of taped routes.
@@ -419,5 +420,7 @@
     return output;
 }
 
-
+- (void)drawWhichOfAnySimilarFeatureAtOrigin:(NSPoint)p usingBlockSize:(CGFloat)blockSize {
+    
+}
 @end
