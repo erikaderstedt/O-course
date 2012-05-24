@@ -10,6 +10,7 @@
 #import "ASOcourseDocument.h"
 #import "Project.h"
 #import "ocdimport.h"
+#import "CourseObject.h"
 
 @implementation MyDocumentController
 
@@ -40,7 +41,45 @@
     ASOcourseDocument *doc = [super makeUntitledDocumentOfType:typeName error:outError];
     
     NSManagedObjectContext *moc = [doc managedObjectContext];
-    [NSEntityDescription insertNewObjectForEntityForName:@"Project" inManagedObjectContext:moc];
+    NSManagedObject *project = [NSEntityDescription insertNewObjectForEntityForName:@"Project" inManagedObjectContext:moc];
+    [project setValue:@"Skinklopp" forKey:@"event"];
+    NSManagedObject *course  = [NSEntityDescription insertNewObjectForEntityForName:@"Course" inManagedObjectContext:moc];
+    [course setValue:@"Testbana" forKey:@"name"];
+    [course setValue:project forKey:@"project"];
+    NSMutableOrderedSet *mos = [course mutableOrderedSetValueForKey:@"controls"];
+    
+    CourseObject *obj;
+    obj = [NSEntityDescription insertNewObjectForEntityForName:@"CourseObject" inManagedObjectContext:moc];
+    obj.controlDescriptionItemType = kASStart;
+    [mos addObject:obj];
+    
+    obj = [NSEntityDescription insertNewObjectForEntityForName:@"Control" inManagedObjectContext:moc];
+    obj.controlDescriptionItemType = kASRegularControl;
+    obj.controlCode = [NSNumber numberWithInt:31];
+    [mos addObject:obj];
+    
+    obj = [NSEntityDescription insertNewObjectForEntityForName:@"Control" inManagedObjectContext:moc];
+    obj.controlDescriptionItemType = kASRegularControl;
+    obj.controlCode = [NSNumber numberWithInt:32];
+    [mos addObject:obj];    
+    
+    obj = [NSEntityDescription insertNewObjectForEntityForName:@"Control" inManagedObjectContext:moc];
+    obj.controlDescriptionItemType = kASRegularControl;
+    obj.controlCode = [NSNumber numberWithInt:33];
+    [mos addObject:obj];    
+    
+    obj = [NSEntityDescription insertNewObjectForEntityForName:@"Control" inManagedObjectContext:moc];
+    obj.controlDescriptionItemType = kASRegularControl;
+    obj.controlCode = [NSNumber numberWithInt:34];
+    [mos addObject:obj];    
+    
+    
+    obj = [NSEntityDescription insertNewObjectForEntityForName:@"CourseObject" inManagedObjectContext:moc];
+    obj.controlDescriptionItemType = kASPartlyTapedRouteToFinish;
+    obj.distance = [NSNumber numberWithFloat:0.23];
+    [mos addObject:obj];
+    
+    
     [moc processPendingChanges];
     [[moc undoManager] removeAllActions];
     [doc updateChangeCount:NSChangeCleared];
