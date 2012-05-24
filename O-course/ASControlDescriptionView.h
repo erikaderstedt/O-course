@@ -9,6 +9,8 @@
 #import <AppKit/AppKit.h>
 #import "ASControlDescriptionProvider.h"
 
+@class ASDistanceFormatter;
+
 @interface ASControlDescriptionView : NSView {
     id <ASControlDescriptionProvider> provider;
     id <NSObject> course;
@@ -17,7 +19,9 @@
     
     NSMutableDictionary *boldAttributes;
     NSMutableDictionary *regularAttributes;
-    NSMutableDictionary *dimensionsAttributes;    
+    NSMutableDictionary *dimensionsAttributes;
+    
+    ASDistanceFormatter *distanceFormatter;
 }
 @property (nonatomic,retain) IBOutlet id <ASControlDescriptionProvider> provider;
 @property (nonatomic,retain) id <NSObject> course;
@@ -33,4 +37,12 @@
 - (void)drawThickGridAtOrigin:(NSPoint)origin blockSize:(CGFloat)blockSize;
 - (void)drawThinGridAtOrigin:(NSPoint)origin blockSize:(CGFloat)blockSize;
     
+@end
+
+
+#define MAX_NUMBER_OF_DASHES 100
+@interface NSBezierPath (ASDashedBezierPaths)
+
+- (NSBezierPath *)bezierPathByStrokingPath;
+
 @end

@@ -20,13 +20,13 @@ enum ControlDescriptionItemType {
 	kASPartlyTapedRouteToFinish,	// Specify distance
 	kASRouteToFinish,				// Specify distance
     kASFinish                       // The finish is not actually displayed on the control description.
+                                    // This control type is never present.
 };
 
 @protocol ASControlDescriptionItem  <NSObject>
 
 - (enum ControlDescriptionItemType)controlDescriptionItemType;
 - (NSNumber *)distance;
-- (NSNumber *)controlNumber;
 - (NSNumber *)controlCode;
 - (NSNumber *)whichOfAnySimilarFeature;
 - (NSNumber *)controlFeature;
@@ -55,7 +55,7 @@ enum ControlDescriptionItemType {
 
 @protocol ASEditableControlDescriptionItem <ASControlDescriptionItem, NSObject>
 
-- (void)setCode:(NSNumber *)code;
+- (void)setControlCode:(NSNumber *)code;
 - (void)setControlFeature:(NSNumber *)controlFeature;
 - (void)setWhichOfAnySimilarFeature:(NSNumber *)whichOfAnySimilarFeature;
 - (void)setAppearanceOrSecondControlFeature:(NSNumber *)appearanceOrSecondControlFeature;

@@ -36,8 +36,8 @@
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       buildConfiguration = "Debug"
-      ignoresPersistentStateOnLaunch = "YES"
-      debugDocumentVersioning = "YES"
+      ignoresPersistentStateOnLaunch = "NO"
+      debugDocumentVersioning = "NO"
       allowLocationSimulation = "YES">
       <BuildableProductRunnable>
          <BuildableReference

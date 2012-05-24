@@ -23,6 +23,7 @@
 		033DA8B3144EFFC600C787F8 /* ASGenericImageController.m in Sources */ = {isa = PBXBuildFile; fileRef = 033DA8B0144EFFC600C787F8 /* ASGenericImageController.m */; };
 		033DA8B7144F04BD00C787F8 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 033DA8B6144F04BD00C787F8 /* AppKit.framework */; };
 		0373FA6D1349A42C006E41C9 /* ASMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0373FA6C1349A42C006E41C9 /* ASMapView.m */; };
+		0385ED7C156E2E630013AB2D /* CourseObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 0385ED7B156E2E630013AB2D /* CourseObject.m */; };
 		03A3525013B30F480028D87C /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 03A3524F13B30F480028D87C /* AppDelegate.m */; };
 		03A3526C13B31C5D0028D87C /* QuickLook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03A3526B13B31C5D0028D87C /* QuickLook.framework */; };
 		03A3526E13B31C5D0028D87C /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03A3526D13B31C5D0028D87C /* ApplicationServices.framework */; };
@@ -107,6 +108,8 @@
 		033DA8B6144F04BD00C787F8 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		0373FA6B1349A42C006E41C9 /* ASMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASMapView.h; sourceTree = "<group>"; };
 		0373FA6C1349A42C006E41C9 /* ASMapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASMapView.m; sourceTree = "<group>"; };
+		0385ED7A156E2E630013AB2D /* CourseObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CourseObject.h; sourceTree = "<group>"; };
+		0385ED7B156E2E630013AB2D /* CourseObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CourseObject.m; sourceTree = "<group>"; };
 		03A3524E13B30F480028D87C /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		03A3524F13B30F480028D87C /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		03A3526A13B31C5D0028D87C /* OCAD map preview.qlgenerator */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "OCAD map preview.qlgenerator"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -347,6 +350,8 @@
 			children = (
 				03F2C769142C725F0053A47F /* Project.h */,
 				03F2C76A142C72600053A47F /* Project.m */,
+				0385ED7A156E2E630013AB2D /* CourseObject.h */,
+				0385ED7B156E2E630013AB2D /* CourseObject.m */,
 			);
 			name = "Model objects";
 			path = ..;
@@ -490,6 +495,7 @@
 				03EEB2A61471C0D100BD9E0F /* ASControlDescriptionView.m in Sources */,
 				03EEB2A9147427F500BD9E0F /* ASCourseController.m in Sources */,
 				03EEB2AC1474330500BD9E0F /* ASDistanceFormatter.m in Sources */,
+				0385ED7C156E2E630013AB2D /* CourseObject.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

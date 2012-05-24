@@ -9,6 +9,7 @@
 #import "ASCourseController.h"
 #import "ASControlDescriptionView.h"
 #import "Project.h"
+#import "CourseObject.h"
 
 @implementation ASCourseController
 
@@ -136,10 +137,15 @@
 // Each item returned by the course object enumerator conforms
 // to <ASControlDescriptionItem>
 - (NSEnumerator *)courseObjectEnumeratorForCourse:(id)course {
-    return [[NSArray array] objectEnumerator];
+    if ([course isKindOfClass:[NSManagedObject class]])
+        return [[course valueForKey:@"controls"] objectEnumerator];
+        
+    NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"CourseObject"];
+    [fr setSortDescriptors:[NSArray arrayWithObjects:[NSSortDescriptor sortDescriptorWithKey:@"type" ascending:YES],
+                            [NSSortDescriptor sortDescriptorWithKey:@"controlCode" ascending:YES], nil]];
+    
+    return [[managedObjectContext executeFetchRequest:fr error:nil] objectEnumerator];
 }
 
-
-
-
 @end
+
