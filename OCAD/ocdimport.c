@@ -192,7 +192,7 @@ void load_objects(struct ocad_file *f) {
 
                 element = convert_ocad8_element((struct ocad8_element *)((f->data) + (objindex->position)));
                 element->symbol = symbol_by_number(f, element->symnum);
-                struct ocad_text_symbol *ts = (struct ocad_text_symbol *)element->symbol;
+//                struct ocad_text_symbol *ts = (struct ocad_text_symbol *)element->symbol;
                 if (element->symbol != NULL) {
                     element->color = element->symbol->colors[0];
                 } else {
