@@ -19,11 +19,10 @@
     return self;
 }
 
-- (NSString *)stringFromNumber:(NSNumber *)number {
-    return [NSString stringWithFormat:@"%@ km", [super stringFromNumber:number]];
-}
-
 - (NSString *)stringForObjectValue:(id)obj {
+    if ([(NSNumber *)obj floatValue] < 1.0 && [(NSNumber *)obj floatValue] > 0.0) {
+        return [NSString stringWithFormat:@"%@ m", [super stringForObjectValue:[NSNumber numberWithFloat:1000.0*[(NSNumber *)obj floatValue]]]];
+    }
     return [NSString stringWithFormat:@"%@ km", [super stringForObjectValue:obj]];    
 }
 
