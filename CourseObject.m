@@ -25,6 +25,8 @@
 }
 
 @dynamic distance;
+
+// These properties are unavailable if this is not a subentity 'Control'.
 @dynamic controlCode;
 @dynamic whichOfAnySimilarFeature;
 @dynamic controlFeature;
@@ -36,6 +38,15 @@
 
 - (NSInteger)controlNumber {
     return -1;
+}
+
+- (CGPoint)position {
+    return CGPointMake([[self valueForKey:@"position_x"] doubleValue], [[self valueForKey:@"position_y"] doubleValue]);
+}
+
+- (void)setPosition:(CGPoint)p {
+    [self setPrimitiveValue:[NSNumber numberWithDouble:p.x] forKey:@"position_x"];
+    [self setValue:[NSNumber numberWithDouble:p.y] forKey:@"position_y"];
 }
 
 @end

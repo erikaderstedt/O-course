@@ -21,4 +21,8 @@
 @property (nonatomic,retain) NSNumber *locationOfTheControlFlag;
 @property (nonatomic,retain) NSNumber *otherInformation;
 @property (nonatomic,assign) enum ControlDescriptionItemType controlDescriptionItemType;
+
+- (CGPoint)position;
+- (void)setPosition:(CGPoint)p;
+
 @end
