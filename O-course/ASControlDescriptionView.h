@@ -36,7 +36,9 @@
 
 - (void)drawThickGridAtOrigin:(NSPoint)origin blockSize:(CGFloat)blockSize;
 - (void)drawThinGridAtOrigin:(NSPoint)origin blockSize:(CGFloat)blockSize;
-    
+
+- (void)drawWhichOfAnySimilarFeatureAtOrigin:(NSPoint)p usingBlockSize:(CGFloat)blockSize;
+
 @end
 
 

@@ -215,6 +215,7 @@
         x = bounds.origin.x;
         [NSBezierPath strokeLineFromPoint:NSMakePoint(x, y) 
                                   toPoint:NSMakePoint(x + bounds.size.width, y)];
+
         if (type == kASStart || type == kASRegularControl) { 
 
             [self drawThickGridAtOrigin:NSMakePoint(x, y) blockSize:blockSize];
@@ -240,8 +241,8 @@
                 consecutiveRegularControls = 0;
             }
             
-            if ([item whichOfAnySimilarFeature] != nil) {
-                [self drawWhichOfAnySimilarFeatureAtOrigin:NSMakePoint(x,y) usingBlockSize:blockSize];
+            if (type == kASRegularControl && [item whichOfAnySimilarFeature] != nil) {
+                [self drawWhichOfAnySimilarFeatureAtOrigin:NSMakePoint(x, y) usingBlockSize:blockSize];
             }
         } else {
             // Draw any of the different variations of taped routes.
@@ -353,6 +354,39 @@
     return bp;
 }
 
+- (void)drawWhichOfAnySimilarFeatureAtOrigin:(NSPoint)p usingBlockSize:(CGFloat)blockSize {
+    
+}
+
+- (NSBezierPath *)pathForColumnCWithValue:(NSNumber *)value {
+    int i = [value intValue];
+    switch (i) {
+        case 1: // North
+            break;
+            
+        default:
+            break;
+    }
+}
+
+- (NSArray *)supportedValuesForColumnC {
+    return [NSArray arrayWithObjects:
+            [NSNumber numberWithInt:1], // North
+            [NSNumber numberWithInt:2], // North-east
+            [NSNumber numberWithInt:3], // East
+            [NSNumber numberWithInt:4], // South-east
+            [NSNumber numberWithInt:5], // South
+            [NSNumber numberWithInt:6], // South-west
+            [NSNumber numberWithInt:7], // West
+            [NSNumber numberWithInt:8], // North-west
+            [NSNumber numberWithInt:9], // Upper
+            [NSNumber numberWithInt:10], // Lower
+            [NSNumber numberWithInt:11], // Left
+            [NSNumber numberWithInt:12], // Middle
+            [NSNumber numberWithInt:13], // Right
+            nil];
+}
+
 @end
 
 @implementation NSBezierPath (ASDashedBezierPaths)
@@ -371,7 +405,7 @@
     NSPoint points[3];
     NSPoint currentPoint, nextPoint;
     CGFloat remainingDistanceOnCurrentDashIndex, f;
-    NSInteger dashIndex,i;
+    NSInteger dashIndex;
     
     // Find the current dash index, and determine the remaining distance on it.
     NSAssert(phase >= 0.0, @"Negative phase isn't supported.");
@@ -420,7 +454,4 @@
     return output;
 }
 
-- (void)drawWhichOfAnySimilarFeatureAtOrigin:(NSPoint)p usingBlockSize:(CGFloat)blockSize {
-    
-}
 @end
