@@ -9,6 +9,61 @@
 #import <CoreData/CoreData.h>
 #import "ASControlDescriptionProvider.h"
 
+enum ASWhichOfAnySimilarFeature {
+    kASFeatureNorth,
+    kASFeatureNorthEast,
+    kASFeatureEast,
+    kASFeatureSouthEast,
+    kASFeatureSouth,
+    kASFeatureSouthWest,
+    kASFeatureWest,
+    kASFeatureNorthWest,
+    kASFeatureUpper,
+    kASFeatureLower,
+    kASFeatureLeft,
+    kASFeatureMiddle,
+    kASFeatureRight
+};
+
+enum ASFeature {
+    kASFeatureTerrace,
+    kASFeatureSpur,
+    kASFeatureRe_Entrant,
+    kASFeatureEarthBank,
+    kASFeatureQuarry,
+    kASFeatureEarthWall,
+    kASFeatureErosionGully,
+    kASFeatureSmallErosionGully,
+    kASFeatureHill,
+    kASFeatureKnoll,
+    kASFeatureSaddle,
+    kASFeatureDepression,
+    kASFeatureSmallDepression,
+    kASFeaturePit,
+    kASFeatureBrokenGround,
+    kASFeatureAntHill,
+    kASFeatureCliff,
+    kASFeatureRockPillar,
+    kASFeatureCave,
+    kASFeatureBoulder,
+    kASFeatureBoulderField,
+    kASFeatureBoulderCluster,
+    kASFeatureStonyGround,
+    kASFeatureBareRock,
+    kASFeatureNarrowPassage,
+    kASFeatureLake,
+    kASFeaturePond,
+    kASFeatureWaterhole,
+    kASFeatureStream,
+    kASFeatureDitch,
+    kASFeatureNarrowMarch,
+    kASFeatureMarch,
+    kASFeatureFirmGroundInMarch,
+    kASFeatureWell,
+    kASFeatureSpring,
+    kASFeatureWaterTrough
+};
+
 @interface CourseObject : NSManagedObject <ASControlDescriptionItem>
 
 @property (nonatomic,retain) NSNumber *distance;
