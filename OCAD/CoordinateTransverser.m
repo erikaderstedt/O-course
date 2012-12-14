@@ -405,6 +405,8 @@ CGPoint translatePoint(CGPoint p, float distance, float angle) {
     CGPoint buffer1[8], buffer2[8];
     CGPoint stop;
     int j;
+    
+    if (distance == 0.0) return [self currentPoint];
         
     while (remaining_distance > 0 && currentIndex < _num_coords - 1) {
         p0 = [self coordinateAtIndex:currentIndex];
