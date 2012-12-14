@@ -11,13 +11,13 @@
 #else
 #import <Cocoa/Cocoa.h>
 #import <QuartzCore/QuartzCore.h>
+#import "ASGenericImageController.h"
 #endif
 #import "ASOCADController.h"
 #import "ocdimport.h"
 #import "ASOCADController_Text.h"
 #import "ASOCADController_Area.h"
 #import "ASOCADController_Line.h"
-#import "ASGenericImageController.h"
 
 #define PARALLELIZATION 2
 #define CONCURRENCY (1 << PARALLELIZATION)
