@@ -295,7 +295,9 @@
                                                         totalDataSize:0
                                                               element:e]];
     }
+#if ! __has_feature(objc_arc)
     [ct release];
+#endif
     
     return [NSArray arrayWithObjects:cachedData, roadCache, nil];
     

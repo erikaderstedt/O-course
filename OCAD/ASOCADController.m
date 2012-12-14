@@ -6,10 +6,14 @@
 //  Copyright 2011 Aderstedt Software AB. All rights reserved.
 //
 
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#else
 #import <Cocoa/Cocoa.h>
+#import <QuartzCore/QuartzCore.h>
+#endif
 #import "ASOCADController.h"
 #import "ocdimport.h"
-#import <QuartzCore/QuartzCore.h>
 #import "ASOCADController_Text.h"
 #import "ASOCADController_Area.h"
 #import "ASOCADController_Line.h"
@@ -29,6 +33,43 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     CGColorRetain((CGColorRef)value);
     return value;
 }
+
+static CGFloat colorData[170] = {
+    0.000000, 0.000000, 0.000000, 1.000000, 1.000000,
+    0.000000, 0.000000, 0.000000, 0.300000, 1.000000,
+    0.870000, 0.180000, 0.000000, 0.000000, 1.000000,
+    0.430000, 0.090000, 0.000000, 0.000000, 1.000000,
+    0.000000, 0.680000, 0.910000, 0.340000, 1.000000,
+    0.000000, 0.280000, 0.410000, 0.050000, 1.000000,
+    0.710000, 0.000000, 0.910000, 0.000000, 1.000000,
+    0.440000, 0.000000, 0.560000, 0.000000, 1.000000,
+    0.230000, 0.000000, 0.270000, 0.000000, 1.000000,
+    0.000000, 0.270000, 0.790000, 0.000000, 1.000000,
+    0.000000, 0.100000, 0.600000, 0.000000, 1.000000,
+    0.000000, 1.000000, 0.000000, 0.000000, 1.000000,
+    0.380000, 0.270000, 1.000000, 0.000000, 1.000000,
+    0.000000, 0.000000, 0.000000, 0.000000, 1.000000,
+    0.000000, 0.000000, 0.000000, 1.000000, 1.000000,
+    0.000000, 0.280000, 0.410000, 0.050000, 1.000000,
+    0.000000, 0.050000, 0.160000, 0.000000, 1.000000,
+    0.000000, 0.500000, 0.000000, 0.000000, 1.000000,
+    0.000000, 0.200000, 0.000000, 0.000000, 1.000000,
+    0.000000, 0.000000, 0.000000, 0.500000, 1.000000,
+    0.170000, 0.030000, 0.000000, 0.000000, 1.000000,
+    0.000000, 0.140000, 0.160000, 0.030000, 1.000000,
+    0.000000, 0.000000, 0.000000, 0.300000, 1.000000,
+    0.000000, 0.000000, 0.000000, 0.150000, 1.000000,
+    0.000000, 0.000000, 0.000000, 0.060000, 1.000000,
+    0.000000, 0.000000, 0.000000, 1.000000, 1.000000,
+    0.000000, 0.000000, 0.000000, 0.000000, 1.000000,
+    0.240000, 0.000000, 0.710000, 0.140000, 1.000000,
+    0.010000, 0.000000, 0.430000, 0.140000, 1.000000,
+    0.000000, 0.000000, 0.000000, 0.000000, 1.000000,
+    0.000000, 0.000000, 0.000000, 0.000000, 1.000000,
+    0.000000, 0.000000, 0.000000, 0.000000, 1.000000,
+    0.000000, 0.180000, 0.560000, 0.000000, 1.000000,
+    0.000000, 0.000000, 0.000000, 1.000000, 1.000000
+};
 
 @implementation ASOCADController
 
@@ -62,8 +103,11 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         load_symbols(ocdf);
         load_objects(ocdf);
         load_strings(ocdf);
-        
+#if TARGET_OS_IPHONE
+        blackColor = [[UIColor blackColor] CGColor];
+#else
         blackColor = CGColorCreateGenericCMYK(0.0,0.0,0.0,1.0,1.0);
+#endif
 
         [self parseColors];
         
@@ -82,7 +126,9 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     [self createAreaSymbolColors];
     [self createCache];        
 
+#if !TARGET_OS_IPHONE
     [self loadBackgroundImagesRelativeToPath:[self.ocadFilePath stringByDeletingLastPathComponent]];
+#endif
     
     free(ocdf);
     ocdf = NULL;
@@ -102,7 +148,10 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     highest = -1;
     if (ocdf->header->version != 8) {
         for (i = 0; i < ocdf->num_strings; i++) {
-            if (ocdf->string_rec_types[i] != 9) continue;
+            if (ocdf->string_rec_types[i] != 9 && ocdf->string_rec_types[i] != 8) {
+                NSLog(@"string: %d %@", ocdf->string_rec_types[i], [NSString stringWithCString:ocdf->strings[i] encoding:NSISOLatin1StringEncoding]);
+                continue;
+            }
             NSString *s = [NSString stringWithCString:ocdf->strings[i] encoding:NSISOLatin1StringEncoding];
             NSArray *a = [s componentsSeparatedByString:@"\t"];
             for (NSString *component in a) {
@@ -123,40 +172,15 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     colors = CFArrayCreateMutable(NULL, highest + 1, &callbacks);
     CGColorRef c;
     /* Set the default colors. */
-    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 1.000000, 1.000000); CFArraySetValueAtIndex(colors, 0, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 0.300000, 1.000000); CFArraySetValueAtIndex(colors, 1, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.870000, 0.180000, 0.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 2, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.430000, 0.090000, 0.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 3, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 0.680000, 0.910000, 0.340000, 1.000000); CFArraySetValueAtIndex(colors, 4, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 0.280000, 0.410000, 0.050000, 1.000000); CFArraySetValueAtIndex(colors, 5, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.710000, 0.000000, 0.910000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 6, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.440000, 0.000000, 0.560000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 7, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.230000, 0.000000, 0.270000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 8, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 0.270000, 0.790000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 9, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 0.100000, 0.600000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 10, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 1.000000, 0.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 11, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.380000, 0.270000, 1.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 12, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 13, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 1.000000, 1.000000); CFArraySetValueAtIndex(colors, 14, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 0.280000, 0.410000, 0.050000, 1.000000); CFArraySetValueAtIndex(colors, 15, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 0.050000, 0.160000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 16, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 0.500000, 0.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 17, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 0.200000, 0.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 18, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 0.500000, 1.000000); CFArraySetValueAtIndex(colors, 19, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.170000, 0.030000, 0.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 20, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 0.140000, 0.160000, 0.030000, 1.000000); CFArraySetValueAtIndex(colors, 21, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 0.300000, 1.000000); CFArraySetValueAtIndex(colors, 22, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 0.150000, 1.000000); CFArraySetValueAtIndex(colors, 23, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 0.060000, 1.000000); CFArraySetValueAtIndex(colors, 24, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 1.000000, 1.000000); CFArraySetValueAtIndex(colors, 25, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 26, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.240000, 0.000000, 0.710000, 0.140000, 1.000000); CFArraySetValueAtIndex(colors, 27, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.010000, 0.000000, 0.430000, 0.140000, 1.000000); CFArraySetValueAtIndex(colors, 28, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 29, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 30, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 31, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 0.180000, 0.560000, 0.000000, 1.000000); CFArraySetValueAtIndex(colors, 32, c); CGColorRelease(c); 
-    c = CGColorCreateGenericCMYK(0.000000, 0.000000, 0.000000, 1.000000, 1.000000); CFArraySetValueAtIndex(colors, 33, c); CGColorRelease(c);
+#if TARGET_OS_IPHONE
+    CGColorSpaceRef cspace = CGColorSpaceCreateDeviceCMYK();
+#else
+    CGColorSpaceRef cspace = CGColorSpaceCreateWithName(kCGColorSpaceGenericCMYK);
+#endif
+    for (i = 0; i < 34;i++) {
+        c = CGColorCreate(cspace, colorData + i*5);
+        CFArraySetValueAtIndex(colors, i, c); CGColorRelease(c);
+    }
     
     for (i = 34; i < highest + 1; i++) {
         CFArraySetValueAtIndex(colors, i, blackColor);
@@ -164,9 +188,7 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     
     colorList = calloc(highest + 1, sizeof(int));
     j = 0;
-    
-    CGColorSpaceRef cspace = CGColorSpaceCreateWithName(kCGColorSpaceGenericCMYK);
-    
+        
     if (ocdf->header->version != 8) {
         for (i = 0; i < ocdf->num_strings; i++) {
             if (ocdf->string_rec_types[i] != 9) continue;
@@ -213,6 +235,7 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     
 }
 
+#if !TARGET_OS_IPHONE
 - (void)loadBackgroundImagesRelativeToPath:(NSString *)basePath {
     int i;
     
@@ -287,20 +310,22 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         [q startQuery];
     }
 }
+#endif
 
-- (void)dealloc { 
+- (void)dealloc {
+#if !TARGET_OS_IPHONE
     for (NSMetadataQuery *q in spotlightQueries) {
         [q stopQuery];
     }
+#endif
+#if ! __has_feature(objc_arc)
     [spotlightQueries release];
-    
     [ocadFilePath release];
-    
     [structureColors release];
     [hatchColors release];
     [secondaryHatchColors release];
     [backgroundImages release];
-    
+#endif
     if (colors != NULL) CFRelease(colors);
 
     if (cachedDrawingInfo != NULL) {
@@ -321,7 +346,9 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     if (colorList != NULL) free(colorList);    
     if (blackColor != NULL) CGColorRelease(blackColor);
 	
+#if ! __has_feature(objc_arc)
 	[super dealloc];
+#endif
 }
 
 - (BOOL)supportsBrownImage {
@@ -552,10 +579,12 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
         while (brown_stop < num_cached_objects && sortedCache[brown_stop]->colornum == browncolor) brown_stop++;
     }
     
+#if ! __has_feature(objc_arc)
     for (NSInvocationOperation *op in invocations) {
         [op release];
     }
     [queue release];
+#endif
 }
 
 
@@ -566,9 +595,9 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
     
     
     float angle = 0.0;
-    if (e->angle != -1) angle = ((float)(e->angle)) / 10.0 * pi / 180.0;
+    if (e->angle != -1) angle = ((float)(e->angle)) / 10.0 * M_PI / 180.0;
     return [self cacheSymbolElements:(struct ocad_symbol_element *)(point->points) 
-                             atPoint:NSMakePoint(e->coords[0].x >> 8, e->coords[0].y >> 8) 
+                             atPoint:CGPointMake(e->coords[0].x >> 8, e->coords[0].y >> 8) 
                            withAngle:angle 
                        totalDataSize:point->datasize
                               element:e];
@@ -612,11 +641,11 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
 	return d;
 }
 
-- (NSArray *)cacheSymbolElements:(struct ocad_symbol_element *)se atPoint:(NSPoint)origin withAngle:(float)angle totalDataSize:(uint16_t)data_size {
+- (NSArray *)cacheSymbolElements:(struct ocad_symbol_element *)se atPoint:(CGPoint)origin withAngle:(float)angle totalDataSize:(uint16_t)data_size {
     return [self cacheSymbolElements:se atPoint:origin withAngle:angle totalDataSize:data_size element:NULL];
 }
 
-- (NSArray *)cacheSymbolElements:(struct ocad_symbol_element *)se atPoint:(NSPoint)origin withAngle:(float)angle totalDataSize:(uint16_t)data_size element:(struct ocad_element *)element {
+- (NSArray *)cacheSymbolElements:(struct ocad_symbol_element *)se atPoint:(CGPoint)origin withAngle:(float)angle totalDataSize:(uint16_t)data_size element:(struct ocad_element *)element {
 	CGAffineTransform at = CGAffineTransformIdentity;
 	at = CGAffineTransformTranslate(at, origin.x, origin.y);
     if (angle != 0.0) at = CGAffineTransformRotate(at, angle);
@@ -639,7 +668,7 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
                 }
                 CGPathRef strokedPath = CGPathCreateCopyByStrokingPath(path, NULL, se->line_width, kCGLineCapButt, kCGLineJoinBevel, 0.5*((float)se->line_width));
 				
-                [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", strokedPath, @"path", 
+                [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", strokedPath, @"path",
                                   [NSValue valueWithPointer:element], @"element",
                                   [NSNumber numberWithInt:se->color], @"colornum",
                                   nil]];
@@ -657,7 +686,7 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
                     }
                 }
 				CGPathCloseSubpath(path);
-                [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", path, @"path", 
+                [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", path, @"path",
                                   [NSNumber numberWithInt:se->color], @"colornum",
                                   [NSValue valueWithPointer:element], @"element", nil]];
                 break;
@@ -666,11 +695,11 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
 				CGPathAddEllipseInRect(path, &at, CGRectMake(-(se->diameter / 2) + (se->points[0].x >> 8), -(se->diameter / 2) + (se->points[0].y >> 8), se->diameter, se->diameter));
                 if (se->symbol_type == 3) {
                     CGPathRef strokedPath = CGPathCreateCopyByStrokingPath(path, NULL, se->line_width, kCGLineCapButt, kCGLineJoinBevel, 0.5*((float)se->line_width));
-					[cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", strokedPath, @"path", 
+					[cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", strokedPath, @"path",
                                       [NSNumber numberWithInt:se->color], @"colornum",
                                       [NSValue valueWithPointer:element], @"element",nil]];
                 } else {
-                    [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", path, @"path", 
+                    [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", path, @"path",
                                       [NSNumber numberWithInt:se->color], @"colornum",
                                       [NSValue valueWithPointer:element], @"element", nil]];
                 }
@@ -738,7 +767,7 @@ const void *ColorRetain (CFAllocatorRef allocator,const void *value) {
             if (frame != NULL) {
                 CGContextSaveGState(ctx);
 
-                CGFloat alpha = cache->angle*pi/180.0;
+                CGFloat alpha = cache->angle*M_PI/180.0;
                 if (alpha != 0.0) {
                     CGPoint m = cache->midpoint;
                     CGAffineTransform at = CGAffineTransformMake(cos(alpha), sin(alpha), -sin(alpha), cos(alpha), 

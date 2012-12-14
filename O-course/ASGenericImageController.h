@@ -8,7 +8,9 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreFoundation/CoreFoundation.h>
+#if !TARGET_OS_IPHONE
 #import <Quartz/Quartz.h>
+#endif
 #import "ASMapProvider.h"
 
 @interface ASGenericImageController : NSObject <ASMapProvider> {

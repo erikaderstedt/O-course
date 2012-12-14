@@ -224,7 +224,7 @@
 
             if (type == kASRegularControl) {
                 // Draw number and control code.
-                NSString *s = [NSString stringWithFormat:@"%d", controlNumber++];
+                NSString *s = [NSString stringWithFormat:@"%d", (int)(controlNumber++)];
                 sz = [s boundingRectWithSize:block
                                                              options:NSStringDrawingUsesFontLeading 
                                                           attributes:boldAttributes].size;
@@ -834,6 +834,146 @@
             CGPathAddCurveToPoint(path, NULL, -30.8, 31.76, -26.41, 37.48, -32.5, 45.5);
             CGPathAddCurveToPoint(path, NULL, -38.59, 53.52, -42.8, 52.07, -46.5, 45.5);
             CGPathAddCurveToPoint(path, NULL, -50.2, 38.93, -48.87, 32.96, -49, 26.5);
+        case kASFeatureWaterhole:
+            CGPathMoveToPoint(path, NULL, 45.5, 22.41);
+            CGPathAddCurveToPoint(path, NULL, 45.5, 28.96, 46.03, 37.75, 43.13, 44.39);
+            CGPathAddCurveToPoint(path, NULL, 40.23, 51.02, 31.75, 49.93, 29.38, 44.86);
+            CGPathAddCurveToPoint(path, NULL, 27.01, 39.78, 29.64, 29.89, 25.59, 26.15);
+            CGPathAddCurveToPoint(path, NULL, 21.53, 22.41, 17.55, 19.3, 11.36, 26.15);
+            CGPathAddCurveToPoint(path, NULL, 5.18, 33.01, 11.45, 36.9, 6.62, 44.86);
+            CGPathAddCurveToPoint(path, NULL, 1.8, 52.81, -4.34, 50.21, -7.6, 44.86);
+            CGPathAddCurveToPoint(path, NULL, -10.86, 39.5, -6.97, 33.67, -11.39, 26.15);
+            CGPathAddCurveToPoint(path, NULL, -15.82, 18.63, -22.49, 20.29, -25.62, 26.15);
+            CGPathAddCurveToPoint(path, NULL, -28.75, 32.01, -24.58, 37.36, -30.36, 44.86);
+            CGPathAddCurveToPoint(path, NULL, -36.14, 52.35, -40.13, 51, -43.64, 44.86);
+            CGPathAddCurveToPoint(path, NULL, -47.15, 38.71, -45.89, 33.13, -46.01, 27.09);
+            CGPathMoveToPoint(path, NULL, -23.5, 1.5);
+            CGPathAddLineToPoint(path, NULL, -0.5, -52.5);
+            CGPathAddLineToPoint(path, NULL, 23.5, 1.5);
+            break;
+        case kASFeatureStream:
+            CGPathMoveToPoint(path, NULL, -38.5, 50.5);
+            CGPathAddCurveToPoint(path, NULL, -43.5, 45.5, -49.32, 44.05, -49.5, 35.5);
+            CGPathAddCurveToPoint(path, NULL, -49.68, 26.95, -46.77, 26.49, -38.5, 26.5);
+            CGPathAddCurveToPoint(path, NULL, -30.23, 26.51, -31.89, 35.5, -22.5, 35.5);
+            CGPathAddCurveToPoint(path, NULL, -13.11, 35.5, -14.3, 30.78, -14.5, 26.5);
+            CGPathAddCurveToPoint(path, NULL, -14.7, 22.22, -22.5, 20.48, -22.5, 10.5);
+            CGPathAddCurveToPoint(path, NULL, -22.5, 0.52, -18.41, 1.33, -14.5, 1.5);
+            CGPathAddCurveToPoint(path, NULL, -10.59, 1.67, -4.67, 10.5, 3.5, 10.5);
+            CGPathAddCurveToPoint(path, NULL, 11.67, 10.5, 11.69, 6.18, 11.5, 1.5);
+            CGPathAddCurveToPoint(path, NULL, 11.31, -3.18, 3.5, -6.2, 3.5, -14.5);
+            CGPathAddCurveToPoint(path, NULL, 3.5, -22.8, 6.21, -24.33, 11.5, -24.5);
+            CGPathAddCurveToPoint(path, NULL, 16.79, -24.67, 21.84, -14.5, 29.5, -14.5);
+            CGPathAddCurveToPoint(path, NULL, 37.16, -14.5, 36.92, -19.26, 36.5, -24.5);
+            CGPathAddCurveToPoint(path, NULL, 36.08, -29.74, 29.5, -30.52, 29.5, -38.5);
+            CGPathAddCurveToPoint(path, NULL, 29.5, -46.48, 30.98, -49.17, 36.5, -49.5);
+        case kASFeatureDitch:
+            CGPathMoveToPoint(path, NULL, -21.5, 50.5);
+            CGPathAddLineToPoint(path, NULL, 0.5, 28.5);
+            CGPathMoveToPoint(path, NULL, 7.5, 21.5);
+            CGPathAddLineToPoint(path, NULL, 25.5, 3.5);
+            CGPathMoveToPoint(path, NULL, 33.5, -4.5);
+            CGPathAddLineToPoint(path, NULL, 50.5, -21.5);
+            CGPathMoveToPoint(path, NULL, -50.5, 20.5);
+            CGPathAddLineToPoint(path, NULL, -28.5, -1.5);
+            CGPathMoveToPoint(path, NULL, -21.5, -8.5);
+            CGPathAddLineToPoint(path, NULL, -3.5, -26.5);
+            CGPathMoveToPoint(path, NULL, 4.5, -34.5);
+            CGPathAddLineToPoint(path, NULL, 21.5, -51.5);
+            CGPathMoveToPoint(path, NULL, -27.5, 36.5);
+            CGPathAddCurveToPoint(path, NULL, -30.5, 33.5, -35.22, 29.65, -35, 25);
+            CGPathAddCurveToPoint(path, NULL, -34.78, 20.35, -33.25, 20.03, -29.5, 19.5);
+            CGPathAddCurveToPoint(path, NULL, -25.75, 18.97, -21.4, 27.46, -16, 27);
+            CGPathAddCurveToPoint(path, NULL, -10.6, 26.54, -9.84, 23.95, -10.5, 20);
+            CGPathAddCurveToPoint(path, NULL, -11.16, 16.05, -16.96, 12.03, -16.5, 7.5);
+            CGPathAddCurveToPoint(path, NULL, -16.04, 2.97, -15.86, 1.29, -11.5, 1);
+            CGPathAddCurveToPoint(path, NULL, -7.14, 0.71, -3.42, 8.54, 3, 8.5);
+            CGPathAddCurveToPoint(path, NULL, 9.42, 8.46, 8.27, 5.54, 8.5, 1.5);
+            CGPathAddCurveToPoint(path, NULL, 8.73, -2.54, 2, -3.85, 2.5, -9.5);
+            CGPathAddCurveToPoint(path, NULL, 3, -15.15, 3.94, -17.26, 7.5, -17.5);
+            CGPathAddCurveToPoint(path, NULL, 11.06, -17.74, 14.77, -9.72, 20.5, -10);
+            CGPathAddCurveToPoint(path, NULL, 26.23, -10.28, 26.53, -13.18, 26.5, -17.5);
+            CGPathAddCurveToPoint(path, NULL, 26.47, -21.82, 19.98, -22.53, 20.5, -27.5);
+            CGPathAddCurveToPoint(path, NULL, 21.02, -32.47, 21.17, -35.12, 25, -35);
+            CGPathAddCurveToPoint(path, NULL, 28.83, -34.88, 32.54, -32.34, 37.5, -28);
+        case kASFeatureNarrowMarch:
+            CGPathAddEllipseInRect(path, NULL, CGRectMake(25, -43, 17, 17));
+            CGPathAddEllipseInRect(path, NULL, CGRectMake(8, -26, 17, 17));
+            CGPathAddEllipseInRect(path, NULL, CGRectMake(-41, 25, 17, 17));
+            CGPathAddEllipseInRect(path, NULL, CGRectMake(-25, 8, 17, 17));
+            CGPathAddEllipseInRect(path, NULL, CGRectMake(-8, -9, 17, 17));
+            break;
+        case kASFeatureMarch:
+            CGPathMoveToPoint(path, NULL, -21.5, 49.5);
+            CGPathAddLineToPoint(path, NULL, 21.5, 49.5);
+            CGPathMoveToPoint(path, NULL, -42.5, 24.5);
+            CGPathAddLineToPoint(path, NULL, 40.5, 24.5);
+            CGPathMoveToPoint(path, NULL, -55.5, 0.5);
+            CGPathAddLineToPoint(path, NULL, 54.5, 0.5);
+            CGPathMoveToPoint(path, NULL, -43.5, -24.5);
+            CGPathAddLineToPoint(path, NULL, 39.5, -24.5);
+            CGPathMoveToPoint(path, NULL, -23.5, -49.5);
+            CGPathAddLineToPoint(path, NULL, 22.5, -49.5);
+            break;
+        case kASFeatureFirmGroundInMarch:
+            CGPathMoveToPoint(path, NULL, -54.5, 49.5);
+            CGPathAddLineToPoint(path, NULL, 54.5, 49.5);
+            CGPathMoveToPoint(path, NULL, -54.5, 24.5);
+            CGPathAddLineToPoint(path, NULL, -26.5, 24.5);
+            CGPathMoveToPoint(path, NULL, 25.5, 24.5);
+            CGPathAddLineToPoint(path, NULL, 54.5, 24.5);
+            CGPathMoveToPoint(path, NULL, 35.5, 0.5);
+            CGPathAddLineToPoint(path, NULL, 55.5, 0.5);
+            CGPathMoveToPoint(path, NULL, -54.5, -24.5);
+            CGPathAddLineToPoint(path, NULL, -26.5, -24.5);
+            CGPathMoveToPoint(path, NULL, 24.5, -24.5);
+            CGPathAddLineToPoint(path, NULL, 55.5, -24.5);
+            CGPathMoveToPoint(path, NULL, -55.5, -49.5);
+            CGPathAddLineToPoint(path, NULL, 55.5, -49.5);
+            CGPathMoveToPoint(path, NULL, -55.5, -0.5);
+            CGPathAddLineToPoint(path, NULL, -36.5, -0.5);
+            break;
+        case kASFeatureWell:
+            CGPathAddEllipseInRect(path, NULL, CGRectMake(-32.5, -15.5, 65, 63));
+            CGPathMoveToPoint(path, NULL, -32.5, -49.5);
+            CGPathAddCurveToPoint(path, NULL, -32.5, -42.5, -34.97, -33.27, -28.5, -27);
+            CGPathAddCurveToPoint(path, NULL, -22.03, -20.73, -17.45, -23.05, -13.5, -28.5);
+            CGPathAddCurveToPoint(path, NULL, -9.55, -33.95, -14.66, -41.15, -9, -46.5);
+            CGPathAddCurveToPoint(path, NULL, -3.34, -51.85, 4.33, -53.76, 10, -47);
+            CGPathAddCurveToPoint(path, NULL, 15.67, -40.24, 9.09, -33.38, 15, -28);
+            CGPathAddCurveToPoint(path, NULL, 20.91, -22.62, 24.48, -21.46, 30.5, -29);
+            CGPathAddCurveToPoint(path, NULL, 36.52, -36.54, 33.21, -41.37, 34, -48.5);
+            break;
+        case kASFeatureSpring:
+            CGPathMoveToPoint(path, NULL, -30.5, 11.5);
+            CGPathAddCurveToPoint(path, NULL, -36.5, 12.5, -39.07, 15.66, -42.5, 20.5);
+            CGPathAddCurveToPoint(path, NULL, -45.93, 25.34, -45.39, 34.55, -42.5, 40.5);
+            CGPathAddCurveToPoint(path, NULL, -39.61, 46.45, -34.14, 49.68, -27.5, 49.5);
+            CGPathAddCurveToPoint(path, NULL, -20.86, 49.32, -16.97, 48.45, -8.5, 36);
+            CGPathMoveToPoint(path, NULL, -25.5, 29.5);
+            CGPathAddCurveToPoint(path, NULL, -17.5, 20.5, -15.69, 13.97, -9.5, 12);
+            CGPathAddCurveToPoint(path, NULL, -3.31, 10.03, 2.64, 13.79, 9, 10.5);
+            CGPathAddCurveToPoint(path, NULL, 15.36, 7.21, 15.69, 4.45, 14.5, -1);
+            CGPathAddCurveToPoint(path, NULL, 13.31, -6.45, 7.18, -8.17, 7, -14);
+            CGPathAddCurveToPoint(path, NULL, 6.82, -19.83, 9.64, -27.48, 15.5, -27.5);
+            CGPathAddCurveToPoint(path, NULL, 21.36, -27.52, 24.32, -16.78, 34.5, -18);
+            CGPathAddCurveToPoint(path, NULL, 44.68, -19.22, 44.87, -22.55, 46, -27.5);
+            CGPathAddCurveToPoint(path, NULL, 47.13, -32.45, 43.24, -43.16, 41, -49);
+            break;
+        case kASFeatureWaterTrough:
+            CGPathAddRect(path, NULL, CGRectMake(-37.5, -42.5, 73, 38));
+            CGPathMoveToPoint(path, NULL, -45.5, 17.5);
+            CGPathAddCurveToPoint(path, NULL, -45.5, 25.5, -46.33, 35.07, -41.5, 39.5);
+            CGPathAddCurveToPoint(path, NULL, -36.67, 43.93, -33.32, 43.24, -29, 36.5);
+            CGPathAddCurveToPoint(path, NULL, -24.68, 29.76, -29.95, 25.56, -26, 19.5);
+            CGPathAddCurveToPoint(path, NULL, -22.05, 13.44, -15.71, 13.66, -11.5, 19.5);
+            CGPathAddCurveToPoint(path, NULL, -7.29, 25.34, -11.52, 33.39, -6.5, 38.5);
+            CGPathAddCurveToPoint(path, NULL, -1.48, 43.61, 1.79, 43.11, 6, 38.5);
+            CGPathAddCurveToPoint(path, NULL, 10.21, 33.89, 5.92, 26.74, 9.5, 21);
+            CGPathAddCurveToPoint(path, NULL, 13.08, 15.26, 20.75, 13.5, 24.5, 20.5);
+            CGPathAddCurveToPoint(path, NULL, 28.25, 27.5, 23.3, 33.41, 29, 39.5);
+            CGPathAddCurveToPoint(path, NULL, 34.7, 45.59, 37.03, 42.92, 41, 37.5);
+            CGPathAddCurveToPoint(path, NULL, 44.97, 32.08, 43.49, 26.65, 43.5, 20);
             break;
         default:
             break;
