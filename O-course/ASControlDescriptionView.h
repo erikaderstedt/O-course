@@ -11,21 +11,6 @@
 
 @class ASDistanceFormatter;
 
-enum ASControlDescriptionColumn {
-    kASControlNumber,
-    kASControlCode,
-    kASWhichOfAnySimilarFeature,
-    kASFeature,
-    kASAppearanceOrSecondaryFeature,
-    kASDimensionsOrCombinations,
-    kASLocationOfTheControlFlag,
-    kASOtherInformation
-};
-
-
-#define SYMBOL_SIZE 64
-#define SQRT2   0.7
-
 @interface ASControlDescriptionView : NSView {
     id <ASControlDescriptionProvider> provider;
     id <NSObject> course;
@@ -37,6 +22,16 @@ enum ASControlDescriptionColumn {
     NSMutableDictionary *dimensionsAttributes;
     
     ASDistanceFormatter *distanceFormatter;
+    
+    NSColor *linenTextureColor;
+    NSShadow *dropShadow;
+    
+    // Layout
+@protected
+    CGFloat  blockSize;
+    CGRect  paperBounds;
+    CGRect  actualDescriptionBounds;
+    CGRect  eventBounds;
 }
 @property (nonatomic,retain) IBOutlet id <ASControlDescriptionProvider> provider;
 @property (nonatomic,retain) id <NSObject> course;
@@ -49,14 +44,9 @@ enum ASControlDescriptionColumn {
 - (void)setOverprintColor:(NSColor *)newColor;
 + (NSColor *)defaultOverprintColor;
 
-- (void)drawThickGridAtOrigin:(NSPoint)origin blockSize:(CGFloat)blockSize;
-- (void)drawThinGridAtOrigin:(NSPoint)origin blockSize:(CGFloat)blockSize;
+- (void)drawThickGridAtOrigin:(NSPoint)origin;
+- (void)drawThinGridAtOrigin:(NSPoint)origin;
 
-- (void)drawWhichOfAnySimilarFeatureAtOrigin:(NSPoint)p usingBlockSize:(CGFloat)blockSize;
-
-- (CFArrayRef)createPathsForColumn:(enum ASControlDescriptionColumn)column withValue:(NSNumber *)value atPosition:(CGPoint)p withSize:(CGFloat)sz;
-- (CFArrayRef)createPathsForWhichOfAnySimilarFeatureWithValue:(NSNumber *)value transform:(CGAffineTransform *)tran;
-- (CFArrayRef)createPathsForFeatureOrAppearance:(NSNumber *)value transform:(CGAffineTransform *)tran;
 @end
 
 

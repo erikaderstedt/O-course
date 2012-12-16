@@ -22,6 +22,10 @@
     [super awakeFromInsert];
     
     [self setPrimitiveValue:[NSDate date] forKey:@"added"];
+    if ([[[self entity] name] isEqualToString:@"Control"]) {
+        [self setPrimitiveValue:[NSNumber numberWithInt:kASFeatureNone] forKey:@"controlFeature"];
+        [self setPrimitiveValue:[NSNumber numberWithInt:kASFeatureNotSpecified] forKey:@"whichOfAnySimilarFeature"];
+    }
 }
 
 @dynamic distance;

@@ -56,22 +56,27 @@
     obj = [NSEntityDescription insertNewObjectForEntityForName:@"Control" inManagedObjectContext:moc];
     obj.controlDescriptionItemType = kASRegularControl;
     obj.controlCode = [NSNumber numberWithInt:31];
+    obj.controlFeature = [NSNumber numberWithInt:kASFeaturePond];
+    obj.whichOfAnySimilarFeature = [NSNumber numberWithInt:kASFeatureNorth];
     [mos addObject:obj];
     
     obj = [NSEntityDescription insertNewObjectForEntityForName:@"Control" inManagedObjectContext:moc];
     obj.controlDescriptionItemType = kASRegularControl;
     obj.controlCode = [NSNumber numberWithInt:32];
+    obj.controlFeature = [NSNumber numberWithInt:kASFeatureCliff];
     [mos addObject:obj];    
     
     obj = [NSEntityDescription insertNewObjectForEntityForName:@"Control" inManagedObjectContext:moc];
     obj.controlDescriptionItemType = kASRegularControl;
+    obj.controlFeature = [NSNumber numberWithInt:kASFeatureBareRock];
     obj.controlCode = [NSNumber numberWithInt:33];
     [mos addObject:obj];    
     
     obj = [NSEntityDescription insertNewObjectForEntityForName:@"Control" inManagedObjectContext:moc];
     obj.controlDescriptionItemType = kASRegularControl;
+    obj.controlFeature = [NSNumber numberWithInt:kASFeatureStonyGround];
     obj.controlCode = [NSNumber numberWithInt:34];
-    [mos addObject:obj];    
+//    [mos addObject:obj];    
     
     
     obj = [NSEntityDescription insertNewObjectForEntityForName:@"CourseObject" inManagedObjectContext:moc];

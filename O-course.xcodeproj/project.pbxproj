@@ -56,6 +56,11 @@
 		03EEB2A9147427F500BD9E0F /* ASCourseController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03EEB2A8147427F400BD9E0F /* ASCourseController.m */; };
 		03EEB2AC1474330500BD9E0F /* ASDistanceFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 03EEB2AB1474330500BD9E0F /* ASDistanceFormatter.m */; };
 		03F2C76B142C72600053A47F /* Project.m in Sources */ = {isa = PBXBuildFile; fileRef = 03F2C76A142C72600053A47F /* Project.m */; };
+		03FA63A1156FEBB700EF4ACF /* ASCourseObjectSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 03FA63A0156FEBB700EF4ACF /* ASCourseObjectSelectionView.m */; };
+		03FA63A5156FEE3A00EF4ACF /* ASControlDescriptionView+CourseObjects.m in Sources */ = {isa = PBXBuildFile; fileRef = 03FA63A4156FEE3A00EF4ACF /* ASControlDescriptionView+CourseObjects.m */; };
+		03FA63A81570006200EF4ACF /* ASEditableControlDescriptionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 03FA63A71570006200EF4ACF /* ASEditableControlDescriptionView.m */; };
+		03FA63AA1570125300EF4ACF /* linen_texture.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 03FA63A91570125300EF4ACF /* linen_texture.jpg */; };
+		03FA63AC15702ACB00EF4ACF /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 03FA63AB15702ACB00EF4ACF /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -153,6 +158,14 @@
 		03EEB2AB1474330500BD9E0F /* ASDistanceFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASDistanceFormatter.m; sourceTree = "<group>"; };
 		03F2C769142C725F0053A47F /* Project.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Project.h; path = "O-course/Project.h"; sourceTree = "<group>"; };
 		03F2C76A142C72600053A47F /* Project.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Project.m; path = "O-course/Project.m"; sourceTree = "<group>"; };
+		03FA639F156FEBB700EF4ACF /* ASCourseObjectSelectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASCourseObjectSelectionView.h; sourceTree = "<group>"; };
+		03FA63A0156FEBB700EF4ACF /* ASCourseObjectSelectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASCourseObjectSelectionView.m; sourceTree = "<group>"; };
+		03FA63A3156FEE3A00EF4ACF /* ASControlDescriptionView+CourseObjects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ASControlDescriptionView+CourseObjects.h"; sourceTree = "<group>"; };
+		03FA63A4156FEE3A00EF4ACF /* ASControlDescriptionView+CourseObjects.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ASControlDescriptionView+CourseObjects.m"; sourceTree = "<group>"; };
+		03FA63A61570006200EF4ACF /* ASEditableControlDescriptionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASEditableControlDescriptionView.h; sourceTree = "<group>"; };
+		03FA63A71570006200EF4ACF /* ASEditableControlDescriptionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASEditableControlDescriptionView.m; sourceTree = "<group>"; };
+		03FA63A91570125300EF4ACF /* linen_texture.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = linen_texture.jpg; sourceTree = "<group>"; };
+		03FA63AB15702ACB00EF4ACF /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = Localizable.strings; path = Resources/Localizable.strings; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -240,6 +253,12 @@
 				03CE92A2142E6C06003EBECD /* MyDocumentController.m */,
 				03EEB2A41471C0D100BD9E0F /* ASControlDescriptionView.h */,
 				03EEB2A51471C0D100BD9E0F /* ASControlDescriptionView.m */,
+				03FA63A3156FEE3A00EF4ACF /* ASControlDescriptionView+CourseObjects.h */,
+				03FA63A4156FEE3A00EF4ACF /* ASControlDescriptionView+CourseObjects.m */,
+				03FA639F156FEBB700EF4ACF /* ASCourseObjectSelectionView.h */,
+				03FA63A0156FEBB700EF4ACF /* ASCourseObjectSelectionView.m */,
+				03FA63A61570006200EF4ACF /* ASEditableControlDescriptionView.h */,
+				03FA63A71570006200EF4ACF /* ASEditableControlDescriptionView.m */,
 				03F2C76C142C81040053A47F /* Model objects */,
 				032001CF12FE9EF900707BA5 /* ASOcourseDocument.h */,
 				032001D012FE9EF900707BA5 /* ASOcourseDocument.m */,
@@ -293,6 +312,8 @@
 		033D6872134B05AE00502CA8 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				03FA63AB15702ACB00EF4ACF /* Localizable.strings */,
+				03FA63A91570125300EF4ACF /* linen_texture.jpg */,
 				033DA8A8144EF8E600C787F8 /* README */,
 				033D6873134B05D100502CA8 /* compass bezel.png */,
 				032001D212FE9EF900707BA5 /* ASOcourseDocument.xib */,
@@ -449,6 +470,8 @@
 				032001D412FE9EF900707BA5 /* ASOcourseDocument.xib in Resources */,
 				032001D712FE9EF900707BA5 /* MainMenu.xib in Resources */,
 				033D6874134B05D100502CA8 /* compass bezel.png in Resources */,
+				03FA63AA1570125300EF4ACF /* linen_texture.jpg in Resources */,
+				03FA63AC15702ACB00EF4ACF /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -496,6 +519,9 @@
 				03EEB2A9147427F500BD9E0F /* ASCourseController.m in Sources */,
 				03EEB2AC1474330500BD9E0F /* ASDistanceFormatter.m in Sources */,
 				0385ED7C156E2E630013AB2D /* CourseObject.m in Sources */,
+				03FA63A1156FEBB700EF4ACF /* ASCourseObjectSelectionView.m in Sources */,
+				03FA63A5156FEE3A00EF4ACF /* ASControlDescriptionView+CourseObjects.m in Sources */,
+				03FA63A81570006200EF4ACF /* ASEditableControlDescriptionView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -608,7 +634,6 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CODE_SIGN_ENTITLEMENTS = "O-course/O-course.entitlements";
-				CODE_SIGN_IDENTITY = "Mac Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -626,7 +651,6 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CODE_SIGN_ENTITLEMENTS = "O-course/O-course.entitlements";
-				CODE_SIGN_IDENTITY = "Mac Developer";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;

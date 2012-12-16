@@ -10,6 +10,7 @@
 #import "ASControlDescriptionProvider.h"
 
 enum ASWhichOfAnySimilarFeature {
+    kASFeatureNotSpecified,
     kASFeatureNorth,
     kASFeatureNorthEast,
     kASFeatureEast,
@@ -26,6 +27,7 @@ enum ASWhichOfAnySimilarFeature {
 };
 
 enum ASFeature {
+    kASFeatureNone,
     kASFeatureTerrace,
     kASFeatureSpur,
     kASFeatureRe_Entrant,
@@ -61,7 +63,8 @@ enum ASFeature {
     kASFeatureFirmGroundInMarch,
     kASFeatureWell,
     kASFeatureSpring,
-    kASFeatureWaterTrough
+    kASFeatureWaterTrough,
+    kASFeatureOpenLand
 };
 
 @interface CourseObject : NSManagedObject <ASControlDescriptionItem>

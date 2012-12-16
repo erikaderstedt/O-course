@@ -23,6 +23,18 @@ enum ControlDescriptionItemType {
                                     // This control type is never present.
 };
 
+enum ASControlDescriptionColumn {
+    kASControlNumber,
+    kASControlCode,
+    kASWhichOfAnySimilarFeature,
+    kASFeature,
+    kASAppearanceOrSecondaryFeature,
+    kASDimensionsOrCombinations,
+    kASLocationOfTheControlFlag,
+    kASOtherInformation,
+    kASAllColumns
+};
+
 @protocol ASControlDescriptionItem  <NSObject>
 
 - (enum ControlDescriptionItemType)controlDescriptionItemType;
@@ -63,5 +75,22 @@ enum ControlDescriptionItemType {
 - (void)setCombinationSymbol:(NSNumber *)combinationSymbol;
 - (void)setLocationOfTheControlFlag:(NSNumber *)locationOfTheControlFlag;
 - (void)setOtherInformation:(NSNumber *)otherInformation;
+
+@end
+
+@protocol ASCourseObjectSelectionViewDelegate <NSObject>
+
+- (NSInteger)selectedValueForColumn:(enum ASControlDescriptionColumn)column;
+
+@end
+
+@protocol ASCourseObjectSelectionViewDataSource <NSObject>
+
+- (NSArray *)supportedValuesForColumn:(enum ASControlDescriptionColumn)column;
+- (CFArrayRef)createPathsForColumn:(enum ASControlDescriptionColumn)column withValue:(NSNumber *)value atPosition:(CGPoint)p withSize:(CGFloat)sz;
+- (CFArrayRef)createPathsForWhichOfAnySimilarFeatureWithValue:(NSNumber *)value transform:(CGAffineTransform *)tran;
+- (CFArrayRef)createPathsForFeatureOrAppearance:(NSNumber *)value transform:(CGAffineTransform *)tran;
+- (NSString *)localizedNameForValue:(NSInteger)value inColumn:(enum ASControlDescriptionColumn)column;
+- (NSString *)localizedDescriptionForValue:(NSInteger)value inColumn:(enum ASControlDescriptionColumn)column;
 
 @end

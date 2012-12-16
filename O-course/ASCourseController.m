@@ -8,8 +8,10 @@
 
 #import "ASCourseController.h"
 #import "ASControlDescriptionView.h"
+#import "ASControlDescriptionView+CourseObjects.h"
 #import "Project.h"
 #import "CourseObject.h"
+#import "ASCourseObjectSelectionView.h"
 
 @implementation ASCourseController
 
@@ -17,6 +19,7 @@
 @synthesize courses;
 @synthesize courseTable;
 @synthesize mainControlDescription;
+@synthesize courseObjectSelectionView;
 
 - (void)dealloc {
     [managedObjectContext release];
@@ -28,6 +31,8 @@
 }
 
 - (void)willAppear {
+    courseObjectSelectionView.dataSource = mainControlDescription;
+    courseObjectSelectionView.column = kASFeature;
     [courses addObserver:self forKeyPath:@"arrangedObjects" options:0 context:self];
 }
 
