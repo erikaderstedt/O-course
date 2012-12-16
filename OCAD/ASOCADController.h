@@ -10,6 +10,9 @@
 #import <CoreFoundation/CoreFoundation.h>
 #import "ASMapProvider.h"
 #import "ocdimport.h"
+#if TARGET_OS_IPHONE
+#import <CoreText/CoreText.h>
+#endif
 
 struct ocad_cache {
     CGRect      boundingBox;       // The path bounding box is cached because determining it is a fairly expensive operation.
@@ -25,7 +28,11 @@ struct ocad_cache {
 
 };
 
-@interface ASOCADController : NSObject <ASMapProvider> {
+@interface ASOCADController : NSObject <ASMapProvider
+#if !TARGET_OS_IPHONE
+, NSMetadataQueryDelegate
+#endif
+> {
 @private
     struct  ocad_cache *cachedDrawingInfo;
     struct  ocad_cache **sortedCache;
@@ -61,7 +68,9 @@ struct ocad_cache {
 - (id)initWithOCADFile:(NSString *)path;
 - (void)prepareCacheWithAreaTransform:(CGAffineTransform)transform;
 
+#if !TARGET_OS_IPHONE
 - (void)loadBackgroundImagesRelativeToPath:(NSString *)basePath;
+#endif
 - (void)parseColors;
 - (CGColorRef)colorWithNumber:(int)color_number;
 
@@ -70,7 +79,7 @@ struct ocad_cache {
 
 - (NSArray *)cachedDrawingInfoForPointObject:(struct ocad_element *)e;
 - (NSDictionary *)cachedDrawingInfoForRectangleObject:(struct ocad_element *)e;
-- (NSArray *)cacheSymbolElements:(struct ocad_symbol_element *)se atPoint:(NSPoint)origin withAngle:(float)angle totalDataSize:(uint16_t)data_size;
-- (NSArray *)cacheSymbolElements:(struct ocad_symbol_element *)se atPoint:(NSPoint)origin withAngle:(float)angle totalDataSize:(uint16_t)data_size element:(struct ocad_element *)element;
+- (NSArray *)cacheSymbolElements:(struct ocad_symbol_element *)se atPoint:(CGPoint)origin withAngle:(float)angle totalDataSize:(uint16_t)data_size;
+- (NSArray *)cacheSymbolElements:(struct ocad_symbol_element *)se atPoint:(CGPoint)origin withAngle:(float)angle totalDataSize:(uint16_t)data_size element:(struct ocad_element *)element;
 
 @end

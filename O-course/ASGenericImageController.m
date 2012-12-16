@@ -7,7 +7,6 @@
 //
 
 #import "ASGenericImageController.h"
-#import <AppKit/AppKit.h>
 
 @implementation ASGenericImageController
 

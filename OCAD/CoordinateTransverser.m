@@ -129,7 +129,7 @@ CGPoint translatePoint(CGPoint p, float distance, float angle) {
         currentIndex = 0;
         CGPoint p0 = [self coordinateAtIndex:0];
         CGFloat a = [self currentAngle];
-        p0 = translatePoint(p0, self.translateDistanceLeft, a + pi/2);
+        p0 = translatePoint(p0, self.translateDistanceLeft, a + M_PI/2);
         CGPathMoveToPoint(_leftPath, NULL, p0.x, p0.y);
         currentIndex = j;
         CGPathRetain(_leftPath);
@@ -147,7 +147,7 @@ CGPoint translatePoint(CGPoint p, float distance, float angle) {
         currentIndex = 0;
         CGPoint p0 = [self coordinateAtIndex:0];
         CGFloat a = [self currentAngle];
-        p0 = translatePoint(p0, self.translateDistanceRight, a - pi/2);
+        p0 = translatePoint(p0, self.translateDistanceRight, a - M_PI/2);
         CGPathMoveToPoint(_rightPath, NULL, p0.x, p0.y);
         currentIndex = j;
         CGPathRetain(_rightPath);
@@ -329,16 +329,16 @@ CGPoint translatePoint(CGPoint p, float distance, float angle) {
                     // Translate p0 and cp1 according to the start angle, and cp2 and p1 according to the stop angle.
                     if (_leftPath != NULL) {
                         CGPoint p1l, cp1l, cp2l;
-                        cp1l = translatePoint(cp1, translateDistanceLeft, startAngle + pi/2);
-                        cp2l = translatePoint(cp2, translateDistanceLeft, stopAngle + pi/2);
-                        p1l = translatePoint(p1, translateDistanceLeft, stopAngle + pi/2);
+                        cp1l = translatePoint(cp1, translateDistanceLeft, startAngle + M_PI/2);
+                        cp2l = translatePoint(cp2, translateDistanceLeft, stopAngle + M_PI/2);
+                        p1l = translatePoint(p1, translateDistanceLeft, stopAngle + M_PI/2);
                         CGPathAddCurveToPoint(_leftPath, NULL, cp1l.x, cp1l.y, cp2l.x, cp2l.y, p1l.x, p1l.y);
                     }
                     if (_rightPath != NULL) {
                         CGPoint p1r, cp1r, cp2r;
-                        cp1r = translatePoint(cp1, translateDistanceRight, startAngle - pi/2);
-                        cp2r = translatePoint(cp2, translateDistanceRight, stopAngle - pi/2);
-                        p1r = translatePoint(p1, translateDistanceRight, stopAngle - pi/2);
+                        cp1r = translatePoint(cp1, translateDistanceRight, startAngle - M_PI/2);
+                        cp2r = translatePoint(cp2, translateDistanceRight, stopAngle - M_PI/2);
+                        p1r = translatePoint(p1, translateDistanceRight, stopAngle - M_PI/2);
                         CGPathAddCurveToPoint(_rightPath, NULL, cp1r.x, cp1r.y, cp2r.x, cp2r.y, p1r.x, p1r.y);                       
                     }
                 }
@@ -354,11 +354,11 @@ CGPoint translatePoint(CGPoint p, float distance, float angle) {
                     a = [self currentAngle];
                     CGPoint pt;
                     if (_leftPath != NULL) {
-                        pt = translatePoint(p1, translateDistanceLeft, a + pi/2);
+                        pt = translatePoint(p1, translateDistanceLeft, a + M_PI/2);
                         CGPathAddLineToPoint(_leftPath, NULL, pt.x, pt.y);
                     }
                     if (_rightPath != NULL) {
-                        pt = translatePoint(p1, translateDistanceRight, a - pi/2);
+                        pt = translatePoint(p1, translateDistanceRight, a - M_PI/2);
                         CGPathAddLineToPoint(_rightPath, NULL, pt.x, pt.y);
                     }
                 }
@@ -376,11 +376,11 @@ CGPoint translatePoint(CGPoint p, float distance, float angle) {
             CGPoint pt;
 
             if (_leftPath != NULL) {
-                pt = translatePoint(p1, translateDistanceLeft, a + pi/2);
+                pt = translatePoint(p1, translateDistanceLeft, a + M_PI/2);
                 CGPathMoveToPoint(_leftPath, NULL, pt.x, pt.y);
             }
             if (_rightPath != NULL) {
-                pt = translatePoint(p1, translateDistanceRight, a - pi/2);
+                pt = translatePoint(p1, translateDistanceRight, a - M_PI/2);
                 CGPathMoveToPoint(_rightPath, NULL, pt.x, pt.y);
             }
         }
@@ -405,6 +405,8 @@ CGPoint translatePoint(CGPoint p, float distance, float angle) {
     CGPoint buffer1[8], buffer2[8];
     CGPoint stop;
     int j;
+    
+    if (distance == 0.0) return [self currentPoint];
         
     while (remaining_distance > 0 && currentIndex < _num_coords - 1) {
         p0 = [self coordinateAtIndex:currentIndex];

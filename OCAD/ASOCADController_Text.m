@@ -176,7 +176,7 @@
         // Calculate r from the midpoint + size.
         
         CGPoint midpoint = CGPointMake(midx, midy);
-        CGFloat alpha = ((CGFloat)e->angle)*pi/180.0/10.0;
+        CGFloat alpha = ((CGFloat)e->angle)*M_PI/180.0/10.0;
         alpha = -alpha;
         CGAffineTransform at = CGAffineTransformMake(cos(alpha), sin(alpha), -sin(alpha), cos(alpha), 
                                                      midpoint.x*(1.0-cos(alpha))  +midpoint.y*sin(alpha),

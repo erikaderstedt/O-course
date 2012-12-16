@@ -160,6 +160,7 @@
     CGAffineTransform transform = self.areaColorTransform;
 
     NSAssert(a->structure_mode == 1 || a->structure_mode == 2, @"Invalid structure mode!");
+    if (a->data_size == 0) return [self colorWithNumber:0];
 
     pRect = CGRectMake(-0.5*((CGFloat)a->structure_width), -0.5*((CGFloat)a->structure_height), a->structure_width, a->structure_height);
     if (a->structure_mode == 2) {
@@ -167,7 +168,7 @@
     } 
 
     if (a->structure_angle != 0) {
-        transform = CGAffineTransformRotate(transform, ((double)a->structure_angle) * pi / 180.0 / 10.0);
+        transform = CGAffineTransformRotate(transform, ((double)a->structure_angle) * M_PI / 180.0 / 10.0);
     }
     
     CGMutablePathRef path = CGPathCreateMutable();
@@ -257,7 +258,7 @@
         }
     } else {
         pRect = CGRectMake(0.0, 0.0, 1.0, a->hatch_dist);
-        transform = CGAffineTransformRotate(transform, ((double)angle) * pi / 180.0 / 10.0);
+        transform = CGAffineTransformRotate(transform, ((double)angle) * M_PI / 180.0 / 10.0);
     }
 
     void *args[3];
