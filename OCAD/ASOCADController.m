@@ -149,7 +149,7 @@ static CGFloat colorData[170] = {
     if (ocdf->header->version != 8) {
         for (i = 0; i < ocdf->num_strings; i++) {
             if (ocdf->string_rec_types[i] != 9 && ocdf->string_rec_types[i] != 8) {
-                NSLog(@"string: %d %@", ocdf->string_rec_types[i], [NSString stringWithCString:ocdf->strings[i] encoding:NSISOLatin1StringEncoding]);
+//                NSLog(@"string: %d %@", ocdf->string_rec_types[i], [NSString stringWithCString:ocdf->strings[i] encoding:NSISOLatin1StringEncoding]);
                 continue;
             }
             NSString *s = [NSString stringWithCString:ocdf->strings[i] encoding:NSISOLatin1StringEncoding];

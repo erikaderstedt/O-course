@@ -118,6 +118,7 @@
 
 - (NSString *)eventName {
     Project *p = [Project projectInManagedObjectContext:[self managedObjectContext]];
+    if (p == nil) return NSLocalizedString(@"Unknown", @"No event name");;
     return [p valueForKey:@"event"];
 }
 

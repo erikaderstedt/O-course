@@ -12,17 +12,87 @@
 #import "ASMapView.h"
 #import "Project.h"
 #import "ASOverprintProvider.h"
+#import "CourseObject.h"
 
 #import "ASOverprintController.h"
 #import "ASCourseController.h"
+
+
+#include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
+
+int cp(const char *to, const char *from)
+{
+    int fd_to, fd_from;
+    char buf[4096];
+    ssize_t nread;
+    int saved_errno;
+    
+    fd_from = open(from, O_RDONLY);
+    if (fd_from < 0)
+        return -1;
+    
+    fd_to = open(to, O_WRONLY | O_CREAT | O_EXCL, 0666);
+    if (fd_to < 0)
+        goto out_error;
+    
+    while (nread = read(fd_from, buf, sizeof buf), nread > 0)
+    {
+        char *out_ptr = buf;
+        ssize_t nwritten;
+        
+        do {
+            nwritten = write(fd_to, out_ptr, nread);
+            
+            if (nwritten >= 0)
+            {
+                nread -= nwritten;
+                out_ptr += nwritten;
+            }
+            else if (errno != EINTR)
+            {
+                goto out_error;
+            }
+        } while (nread > 0);
+    }
+    
+    if (nread == 0)
+    {
+        if (close(fd_to) < 0)
+        {
+            fd_to = -1;
+            goto out_error;
+        }
+        close(fd_from);
+        
+        /* Success! */
+        return 0;
+    }
+    
+out_error:
+    saved_errno = errno;
+    
+    close(fd_from);
+    if (fd_to >= 0)
+        close(fd_to);
+    
+    errno = saved_errno;
+    return -1;
+}
 
 @implementation ASOcourseDocument
 @synthesize mapView;
 @synthesize overprintController, courseController;
 @synthesize projectController;
+@synthesize mapURL;
 
 - (Project *)project {
-    return [Project projectInManagedObjectContext:[self managedObjectContext]];
+    Project *p = [Project projectInManagedObjectContext:[self managedObjectContext]];
+    if (p == nil) {
+        NSLog(@"No project!");
+    }
+    return p;
 }
 
 - (NSString *)windowNibName
@@ -30,27 +100,6 @@
     // Override returning the nib file name of the document
     // If you need to use a subclass of NSWindowController or if your document supports multiple NSWindowControllers, you should remove this method and override -makeWindowControllers instead.
     return @"ASOcourseDocument";
-}
-
-- (void)setDisplayName:(NSString *)displayNameOrNil {
-    [super setDisplayName:displayNameOrNil];
-
-    NSString *newName = nil;
-    Project *p = [self project];
-    
-    if (displayNameOrNil != nil) {
-        if (![[p valueForKey:@"event"] isEqualToString:displayNameOrNil]) 
-            newName = displayNameOrNil;        
-    } else {
-        NSString *unknown = NSLocalizedString(@"Unknown event", nil);
-        if (![[p valueForKey:@"event"] isEqualToString:unknown])
-            newName = unknown;
-    }
-
-    if (newName != nil) {
-        [p setValue:newName forKey:@"event"];
-        [courseController.mainControlDescription setNeedsDisplay:YES];
-    }
 }
 
 - (void)windowControllerDidLoadNib:(NSWindowController *)aController
@@ -65,21 +114,6 @@
 + (BOOL)autosavesInPlace {
     return YES;
 }
-    
-- (void)setMapURL:(NSURL *)u {
-    // Add a document-scoped bookmark.
-    NSError *error = nil;
-    NSData *bookmarkData = [u bookmarkDataWithOptions:NSURLBookmarkCreationWithSecurityScope 
-                       includingResourceValuesForKeys:nil 
-                                        relativeToURL:[self fileURL] 
-                                                error:&error];
-    if (bookmarkData == nil) {
-        NSAlert *alert = [NSAlert alertWithError:error];
-        [alert runModal];
-    } else {
-        [[self project] setMapBookmark:bookmarkData];
-    }    
-}
 
 - (IBAction)chooseBackgroundMap:(id)sender {
     NSOpenPanel *op = [NSOpenPanel openPanel];
@@ -88,62 +122,58 @@
     [op setAllowsMultipleSelection:NO];
     [op beginSheetModalForWindow:[mapView window] completionHandler:^(NSInteger result) {
         if (result == NSFileHandlingPanelOKButton) {
-            NSURL *u = [op URL];
-            NSAssert([u isFileURL], @"Not a file URL!");
-            
-            [self setMapURL:u];
+            [self setMapURL:[op URL]];
         }
-    }
-    ];
+    }];
 }
 
-- (BOOL)readFromURL:(NSURL *)absoluteURL ofType:(NSString *)typeName error:(NSError **)outError {
-    if ([super readFromURL:absoluteURL ofType:typeName error:outError]) {
-        [self updateMap:nil];
-        return YES;
+- (void)setMapURL:(NSURL *)u {
+    
+    Project *p = [self project];
+    NSError *error = nil;
+    
+    [[self undoManager] disableUndoRegistration];
+    if (![p setMapURL:u error:&error]) {
+        NSAlert *alert = [NSAlert alertWithError:error];
+        [alert runModal];
     }
-    return NO;
+    [[self undoManager] enableUndoRegistration];
+    
+    [self updateMap:nil];
 }
 
 - (void)updateMap:(NSNotification *)n {
-    Project *project = [self project];
-    NSData *bookmarkData = [project mapBookmark];
+    NSURL *u = [[self project] mapURL];
 
-    if (project == nil || bookmarkData == nil) {
-        mapView.mapProvider = nil;
-    } else {
-        BOOL stale;
-        NSError *error = nil;
-        NSURL *u = [NSURL URLByResolvingBookmarkData:bookmarkData options:NSURLBookmarkResolutionWithSecurityScope relativeToURL:[self fileURL] bookmarkDataIsStale:&stale error:&error];
-
-        if (u != nil && !stale) {
-            [u startAccessingSecurityScopedResource];
-            NSString *s = [u path];
-            if ([[s pathExtension] isEqualToString:@"ocd"]) {
-                ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:s];
-                [o prepareCacheWithAreaTransform:CGAffineTransformIdentity];
-                mapView.mapProvider = o;
-                [o autorelease];
-            } else {
-                ASGenericImageController *i = [[ASGenericImageController alloc] initWithContentsOfFile:s];
-                mapView.mapProvider = i;
-            }
-            [u stopAccessingSecurityScopedResource];
+    if (u != nil) {
+        [u startAccessingSecurityScopedResource];
+        
+        NSString *s = [u path];
+        NSLog(@"loading map at path %@", s);
+        if ([[s pathExtension] isEqualToString:@"ocd"]) {
+            ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:s];
+            [o prepareCacheWithAreaTransform:CGAffineTransformIdentity];
+            mapView.mapProvider = o;
+            [o autorelease];
+        } else {
+            ASGenericImageController *i = [[ASGenericImageController alloc] initWithContentsOfFile:s];
+            mapView.mapProvider = i;
         }
+        
+        [u stopAccessingSecurityScopedResource];
+    } else {
+        mapView.mapProvider = nil;
     }
     
     [mapView mapLoaded];
 }
 
 - (void)awakeFromNib {
-    [self.projectController addObserver:self forKeyPath:@"content.mapBookmark" options:NSKeyValueObservingOptionInitial context:NULL];
-    
     [self.courseController setManagedObjectContext:[self managedObjectContext]];
     [self.courseController willAppear];
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
-    [self.projectController removeObserver:self forKeyPath:@"content.mapBookmark"];
     
     [self.courseController setManagedObjectContext:nil];
     [self.courseController willDisappear];
@@ -160,6 +190,7 @@
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [projectController release];
+    [mapURL release];
     
     [super dealloc];
 }
@@ -169,6 +200,170 @@
 }
 - (IBAction)zoomOut:(id)sender {
     mapView.zoom = (1.0/1.1)* mapView.zoom;
+}
+
+- (BOOL)readFromURL:(NSURL *)absoluteURL ofType:(NSString *)typeName error:(NSError **)outError {
+    NSLog(@"reading");
+	//
+	// Copy absolute URL to a temporary file, private to our application.
+	//
+	NSURL *tempURL = [self suitableURLForTemporaryStoreForBaseURL:absoluteURL error:outError];
+	if (tempURL == nil) return NO;
+	NSFileManager *fm = [NSFileManager defaultManager];
+	if ([fm fileExistsAtPath:[tempURL path]] && ![fm removeItemAtURL:tempURL error:outError]) return NO;
+    if (cp([[tempURL path] cStringUsingEncoding:NSUTF8StringEncoding], [[absoluteURL path] cStringUsingEncoding:NSUTF8StringEncoding])) {
+        NSLog(@"no copy!");
+        return NO;
+    }
+    
+	//
+	// Add a persistent store at that URL to our store coordinator
+	//
+	NSPersistentStore *addedPS = [[self persistentStoreCoordinator] addPersistentStoreWithType:NSSQLiteStoreType
+                                                                                 configuration:nil
+                                                                                           URL:tempURL
+                                                                                       options:nil
+                                                                                         error:outError];
+	BOOL success = (addedPS != nil);
+
+	if (success)
+        [self performSelectorOnMainThread:@selector(updateMap:) withObject:nil waitUntilDone:NO];
+
+	return success;
+}
+
+- (NSURL *)temporaryStoreURL {
+	NSURL *u = nil;
+    NSArray *stores = [[self persistentStoreCoordinator] persistentStores];
+    if ([stores count] != 0 && [[stores objectAtIndex:0] URL] != nil) {
+		u = [[stores objectAtIndex:0] URL];
+	}
+	return u;
+}
+
+- (NSPersistentStoreCoordinator *)persistentStoreCoordinator {
+	if (_psc == nil) {
+		_psc = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:[self managedObjectModel]];
+	}
+	return _psc;
+}
+
+- (NSManagedObjectContext *)managedObjectContext {
+	if (_context == nil) {
+		_context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+		[_context setPersistentStoreCoordinator:[self persistentStoreCoordinator]];
+		[self setUndoManager:[_context undoManager]];
+	}
+	return _context;
+}
+
+- (NSManagedObjectModel *)managedObjectModel {
+	if (_model) return _model;
+    
+    _model = [[NSManagedObjectModel mergedModelFromBundles:@[[NSBundle mainBundle]]] retain];
+	return _model;
+}
+
+- (NSURL *)suitableURLForTemporaryStoreForBaseURL:(NSURL *)base error:(NSError **)outError {
+	NSURL *tempURL = [[NSFileManager defaultManager] URLForDirectory:NSCachesDirectory
+															inDomain:NSUserDomainMask
+												   appropriateForURL:base
+															  create:YES
+															   error:outError];
+	if (tempURL == nil) return nil;
+	
+	NSString *fileName = [NSString stringWithFormat:@"%ld", (long)[[base path] hash]];
+	tempURL = [tempURL URLByAppendingPathComponent:fileName];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:[tempURL path]]) {
+        if (![[NSFileManager defaultManager] removeItemAtPath:[tempURL path] error:outError]) {
+            tempURL = [tempURL URLByAppendingPathExtension:[NSString stringWithFormat:@"%f",[[NSDate date] timeIntervalSince1970]]];
+            if ([[NSFileManager defaultManager] fileExistsAtPath:[tempURL path]]) {
+                return nil;
+            }
+        }
+    }
+	
+	return tempURL;
+}
+
+- (void)duplicateDocumentWithDelegate:(id)delegate didDuplicateSelector:(SEL)didDuplicateSelector contextInfo:(void *)contextInfo {
+    [super duplicateDocumentWithDelegate:delegate didDuplicateSelector:@selector(document:didDuplicate:contextInfo:) contextInfo:contextInfo];
+}
+
+- (void)document:(ASOcourseDocument *)document didDuplicate:(BOOL)didDuplicate contextInfo:(void *)contextInfo {
+    [document updateMap:nil];
+}
+
+- (BOOL)writeToURL:(NSURL *)absoluteURL ofType:(NSString *)typeName error:(NSError **)outError {
+    
+	//
+	// Does a persistent store exist on disk?
+	//
+	NSURL *tempStore = [self temporaryStoreURL];
+	if (tempStore == nil) {
+		tempStore = [self suitableURLForTemporaryStoreForBaseURL:absoluteURL error:outError];
+        if ([[NSFileManager defaultManager] fileExistsAtPath:[tempStore path]]) {
+            if (![[NSFileManager defaultManager] removeItemAtURL:tempStore error:outError]) {
+                return NO;
+            }
+        }
+		if ([[self persistentStoreCoordinator] addPersistentStoreWithType:NSSQLiteStoreType
+															configuration:nil
+																	  URL:tempStore
+																  options:nil
+																	error:outError] == nil) {
+			return NO;
+		}
+	}
+	
+	//
+	// Save the context (to our private URL).
+	//
+	if (![[self managedObjectContext] save:outError]) {
+		return NO;
+	}
+    
+    if (absoluteURL == nil) {
+        return YES;
+    }
+	
+	[self unblockUserInteraction];
+	
+	//
+	// Copy the store to the file url.
+	//
+    BOOL success = [[NSFileManager defaultManager] copyItemAtURL:tempStore toURL:absoluteURL error:outError];
+    
+	//
+	// Set the metadata.
+	//
+	NSDictionary *metadata;
+	if (success) {
+		metadata = [NSPersistentStoreCoordinator metadataForPersistentStoreOfType:NSSQLiteStoreType URL:absoluteURL error:outError];
+		success = (metadata != nil);
+        
+        if (success) {
+            // Check that all keys exist and have the correct values
+            NSMutableDictionary *md = [NSMutableDictionary dictionaryWithCapacity:3];
+            [md setObject:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"] forKey:(NSString *)kMDItemCreator];
+			[md setObject:@"1.0" forKey:@"O-course version"];
+            
+            BOOL change = NO;
+            for (NSString *key in [md allKeys]) {
+                if (![[metadata objectForKey:key] isEqual:[md objectForKey:key]]) {
+                    change = YES;
+                }
+            }
+            
+            if (change) {
+                NSMutableDictionary * mutableMetadata = [metadata mutableCopy];
+                [mutableMetadata addEntriesFromDictionary:md];
+                success = [NSPersistentStoreCoordinator setMetadata:mutableMetadata forPersistentStoreOfType:nil URL:absoluteURL error:outError];
+                [mutableMetadata release];
+            }
+        }
+	}
+	return success;
 }
 
 @end

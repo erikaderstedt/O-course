@@ -32,6 +32,8 @@
     CGRect  paperBounds;
     CGRect  actualDescriptionBounds;
     CGRect  eventBounds;
+    
+    BOOL layoutNeedsUpdate;
 }
 @property (nonatomic,retain) IBOutlet id <ASControlDescriptionProvider> provider;
 @property (nonatomic,retain) id <NSObject> course;

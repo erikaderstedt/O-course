@@ -87,7 +87,7 @@
     
     [moc processPendingChanges];
     [[moc undoManager] removeAllActions];
-    [doc updateChangeCount:NSChangeCleared];
+
     return doc;
 }
 

@@ -120,13 +120,13 @@
     actualDescriptionBounds = CGRectInset(paperBounds, -INSET_DIST, -INSET_DIST);
     
     [self updateTrackingAreas];
+    layoutNeedsUpdate = NO;
     [self setNeedsDisplay:YES];
 }
 
 - (void)setFrameSize:(NSSize)newSize {
+    layoutNeedsUpdate = YES;
     [super setFrameSize:newSize];
-    
-    [self recalculateLayout];
 }
 
 - (void)setCourse:(id<NSObject>)_course {
@@ -134,7 +134,8 @@
     course = [_course retain];
     [oldCourse release];
     
-    [self recalculateLayout];
+    layoutNeedsUpdate = YES;
+    [self setNeedsDisplay:YES];
 }
 
 - (NSInteger)numberOfItems {
@@ -182,6 +183,10 @@
                          Class names
                     Course  | Length | Height climb
      */
+    
+    if (layoutNeedsUpdate) {
+        [self recalculateLayout];
+    }
     
     [NSGraphicsContext saveGraphicsState];
     [linenTextureColor set];
