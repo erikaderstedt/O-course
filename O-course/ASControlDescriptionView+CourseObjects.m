@@ -697,8 +697,6 @@
             CGPathAddLineToPoint(path, NULL, 50.5, 0.5);
             CGPathCloseSubpath(path);
             break;
-            
-
         default:
             break;
     }

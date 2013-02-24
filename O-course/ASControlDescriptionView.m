@@ -895,8 +895,9 @@
         f += dashes[dashIndex];
         if (++dashIndex == numDashes) dashIndex = 0;
     }
-    remainingDistanceOnCurrentDashIndex = f + dashes[dashIndex] - phase;
+    if (f == 0.0) return self;
     
+    remainingDistanceOnCurrentDashIndex = f + dashes[dashIndex] - phase;
     
     for (NSInteger pointIndex = 0; pointIndex < [flattened elementCount]; pointIndex++) {
         NSBezierPathElement element = [flattened elementAtIndex:pointIndex associatedPoints:points];
