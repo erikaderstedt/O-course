@@ -16,7 +16,7 @@
 
 #import "ASOverprintController.h"
 #import "ASCourseController.h"
-
+#import "MyDocumentController.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -116,10 +116,8 @@ out_error:
 }
 
 - (IBAction)chooseBackgroundMap:(id)sender {
-    NSOpenPanel *op = [NSOpenPanel openPanel];
-    [op setAllowedFileTypes:[NSArray arrayWithObjects:@"pdf",@"ocd", @"tiff",@"jpg",@"jpeg",@"gif",@"tif", nil]];
-    [op setAllowsOtherFileTypes:YES];
-    [op setAllowsMultipleSelection:NO];
+    NSOpenPanel *op = [MyDocumentController openPanelForBackgroundMap];
+
     [op beginSheetModalForWindow:[mapView window] completionHandler:^(NSInteger result) {
         if (result == NSFileHandlingPanelOKButton) {
             [self setMapURL:[op URL]];

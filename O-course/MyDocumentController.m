@@ -76,8 +76,7 @@
     obj.controlDescriptionItemType = kASRegularControl;
     obj.controlFeature = [NSNumber numberWithInt:kASFeatureStonyGround];
     obj.controlCode = [NSNumber numberWithInt:34];
-//    [mos addObject:obj];    
-    
+  
     
     obj = [NSEntityDescription insertNewObjectForEntityForName:@"CourseObject" inManagedObjectContext:moc];
     obj.controlDescriptionItemType = kASPartlyTapedRouteToFinish;
@@ -91,7 +90,40 @@
     return doc;
 }
 
++ (NSOpenPanel *)openPanelForBackgroundMap {
+    NSOpenPanel *op = [NSOpenPanel openPanel];
+    [op setAllowedFileTypes:[NSArray arrayWithObjects:@"pdf",@"ocd", @"tiff",@"jpg",@"jpeg",@"gif",@"tif", nil]];
+    [op setAllowsOtherFileTypes:YES];
+    [op setAllowsMultipleSelection:NO];
+    [op setTitle:NSLocalizedString(@"Select a background map", nil)];
+    [op setMessage:NSLocalizedString(@"Please select a background map to use, in either OCAD 8-11 format or a bitmap file.", nil)];
+    [op setPrompt:NSLocalizedString(@"Select", nil)];
+    
+    return op;
+}
 
+- (id)openUntitledDocumentAndDisplay:(BOOL)displayDocument error:(NSError **)outError {
+    NSOpenPanel *op = [[self class] openPanelForBackgroundMap];
+    
+    if ([op runModal] == NSFileHandlingPanelOKButton) {
+        ASOcourseDocument *doc = [self makeUntitledDocumentOfType:[self defaultType] error:outError];
+        [self addDocument:doc];
+
+        if (displayDocument) {
+            [doc makeWindowControllers];
+            [doc showWindows];
+            [doc setMapURL:[op URL]];
+        } else {
+            [doc setMapURL:[op URL]];            
+        }
+        return doc;
+    }
+
+    if (outError != nil) {
+        *outError = [NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil];
+    }
+    return nil;
+}
 
 
 @end

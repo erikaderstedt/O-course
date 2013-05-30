@@ -10,4 +10,6 @@
 
 @interface MyDocumentController : NSDocumentController
 
++ (NSOpenPanel *)openPanelForBackgroundMap;
+
 @end
