@@ -46,33 +46,27 @@ enum ASMapViewUIState {
 
 @interface ASMapView : NSView {
 	id <ASMapProvider> mapProvider;
+    id <ASMapProvider> baselessMapProvider;
     id <ASOverprintProvider> overprintProvider;
     
-	NSAffineTransform *currentTransform;
 	CGRect mapBounds;
-
-	NSMutableArray *imageCaches;
-	NSImage *cachedImage;
-	NSRect rectForCachedImage;
 	
 	BOOL showMagnifyingGlass;
 	CALayer *_magnifyingGlass;
+    CALayer *innerMagnifyingGlassLayer;
+    CAShapeLayer *courseObjectShapeLayer;
 	CIFilter *lozenge;
-	CIFilter *mask;
 	NSTrackingArea *glassTrackingArea;
     
     CATiledLayer *tiledLayer;
     CGFloat _zoom;
 	CGFloat minZoom;
     
-    NSButton *chooseButton;
 }
 @property(nonatomic,retain) id <ASMapProvider> mapProvider;
-@property(nonatomic,retain) NSImage *cachedImage;
+@property(nonatomic,retain) id <ASMapProvider> baselessMapProvider;
 @property(nonatomic,assign) BOOL showMagnifyingGlass;
 @property(nonatomic,assign) CGFloat zoom;
-@property(nonatomic,retain) NSAffineTransform *currentTransform;
-@property(nonatomic,retain) IBOutlet NSButton *chooseButton;
 @property(nonatomic,assign) enum ASMapViewUIState state;
 
 - (IBAction)revertToStandardMode:(id)sender;

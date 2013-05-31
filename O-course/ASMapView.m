@@ -7,21 +7,18 @@
 //
 
 #import "ASMapView.h"
-#define LogR(t,z) NSLog(@"%@: {{%.0f, %.0f}, {%.0f, %.0f}}", t, z.origin.x, z.origin.y, z.size.width, z.size.height)
-
+#import "ASControlDescriptionView.h"
+#define GLASS_SIZE 200.0
 
 @implementation ASMapView
 
 @synthesize mapProvider;
-@synthesize cachedImage;
+@synthesize baselessMapProvider;
 @synthesize showMagnifyingGlass;
-@synthesize currentTransform;
-@synthesize chooseButton;
 
 - (id)initWithFrame:(NSRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-		imageCaches = [[NSMutableArray alloc] initWithCapacity:20];
 		_zoom = 1.0;
     }
     return self;
@@ -29,7 +26,6 @@
 - (id)initWithCoder:(NSCoder *)aDecoder {
 	self = [super initWithCoder:aDecoder];
 	if (self) {
-		imageCaches = [[NSMutableArray alloc] initWithCapacity:20];
 		_zoom = 1.0;
 	}
 	return self;
@@ -37,13 +33,11 @@
 
 - (void)dealloc {
 	[mapProvider release];
-	[cachedImage release];
+    [baselessMapProvider release];
 	
 	[_magnifyingGlass removeFromSuperlayer];
 	[_magnifyingGlass release];
 	[lozenge release];
-	[mask release];
-    [chooseButton release];
 	
 	[super dealloc];
 }
@@ -58,55 +52,57 @@
 
 - (CALayer *)magnifyingGlass {
 	if (_magnifyingGlass == nil) {
-		mask = [CIFilter filterWithName:@"CISourceInCompositing"];
-		[mask setDefaults];
-		
-		NSImage *i = [[NSImage alloc] init];
-		NSRect f = NSMakeRect(0.0, 0.0, 150.0, 150.0);
-		[i setSize:f.size];
-		[i lockFocus];
-		[[NSColor clearColor] set];
-		[NSBezierPath fillRect:f];
-		[[NSColor whiteColor] set];
-		NSBezierPath *circle = [NSBezierPath bezierPathWithOvalInRect:f];
-		[circle fill];
-		[i unlockFocus];
-		
-		[mask setValue:[CIImage imageWithCGImage:[i CGImageForProposedRect:&f context:[NSGraphicsContext currentContext] hints:nil]]
-				forKey:@"inputBackgroundImage"];
-		
-		[i release];
-		/*
+		NSRect f = NSMakeRect(0.0, 0.0, GLASS_SIZE, GLASS_SIZE);
+        
 		lozenge = [CIFilter filterWithName:@"CIGlassLozenge"];
 		[lozenge setDefaults];
 		[lozenge setValue:[CIVector vectorWithX:NSMidX(f) Y:NSMidY(f)] forKey:@"inputPoint0"];
 		[lozenge setValue:[CIVector vectorWithX:NSMidX(f) Y:NSMidY(f)] forKey:@"inputPoint1"];
 		[lozenge setValue:[NSNumber numberWithFloat:f.size.width*0.5] forKey:@"inputRadius"];
-		[lozenge setValue:[NSNumber numberWithFloat:1.04] forKey:@"inputRefraction"];
-		[lozenge retain]; */
-		[mask retain];
-		
+		[lozenge setValue:[NSNumber numberWithFloat:1.02] forKey:@"inputRefraction"];
+		[lozenge retain];
+
+        
+
 		_magnifyingGlass = [CALayer layer];
-		[_magnifyingGlass setBackgroundColor:CGColorCreateGenericRGB(0.3, 0.3, 1.0, 0.6)];
-		
 		[_magnifyingGlass setBounds:NSRectToCGRect(f)];
 		[_magnifyingGlass setAnchorPoint:CGPointMake(0.5, 0.5)];
 		[_magnifyingGlass setHidden:YES];
-		[_magnifyingGlass setFilters:[NSArray arrayWithObjects:mask, lozenge, nil]];
 		[_magnifyingGlass setShadowColor:CGColorCreateGenericGray(0.2, 1.0)];
 		[_magnifyingGlass setShadowOpacity:0.5];
 		[_magnifyingGlass setShadowOffset:CGSizeMake(0.0, -3.0)];
 		[_magnifyingGlass setShadowRadius:3.0];
+        [_magnifyingGlass setCornerRadius:75.0];
 		[_magnifyingGlass retain];
-		
-		
-		CALayer *bezel = [CALayer layer];
-		bezel.bounds = _magnifyingGlass.bounds;
-		bezel.anchorPoint = CGPointMake(0.0, 0.0);
-		bezel.position = CGPointMake(0.0, 0.0);
-		i = [NSImage imageNamed:@"compass bezel.png"];
-		[bezel setContents:(id)[i CGImageForProposedRect:NULL context:nil hints:nil]];
-		[_magnifyingGlass addSublayer:bezel];
+        
+        innerMagnifyingGlassLayer = [CALayer layer];
+        // Set up a transform for the innerMagnifyingGlassLayer.
+        [innerMagnifyingGlassLayer setCornerRadius:0.5*GLASS_SIZE];
+        innerMagnifyingGlassLayer.anchorPoint = CGPointMake(0.5, 0.5);
+        innerMagnifyingGlassLayer.position = CGPointMake(NSMidX(f), NSMidY(f));
+        innerMagnifyingGlassLayer.bounds = NSRectToCGRect(f);
+        innerMagnifyingGlassLayer.frame = innerMagnifyingGlassLayer.bounds;
+        innerMagnifyingGlassLayer.name = @"magnification";
+//        innerMagnifyingGlassLayer.filters = @[lozenge];
+        innerMagnifyingGlassLayer.needsDisplayOnBoundsChange = YES;
+        innerMagnifyingGlassLayer.masksToBounds = YES;
+        innerMagnifyingGlassLayer.contents = nil;
+        innerMagnifyingGlassLayer.backgroundColor = CGColorCreateGenericRGB(1.0, 1.0, 1.0, 1.0);
+/*        innerMagnifyingGlassLayer.tileSize = CGSizeMake(512.0, 512.0);
+        
+        innerMagnifyingGlassLayer.levelsOfDetail = 7;
+        innerMagnifyingGlassLayer.levelsOfDetailBias = 2; */
+        innerMagnifyingGlassLayer.delegate = self;
+        [_magnifyingGlass addSublayer:innerMagnifyingGlassLayer];
+        [innerMagnifyingGlassLayer setNeedsDisplay];
+/*
+        courseObjectShapeLayer = [CAShapeLayer layer];
+        courseObjectShapeLayer.anchorPoint = CGPointMake(0.5, 0.5);
+        courseObjectShapeLayer.position = CGPointMake(NSMidX(f), NSMidY(f));
+        courseObjectShapeLayer.bounds = NSRectToCGRect(f);
+        courseObjectShapeLayer.strokeColor = [[ASControlDescriptionView defaultOverprintColor] CGColor];
+        courseObjectShapeLayer.lineWidth = 2.0;*/
+        
 	}
 	return _magnifyingGlass;
 }
@@ -171,7 +167,9 @@
 	if (l.hidden) l.hidden = NO;	
 	[CATransaction begin];
 	[CATransaction setDisableActions:YES];
+
 	[[self magnifyingGlass] setPosition:NSPointToCGPoint(p)];
+    [innerMagnifyingGlassLayer setNeedsDisplay];
 	[CATransaction commit];
 }
 
@@ -297,7 +295,6 @@
 - (void)mapLoaded {
     
     if (self.mapProvider != nil) {
-        [[self chooseButton] setHidden:YES];
         if (tiledLayer == nil) {
 
             tiledLayer = [CATiledLayer layer];
@@ -316,7 +313,7 @@
         }
         mapBounds = [self.mapProvider mapBounds];
         tiledLayer.bounds = mapBounds;
-        tiledLayer.delegate = mapProvider;
+        tiledLayer.delegate = self;
         [[self layer] addSublayer:tiledLayer];
         tiledLayer.contents = nil;
         [tiledLayer setNeedsDisplay];
@@ -326,7 +323,6 @@
         minZoom = [self calculateMinimumZoomForFrame:cv];
         [self setZoom:minZoom*3.0];
     } else {
-        [[self chooseButton] setHidden:NO];
         if (tiledLayer != nil) {
             tiledLayer.delegate = nil;
             [tiledLayer removeFromSuperlayer];
@@ -336,23 +332,6 @@
 	[self setNeedsDisplay:YES];
 }
 
-- (NSRect)convertRectFromMapCoordinates:(NSRect)r {
-	NSPoint p = r.origin;
-	NSSize s = r.size;
-	p = [self.currentTransform transformPoint:p];
-	s = [self.currentTransform transformSize:s];
-	return NSMakeRect(p.x, p.y, s.width, s.height);
-}
-
-- (NSRect)convertRectToMapCoordinates:(NSRect)r {
-	NSAffineTransform *at = [[self.currentTransform copy] autorelease];
-	[at invert];
-	NSPoint p = r.origin;
-	NSSize s = r.size;
-	p = [at transformPoint:p];
-	s = [at transformSize:s];
-	return NSMakeRect(p.x, p.y, s.width, s.height);
-}
 static CGFloat randomFloat()
 {
 	return random() / (double)LONG_MAX;
@@ -363,7 +342,29 @@ static CGFloat randomFloat()
     if (layer == tiledLayer) {
         [mapProvider drawLayer:layer inContext:ctx];
         [overprintProvider drawLayer:layer inContext:ctx];
-    }
+    } else if (layer == innerMagnifyingGlassLayer) {
+        CGContextSaveGState(ctx);
+       
+        // Get the current position of the glass, in map coordinates.
+        CGPoint p = NSPointFromCGPoint([tiledLayer convertPoint:[[self magnifyingGlass] position] fromLayer:[self layer]]);
+
+        // The zoom of the glass is fixed, so that it covers 15 mm of map, diagonally. Since map units are 0.01 mm, this means
+        // 1500 map points across.
+        
+        float across=1000.0;
+        // Set up a transform to a 1500x1500 rect centered on p, from a rect {0,0,GLASS_SIZE,GLASS_SIZE}.
+        // (assume they are both square)
+        float a = GLASS_SIZE/across;
+        float tx = - a * (p.x - across*0.5);
+        float ty = - a * (p.y - across*0.5);
+        CGAffineTransform t = CGAffineTransformMake(a, 0, 0, a, tx, ty);
+        CGContextConcatCTM(ctx, t);
+        CGContextSetPatternPhase(ctx, CGSizeMake(t.tx, t.ty));
+        [baselessMapProvider drawLayer:layer inContext:ctx];
+        [overprintProvider drawLayer:layer inContext:ctx];
+        CGContextRestoreGState(ctx);
+        
+    } 
 }
 
 @end

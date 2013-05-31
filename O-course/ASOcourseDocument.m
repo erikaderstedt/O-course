@@ -152,7 +152,11 @@ out_error:
             ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:s];
             [o prepareCacheWithAreaTransform:CGAffineTransformIdentity];
             mapView.mapProvider = o;
+            ASOCADController *o2 = [[ASOCADController alloc] initWithOCADFile:s];
+            [o2 prepareCacheWithAreaTransform:CGAffineTransformMakeScale(0.1/0.5, 0.1/0.5)];
+            mapView.baselessMapProvider = o2;
             [o autorelease];
+            [o2 autorelease];
         } else {
             ASGenericImageController *i = [[ASGenericImageController alloc] initWithContentsOfFile:s];
             mapView.mapProvider = i;
