@@ -47,19 +47,24 @@
         [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)fillColor, @"fillColor", p, @"path", 
                            [NSNumber numberWithInt:kCGPathEOFill], @"fillMode",
                            [NSNumber numberWithInt:area->fill_color], @"colornum",
-                           [NSValue valueWithPointer:e],@"element", nil]];
+                           [NSValue valueWithPointer:e],@"element",
+
+                           nil]];
     }
     
     if (area->hatch_mode > 0) {
         [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:[hatchColors objectForKey:[NSNumber numberWithInt:area->symnum]], @"fillColor", 
                            [NSNumber numberWithInt:kCGPathEOFill], @"fillMode",
                            [NSNumber numberWithInt:area->hatch_color], @"colornum",
-                           p, @"path", [NSValue valueWithPointer:e],@"element", nil]];
+                           p, @"path", [NSValue valueWithPointer:e],@"element",
+                           [transformedHatchColors objectForKey:@(area->symnum)], @"2ndFillColor", nil]];
         if (area->hatch_mode == 2) {
             [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:[secondaryHatchColors objectForKey:[NSNumber numberWithInt:area->symnum]], @"fillColor",
                                [NSNumber numberWithInt:kCGPathEOFill], @"fillMode",
                                [NSNumber numberWithInt:area->hatch_color], @"colornum",
-                               p, @"path", [NSValue valueWithPointer:e],@"element", nil]];            
+                               p, @"path", [NSValue valueWithPointer:e],@"element",
+                                                          [transformedSecondaryHatchColors objectForKey:@(area->symnum)], @"2ndFillColor",
+                               nil]];
         }
     }
 
@@ -67,7 +72,9 @@
         [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:[structureColors objectForKey:[NSNumber numberWithInt:area->symnum]], @"fillColor", 
                            [NSNumber numberWithInt:kCGPathEOFill], @"fillMode",
                            [NSNumber numberWithInt:((struct ocad_symbol_element *)area->coords)->color], @"colornum",
-                           p, @"path", [NSValue valueWithPointer:e],@"element", nil]];
+                           p, @"path", [NSValue valueWithPointer:e],@"element",
+                                                      [transformedStructureColors objectForKey:@(area->symnum)], @"2ndFillColor",
+                           nil]];
     }
     
     CGPathRelease(p);
@@ -102,8 +109,15 @@
 
 }
 
+- (void)assignColors:(NSArray *)scolors toDictionaries:(NSArray *)dicts withSymbolNumber:(NSInteger)num {
+    for (int i = 0; i < 2; i++) {
+        [dicts[i] setObject:scolors[i] forKey:@(num)];
+    }
+}
+
 - (void)createStructureColors {
     structureColors = [NSMutableDictionary dictionaryWithCapacity:100];
+    transformedStructureColors = [NSMutableDictionary dictionaryWithCapacity:100];
     int i;
     struct ocad_area_symbol *area;
     
@@ -112,14 +126,17 @@
         area = (struct ocad_area_symbol *)(ocdf->symbols[i]);
         if (area->structure_mode == 0) continue;
         
-        [structureColors setObject:(id)[self structureColorForSymbol:area] forKey:[NSNumber numberWithInt:area->symnum]];
+        [self assignColors:[self structureColorsForSymbol:area] toDictionaries:@[structureColors, transformedStructureColors] withSymbolNumber:area->symnum];
     }
     
     [structureColors retain];
+    [transformedStructureColors retain];
 }
 
 - (void)createHatchColors {
     hatchColors = [NSMutableDictionary dictionaryWithCapacity:100];
+    transformedHatchColors = [NSMutableDictionary dictionaryWithCapacity:100];
+    
     int i;
     struct ocad_area_symbol *area;
     
@@ -128,14 +145,17 @@
         area = (struct ocad_area_symbol *)(ocdf->symbols[i]);
         if (area->hatch_mode == 0) continue;
         
-        [hatchColors setObject:(id)[self hatchColorForSymbol:area index:0] forKey:[NSNumber numberWithInt:area->symnum]];
+        [self assignColors:[self hatchColorsForSymbol:area index:0] toDictionaries:@[hatchColors, transformedHatchColors] withSymbolNumber:area->symnum];
     }
     
     [hatchColors retain];
+    [transformedHatchColors retain];
 }
 
 - (void)createSecondaryHatchColors {
     secondaryHatchColors = [NSMutableDictionary dictionaryWithCapacity:100];
+    transformedSecondaryHatchColors = [NSMutableDictionary dictionaryWithCapacity:100];
+    
     int i;
     struct ocad_area_symbol *area;
     
@@ -144,13 +164,14 @@
         area = (struct ocad_area_symbol *)(ocdf->symbols[i]);
         if (area->hatch_mode != 2) continue;
         
-        [secondaryHatchColors setObject:(id)[self hatchColorForSymbol:area index:1] forKey:[NSNumber numberWithInt:area->symnum]];
+        [self assignColors:[self hatchColorsForSymbol:area index:1] toDictionaries:@[secondaryHatchColors, transformedSecondaryHatchColors] withSymbolNumber:area->symnum];
     }
     
-    [secondaryHatchColors retain];    
+    [secondaryHatchColors retain];
+    [transformedSecondaryHatchColors retain];
 }
 
-- (CGColorRef)structureColorForSymbol:(struct ocad_area_symbol *)a {
+- (NSArray *)structureColorsForSymbol:(struct ocad_area_symbol *)a {
     CGColorSpaceRef cspace = CGColorSpaceCreatePattern(NULL);
     CGPatternRef pattern;
     void *info;
@@ -158,9 +179,10 @@
     CGRect pRect;
     struct ocad_symbol_element *se = (struct ocad_symbol_element *)(a->coords);
     CGAffineTransform transform = self.areaColorTransform;
+    CGAffineTransform transform2 = self.secondaryAreaColorTransform;
 
     NSAssert(a->structure_mode == 1 || a->structure_mode == 2, @"Invalid structure mode!");
-    if (a->data_size == 0) return [self colorWithNumber:0];
+    if (a->data_size == 0) return @[(id)[self colorWithNumber:0], (id)[self colorWithNumber:0]];
 
     pRect = CGRectMake(-0.5*((CGFloat)a->structure_width), -0.5*((CGFloat)a->structure_height), a->structure_width, a->structure_height);
     if (a->structure_mode == 2) {
@@ -169,6 +191,7 @@
 
     if (a->structure_angle != 0) {
         transform = CGAffineTransformRotate(transform, ((double)a->structure_angle) * M_PI / 180.0 / 10.0);
+        transform2 = CGAffineTransformRotate(transform2, ((double)a->structure_angle) * M_PI / 180.0 / 10.0);
     }
     
     CGMutablePathRef path = CGPathCreateMutable();
@@ -225,22 +248,33 @@
         CFRelease((CFNumberRef)args[6]);
     }
 
-    const CGPatternCallbacks callbacks = {0, &drawStructured, NULL};
+    const CGPatternCallbacks callbacks = {0, &drawStructured, &releaseInfoStructure};
     pattern = CGPatternCreate(info, pRect, transform, pRect.size.width, pRect.size.height, kCGPatternTilingConstantSpacing, true, &callbacks);
     CGFloat components[1] = {1.0};
     CGColorRef structureColor = CGColorCreateWithPattern(cspace, pattern, components);
-    CGColorSpaceRelease(cspace);
     CGPatternRelease(pattern);
     
-    return structureColor;
+    CGColorRef secondStructureColor = NULL;
+    if (!CGAffineTransformEqualToTransform(self.areaColorTransform, self.secondaryAreaColorTransform)) {
+        CFRetain(info);
+
+        CGPatternRef pattern2 = CGPatternCreate(info, pRect, transform2, pRect.size.width, pRect.size.height, kCGPatternTilingConstantSpacing, true, &callbacks);
+        secondStructureColor = CGColorCreateWithPattern(cspace, pattern2, components);
+        CGPatternRelease(pattern2);
+    }
+
+    CGColorSpaceRelease(cspace);
+
+   return @[(id)structureColor, (id)secondStructureColor];
 }
 
-- (CGColorRef)hatchColorForSymbol:(struct ocad_area_symbol *)a index:(int)index {    
+- (NSArray *)hatchColorsForSymbol:(struct ocad_area_symbol *)a index:(int)index {
     // TODO: We do not support hatched symbols that have an "external" rotation applied using the element angle. Fix!
     CGColorSpaceRef cspace = CGColorSpaceCreatePattern(NULL);
     CGPatternRef pattern;
     void *info;
     CGAffineTransform transform = self.areaColorTransform;
+    CGAffineTransform transform2 = self.secondaryAreaColorTransform;
     
     NSAssert(a->hatch_mode != 0, @"This symbol does not have a hatch pattern!");
     NSAssert(index < a->hatch_mode, @"Invalid hatch index.");
@@ -259,6 +293,7 @@
     } else {
         pRect = CGRectMake(0.0, 0.0, 1.0, a->hatch_dist);
         transform = CGAffineTransformRotate(transform, ((double)angle) * M_PI / 180.0 / 10.0);
+        transform2 = CGAffineTransformRotate(transform2, ((double)angle) * M_PI / 180.0 / 10.0);
     }
 
     void *args[3];
@@ -270,14 +305,24 @@
     CFRelease((CFNumberRef)args[1]);
     CFRelease((CFNumberRef)args[2]);
     
-    const CGPatternCallbacks callbacks = {0, &drawHatched, NULL};
+    const CGPatternCallbacks callbacks = {0, &drawHatched, &releaseInfoStructure};
     pattern = CGPatternCreate(info, pRect, transform, pRect.size.width, pRect.size.height, kCGPatternTilingConstantSpacing, true, &callbacks);
     CGFloat components[1] = {1.0};
     CGColorRef c = CGColorCreateWithPattern(cspace, pattern, components);
-    CGColorSpaceRelease(cspace);
     CGPatternRelease(pattern);
     
-    return c;
+    
+    CGColorRef transformedHatchColor = NULL;
+    if (!CGAffineTransformEqualToTransform(self.areaColorTransform, self.secondaryAreaColorTransform)) {
+        CFRetain(info);
+        
+        CGPatternRef pattern2 = CGPatternCreate(info, pRect, transform2, pRect.size.width, pRect.size.height, kCGPatternTilingConstantSpacing, true, &callbacks);
+        transformedHatchColor = CGColorCreateWithPattern(cspace, pattern2, components);
+        CGPatternRelease(pattern2);
+    }
+    CGColorSpaceRelease(cspace);
+
+    return @[(id)c, (id)transformedHatchColor];
 }
 
 @end
@@ -361,4 +406,8 @@ void drawStructured(void *info, CGContextRef context) {
 
         CGContextRestoreGState(context);
     }
+}
+
+void releaseInfoStructure(void *info) {
+    CFRelease(info);
 }

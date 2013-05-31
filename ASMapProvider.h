@@ -14,6 +14,7 @@
 - (NSInteger)symbolNumberAtPosition:(CGPoint)p;
 - (CGRect)mapBounds; // In native coordinates.
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx;
+- (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx useSecondaryTransform:(BOOL)useSecondaryTransform;
 
 - (BOOL)supportsBrownImage;
 - (void)setBrownImage:(BOOL)bi;

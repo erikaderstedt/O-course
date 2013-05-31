@@ -18,6 +18,8 @@ struct ocad_cache {
     CGRect      boundingBox;       // The path bounding box is cached because determining it is a fairly expensive operation.
     CGPathRef   path;              
     CGColorRef  fillColor;          // Fill color if the path is to be filled.
+    CGColorRef  secondaryFillColor; // Fill color for a secondary pattern transform.
+    
     CGPathDrawingMode fillMode;
     CTFrameRef  frame;              // A text frame (text objects only).
     CGPoint     midpoint;           // The frame midpoint, about which rotations apply (text objects only).
@@ -50,7 +52,11 @@ struct ocad_cache {
     NSMutableDictionary *structureColors;
     NSMutableDictionary *hatchColors;
     NSMutableDictionary *secondaryHatchColors;
-    
+
+    NSMutableDictionary *transformedStructureColors;
+    NSMutableDictionary *transformedHatchColors;
+    NSMutableDictionary *transformedSecondaryHatchColors;
+
     int         brown_start;
     int         brown_stop;
     BOOL        supportsBrown;
@@ -60,13 +66,16 @@ struct ocad_cache {
     NSMutableArray *spotlightQueries;
     
     CGAffineTransform areaColorTransform;
+    CGAffineTransform secondaryAreaColorTransform;
     NSString *ocadFilePath;
 }
 @property(nonatomic,assign) CGAffineTransform areaColorTransform;
+@property(nonatomic,assign) CGAffineTransform secondaryAreaColorTransform;
 @property(nonatomic,retain) NSString *ocadFilePath;
 
 - (id)initWithOCADFile:(NSString *)path;
 - (void)prepareCacheWithAreaTransform:(CGAffineTransform)transform;
+- (void)prepareCacheWithAreaTransform:(CGAffineTransform)transform secondaryTransform:(CGAffineTransform)secondaryTransform;
 
 #if !TARGET_OS_IPHONE
 - (void)loadBackgroundImagesRelativeToPath:(NSString *)basePath;

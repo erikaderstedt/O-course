@@ -74,6 +74,7 @@ static CGFloat colorData[170] = {
 @implementation ASOCADController
 
 @synthesize areaColorTransform;
+@synthesize secondaryAreaColorTransform;
 @synthesize ocadFilePath;
 
 - (id)initWithOCADFile:(NSString *)_path {
@@ -122,7 +123,13 @@ static CGFloat colorData[170] = {
 }
 
 - (void)prepareCacheWithAreaTransform:(CGAffineTransform)transform {
+    [self prepareCacheWithAreaTransform:transform secondaryTransform:CGAffineTransformIdentity];
+}
+
+- (void)prepareCacheWithAreaTransform:(CGAffineTransform)transform secondaryTransform:(CGAffineTransform)secondaryTransform {
     self.areaColorTransform = transform;
+    self.secondaryAreaColorTransform = secondaryTransform;
+    
     [self createAreaSymbolColors];
     [self createCache];        
 
@@ -324,6 +331,11 @@ static CGFloat colorData[170] = {
     [structureColors release];
     [hatchColors release];
     [secondaryHatchColors release];
+    
+    [transformedStructureColors release];
+    [transformedHatchColors release];
+    [transformedSecondaryHatchColors release];
+    
     [backgroundImages release];
 #endif
     if (colors != NULL) CFRelease(colors);
@@ -333,6 +345,7 @@ static CGFloat colorData[170] = {
         for (i = 0; i < num_cached_objects; i++) {
             if (cachedDrawingInfo[i].path != NULL) CGPathRelease(cachedDrawingInfo[i].path);
             if (cachedDrawingInfo[i].fillColor != NULL) CGColorRelease(cachedDrawingInfo[i].fillColor);
+            if (cachedDrawingInfo[i].secondaryFillColor != NULL) CGColorRelease(cachedDrawingInfo[i].secondaryFillColor);
             if (cachedDrawingInfo[i].frame != NULL) CFRelease(cachedDrawingInfo[i].frame);
         }
         free(cachedDrawingInfo);
@@ -525,6 +538,8 @@ static CGFloat colorData[170] = {
         NSArray *items= [op result];
         for (NSDictionary *item in items) {
             cachedDrawingInfo[j].fillColor = (CGColorRef)[item objectForKey:@"fillColor"];
+            cachedDrawingInfo[j].secondaryFillColor = (CGColorRef)[item objectForKey:@"2ndFillColor"];
+           
             if ([item objectForKey:@"fillMode"]) {
                 cachedDrawingInfo[j].fillMode = (enum CGPathDrawingMode)[[item objectForKey:@"fillMode"] intValue];
             } else {
@@ -539,6 +554,7 @@ static CGFloat colorData[170] = {
 
             if (cachedDrawingInfo[j].path != NULL) CGPathRetain(cachedDrawingInfo[j].path);
             if (cachedDrawingInfo[j].fillColor != NULL) CGColorRetain(cachedDrawingInfo[j].fillColor);
+            if (cachedDrawingInfo[j].secondaryFillColor != NULL) CGColorRetain(cachedDrawingInfo[j].secondaryFillColor);
             if (cachedDrawingInfo[j].frame != NULL) CFRetain(cachedDrawingInfo[j].frame);
             if (cachedDrawingInfo[j].path != NULL) {
                 cachedDrawingInfo[j].boundingBox = CGPathGetBoundingBox(cachedDrawingInfo[j].path);
@@ -727,7 +743,13 @@ static CGFloat colorData[170] = {
 
 // CATiledLayer delegate stuff. Also used by the quicklook plugin.
 // In the latter case, layer will be NULL.
+
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
+    [self drawLayer:layer inContext:ctx useSecondaryTransform:NO];
+}
+
+- (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx useSecondaryTransform:(BOOL)useSecondaryTransform {
+
     for (NSDictionary *background in backgroundImages) {
         id <ASMapProvider> map = [background objectForKey:@"mapProvider"];
         [map drawLayer:layer inContext:ctx];
@@ -749,7 +771,7 @@ static CGFloat colorData[170] = {
     for (i = start; i < stop; i++) {
         cache = sortedCache[i];
         CGPathRef path = cache->path;
-        CGColorRef fillColor = cache->fillColor;
+        CGColorRef fillColor = (useSecondaryTransform && cache->secondaryFillColor)?(cache->secondaryFillColor):(cache->fillColor);
         CGPathDrawingMode fillMode = cache->fillMode;
         CTFrameRef frame = cache->frame;
         CGRect bb = cache->boundingBox;

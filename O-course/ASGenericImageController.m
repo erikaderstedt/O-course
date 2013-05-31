@@ -54,6 +54,12 @@
     }
 }
 
+- (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx useSecondaryTransform:(BOOL)useSecondaryTransform {
+    if (image != NULL) {
+        CGContextDrawImage (ctx, [self mapBounds], image);
+    }
+}
+
 // Brown image not supported.
 - (BOOL)supportsBrownImage {
     return NO;

@@ -147,16 +147,11 @@ out_error:
         [u startAccessingSecurityScopedResource];
         
         NSString *s = [u path];
-        NSLog(@"loading map at path %@", s);
         if ([[s pathExtension] isEqualToString:@"ocd"]) {
             ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:s];
-            [o prepareCacheWithAreaTransform:CGAffineTransformIdentity];
+            [o prepareCacheWithAreaTransform:CGAffineTransformIdentity secondaryTransform:CGAffineTransformMakeScale(0.1/0.5, 0.1/0.5)];
             mapView.mapProvider = o;
-            ASOCADController *o2 = [[ASOCADController alloc] initWithOCADFile:s];
-            [o2 prepareCacheWithAreaTransform:CGAffineTransformMakeScale(0.1/0.5, 0.1/0.5)];
-            mapView.baselessMapProvider = o2;
             [o autorelease];
-            [o2 autorelease];
         } else {
             ASGenericImageController *i = [[ASGenericImageController alloc] initWithContentsOfFile:s];
             mapView.mapProvider = i;

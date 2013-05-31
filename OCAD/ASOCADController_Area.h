@@ -11,6 +11,7 @@
 
 void drawHatched (void * info, CGContextRef context);
 void drawStructured(void *info, CGContextRef context);
+void releaseInfoStructure(void *info);
 
 @interface ASOCADController (ASOCADController_Area)
 
@@ -20,7 +21,7 @@ void drawStructured(void *info, CGContextRef context);
 - (void)createHatchColors;
 - (void)createSecondaryHatchColors;
 
-- (CGColorRef)hatchColorForSymbol:(struct ocad_area_symbol *)a index:(int)index;
-- (CGColorRef)structureColorForSymbol:(struct ocad_area_symbol *)a;
+- (NSArray *)hatchColorsForSymbol:(struct ocad_area_symbol *)a index:(int)index;
+- (NSArray *)structureColorsForSymbol:(struct ocad_area_symbol *)a;
 
 @end

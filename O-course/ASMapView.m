@@ -13,7 +13,6 @@
 @implementation ASMapView
 
 @synthesize mapProvider;
-@synthesize baselessMapProvider;
 @synthesize showMagnifyingGlass;
 
 - (id)initWithFrame:(NSRect)frame {
@@ -33,7 +32,6 @@
 
 - (void)dealloc {
 	[mapProvider release];
-    [baselessMapProvider release];
 	
 	[_magnifyingGlass removeFromSuperlayer];
 	[_magnifyingGlass release];
@@ -360,7 +358,7 @@ static CGFloat randomFloat()
         CGAffineTransform t = CGAffineTransformMake(a, 0, 0, a, tx, ty);
         CGContextConcatCTM(ctx, t);
         CGContextSetPatternPhase(ctx, CGSizeMake(t.tx, t.ty));
-        [baselessMapProvider drawLayer:layer inContext:ctx];
+        [mapProvider drawLayer:layer inContext:ctx useSecondaryTransform:YES];
         [overprintProvider drawLayer:layer inContext:ctx];
         CGContextRestoreGState(ctx);
         
