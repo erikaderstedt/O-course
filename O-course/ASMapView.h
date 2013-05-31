@@ -37,6 +37,12 @@
 // magnifying glass image and re-render a 10x magnified image of the current bounds.
 // Zooming invalidates the normal cache of rendered images.
 
+enum ASMapViewUIState {
+    kASMapViewNormal,
+    kASMapViewAddControls,
+    kASMapViewAddStart,
+    kASMapViewAddFinish
+};
 
 @interface ASMapView : NSView {
 	id <ASMapProvider> mapProvider;
@@ -67,6 +73,12 @@
 @property(nonatomic,assign) CGFloat zoom;
 @property(nonatomic,retain) NSAffineTransform *currentTransform;
 @property(nonatomic,retain) IBOutlet NSButton *chooseButton;
+@property(nonatomic,assign) enum ASMapViewUIState state;
+
+- (IBAction)revertToStandardMode:(id)sender;
+- (IBAction)goIntoAddControlsMode:(id)sender;
+- (IBAction)goIntoAddStartMode:(id)sender;
+- (IBAction)goIntoAddFinishMode:(id)sender;
 
 - (void)mapLoaded;
 - (CGFloat)calculateMinimumZoomForFrame:(NSRect)frame;

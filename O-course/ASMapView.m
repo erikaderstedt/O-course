@@ -112,6 +112,8 @@
 }
 
 - (void)setShowMagnifyingGlass:(BOOL)b {
+    [self ensureFirstResponder];
+    
 	showMagnifyingGlass = b;
 	CALayer *l = [self magnifyingGlass];
 	if (b) {
@@ -162,7 +164,8 @@
 - (void)mouseMoved:(NSEvent *)theEvent {
 	NSAssert(self.showMagnifyingGlass, @"Not showing magnifying glass?");
 	NSPoint p = [theEvent locationInWindow];
-	p = [self convertPointFromBase:p];
+    p = [self convertPoint:p fromView:nil];
+//	p = [self convertPointFromBase:p];
 
 	CALayer *l = [self magnifyingGlass];
 	if (l.hidden) l.hidden = NO;	
@@ -179,6 +182,12 @@
 
 #pragma mark -
 
+- (void)ensureFirstResponder {
+    if ([[self window] firstResponder] != self) {
+        [[self window] makeFirstResponder:self];
+    }
+}
+
 - (void)mouseDown:(NSEvent *)theEvent {
     NSPoint p = [theEvent locationInWindow];
     p = [self convertPoint:p fromView:nil];
@@ -190,6 +199,30 @@
     } else {
         NSLog(@"No symbol there.");
     }
+}
+
+- (void)cancelOperation:(id)sender {
+    [self revertToStandardMode:sender];
+}
+
+- (IBAction)revertToStandardMode:(id)sender {
+    self.state = kASMapViewNormal;
+    self.showMagnifyingGlass = NO;
+}
+
+- (IBAction)goIntoAddControlsMode:(id)sender {
+    self.state = kASMapViewAddControls;
+    self.showMagnifyingGlass = YES;
+}
+
+- (IBAction)goIntoAddStartMode:(id)sender {
+    self.state = kASMapViewAddStart;
+    self.showMagnifyingGlass = YES;
+}
+
+- (IBAction)goIntoAddFinishMode:(id)sender {
+    self.state = kASMapViewAddFinish;
+    self.showMagnifyingGlass = YES;
 }
 
 - (BOOL)isOpaque {
