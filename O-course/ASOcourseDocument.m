@@ -149,7 +149,7 @@ out_error:
         NSString *s = [u path];
         if ([[s pathExtension] isEqualToString:@"ocd"]) {
             ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:s];
-            [o prepareCacheWithAreaTransform:CGAffineTransformIdentity secondaryTransform:CGAffineTransformMakeScale(0.1/0.5, 0.1/0.5)];
+            [o prepareCacheWithAreaTransform:CGAffineTransformIdentity secondaryTransform:CGAffineTransformMakeScale(0.15, 0.15)];
             mapView.mapProvider = o;
             [o autorelease];
         } else {

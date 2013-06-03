@@ -35,7 +35,6 @@ enum ASMapViewUIState {
 	CALayer *_magnifyingGlass;
     CALayer *innerMagnifyingGlassLayer;
     CAShapeLayer *courseObjectShapeLayer;
-	CIFilter *lozenge;
 	NSTrackingArea *glassTrackingArea;
     
     CATiledLayer *tiledLayer;

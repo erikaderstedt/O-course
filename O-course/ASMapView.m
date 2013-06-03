@@ -8,7 +8,7 @@
 
 #import "ASMapView.h"
 #import "ASControlDescriptionView.h"
-#define GLASS_SIZE 200.0
+#define GLASS_SIZE 180.0
 
 @implementation ASMapView
 
@@ -35,7 +35,6 @@
 	
 	[_magnifyingGlass removeFromSuperlayer];
 	[_magnifyingGlass release];
-	[lozenge release];
 	
 	[super dealloc];
 }
@@ -51,16 +50,6 @@
 - (CALayer *)magnifyingGlass {
 	if (_magnifyingGlass == nil) {
 		NSRect f = NSMakeRect(0.0, 0.0, GLASS_SIZE, GLASS_SIZE);
-        
-		lozenge = [CIFilter filterWithName:@"CIGlassLozenge"];
-		[lozenge setDefaults];
-		[lozenge setValue:[CIVector vectorWithX:NSMidX(f) Y:NSMidY(f)] forKey:@"inputPoint0"];
-		[lozenge setValue:[CIVector vectorWithX:NSMidX(f) Y:NSMidY(f)] forKey:@"inputPoint1"];
-		[lozenge setValue:[NSNumber numberWithFloat:f.size.width*0.5] forKey:@"inputRadius"];
-		[lozenge setValue:[NSNumber numberWithFloat:1.02] forKey:@"inputRefraction"];
-		[lozenge retain];
-
-        
 
 		_magnifyingGlass = [CALayer layer];
 		[_magnifyingGlass setBounds:NSRectToCGRect(f)];
@@ -93,13 +82,13 @@
         innerMagnifyingGlassLayer.delegate = self;
         [_magnifyingGlass addSublayer:innerMagnifyingGlassLayer];
         [innerMagnifyingGlassLayer setNeedsDisplay];
-/*
+
         courseObjectShapeLayer = [CAShapeLayer layer];
         courseObjectShapeLayer.anchorPoint = CGPointMake(0.5, 0.5);
         courseObjectShapeLayer.position = CGPointMake(NSMidX(f), NSMidY(f));
         courseObjectShapeLayer.bounds = NSRectToCGRect(f);
         courseObjectShapeLayer.strokeColor = [[ASControlDescriptionView defaultOverprintColor] CGColor];
-        courseObjectShapeLayer.lineWidth = 2.0;*/
+        courseObjectShapeLayer.lineWidth = 3.5f;
         
 	}
 	return _magnifyingGlass;
@@ -349,7 +338,7 @@ static CGFloat randomFloat()
         // The zoom of the glass is fixed, so that it covers 15 mm of map, diagonally. Since map units are 0.01 mm, this means
         // 1500 map points across.
         
-        float across=1000.0;
+        float across=1200.0;
         // Set up a transform to a 1500x1500 rect centered on p, from a rect {0,0,GLASS_SIZE,GLASS_SIZE}.
         // (assume they are both square)
         float a = GLASS_SIZE/across;
