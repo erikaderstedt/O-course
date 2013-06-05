@@ -17,9 +17,21 @@
 // - The position of the control number depends on the selected course.
 // - No control description can be generated for forked "super"-courses?
 
+@class ASOcourseDocument;
+
 @interface ASOverprintController : NSObject <ASOverprintProvider> {
     NSManagedObject *course;
+    ASOcourseDocument *document;
+    
+    CGColorRef _overprintColor;
+    
+    NSArray *cacheArray;
+    NSData *cachedCuts;
 }
 @property (nonatomic,retain) NSManagedObject *course;
+@property (nonatomic,assign) IBOutlet ASOcourseDocument *document;
+
+- (CGColorRef)overprintColor;
+- (void)updateCache;
 
 @end

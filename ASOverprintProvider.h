@@ -9,9 +9,12 @@
 #import <Foundation/Foundation.h>
 #import "ASCourseObject.h"
 
+
+
 @protocol ASOverprintProvider <NSObject>
 
 - (id <ASCourseObject>)courseObjectAtPosition:(CGPoint)position;
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx;
+- (BOOL)addCourseObject:(enum ASCourseObjectType)objectType atLocation:(CGPoint)location symbolNumber:(NSInteger)symbolNumber;
 
 @end

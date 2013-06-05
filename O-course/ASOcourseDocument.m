@@ -168,6 +168,8 @@ out_error:
 - (void)awakeFromNib {
     [self.courseController setManagedObjectContext:[self managedObjectContext]];
     [self.courseController willAppear];
+    
+    mapView.overprintProvider = self.overprintController;
 }
 
 - (void)windowWillClose:(NSNotification *)notification {

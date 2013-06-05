@@ -7,6 +7,7 @@
 //
 
 #import <CoreData/CoreData.h>
+#import "ASCourseObject.h"
 #import "ASControlDescriptionProvider.h"
 
 enum ASWhichOfAnySimilarFeature {
@@ -100,9 +101,18 @@ enum ASFeature {
     kASFeatureSpecialItem2
 };
 
-@interface CourseObject : NSManagedObject <ASControlDescriptionItem>
+@interface CourseObject : NSManagedObject <ASControlDescriptionItem, ASCourseObject>
 
+@property (nonatomic,retain) NSDate *added;
+@property (nonatomic,retain) NSNumber *position_x;
+@property (nonatomic,retain) NSNumber *position_y;
 @property (nonatomic,retain) NSNumber *distance;
+@property (nonatomic,retain) NSNumber *angle;
+@property (nonatomic,assign) enum ASCourseObjectType objectType;
+@property (nonatomic,retain) NSData *data;
+
+@property (nonatomic,assign) enum ControlDescriptionItemType controlDescriptionItemType;
+
 @property (nonatomic,retain) NSNumber *controlCode;
 @property (nonatomic,retain) NSNumber *whichOfAnySimilarFeature;
 @property (nonatomic,retain) NSNumber *controlFeature;
@@ -111,9 +121,7 @@ enum ASFeature {
 @property (nonatomic,retain) NSNumber *combinationSymbol;
 @property (nonatomic,retain) NSNumber *locationOfTheControlFlag;
 @property (nonatomic,retain) NSNumber *otherInformation;
-@property (nonatomic,assign) enum ControlDescriptionItemType controlDescriptionItemType;
 
-- (CGPoint)position;
-- (void)setPosition:(CGPoint)p;
+- (void)assignNextFreeControlCode;
 
 @end

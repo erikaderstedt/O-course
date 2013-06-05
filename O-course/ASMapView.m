@@ -12,7 +12,7 @@
 
 @implementation ASMapView
 
-@synthesize mapProvider;
+@synthesize mapProvider, overprintProvider;
 @synthesize showMagnifyingGlass;
 
 - (id)initWithFrame:(NSRect)frame {
@@ -178,12 +178,24 @@
     p = [self convertPoint:p fromView:nil];
     p = NSPointFromCGPoint([tiledLayer convertPoint:NSPointToCGPoint(p) fromLayer:[self layer]]);
 
-    NSInteger i = [mapProvider symbolNumberAtPosition:p];
-    if (i != NSNotFound) {
-        NSLog(@"Clicked symbol number: %ld", i);
-    } else {
-        NSLog(@"No symbol there.");
-    }
+    // Tell the overprint provider that a new control should be added at that position. Supply the symbol number from the map provider.
+    //
+    enum ASCourseObjectType addingType;
+    switch (self.state) {
+        case kASMapViewAddControls:
+            addingType = kASCourseObjectControl;
+            break;
+            
+        default:
+            addingType = kASCourseObjectControl;
+            break;
+    };
+    
+    
+    NSInteger i = [self.mapProvider symbolNumberAtPosition:p];
+    [self.overprintProvider addCourseObject:addingType atLocation:p symbolNumber:i];
+    [overprintLayer setNeedsDisplay];
+    [innerMagnifyingGlassLayer setNeedsDisplay];
 }
 
 - (void)cancelOperation:(id)sender {
@@ -256,6 +268,8 @@
 	f = [self frame];
 	
 	tiledLayer.transform = CATransform3DMakeScale(zoom, zoom, 1.0);
+    overprintLayer.transform = tiledLayer.transform;
+    
 	midpointAfter = [tiledLayer convertPoint:pointInMapCoordinates toLayer:[self layer]];
 	
 	tentativeNewOrigin = CGPointMake(midpointAfter.x - 0.5*v.size.width, midpointAfter.y - 0.5*v.size.height);
@@ -267,6 +281,8 @@
 	[CATransaction commit];
 
 	[tiledLayer performSelector:@selector(setNeedsDisplay) withObject:nil afterDelay:1.0];
+    [overprintLayer performSelector:@selector(setNeedsDisplay) withObject:nil afterDelay:1.0];
+    
     _zoom = zoom;
 }
 
@@ -297,13 +313,25 @@
             tiledLayer.anchorPoint = CGPointMake(0.0, 0.0);
             tiledLayer.position = CGPointMake(0.0, 0.0);
             
+            overprintLayer = [CATiledLayer layer];
+            overprintLayer.name = @"overprint";
+            overprintLayer.needsDisplayOnBoundsChange = YES;
+            overprintLayer.backgroundColor = CGColorCreateGenericRGB(0.0, 0.0, 0.0, 0.0);
+            overprintLayer.tileSize = tiledLayer.tileSize;
+            overprintLayer.levelsOfDetail = tiledLayer.levelsOfDetail;
+            overprintLayer.levelsOfDetailBias = tiledLayer.levelsOfDetailBias;
+            overprintLayer.anchorPoint = tiledLayer.anchorPoint;
+            overprintLayer.position = tiledLayer.position;
+            [overprintLayer retain];
         }
         mapBounds = [self.mapProvider mapBounds];
-        tiledLayer.bounds = mapBounds;
-        tiledLayer.delegate = self;
-        [[self layer] addSublayer:tiledLayer];
+        tiledLayer.bounds = mapBounds; overprintLayer.bounds = mapBounds;
+        tiledLayer.delegate = self; overprintLayer.delegate = overprintProvider;
+        [[self layer] addSublayer:tiledLayer]; [[self layer] addSublayer:overprintLayer];
         tiledLayer.contents = nil;
         [tiledLayer setNeedsDisplay];
+        overprintLayer.contents = nil;
+        [overprintLayer setNeedsDisplay];
         
         // Calculate the initial zoom as the minimum zoom.
         NSRect cv = [[[self enclosingScrollView] contentView] frame];
@@ -313,6 +341,9 @@
         if (tiledLayer != nil) {
             tiledLayer.delegate = nil;
             [tiledLayer removeFromSuperlayer];
+            
+            overprintLayer.delegate = nil;
+            [overprintLayer removeFromSuperlayer];
         }
     }
     
@@ -328,7 +359,6 @@ static CGFloat randomFloat()
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
     if (layer == tiledLayer) {
         [mapProvider drawLayer:layer inContext:ctx];
-        [overprintProvider drawLayer:layer inContext:ctx];
     } else if (layer == innerMagnifyingGlassLayer) {
         CGContextSaveGState(ctx);
        

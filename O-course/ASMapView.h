@@ -38,11 +38,13 @@ enum ASMapViewUIState {
 	NSTrackingArea *glassTrackingArea;
     
     CATiledLayer *tiledLayer;
+    CATiledLayer *overprintLayer;
     CGFloat _zoom;
 	CGFloat minZoom;
     
 }
 @property(nonatomic,retain) id <ASMapProvider> mapProvider;
+@property(nonatomic,retain) id <ASOverprintProvider> overprintProvider;
 @property(nonatomic,assign) BOOL showMagnifyingGlass;
 @property(nonatomic,assign) CGFloat zoom;
 @property(nonatomic,assign) enum ASMapViewUIState state;

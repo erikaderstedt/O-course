@@ -8,6 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
+enum ASCourseObjectType {
+    kASCourseObjectControl
+};
+
 @protocol ASCourseObject <NSObject>
 
 - (CGPoint)position;
