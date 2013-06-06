@@ -78,16 +78,34 @@
 
         enum ASCourseObjectType type = (enum ASCourseObjectType)[[courseObjectInfo objectForKey:@"type"] integerValue];
         CGPoint p = NSPointToCGPoint([[courseObjectInfo objectForKey:@"position"] pointValue]);
+        CGRect r;
+        CGFloat z;
         
-        if (type == kASCourseObjectControl) {
-            CGRect r = CGRectMake(p.x-300.0, p.y-300.0, 600.0, 600.0);
-            if (CGRectIntersectsRect(CGRectInset(r, -50.0, -50.0), clipBox)) {
+        switch (type) {
+            case kASCourseObjectControl:
+                r = CGRectMake(p.x-300.0, p.y-300.0, 600.0, 600.0);
+                if (CGRectIntersectsRect(CGRectInset(r, -50.0, -50.0), clipBox)) {
+                    CGContextBeginPath(ctx);
+                    CGContextAddEllipseInRect(ctx, r);
+                    CGContextSetLineWidth(ctx, 35.0);
+                    CGContextStrokePath(ctx);
+                }
+                break;
+            case kASCourseObjectStart:
+                z = 700.0/2.0/cos(pi/6);
+                r = CGRectMake(p.x-400.0, p.y-400.0, 800.0, 800.0);
                 CGContextBeginPath(ctx);
-                CGContextAddEllipseInRect(ctx, r);
+                CGContextMoveToPoint(ctx, p.x, p.y + z);
+                CGContextAddLineToPoint(ctx, p.x + cos(pi/6)*z, p.y - sin(pi/6)*z);
+                CGContextAddLineToPoint(ctx, p.x - cos(pi/6)*z, p.y - sin(pi/6)*z);
+                CGContextClosePath(ctx);
                 CGContextSetLineWidth(ctx, 35.0);
                 CGContextStrokePath(ctx);
-            }
+                break;
+            default:
+                break;
         }
+
     }
     
 }
@@ -104,6 +122,7 @@
         if (objectType == kASCourseObjectControl) {
             [object assignNextFreeControlCode];
         }
+        object.objectType = objectType;
         
         [self updateCache];
     }

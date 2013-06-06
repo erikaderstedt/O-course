@@ -42,6 +42,7 @@ enum ASMapViewUIState {
     CGFloat _zoom;
 	CGFloat minZoom;
     
+    enum ASMapViewUIState state;
 }
 @property(nonatomic,retain) id <ASMapProvider> mapProvider;
 @property(nonatomic,retain) id <ASOverprintProvider> overprintProvider;

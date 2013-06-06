@@ -9,7 +9,9 @@
 #import <Foundation/Foundation.h>
 
 enum ASCourseObjectType {
-    kASCourseObjectControl
+    kASCourseObjectControl,
+    kASCourseObjectFinish,
+    kASCourseObjectStart
 };
 
 @protocol ASCourseObject <NSObject>

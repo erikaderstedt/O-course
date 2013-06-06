@@ -88,7 +88,9 @@
         courseObjectShapeLayer.position = CGPointMake(NSMidX(f), NSMidY(f));
         courseObjectShapeLayer.bounds = NSRectToCGRect(f);
         courseObjectShapeLayer.strokeColor = [[ASControlDescriptionView defaultOverprintColor] CGColor];
-        courseObjectShapeLayer.lineWidth = 3.5f;
+        courseObjectShapeLayer.fillColor = nil;
+        courseObjectShapeLayer.lineWidth = 3.5f*1.5;
+        [_magnifyingGlass addSublayer:courseObjectShapeLayer];
         
 	}
 	return _magnifyingGlass;
@@ -185,7 +187,9 @@
         case kASMapViewAddControls:
             addingType = kASCourseObjectControl;
             break;
-            
+        case kASMapViewAddStart:
+            addingType = kASCourseObjectStart;
+            break;
         default:
             addingType = kASCourseObjectControl;
             break;
@@ -204,22 +208,18 @@
 
 - (IBAction)revertToStandardMode:(id)sender {
     self.state = kASMapViewNormal;
-    self.showMagnifyingGlass = NO;
 }
 
 - (IBAction)goIntoAddControlsMode:(id)sender {
     self.state = kASMapViewAddControls;
-    self.showMagnifyingGlass = YES;
 }
 
 - (IBAction)goIntoAddStartMode:(id)sender {
     self.state = kASMapViewAddStart;
-    self.showMagnifyingGlass = YES;
 }
 
 - (IBAction)goIntoAddFinishMode:(id)sender {
     self.state = kASMapViewAddFinish;
-    self.showMagnifyingGlass = YES;
 }
 
 - (BOOL)isOpaque {
@@ -382,6 +382,40 @@ static CGFloat randomFloat()
         CGContextRestoreGState(ctx);
         
     } 
+}
+
+- (void)setState:(enum ASMapViewUIState)s2 {
+    _state = s2;
+    CGMutablePathRef path = NULL;
+    
+    if (_state == kASMapViewNormal) {
+        self.showMagnifyingGlass = NO;
+    } else {
+        self.showMagnifyingGlass = YES;
+    }
+
+    CGPoint middle = CGPointMake(90.0, 90.0);
+    double z;
+
+    path = CGPathCreateMutable();
+    
+    switch (_state) {
+        case kASMapViewAddControls:
+            CGPathAddEllipseInRect(path, NULL, CGRectMake(45, 45, 90, 90));
+            break;
+        case kASMapViewAddStart:
+            z = 1.5*70.0/2.0/cos(pi/6);
+            CGPathMoveToPoint(path, NULL, middle.x, middle.y + z);
+            CGPathAddLineToPoint(path, NULL, middle.x + cos(pi/6)*z, middle.y - sin(pi/6)*z);
+            CGPathAddLineToPoint(path, NULL, middle.x - cos(pi/6)*z, middle.y - sin(pi/6)*z);
+            CGPathCloseSubpath(path);
+            break;
+        default:
+            break;
+    }
+    
+    courseObjectShapeLayer.path = path;
+    CGPathRelease(path);
 }
 
 @end
