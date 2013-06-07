@@ -102,6 +102,18 @@
                 CGContextSetLineWidth(ctx, 35.0);
                 CGContextStrokePath(ctx);
                 break;
+            case kASCourseObjectFinish:
+                r = CGRectMake(p.x-350.0, p.y-350.0, 700.0, 700.0);
+                if (CGRectIntersectsRect(CGRectInset(r, -50.0, -50.0), clipBox)) {
+                    CGContextBeginPath(ctx);
+                    CGContextSetLineWidth(ctx, 35.0);
+                    CGContextAddEllipseInRect(ctx, r);
+                    r = CGRectMake(p.x-250.0, p.y-250.0, 500.0, 500.0);
+                    CGContextAddEllipseInRect(ctx, r);
+                    CGContextStrokePath(ctx);
+                    
+                }
+                break;
             default:
                 break;
         }

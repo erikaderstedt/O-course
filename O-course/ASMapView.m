@@ -190,6 +190,9 @@
         case kASMapViewAddStart:
             addingType = kASCourseObjectStart;
             break;
+        case kASMapViewAddFinish:
+            addingType = kASCourseObjectFinish;
+            break;
         default:
             addingType = kASCourseObjectControl;
             break;
@@ -409,6 +412,12 @@ static CGFloat randomFloat()
             CGPathAddLineToPoint(path, NULL, middle.x + cos(pi/6)*z, middle.y - sin(pi/6)*z);
             CGPathAddLineToPoint(path, NULL, middle.x - cos(pi/6)*z, middle.y - sin(pi/6)*z);
             CGPathCloseSubpath(path);
+            break;
+        case kASMapViewAddFinish:
+            z = 1.5*50;
+            CGPathAddEllipseInRect(path, NULL, CGRectMake(middle.x-0.5*z, middle.y-0.5*z, z, z));
+            z = 1.5*70;
+            CGPathAddEllipseInRect(path, NULL, CGRectMake(middle.x-0.5*z, middle.y-0.5*z, z, z));
             break;
         default:
             break;
