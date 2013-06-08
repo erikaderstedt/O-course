@@ -14,6 +14,13 @@
 
 @synthesize popoverForCDEGH;
 @synthesize selectionView;
+@synthesize activeObject;
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    [self.selectionView setDataSource:self];
+    
+}
 
 - (void)updateTrackingAreas {
     if (activeTrackingArea != nil) {
@@ -34,8 +41,6 @@
     }
     
     // Add a tracking area for each element that can be changed.
-    // Event (1st row)
-    //
     NSInteger topItem = [self numberOfItems] - [[[provider courseObjectEnumeratorForCourse:self.course] allObjects] count];
     NSArray *regularColumns = @[@(kASWhichOfAnySimilarFeature), @(kASFeature), @(kASAppearanceOrSecondaryFeature), @(kASDimensionsOrCombinations), @(kASLocationOfTheControlFlag), @(kASOtherInformation)];
     
@@ -54,8 +59,6 @@
             topItem ++;
         }
     }
-    
-    // The control number is special
 }
 
 - (void)mouseEntered:(NSEvent *)theEvent {
@@ -64,7 +67,6 @@
     }
     activeTrackingArea = [theEvent trackingArea];
     [self setNeedsDisplayInRect:[activeTrackingArea rect]];
-    
 }
 
 - (void)mouseExited:(NSEvent *)theEvent {
@@ -79,9 +81,14 @@
         NSDictionary *userInfo = [activeTrackingArea userInfo];
         if (userInfo) {
             self.selectionView.column = (enum ASControlDescriptionColumn)[[userInfo objectForKey:@"column"] intValue];
-            
-            [self.popoverForCDEGH showRelativeToRect:[activeTrackingArea rect] ofView:self preferredEdge:NSMaxXEdge];
+            self.activeObject = [userInfo objectForKey:@"object"];
+        } else {
+            self.selectionView.column = kASAllColumns;
         }
+        [self.popoverForCDEGH setContentSize:[[self selectionView] bounds].size];
+        [self.popoverForCDEGH showRelativeToRect:[activeTrackingArea rect] ofView:self preferredEdge:NSMaxXEdge];
+    } else {
+        self.activeObject = nil;
     }
 }
 
@@ -94,6 +101,25 @@
         [NSBezierPath fillRect:[activeTrackingArea rect]];
     }
 }
+
+- (void)setValue:(NSNumber *)value forColumn:(enum ASControlDescriptionColumn)column {
+    switch (column) {
+        case kASFeature:
+            [self.activeObject setControlFeature:value];
+            break;
+        case kASAppearanceOrSecondaryFeature:
+            [self.activeObject setAppearanceOrSecondControlFeature:value];
+            break;
+        case kASWhichOfAnySimilarFeature:
+            [self.activeObject setWhichOfAnySimilarFeature:value];
+            break;
+        default:
+            break;
+    }
+    [self.popoverForCDEGH close];
+    [self setNeedsDisplay:YES];
+}
+
      
 
 @end

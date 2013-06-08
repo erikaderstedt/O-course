@@ -7,9 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "ASControlDescriptionView.h"
-
-
+#import "ASControlDescriptionView+CourseObjects.h"
 
 @interface ASCourseObjectSelectionView : NSView {
     NSTrackingArea *activeTrackingArea;
@@ -18,10 +16,16 @@
     NSInteger numberOfColumns;
     
     NSDictionary *textAttributes;
+    
+    NSRect stringRect;
+    CGSize blockSize;
+    CGSize viewSize;
 }
 
 @property (nonatomic, assign) enum ASControlDescriptionColumn column;
 @property (nonatomic, retain) id <ASCourseObjectSelectionViewDelegate> delegate;
 @property (nonatomic, retain) id <ASCourseObjectSelectionViewDataSource> dataSource;
+
+- (CGRect)boundsForRow:(NSInteger)rowIndex column:(NSInteger)columnIndex;
 
 @end

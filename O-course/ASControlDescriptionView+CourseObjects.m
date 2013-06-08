@@ -55,11 +55,9 @@
                        [NSNumber numberWithInt:kASFeatureSouthWest],
                        [NSNumber numberWithInt:kASFeatureWest], 
                        [NSNumber numberWithInt:kASFeatureNorthWest], 
-                       [NSNumber numberWithInt:kASFeatureUpper], 
+                       [NSNumber numberWithInt:kASFeatureUpper],
                        [NSNumber numberWithInt:kASFeatureLower],
-                       [NSNumber numberWithInt:kASFeatureLeft],
                        [NSNumber numberWithInt:kASFeatureMiddle],
-                       [NSNumber numberWithInt:kASFeatureRight],
                        nil];
             break;
         case kASFeature:
@@ -109,10 +107,13 @@
 
 - (NSString *)localizedNameForValue:(NSInteger)value inColumn:(enum ASControlDescriptionColumn)column {
     enum ASFeature feature;
+    enum ASWhichOfAnySimilarFeature which;
+    
     NSString *s = nil;
     switch (column) {
         case kASFeature:
             feature = (enum ASFeature)value;
+            
             switch (feature) {
                 case kASFeatureNone:            s = NSLocalizedString(@"None", nil);    break;
                 case kASFeatureTerrace:         s = NSLocalizedString(@"1.1", nil);     break;
@@ -123,11 +124,91 @@
                 case kASFeatureEarthWall:       s = NSLocalizedString(@"1.6", nil);     break;
                 case kASFeatureErosionGully:    s = NSLocalizedString(@"1.7", nil);     break;
                 case kASFeatureSmallErosionGully:s = NSLocalizedString(@"1.8", nil);    break;
+                case kASFeatureHill:            s = NSLocalizedString(@"1.9", nil);    break;
+                case kASFeatureKnoll:           s = NSLocalizedString(@"1.10", nil);    break;
+                case kASFeatureSaddle:           s = NSLocalizedString(@"1.11", nil);    break;
+                case kASFeatureDepression:           s = NSLocalizedString(@"1.12", nil);    break;
+                case kASFeatureSmallDepression:            s = NSLocalizedString(@"1.13", nil);    break;
+                case kASFeaturePit:           s = NSLocalizedString(@"1.14", nil);    break;
+                case kASFeatureBrokenGround:           s = NSLocalizedString(@"1.15", nil);    break;
+                case kASFeatureAntHill:           s = NSLocalizedString(@"1.16", nil);    break;
+                case kASFeatureCliff:           s = NSLocalizedString(@"2.1", nil);    break;
+                case kASFeatureRockPillar:             s = NSLocalizedString(@"2.2", nil);    break;
+                case kASFeatureCave:           s = NSLocalizedString(@"2.3", nil);    break;
+                case kASFeatureBoulder:            s = NSLocalizedString(@"2.4", nil);    break;
+                case kASFeatureBoulderField:           s = NSLocalizedString(@"2.5", nil);    break;
+                case kASFeatureBoulderCluster:           s = NSLocalizedString(@"2.6", nil);    break;
+                case kASFeatureStonyGround:           s = NSLocalizedString(@"2.7", nil);    break;
+                case kASFeatureBareRock:            s = NSLocalizedString(@"2.8", nil);    break;
+                case kASFeatureNarrowPassage:              s = NSLocalizedString(@"2.9", nil);    break;
+                case kASFeatureLake:           s = NSLocalizedString(@"3.1", nil);    break;
+                case kASFeaturePond:           s = NSLocalizedString(@"3.2", nil);    break;
+                case kASFeatureWaterhole:              s = NSLocalizedString(@"3.3", nil);    break;
+                case kASFeatureStream:           s = NSLocalizedString(@"3.4", nil);    break;
+                case kASFeatureDitch:              s = NSLocalizedString(@"3.5", nil);    break;
+                case kASFeatureNarrowMarch:            s = NSLocalizedString(@"3.6", nil);    break;
+                case kASFeatureMarch:           s = NSLocalizedString(@"3.7", nil);    break;
+                case kASFeatureFirmGroundInMarch:           s = NSLocalizedString(@"3.8", nil);    break;
+                case kASFeatureWell:           s = NSLocalizedString(@"3.9", nil);    break;
+                case kASFeatureSpring:           s = NSLocalizedString(@"3.10", nil);    break;
+                case kASFeatureWaterTrough:            s = NSLocalizedString(@"3.11", nil);    break;
+                case kASFeatureOpenLand:               s = NSLocalizedString(@"4.1", nil);    break;
                 default:
                     break;
             }
-            break;
             
+            
+            
+            
+            
+            
+            
+            /*
+             "4.1" = "Open land";
+             "4.2" = "Semi-open land";
+             "4.3" = "Forest corner";
+             "4.4" = "Clearing";
+             "4.5" = "Thicket";
+             "4.6" = "Linear thicket";
+             "4.7" = "Vegetation boundary";
+             "4.8" = "Copse";
+             "4.9" = "Distinctive tree";
+             "4.10" = "Tree stump, Root stock";
+             "5.1" = "Road";
+             "5.2" = "Track / Path";
+             "5.3" = "Ride";
+             "5.4" = "Bridge";
+             "5.5" = "Power line";
+             "5.6" = "Power line pylon";
+             "5.7" = "Tunnel";
+             "5.8" = "Stone wall";
+             "5.9" = "Fence";
+             "5.10" = "Crossing point";
+             "5.11" = "Building";
+             "5.12" = "Paved area";
+             "5.13" = "Ruin";
+             "5.14" = "Pipeline";
+             "5.15" = "Tower";
+             */
+            break;
+        case kASWhichOfAnySimilarFeature:
+            which = (enum ASWhichOfAnySimilarFeature)value;
+            switch (which) {
+                case kASFeatureEast:            s = NSLocalizedString(@"Eastern", nil);         break;
+                case kASFeatureSouth:           s = NSLocalizedString(@"Southern", nil);        break;
+                case kASFeatureWest:            s = NSLocalizedString(@"Western", nil);         break;
+                case kASFeatureNorth:           s = NSLocalizedString(@"Northern", nil);        break;
+                case kASFeatureSouthEast:       s = NSLocalizedString(@"South Eastern", nil);   break;
+                case kASFeatureSouthWest:       s = NSLocalizedString(@"South Western", nil);   break;
+                case kASFeatureNorthEast:       s = NSLocalizedString(@"North Eastern", nil);   break;
+                case kASFeatureNorthWest:       s = NSLocalizedString(@"North Western", nil);   break;
+                case kASFeatureMiddle:          s = NSLocalizedString(@"Middle", nil);          break;
+                case kASFeatureUpper:           s = NSLocalizedString(@"Upper", nil);           break;
+                case kASFeatureLower:           s = NSLocalizedString(@"Lower", nil);           break;
+                case kASFeatureNotSpecified:    s = NSLocalizedString(@"Not specified", nil);   break;
+                default:
+                    break;
+            }
         default:
             break;
     }
@@ -216,7 +297,7 @@
         CGPathAddEllipseInRect(subpath, tran, r);
     }
     
-    if (feature == kASFeatureLeft || feature == kASFeatureMiddle || feature == kASFeatureRight) {
+    if (feature == kASFeatureMiddle) {
         CGPathMoveToPoint(path, NULL, -C_TRIPLE_LINE_SPACING*SYMBOL_SIZE, -SYMBOL_SIZE);
         CGPathAddLineToPoint(path, NULL, -C_TRIPLE_LINE_SPACING*SYMBOL_SIZE, SYMBOL_SIZE);
         CGPathMoveToPoint(path, NULL, 0.0, -SYMBOL_SIZE);
@@ -227,11 +308,6 @@
         subpath = CGPathCreateMutable();
         CGRect r = CGRectMake(-C_MARK_DOT*SYMBOL_SIZE, 
                               -C_MARK_DOT*SYMBOL_SIZE, C_MARK_DOT*SYMBOL_SIZE*2.0, C_MARK_DOT*SYMBOL_SIZE*2.0);
-        if (feature == kASFeatureRight) {
-            r.origin.x = r.origin.x + C_TRIPLE_LINE_SPACING*SYMBOL_SIZE;
-        } else if (feature == kASFeatureLeft) {
-            r.origin.x = r.origin.x - C_TRIPLE_LINE_SPACING*SYMBOL_SIZE;
-        }
         CGPathAddEllipseInRect(subpath, tran, r);
     }
     

@@ -118,18 +118,18 @@
 				<bool key="NS.localized">NO</bool>
 				<bool key="NS.allowsfloats">YES</bool>
 			</object>
-			<object class="NSViewController" id="1045721618"/>
-			<object class="NSCustomView" id="856343676">
+			<object class="NSViewController" id="603562653"/>
+			<object class="NSCustomView" id="129236480">
 				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">268</int>
-				<string key="NSFrameSize">{163, 96}</string>
+				<string key="NSFrameSize">{277, 96}</string>
 				<reference key="NSSuperview"/>
 				<reference key="NSWindow"/>
 				<reference key="NSNextKeyView"/>
 				<string key="NSReuseIdentifierKey">_NS:9</string>
 				<string key="NSClassName">ASCourseObjectSelectionView</string>
 			</object>
-			<object class="NSPopover" id="67046695">
+			<object class="NSPopover" id="295013323">
 				<nil key="NSNextResponder"/>
 				<int key="NSAppearance">0</int>
 				<int key="NSBehavior">1</int>
@@ -701,7 +701,7 @@
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">selectionView</string>
 						<reference key="source" ref="641617590"/>
-						<reference key="destination" ref="856343676"/>
+						<reference key="destination" ref="129236480"/>
 					</object>
 					<int key="connectionID">100928</int>
 				</object>
@@ -709,7 +709,7 @@
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">popoverForCDEGH</string>
 						<reference key="source" ref="641617590"/>
-						<reference key="destination" ref="67046695"/>
+						<reference key="destination" ref="295013323"/>
 					</object>
 					<int key="connectionID">100929</int>
 				</object>
@@ -852,16 +852,16 @@
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">view</string>
-						<reference key="source" ref="1045721618"/>
-						<reference key="destination" ref="856343676"/>
+						<reference key="source" ref="603562653"/>
+						<reference key="destination" ref="129236480"/>
 					</object>
 					<int key="connectionID">100930</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">contentViewController</string>
-						<reference key="source" ref="67046695"/>
-						<reference key="destination" ref="1045721618"/>
+						<reference key="source" ref="295013323"/>
+						<reference key="destination" ref="603562653"/>
 					</object>
 					<int key="connectionID">100922</int>
 				</object>
@@ -1506,18 +1506,18 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">100920</int>
-						<reference key="object" ref="1045721618"/>
+						<reference key="object" ref="603562653"/>
 						<reference key="parent" ref="0"/>
 						<string key="objectName">Popover View Controller</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">100921</int>
-						<reference key="object" ref="67046695"/>
+						<reference key="object" ref="295013323"/>
 						<reference key="parent" ref="0"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">100923</int>
-						<reference key="object" ref="856343676"/>
+						<reference key="object" ref="129236480"/>
 						<reference key="parent" ref="0"/>
 					</object>
 				</array>
@@ -1771,17 +1771,25 @@
 				<object class="IBPartialClassDescription">
 					<string key="className">ASOcourseDocument</string>
 					<string key="superclassName">NSDocument</string>
-					<object class="NSMutableDictionary" key="actions">
-						<string key="NS.key.0">chooseBackgroundMap:</string>
-						<string key="NS.object.0">id</string>
-					</object>
-					<object class="NSMutableDictionary" key="actionInfosByName">
-						<string key="NS.key.0">chooseBackgroundMap:</string>
-						<object class="IBActionInfo" key="NS.object.0">
+					<dictionary class="NSMutableDictionary" key="actions">
+						<string key="chooseBackgroundMap:">id</string>
+						<string key="zoomIn:">id</string>
+						<string key="zoomOut:">id</string>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="actionInfosByName">
+						<object class="IBActionInfo" key="chooseBackgroundMap:">
 							<string key="name">chooseBackgroundMap:</string>
 							<string key="candidateClassName">id</string>
 						</object>
-					</object>
+						<object class="IBActionInfo" key="zoomIn:">
+							<string key="name">zoomIn:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="zoomOut:">
+							<string key="name">zoomOut:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+					</dictionary>
 					<dictionary class="NSMutableDictionary" key="outlets">
 						<string key="courseController">ASCourseController</string>
 						<string key="mapView">ASMapView</string>

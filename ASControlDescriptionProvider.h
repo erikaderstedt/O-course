@@ -91,6 +91,7 @@ enum ASControlDescriptionColumn {
 - (CFArrayRef)createPathsForWhichOfAnySimilarFeatureWithValue:(NSNumber *)value transform:(CGAffineTransform *)tran;
 - (CFArrayRef)createPathsForFeatureOrAppearance:(NSNumber *)value transform:(CGAffineTransform *)tran;
 - (NSString *)localizedNameForValue:(NSInteger)value inColumn:(enum ASControlDescriptionColumn)column;
-- (NSString *)localizedDescriptionForValue:(NSInteger)value inColumn:(enum ASControlDescriptionColumn)column;
+
+- (void)setValue:(NSNumber *)value forColumn:(enum ASControlDescriptionColumn)column;
 
 @end

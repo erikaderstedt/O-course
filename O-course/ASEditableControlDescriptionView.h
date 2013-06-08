@@ -16,5 +16,6 @@
 
 @property (nonatomic,assign) IBOutlet ASCourseObjectSelectionView *selectionView;
 @property (nonatomic,assign) IBOutlet NSPopover *popoverForCDEGH;
+@property (nonatomic,retain) id <ASEditableControlDescriptionItem> activeObject;
 
 @end
