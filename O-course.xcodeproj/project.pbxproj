@@ -17,7 +17,6 @@
 		032001DA12FE9EF900707BA5 /* ASOcourseDocument.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 032001D812FE9EF900707BA5 /* ASOcourseDocument.xcdatamodeld */; };
 		032001E212FE9F1000707BA5 /* ocdimport.c in Sources */ = {isa = PBXBuildFile; fileRef = 032001E012FE9F1000707BA5 /* ocdimport.c */; };
 		033D6818134AF79C00502CA8 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 033D6817134AF79C00502CA8 /* QuartzCore.framework */; };
-		033D6874134B05D100502CA8 /* compass bezel.png in Resources */ = {isa = PBXBuildFile; fileRef = 033D6873134B05D100502CA8 /* compass bezel.png */; };
 		033DA8B1144EFFC600C787F8 /* ASGenericImageController.h in Headers */ = {isa = PBXBuildFile; fileRef = 033DA8AF144EFFC600C787F8 /* ASGenericImageController.h */; };
 		033DA8B2144EFFC600C787F8 /* ASGenericImageController.m in Sources */ = {isa = PBXBuildFile; fileRef = 033DA8B0144EFFC600C787F8 /* ASGenericImageController.m */; };
 		033DA8B3144EFFC600C787F8 /* ASGenericImageController.m in Sources */ = {isa = PBXBuildFile; fileRef = 033DA8B0144EFFC600C787F8 /* ASGenericImageController.m */; };
@@ -48,6 +47,7 @@
 		03A5114913B7AF0E00469BCF /* ASOCADController_Line.h in Headers */ = {isa = PBXBuildFile; fileRef = 03A5114713B7AF0E00469BCF /* ASOCADController_Line.h */; };
 		03A5114A13B7AF0E00469BCF /* ASOCADController_Line.m in Sources */ = {isa = PBXBuildFile; fileRef = 03A5114813B7AF0E00469BCF /* ASOCADController_Line.m */; };
 		03A5114B13B7AF0E00469BCF /* ASOCADController_Line.m in Sources */ = {isa = PBXBuildFile; fileRef = 03A5114813B7AF0E00469BCF /* ASOCADController_Line.m */; };
+		03B86EA21763AD0200C4A358 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 03B86EA41763AD0200C4A358 /* Localizable.strings */; };
 		03B90D3B14330A530033216D /* CoordinateTransverser.m in Sources */ = {isa = PBXBuildFile; fileRef = 03B90D3A14330A530033216D /* CoordinateTransverser.m */; };
 		03B90D3D143315A10033216D /* CoordinateTransverser.m in Sources */ = {isa = PBXBuildFile; fileRef = 03B90D3A14330A530033216D /* CoordinateTransverser.m */; };
 		03C305161347B5FA00FB8133 /* ASOCADController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03C305151347B5FA00FB8133 /* ASOCADController.m */; };
@@ -61,7 +61,6 @@
 		03FA63A5156FEE3A00EF4ACF /* ASControlDescriptionView+CourseObjects.m in Sources */ = {isa = PBXBuildFile; fileRef = 03FA63A4156FEE3A00EF4ACF /* ASControlDescriptionView+CourseObjects.m */; };
 		03FA63A81570006200EF4ACF /* ASEditableControlDescriptionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 03FA63A71570006200EF4ACF /* ASEditableControlDescriptionView.m */; };
 		03FA63AA1570125300EF4ACF /* linen_texture.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 03FA63A91570125300EF4ACF /* linen_texture.jpg */; };
-		03FA63AC15702ACB00EF4ACF /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 03FA63AB15702ACB00EF4ACF /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -107,7 +106,6 @@
 		032001E112FE9F1000707BA5 /* ocdimport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ocdimport.h; sourceTree = "<group>"; };
 		0321D2D4156D13A600180ADE /* O-course.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "O-course.entitlements"; sourceTree = "<group>"; };
 		033D6817134AF79C00502CA8 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
-		033D6873134B05D100502CA8 /* compass bezel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "compass bezel.png"; sourceTree = "<group>"; };
 		033DA8A8144EF8E600C787F8 /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = SOURCE_ROOT; };
 		033DA8AF144EFFC600C787F8 /* ASGenericImageController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASGenericImageController.h; sourceTree = "<group>"; };
 		033DA8B0144EFFC600C787F8 /* ASGenericImageController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASGenericImageController.m; sourceTree = "<group>"; };
@@ -141,6 +139,8 @@
 		03AAFEC21443874D008567E3 /* OCAD8Format.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = OCAD8Format.txt; sourceTree = "<group>"; };
 		03AAFEC31443874D008567E3 /* OCAD9Format.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = OCAD9Format.pdf; sourceTree = "<group>"; };
 		03AAFEC41443874D008567E3 /* OCAD9Format.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = OCAD9Format.txt; sourceTree = "<group>"; };
+		03B86EA31763AD0200C4A358 /* en */ = {isa = PBXFileReference; lastKnownFileType = file; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		03B86EA51763AD3B00C4A358 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
 		03B90D3914330A530033216D /* CoordinateTransverser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoordinateTransverser.h; sourceTree = "<group>"; };
 		03B90D3A14330A530033216D /* CoordinateTransverser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoordinateTransverser.m; sourceTree = "<group>"; };
 		03C305141347B5FA00FB8133 /* ASOCADController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASOCADController.h; sourceTree = "<group>"; };
@@ -168,7 +168,6 @@
 		03FA63A61570006200EF4ACF /* ASEditableControlDescriptionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASEditableControlDescriptionView.h; sourceTree = "<group>"; };
 		03FA63A71570006200EF4ACF /* ASEditableControlDescriptionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASEditableControlDescriptionView.m; sourceTree = "<group>"; };
 		03FA63A91570125300EF4ACF /* linen_texture.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = linen_texture.jpg; sourceTree = "<group>"; };
-		03FA63AB15702ACB00EF4ACF /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = Localizable.strings; path = Resources/Localizable.strings; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -315,10 +314,9 @@
 		033D6872134B05AE00502CA8 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				03FA63AB15702ACB00EF4ACF /* Localizable.strings */,
+				03B86EA41763AD0200C4A358 /* Localizable.strings */,
 				03FA63A91570125300EF4ACF /* linen_texture.jpg */,
 				033DA8A8144EF8E600C787F8 /* README */,
-				033D6873134B05D100502CA8 /* compass bezel.png */,
 				032001D212FE9EF900707BA5 /* ASOcourseDocument.xib */,
 				032001D512FE9EF900707BA5 /* MainMenu.xib */,
 			);
@@ -453,6 +451,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				sv,
 			);
 			mainGroup = 032001AE12FE9EF900707BA5;
 			productRefGroup = 032001BA12FE9EF900707BA5 /* Products */;
@@ -474,9 +473,8 @@
 				032001CE12FE9EF900707BA5 /* Credits.rtf in Resources */,
 				032001D412FE9EF900707BA5 /* ASOcourseDocument.xib in Resources */,
 				032001D712FE9EF900707BA5 /* MainMenu.xib in Resources */,
-				033D6874134B05D100502CA8 /* compass bezel.png in Resources */,
 				03FA63AA1570125300EF4ACF /* linen_texture.jpg in Resources */,
-				03FA63AC15702ACB00EF4ACF /* Localizable.strings in Resources */,
+				03B86EA21763AD0200C4A358 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -600,6 +598,16 @@
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
+		};
+		03B86EA41763AD0200C4A358 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				03B86EA31763AD0200C4A358 /* en */,
+				03B86EA51763AD3B00C4A358 /* sv */,
+			);
+			name = Localizable.strings;
+			path = Resources;
+			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXVariantGroup section */
 
