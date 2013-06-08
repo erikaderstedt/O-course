@@ -135,6 +135,7 @@
             [object assignNextFreeControlCode];
         }
         object.objectType = objectType;
+        [object setSymbolNumber:symbolNumber];
         
         [self updateCache];
     }

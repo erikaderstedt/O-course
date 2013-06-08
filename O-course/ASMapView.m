@@ -200,6 +200,7 @@
     
     
     NSInteger i = [self.mapProvider symbolNumberAtPosition:p];
+    NSLog(@"Adding symbol number %d", (long)i);
     [self.overprintProvider addCourseObject:addingType atLocation:p symbolNumber:i];
     [overprintLayer setNeedsDisplay];
     [innerMagnifyingGlassLayer setNeedsDisplay];

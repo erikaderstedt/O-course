@@ -11,7 +11,22 @@
 @implementation CourseObject
 
 - (enum ControlDescriptionItemType)controlDescriptionItemType {
-    return (enum ControlDescriptionItemType)[[self valueForKey:@"type"] intValue];
+    enum ASCourseObjectType courseObjectType = self.objectType;
+    enum ControlDescriptionItemType cdType;
+    switch (courseObjectType) {
+        case kASCourseObjectControl:
+            cdType = kASRegularControl;
+            break;
+        case kASCourseObjectFinish:
+            cdType = kASFinish;
+            break;
+        case kASCourseObjectStart:
+            cdType = kASStart;
+            break;
+        default:
+            break;
+    }
+    return cdType;
 }
 
 - (void)setControlDescriptionItemType:(enum ControlDescriptionItemType)_type {
@@ -91,6 +106,86 @@
             freeCode ++;
         }
     }
+    if (self.controlCode == nil) {
+        self.controlCode = @(freeCode);
+    }
+}
+
+- (void)setSymbolNumber:(NSInteger)symbolNumber {
+    enum ASFeature feature = kASFeatureNone;
+    
+    // Set the control feature. This is based on the table in Control-Descriptions.pdf
+    switch (symbolNumber) {
+         /* 1xx */
+        case 106:
+            // This feature could also be kASFeatureQuarry, as the symbol number is ambiguous.
+            feature = kASFeatureEarthBank;
+            break;
+        case 107:
+        case 108:
+            feature = kASFeatureEarthWall;
+            break;
+        case 109:
+            feature = kASFeatureErosionGully;
+            break;
+        case 110:
+            feature = kASFeatureSmallErosionGully;
+            break;
+        case 111:
+        case 101:
+            feature = kASFeatureHill;
+            break;
+        case 112:
+        case 113:
+            feature = kASFeatureKnoll;
+            break;
+        case 114:
+            feature = kASFeatureDepression;
+            break;
+        case 115:
+            feature = kASFeatureSmallDepression;
+            break;
+        case 116:
+        case 204:
+            feature = kASFeaturePit;
+            break;
+        case 117:
+            feature = kASFeatureBrokenGround;
+            break;
+            
+        /* Symbols 2xx */
+        case 207:
+        case 206:
+            feature = kASFeatureBoulder;
+            break;
+        case 203:
+        case 201:
+            feature = kASFeatureCliff;
+            break;
+        case 202:
+            feature = kASFeatureRockPillar;
+            break;
+        case 205:
+            feature = kASFeatureCave;
+            break;
+        case 208:
+            feature = kASFeatureBoulderField;
+            break;
+        case 209:
+            feature = kASFeatureBoulderCluster;
+            break;
+        case 210:
+            feature = kASFeatureStonyGround;
+            break;
+        case 212:
+            feature = kASFeatureBareRock;
+            break;
+            
+        default:
+            break;
+    }
+    
+    self.controlFeature = @(feature);
 }
 
 

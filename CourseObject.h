@@ -123,5 +123,6 @@ enum ASFeature {
 @property (nonatomic,retain) NSNumber *otherInformation;
 
 - (void)assignNextFreeControlCode;
+- (void)setSymbolNumber:(NSInteger)symbolNumber;
 
 @end
