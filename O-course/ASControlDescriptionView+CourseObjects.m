@@ -45,20 +45,12 @@
     NSArray *values = [NSArray array];
     switch (column) {
         case kASWhichOfAnySimilarFeature:
-            values =  [NSArray arrayWithObjects:
-                       [NSNumber numberWithInt:kASFeatureNotSpecified],
-                       [NSNumber numberWithInt:kASFeatureNorth],
-                       [NSNumber numberWithInt:kASFeatureNorthEast],
-                       [NSNumber numberWithInt:kASFeatureEast],
-                       [NSNumber numberWithInt:kASFeatureSouthEast],
-                       [NSNumber numberWithInt:kASFeatureSouth],
-                       [NSNumber numberWithInt:kASFeatureSouthWest],
-                       [NSNumber numberWithInt:kASFeatureWest], 
-                       [NSNumber numberWithInt:kASFeatureNorthWest], 
-                       [NSNumber numberWithInt:kASFeatureUpper],
-                       [NSNumber numberWithInt:kASFeatureLower],
-                       [NSNumber numberWithInt:kASFeatureMiddle],
-                       nil];
+            values =  @[@(kASFeatureNotSpecified), @(kASFeatureNorth),
+                        @(kASFeatureNorthEast), @(kASFeatureEast),
+                        @(kASFeatureSouthEast), @(kASFeatureSouth),
+                        @(kASFeatureSouthWest), @(kASFeatureWest),
+                        @(kASFeatureNorthWest), @(kASFeatureLower),
+                        @(kASFeatureUpper),@(kASFeatureMiddle)];
             break;
         case kASFeature:
             values = (@[@(kASFeatureNone),
@@ -156,40 +148,6 @@
                 default:
                     break;
             }
-            
-            
-            
-            
-            
-            
-            
-            /*
-             "4.1" = "Open land";
-             "4.2" = "Semi-open land";
-             "4.3" = "Forest corner";
-             "4.4" = "Clearing";
-             "4.5" = "Thicket";
-             "4.6" = "Linear thicket";
-             "4.7" = "Vegetation boundary";
-             "4.8" = "Copse";
-             "4.9" = "Distinctive tree";
-             "4.10" = "Tree stump, Root stock";
-             "5.1" = "Road";
-             "5.2" = "Track / Path";
-             "5.3" = "Ride";
-             "5.4" = "Bridge";
-             "5.5" = "Power line";
-             "5.6" = "Power line pylon";
-             "5.7" = "Tunnel";
-             "5.8" = "Stone wall";
-             "5.9" = "Fence";
-             "5.10" = "Crossing point";
-             "5.11" = "Building";
-             "5.12" = "Paved area";
-             "5.13" = "Ruin";
-             "5.14" = "Pipeline";
-             "5.15" = "Tower";
-             */
             break;
         case kASWhichOfAnySimilarFeature:
             which = (enum ASWhichOfAnySimilarFeature)value;
