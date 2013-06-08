@@ -249,7 +249,14 @@
 	// 
 	// Both tiledLayer and the view have the same effective bounds. The former by using a transform,
 	// and the latter by simply scaling the frame according to the zoom. We need to do it this way
-	// to automatically get the scroll view to update according to 
+	// to automatically get the scroll view to update according to
+    
+    // If the magnifying glass is active, we can save its position in window coordinates, and then reset that same position in window coordinates
+    // afterwards.
+    CGPoint magGlassPositionInWindow;
+    if (self.showMagnifyingGlass) {
+        magGlassPositionInWindow = [self convertPoint:NSPointFromCGPoint(self.magnifyingGlass.position) toView:nil];
+    }
                                 
 	NSClipView *cv = [[self enclosingScrollView] contentView];
     NSRect v = [cv documentVisibleRect ], f;
@@ -281,10 +288,15 @@
 	if (tentativeNewOrigin.x + v.size.width > NSMaxX(f)) tentativeNewOrigin.x = NSMaxX(f) - v.size.width;
 	if (tentativeNewOrigin.y + v.size.height > NSMaxY(f)) tentativeNewOrigin.y = NSMaxY(f) - v.size.height;
 	[cv scrollToPoint:NSPointFromCGPoint(tentativeNewOrigin)];
+    if (self.showMagnifyingGlass) {
+        [self.magnifyingGlass setPosition:NSPointToCGPoint([self convertPoint:magGlassPositionInWindow fromView:nil])];
+        [innerMagnifyingGlassLayer setNeedsDisplay];
+    }
 	[CATransaction commit];
 
 	[tiledLayer performSelector:@selector(setNeedsDisplay) withObject:nil afterDelay:1.0];
     [overprintLayer performSelector:@selector(setNeedsDisplay) withObject:nil afterDelay:1.0];
+    
     
     _zoom = zoom;
 }
