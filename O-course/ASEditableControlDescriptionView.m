@@ -7,10 +7,13 @@
 //
 
 #import "ASEditableControlDescriptionView.h"
+#import "ASControlDescriptionProvider.h"
+#import "ASCourseObjectSelectionView.h"
 
 @implementation ASEditableControlDescriptionView
 
 @synthesize popoverForCDEGH;
+@synthesize selectionView;
 
 - (void)updateTrackingAreas {
     if (activeTrackingArea != nil) {
@@ -32,7 +35,25 @@
     
     // Add a tracking area for each element that can be changed.
     // Event (1st row)
-    // 
+    //
+    NSInteger topItem = [self numberOfItems] - [[[provider courseObjectEnumeratorForCourse:self.course] allObjects] count];
+    NSArray *regularColumns = @[@(kASWhichOfAnySimilarFeature), @(kASFeature), @(kASAppearanceOrSecondaryFeature), @(kASDimensionsOrCombinations), @(kASLocationOfTheControlFlag), @(kASOtherInformation)];
+    
+    for (id <ASControlDescriptionItem> object in [provider courseObjectEnumeratorForCourse:self.course]) {
+        if ([object controlDescriptionItemType] == kASRegularControl) {
+            
+            for (NSNumber *columnIntegerValue in regularColumns) {
+                enum ASControlDescriptionColumn column = (enum ASControlDescriptionColumn)[columnIntegerValue intValue];
+                NSRect r = NSRectFromCGRect([self boundsForRow:topItem column:column]);
+                NSTrackingArea *ta = [[NSTrackingArea alloc] initWithRect:NSIntegralRect(NSInsetRect(r, 1, 1))
+                                                                  options:NSTrackingMouseEnteredAndExited | NSTrackingActiveInKeyWindow
+                                                                    owner:self
+                                                                 userInfo:@{@"object":object, @"column":@(column)}];
+                [self addTrackingArea:ta];
+            }
+            topItem ++;
+        }
+    }
     
     // The control number is special
 }
@@ -55,7 +76,12 @@
 
 - (void)mouseDown:(NSEvent *)theEvent {
     if (activeTrackingArea != nil) {
-        [self.popoverForCDEGH showRelativeToRect:[activeTrackingArea rect] ofView:self preferredEdge:NSMaxXEdge];    
+        NSDictionary *userInfo = [activeTrackingArea userInfo];
+        if (userInfo) {
+            self.selectionView.column = (enum ASControlDescriptionColumn)[[userInfo objectForKey:@"column"] intValue];
+            
+            [self.popoverForCDEGH showRelativeToRect:[activeTrackingArea rect] ofView:self preferredEdge:NSMaxXEdge];
+        }
     }
 }
 

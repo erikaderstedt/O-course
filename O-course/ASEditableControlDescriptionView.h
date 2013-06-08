@@ -8,10 +8,13 @@
 
 #import "ASControlDescriptionView.h"
 
+@class ASCourseObjectSelectionView;
+
 @interface ASEditableControlDescriptionView : ASControlDescriptionView {
     NSTrackingArea *activeTrackingArea;
 }
 
+@property (nonatomic,assign) IBOutlet ASCourseObjectSelectionView *selectionView;
 @property (nonatomic,assign) IBOutlet NSPopover *popoverForCDEGH;
 
 @end

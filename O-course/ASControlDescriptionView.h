@@ -49,6 +49,8 @@
 - (void)drawThickGridAtOrigin:(NSPoint)origin;
 - (void)drawThinGridAtOrigin:(NSPoint)origin;
 
+- (CGRect)boundsForRow:(NSInteger)rowIndex column:(enum ASControlDescriptionColumn)column;
+
 @end
 
 
