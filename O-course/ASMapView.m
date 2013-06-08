@@ -14,6 +14,7 @@
 
 @synthesize mapProvider, overprintProvider;
 @synthesize showMagnifyingGlass;
+@synthesize courseDelegate;
 
 - (id)initWithFrame:(NSRect)frame {
     self = [super initWithFrame:frame];
@@ -42,6 +43,8 @@
 - (void)awakeFromNib {
 	[self setPostsFrameChangedNotifications:YES];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameChanged:) name:NSViewFrameDidChangeNotification object:[self enclosingScrollView]];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(courseChanged:) name:@"ASCourseChanged" object:nil];
 }
 
 #pragma mark -
@@ -200,8 +203,8 @@
     
     
     NSInteger i = [self.mapProvider symbolNumberAtPosition:p];
-    NSLog(@"Adding symbol number %d", (long)i);
-    [self.overprintProvider addCourseObject:addingType atLocation:p symbolNumber:i];
+    NSLog(@"Adding symbol number %ld", (long)i);
+    [self.courseDelegate addCourseObject:addingType atLocation:p symbolNumber:i];
     [overprintLayer setNeedsDisplay];
     [innerMagnifyingGlassLayer setNeedsDisplay];
 }
@@ -295,9 +298,6 @@
     }
 	[CATransaction commit];
 
-	[tiledLayer performSelector:@selector(setNeedsDisplay) withObject:nil afterDelay:1.0];
-    [overprintLayer performSelector:@selector(setNeedsDisplay) withObject:nil afterDelay:1.0];
-    
     
     _zoom = zoom;
 }
@@ -438,6 +438,11 @@ static CGFloat randomFloat()
     
     courseObjectShapeLayer.path = path;
     CGPathRelease(path);
+}
+
+- (void)courseChanged:(NSNotification *)n {
+    [overprintLayer setNeedsDisplay];
+    [self setNeedsDisplay:YES];
 }
 
 @end

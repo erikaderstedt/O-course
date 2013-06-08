@@ -34,6 +34,14 @@
     return _overprintColor;
 }
 
+- (void)awakeFromNib {
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(courseChanged:) name:@"ASCourseChanged" object:[self.document managedObjectContext]];
+}
+
+- (void)courseChanged:(NSNotification *)n {
+    [self performSelectorOnMainThread:@selector(updateCache) withObject:nil waitUntilDone:NO];
+}
+
 - (void)updateCache {
     [cacheArray release];
     
@@ -120,27 +128,6 @@
 
     }
     
-}
-
-- (BOOL)addCourseObject:(enum ASCourseObjectType)objectType atLocation:(CGPoint)location symbolNumber:(NSInteger)symbolNumber {
-    
-    NSAssert([NSThread isMainThread], @"Not the main thread!");
-    
-    @synchronized(self) {
-        CourseObject *object = [NSEntityDescription insertNewObjectForEntityForName:@"CourseObject" inManagedObjectContext:[self.document managedObjectContext]];
-        object.added = [NSDate date];
-        [object setPosition:location];
-        
-        if (objectType == kASCourseObjectControl) {
-            [object assignNextFreeControlCode];
-        }
-        object.objectType = objectType;
-        [object setSymbolNumber:symbolNumber];
-        
-        [self updateCache];
-    }
-    
-    return YES;
 }
 
 @end

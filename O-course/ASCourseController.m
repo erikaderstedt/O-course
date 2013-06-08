@@ -152,5 +152,25 @@
     return [[managedObjectContext executeFetchRequest:fr error:nil] objectEnumerator];
 }
 
+
+- (BOOL)addCourseObject:(enum ASCourseObjectType)objectType atLocation:(CGPoint)location symbolNumber:(NSInteger)symbolNumber {
+    
+    NSAssert([NSThread isMainThread], @"Not the main thread!");
+    
+    CourseObject *object = [NSEntityDescription insertNewObjectForEntityForName:@"CourseObject" inManagedObjectContext:[self managedObjectContext]];
+    object.added = [NSDate date];
+    [object setPosition:location];
+    
+    object.objectType = objectType;
+    if (objectType == kASCourseObjectControl) {
+        [object assignNextFreeControlCode];
+    }
+    [object setSymbolNumber:symbolNumber];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"ASCourseChanged" object:self.managedObjectContext];
+    
+    return YES;
+}
+
 @end
 

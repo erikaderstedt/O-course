@@ -8,11 +8,12 @@
 
 #import <Foundation/Foundation.h>
 #import "ASControlDescriptionProvider.h"
+#import "ASCourseObject.h"
 
 @class ASControlDescriptionView;
 @class ASCourseObjectSelectionView;
 
-@interface ASCourseController : NSObject <NSTableViewDataSource, NSTableViewDelegate, ASControlDescriptionProvider> {
+@interface ASCourseController : NSObject <NSTableViewDataSource, NSTableViewDelegate, ASControlDescriptionProvider, ASCourseDelegate> {
     NSManagedObjectContext *managedObjectContext;
     NSArrayController *courses;
     NSTableView *courseTable;

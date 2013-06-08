@@ -77,6 +77,11 @@
     [regularAttributes retain];
     [dimensionsAttributes retain];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(courseChanged:) name:@"ASCourseChanged" object:nil];
+}
+
+- (void)courseChanged:(NSNotification *)n {
+    [self recalculateLayout];
 }
 
 - (void)setOverprintColor:(NSColor *)newColor {

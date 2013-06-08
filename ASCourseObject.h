@@ -9,14 +9,20 @@
 #import <Foundation/Foundation.h>
 
 enum ASCourseObjectType {
+    kASCourseObjectStart,
     kASCourseObjectControl,
     kASCourseObjectFinish,
-    kASCourseObjectStart
 };
 
 @protocol ASCourseObject <NSObject>
 
 - (CGPoint)position;
 - (void)setPosition:(CGPoint)newPosition;
+
+@end
+
+@protocol ASCourseDelegate <NSObject>
+
+- (BOOL)addCourseObject:(enum ASCourseObjectType)objectType atLocation:(CGPoint)location symbolNumber:(NSInteger)symbolNumber;
 
 @end

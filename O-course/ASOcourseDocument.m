@@ -169,7 +169,15 @@ out_error:
     [self.courseController setManagedObjectContext:[self managedObjectContext]];
     [self.courseController willAppear];
     
+    [self.overprintController updateCache];
     mapView.overprintProvider = self.overprintController;
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(undoOrRedo:) name:NSUndoManagerDidUndoChangeNotification object:[[self managedObjectContext] undoManager]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(undoOrRedo:) name:NSUndoManagerDidRedoChangeNotification object:[[self managedObjectContext] undoManager]];
+}
+
+- (void)undoOrRedo:(NSNotification *)n {
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"ASCourseChanged" object:[self managedObjectContext]];
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
@@ -202,7 +210,6 @@ out_error:
 }
 
 - (BOOL)readFromURL:(NSURL *)absoluteURL ofType:(NSString *)typeName error:(NSError **)outError {
-    NSLog(@"reading");
 	//
 	// Copy absolute URL to a temporary file, private to our application.
 	//

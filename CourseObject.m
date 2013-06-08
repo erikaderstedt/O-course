@@ -30,7 +30,21 @@
 }
 
 - (void)setControlDescriptionItemType:(enum ControlDescriptionItemType)_type {
-    [self setValue:[NSNumber numberWithInt:_type] forKey:@"type"];
+    enum ASCourseObjectType coType;
+    switch (_type) {
+        case kASRegularControl:
+            coType = kASCourseObjectControl;
+            break;
+        case kASFinish:
+            coType = kASCourseObjectFinish;
+            break;
+        case kASStart:
+            coType = kASCourseObjectStart;
+            break;
+        default:
+            break;
+    }
+    [self setValue:@(coType) forKey:@"type"];
 }
 
 - (void)awakeFromInsert {
@@ -95,7 +109,7 @@
     NSInteger freeCode = 31;
     for (CourseObject *control in otherControls) {
         if ([control.controlCode integerValue] != freeCode) {
-            self.controlCode = @(freeCode);
+            break;
         } else {
             freeCode = [control.controlCode integerValue] + 1;
         }
@@ -106,9 +120,7 @@
             freeCode ++;
         }
     }
-    if (self.controlCode == nil) {
-        self.controlCode = @(freeCode);
-    }
+    self.controlCode = @(freeCode);
 }
 
 - (void)setSymbolNumber:(NSInteger)symbolNumber {
