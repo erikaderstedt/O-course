@@ -31,6 +31,7 @@ enum ASMapViewUIState {
     id <ASCourseDelegate> courseDelegate;
     
 	CGRect mapBounds;
+    BOOL dragged;
 	
 	BOOL showMagnifyingGlass;
 	CALayer *_magnifyingGlass;

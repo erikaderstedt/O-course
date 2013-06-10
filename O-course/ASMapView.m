@@ -9,12 +9,14 @@
 #import "ASMapView.h"
 #import "ASControlDescriptionView.h"
 #define GLASS_SIZE 180.0
+#define SIGN_OF(x) ((x > 0.0)?1.0:-1.0)
 
 @implementation ASMapView
 
 @synthesize mapProvider, overprintProvider;
 @synthesize showMagnifyingGlass;
 @synthesize courseDelegate;
+@synthesize state=state;
 
 - (id)initWithFrame:(NSRect)frame {
     self = [super initWithFrame:frame];
@@ -179,6 +181,31 @@
 }
 
 - (void)mouseDown:(NSEvent *)theEvent {
+    dragged = NO;
+}
+
+- (void)mouseDragged:(NSEvent *)theEvent {
+    dragged = YES;
+    
+    CATransform3D transform = tiledLayer.transform;
+    CGRect r = CGRectMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds), fabs([theEvent deltaX]), fabs([theEvent deltaY]));
+    r = [tiledLayer convertRect:r fromLayer:[self layer]];
+    transform = CATransform3DTranslate(transform, r.size.width*SIGN_OF([theEvent deltaX]), -r.size.height*SIGN_OF([theEvent deltaY]), 0);
+    
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+    tiledLayer.transform = transform;
+    overprintLayer.transform = transform;
+    [CATransaction commit];
+    
+    if (self.showMagnifyingGlass) {
+        [innerMagnifyingGlassLayer setNeedsDisplay];
+    }
+}
+
+- (void)mouseUp:(NSEvent *)theEvent {
+    if (self.state == kASMapViewNormal || dragged == YES) return;
+
     NSPoint p = [theEvent locationInWindow];
     p = [self convertPoint:p fromView:nil];
     p = NSPointFromCGPoint([tiledLayer convertPoint:NSPointToCGPoint(p) fromLayer:[self layer]]);
@@ -197,7 +224,6 @@
             addingType = kASCourseObjectFinish;
             break;
         default:
-            addingType = kASCourseObjectControl;
             break;
     };
     
@@ -401,10 +427,10 @@ static CGFloat randomFloat()
 }
 
 - (void)setState:(enum ASMapViewUIState)s2 {
-    _state = s2;
+    state = s2;
     CGMutablePathRef path = NULL;
     
-    if (_state == kASMapViewNormal) {
+    if (state == kASMapViewNormal) {
         self.showMagnifyingGlass = NO;
     } else {
         self.showMagnifyingGlass = YES;
@@ -415,7 +441,7 @@ static CGFloat randomFloat()
 
     path = CGPathCreateMutable();
     
-    switch (_state) {
+    switch (state) {
         case kASMapViewAddControls:
             CGPathAddEllipseInRect(path, NULL, CGRectMake(45, 45, 90, 90));
             break;
