@@ -374,12 +374,11 @@ out_error:
 	return success;
 }
 
-
 - (IBAction)showControlDefinitionsPopover:(id)sender {
-    /*    NSView *v = [(NSToolbarItem *)sender view];
-     NSRect r = [v convertRect:[v bounds] toView:nil];
-     r = [[[v window] contentView] convertRect:r fromView:nil];
-     */
+    if ([self.controlDefinitionsPopover isShown]) {
+        [self.controlDefinitionsPopover performClose:sender];
+        return;
+    }
     [self.controlDefinitionsPopover showRelativeToRect:[[self.showControlDefinitionsToolbarItem view] bounds] ofView:[self.showControlDefinitionsToolbarItem view] preferredEdge:NSMinYEdge];
 }
 

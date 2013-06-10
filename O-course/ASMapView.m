@@ -47,6 +47,8 @@
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameChanged:) name:NSViewFrameDidChangeNotification object:[self enclosingScrollView]];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(courseChanged:) name:@"ASCourseChanged" object:nil];
+    
+    [[self enclosingScrollView] setBackgroundColor:[NSColor whiteColor]];
 }
 
 #pragma mark -
