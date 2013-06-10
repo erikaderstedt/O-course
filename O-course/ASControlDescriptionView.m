@@ -20,7 +20,6 @@
 @implementation ASControlDescriptionView
 
 @synthesize provider;
-@synthesize course;
 
 - (id)initWithFrame:(NSRect)frame {
     self = [super initWithFrame:frame];
@@ -40,7 +39,6 @@
 
 - (void)dealloc {
     [provider release];
-    [course release];
     [overprintColor release];
     
     [boldAttributes release];
@@ -134,22 +132,13 @@
     [super setFrameSize:newSize];
 }
 
-- (void)setCourse:(id<NSObject>)_course {
-    NSObject *oldCourse = course;
-    course = [_course retain];
-    [oldCourse release];
-    
-    layoutNeedsUpdate = YES;
-    [self setNeedsDisplay:YES];
-}
-
 - (NSInteger)numberOfItems {
     NSInteger numberOfItems;
     
-    numberOfItems = [[[self.provider courseObjectEnumeratorForCourse:self.course] allObjects] count];
+    numberOfItems = [[[self.provider courseObjectEnumerator] allObjects] count];
     if ([self.provider eventName]) numberOfItems++;
-    if ([self.provider classNamesForCourse:self.course]) numberOfItems ++;
-    if ([self.provider numberForCourse:self.course] || [self.provider lengthOfCourse:self.course]) numberOfItems ++;
+    if ([self.provider classNames]) numberOfItems ++;
+    if ([self.provider number] || [self.provider length]) numberOfItems ++;
 
     return numberOfItems;
 }
@@ -238,22 +227,22 @@
     }
     
     // The class names.
-    if ([self.provider classNamesForCourse:self.course]) {
-        [[self.provider classNamesForCourse:self.course] drawInRect:NSMakeRect(paperBounds.origin.x, y, paperBounds.size.width, blockSize) 
+    if ([self.provider classNames]) {
+        [[self.provider classNames] drawInRect:NSMakeRect(paperBounds.origin.x, y, paperBounds.size.width, blockSize) 
                                                      withAttributes:boldAttributes];
         [NSBezierPath strokeLineFromPoint:NSMakePoint(x, y) toPoint:NSMakePoint(x + paperBounds.size.width, y)];
         y -= blockSize;       
     }
     
     // Draw the course and the distance..
-    if ([self.provider numberForCourse:self.course] || [self.provider lengthOfCourse:self.course]) {
-        [[self.provider numberForCourse:self.course] drawInRect:NSMakeRect(x, y, 3.0*blockSize, blockSize) 
+    if ([self.provider number] || [self.provider length]) {
+        [[self.provider number] drawInRect:NSMakeRect(x, y, 3.0*blockSize, blockSize) 
                                                  withAttributes:boldAttributes];
         x += 3.0*blockSize;
-        [[self.provider lengthOfCourse:self.course] drawInRect:NSMakeRect(x, y, 3.0*blockSize, blockSize) 
+        [[self.provider length] drawInRect:NSMakeRect(x, y, 3.0*blockSize, blockSize) 
                                                  withAttributes:boldAttributes];
         x += 3.0*blockSize;
-        [[self.provider heightClimbForCourse:self.course] drawInRect:NSMakeRect(x, y, 2.0*blockSize, blockSize) 
+        [[self.provider heightClimb] drawInRect:NSMakeRect(x, y, 2.0*blockSize, blockSize) 
                                                 withAttributes:boldAttributes];
 
         x = paperBounds.origin.x;
@@ -265,7 +254,7 @@
     
     // Draw the items.
     NSInteger consecutiveRegularControls = 0, controlNumber = 1;
-    for (id <ASControlDescriptionItem> item in [self.provider courseObjectEnumeratorForCourse:self.course]) {
+    for (id <ASControlDescriptionItem> item in [self.provider courseObjectEnumerator]) {
         enum ControlDescriptionItemType type = [item controlDescriptionItemType];
         [NSBezierPath setDefaultLineWidth:((++consecutiveRegularControls == 3) || (type == kASStart))?THICK_LINE:THIN_LINE];
         x = paperBounds.origin.x;

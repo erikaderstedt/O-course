@@ -104,6 +104,17 @@ out_error:
     return @"ASOcourseDocument";
 }
 
++ (NSWindow *)windowForManagedObjectContext:(NSManagedObjectContext *)context {
+    for (ASOcourseDocument *doc in [[NSDocumentController sharedDocumentController] documents]) {
+        if ([doc managedObjectContext] == context) {
+            if ([[doc windowControllers] count] > 0)
+                return [[[doc windowControllers] objectAtIndex:0] window];
+            return nil;
+        }
+    }
+    return nil;
+}
+
 - (void)windowControllerDidLoadNib:(NSWindowController *)aController
 {
     [super windowControllerDidLoadNib:aController];

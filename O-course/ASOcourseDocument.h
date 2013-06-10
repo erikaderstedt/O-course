@@ -42,4 +42,5 @@
 
 - (void)setMapURL:(NSURL *)mapURL;
 
++ (NSWindow *)windowForManagedObjectContext:(NSManagedObjectContext *)context ;
 @end

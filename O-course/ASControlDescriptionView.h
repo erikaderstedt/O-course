@@ -12,8 +12,7 @@
 @class ASDistanceFormatter;
 
 @interface ASControlDescriptionView : NSView {
-    id <ASControlDescriptionProvider> provider;
-    id <NSObject> course;
+    id <ASCourseProvider> provider;
     
     NSColor *overprintColor;
     
@@ -35,10 +34,11 @@
     
     BOOL layoutNeedsUpdate;
 }
-@property (nonatomic,retain) IBOutlet id <ASControlDescriptionProvider> provider;
-@property (nonatomic,retain) id <NSObject> course;
+@property (nonatomic,retain) IBOutlet id <ASCourseProvider> provider;
 
 - (void)setup;
+
+- (void)recalculateLayout;
 
 - (NSInteger)numberOfItems;
 - (CGFloat)heightForWidth:(CGFloat)width;

@@ -13,19 +13,24 @@
 @class ASControlDescriptionView;
 @class ASCourseObjectSelectionView;
 
-@interface ASCourseController : NSObject <NSTableViewDataSource, NSTableViewDelegate, ASControlDescriptionProvider, ASCourseDelegate> {
+@interface ASCourseController : NSObject <NSTableViewDataSource, NSTableViewDelegate, ASCourseProvider, ASCourseDelegate> {
     NSManagedObjectContext *managedObjectContext;
     NSArrayController *courses;
     NSTableView *courseTable;
-    
-    ASControlDescriptionView *mainControlDescription;
-    ASCourseObjectSelectionView *courseObjectSelectionView;
 }
 @property (nonatomic, retain) IBOutlet NSManagedObjectContext *managedObjectContext;
 @property (nonatomic, retain) IBOutlet NSArrayController *courses;
-@property (nonatomic, retain) IBOutlet NSTableView *courseTable;
-@property (nonatomic, retain) IBOutlet ASControlDescriptionView *mainControlDescription;
-@property (nonatomic, retain) IBOutlet ASCourseObjectSelectionView *courseObjectSelectionView;
+@property (nonatomic, assign) IBOutlet NSTableView *courseTable;
+@property (nonatomic, assign) IBOutlet ASControlDescriptionView *controlDescription;
+@property (nonatomic, assign) IBOutlet NSPanel *coursePanel;
+@property (nonatomic, assign) IBOutlet NSPopUpButton *courseSelectionPopup;
+
+- (IBAction)showCoursePanel:(id)sender;
+- (IBAction)okCoursePanel:(id)sender;
+- (IBAction)cancelCoursePanel:(id)sender;
+- (IBAction)addCourse:(id)sender;
+- (IBAction)removeCourse:(id)sender;
+- (IBAction)duplicateCourse:(id)sender;
 
 - (void)willAppear;
 - (void)willDisappear;

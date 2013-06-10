@@ -19,7 +19,6 @@
 - (void)awakeFromNib {
     [super awakeFromNib];
     [self.selectionView setDataSource:self];
-    
 }
 
 - (void)updateTrackingAreas {
@@ -41,10 +40,10 @@
     }
     
     // Add a tracking area for each element that can be changed.
-    NSInteger topItem = [self numberOfItems] - [[[provider courseObjectEnumeratorForCourse:self.course] allObjects] count];
+    NSInteger topItem = [self numberOfItems] - [[[provider courseObjectEnumerator] allObjects] count];
     NSArray *regularColumns = @[@(kASWhichOfAnySimilarFeature), @(kASFeature), @(kASAppearanceOrSecondaryFeature), @(kASDimensionsOrCombinations), @(kASLocationOfTheControlFlag), @(kASOtherInformation)];
     
-    for (id <ASControlDescriptionItem> object in [provider courseObjectEnumeratorForCourse:self.course]) {
+    for (id <ASControlDescriptionItem> object in [provider courseObjectEnumerator]) {
         if ([object controlDescriptionItemType] == kASRegularControl) {
             
             for (NSNumber *columnIntegerValue in regularColumns) {

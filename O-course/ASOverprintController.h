@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "ASOverprintProvider.h"
+#import "ASControlDescriptionProvider.h"
 
 // Users of the overprint and/or the control description can observe
 // "course" to know when to update.
@@ -27,8 +28,10 @@
     
     NSArray *cacheArray;
     NSData *cachedCuts;
+    
+    BOOL drawConnectingLines;
 }
-@property (nonatomic,retain) NSManagedObject *course;
+@property (nonatomic,assign) IBOutlet id <ASCourseProvider> courseProvider;
 @property (nonatomic,assign) IBOutlet ASOcourseDocument *document;
 
 - (CGColorRef)overprintColor;

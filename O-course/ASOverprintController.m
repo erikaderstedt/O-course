@@ -12,10 +12,9 @@
 
 @implementation ASOverprintController
 
-@synthesize course, document;
+@synthesize document;
 
 - (void)dealloc {
-    [course release];
     [cacheArray release];
     [cachedCuts release];
     
@@ -43,25 +42,24 @@
 }
 
 - (void)updateCache {
-    [cacheArray release];
-    
-    NSMutableArray *ma = [NSMutableArray arrayWithCapacity:100];
-    NSArray *courseObjects;
-    
-    if (course == nil) {
-        NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"CourseObject"];
-        courseObjects = [[self.document managedObjectContext] executeFetchRequest:request error:nil];
-    } else {
-        courseObjects = [self.course valueForKey:@"controls"];
+    NSAssert([NSThread isMainThread], @"Not the main thread.");
+    @synchronized(self) {
+        [cacheArray release];
+        cacheArray = nil;
     }
     
-//    NSInteger controlNumber = 1;
-    for (CourseObject *object in courseObjects) {
+    NSMutableArray *ma = [NSMutableArray arrayWithCapacity:100];
+
+    //    NSInteger controlNumber = 1;
+    drawConnectingLines = ![self.courseProvider allObjectsSelected];
+    for (CourseObject *object in [self.courseProvider courseObjectEnumerator]) {
 
         [ma addObject:@{ @"position":[NSValue valueWithPoint:NSPointFromCGPoint(object.position)],
          @"type":[object valueForKey:@"type"]}];
     }
-    cacheArray = [ma retain];
+    @synchronized(self) {
+        cacheArray = [ma retain];
+    }
 }
 
 #pragma mark ASOverprintProvider

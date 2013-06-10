@@ -51,17 +51,19 @@ enum ASControlDescriptionColumn {
 @end
 
 // Course is an opaque type for this.
-@protocol ASControlDescriptionProvider <NSObject>
+@protocol ASCourseProvider <NSObject>
 
 - (NSString *)eventName;
-- (NSString *)classNamesForCourse:(id)course;
-- (NSString *)numberForCourse:(id)course;
-- (NSString *)lengthOfCourse:(id)course;
-- (NSString *)heightClimbForCourse:(id)course;
+- (NSString *)classNames;
+- (NSString *)number;
+- (NSString *)length;
+- (NSString *)heightClimb;
 
 // Each item returned by the course object enumerator conforms
 // to <ASControlDescriptionItem>
-- (NSEnumerator *)courseObjectEnumeratorForCourse:(id)course;
+- (NSEnumerator *)courseObjectEnumerator;
+
+- (BOOL)allObjectsSelected;
 
 @end
 

@@ -12,27 +12,23 @@
 #import "Project.h"
 #import "CourseObject.h"
 #import "ASCourseObjectSelectionView.h"
+#import "ASOcourseDocument.h"
 
 @implementation ASCourseController
 
 @synthesize managedObjectContext;
 @synthesize courses;
 @synthesize courseTable;
-@synthesize mainControlDescription;
-@synthesize courseObjectSelectionView;
+@synthesize controlDescription;
 
 - (void)dealloc {
     [managedObjectContext release];
     [courses release];
-    [courseTable release];
-    [mainControlDescription release];
     
     [super dealloc];
 }
 
 - (void)willAppear {
-    courseObjectSelectionView.dataSource = mainControlDescription;
-    courseObjectSelectionView.column = kASFeature;
     [courses addObserver:self forKeyPath:@"arrangedObjects" options:0 context:self];
 }
 
@@ -40,14 +36,13 @@
     [courses removeObserver:self forKeyPath:@"arrangedObjects"];
     
     // Disconnect outlets to prevent retain loop.
-    self.courseTable = nil;
     self.courses = nil;
-    self.mainControlDescription = nil;
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if (context == self) {
         // Restock the table
+        [self updateCoursePopup];
         [self.courseTable reloadData];
     } else {
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
@@ -70,6 +65,19 @@
         } else {
             if (rowIndex - 1 < [[self.courses arrangedObjects] count]) {
                 return [[[self.courses arrangedObjects] objectAtIndex:(rowIndex - 1)] valueForKey:@"length"];
+            }
+            return nil;
+        }
+    } else if ([[aTableColumn identifier] isEqualToString:@"number_of_controls"]) {
+        NSPredicate *controlsOnly = [NSPredicate predicateWithFormat:@"type == %@", @(kASCourseObjectControl)];
+        if (rowIndex == 0) {
+            NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"CourseObject"];
+            [request setPredicate:controlsOnly];
+            return @([[self managedObjectContext] countForFetchRequest:request error:nil]);
+        } else {
+            if (rowIndex - 1 < [[self.courses arrangedObjects] count]) {
+                NSManagedObject *thisCourse = [[self.courses arrangedObjects] objectAtIndex:(rowIndex - 1)];
+                return @([[[[thisCourse valueForKey:@"controls"] allObjects] filteredArrayUsingPredicate:controlsOnly] count]);
             }
             return nil;
         }
@@ -104,17 +112,25 @@
 - (void)tableViewSelectionDidChange:(NSNotification *)aNotification {
     NSInteger s = [self.courseTable selectedRow];
     if (s == -1) {
-        [self.mainControlDescription setCourse:nil];
+        [self.courses setSelectedObjects:@[]];
     } else if (s == 0) {
-        [self.mainControlDescription setCourse:self]; // "Special" object
+        [self.courses setSelectedObjects:@[]];
     } else if (s - 1 < [[self.courses arrangedObjects] count]) {
-        [self.mainControlDescription setCourse:[[self.courses arrangedObjects] objectAtIndex:(s-1)]];
         [self.courses setSelectionIndex:(s-1)];
     }
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"ASCourseChanged" object:self.managedObjectContext];
 }
 
-
 #pragma mark ASControlDescriptionProvider
+
+- (NSManagedObject *)selectedCourse {
+    if ([[self.courses selectedObjects] count]) {
+        NSManagedObject *course = [[self.courses arrangedObjects] objectAtIndex:0];
+        return course;
+    }
+    return nil;
+}
 
 - (NSString *)eventName {
     Project *p = [Project projectInManagedObjectContext:[self managedObjectContext]];
@@ -122,36 +138,42 @@
     return [p valueForKey:@"event"];
 }
 
-- (NSString *)classNamesForCourse:(id)course {
+- (NSString *)classNames {
     return nil;
 }
 
-- (NSString *)numberForCourse:(id)course {
-    return nil;
-    
-}
-
-- (NSNumber *)lengthOfCourse:(id)course {
+- (NSString *)number {
     return nil;
     
 }
 
-- (NSNumber *)heightClimbForCourse:(id)course {
+- (NSNumber *)length {
+    return nil;
+    
+}
+
+- (NSNumber *)heightClimb {
     return nil; // Not yet implemented.
 }
 
 // Each item returned by the course object enumerator conforms
 // to <ASControlDescriptionItem>
-- (NSEnumerator *)courseObjectEnumeratorForCourse:(id)course {
-    if ([course isKindOfClass:[NSManagedObject class]])
+- (NSEnumerator *)courseObjectEnumerator {
+    if ([[self.courses selectedObjects] count]) {
+        NSManagedObject *course = [[self.courses arrangedObjects] objectAtIndex:0];
         return [[course valueForKey:@"controls"] objectEnumerator];
-        
+    }
+
     NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"CourseObject"];
-    [fr setSortDescriptors:[NSArray arrayWithObjects:[NSSortDescriptor sortDescriptorWithKey:@"type" ascending:YES], [NSSortDescriptor sortDescriptorWithKey:@"added" ascending:YES], nil]];
+    [fr setSortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"type" ascending:YES],
+                             [NSSortDescriptor sortDescriptorWithKey:@"added" ascending:YES]]];
     
     return [[managedObjectContext executeFetchRequest:fr error:nil] objectEnumerator];
 }
 
+- (BOOL)allObjectsSelected {
+    return ![[self.courses selectedObjects] count];
+}
 
 - (BOOL)addCourseObject:(enum ASCourseObjectType)objectType atLocation:(CGPoint)location symbolNumber:(NSInteger)symbolNumber {
     
@@ -167,9 +189,110 @@
     }
     [object setSymbolNumber:symbolNumber];
     
+    NSManagedObject *selectedCourse = [self selectedCourse];
+    if (selectedCourse != nil) {
+        [[selectedCourse valueForKey:@"controls"] addObject:object];
+    }
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:@"ASCourseChanged" object:self.managedObjectContext];
     
     return YES;
+}
+
+- (IBAction)showCoursePanel:(id)sender {
+    [[[self managedObjectContext] undoManager] beginUndoGrouping];
+    
+    [NSApp beginSheet:self.coursePanel
+       modalForWindow:[ASOcourseDocument windowForManagedObjectContext:self.managedObjectContext]
+        modalDelegate:self
+       didEndSelector:@selector(coursePanelDidEnd:returnCode:contextInfo:)
+          contextInfo:NULL];
+}
+
+- (IBAction)okCoursePanel:(id)sender {
+    [NSApp endSheet:self.coursePanel returnCode:0];
+}
+
+- (IBAction)cancelCoursePanel:(id)sender {
+    [NSApp endSheet:self.coursePanel returnCode:1];
+}
+
+- (void)coursePanelDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
+    [sheet close];
+    [[[self managedObjectContext] undoManager] endUndoGrouping];
+    if (returnCode == 1) {
+        [[self managedObjectContext] undo];
+    }
+    [self updateCoursePopup];    
+}
+
+- (void)updateCoursePopup {
+    // Go through all courses and make sure that there is an item for each one, and remove excessive items.
+    NSMenu *menu = [self.courseSelectionPopup menu];
+    NSInteger numberOfMenuItems = [[menu itemArray] count];
+    NSMutableIndexSet *unusedIndices = [NSMutableIndexSet indexSetWithIndexesInRange:NSMakeRange(0, numberOfMenuItems)];
+    [unusedIndices removeIndex:0];
+    [unusedIndices removeIndex:numberOfMenuItems-1];
+    [unusedIndices removeIndex:numberOfMenuItems-2];
+    NSMutableArray *coursesWithoutMenuItems = [NSMutableArray arrayWithCapacity:5];
+    for (NSManagedObject *course in [self.courses arrangedObjects]) {
+        NSInteger i = [menu indexOfItemWithTitle:[course valueForKey:@"name"]];
+        if (i != -1) {
+            [unusedIndices removeIndex:i];
+        } else {
+            [coursesWithoutMenuItems addObject:course];
+        }
+    }
+    [unusedIndices enumerateIndexesWithOptions:NSEnumerationReverse usingBlock:^(NSUInteger idx, BOOL *stop) {
+        [menu removeItemAtIndex:idx];
+    }];
+    for (NSManagedObject *course in coursesWithoutMenuItems) {
+        [[menu insertItemWithTitle:[course valueForKey:@"name"] action:@selector(chooseCourse:) keyEquivalent:@"" atIndex:1] setTarget:self];
+    }
+    
+    // Select one in the popup.
+    NSManagedObject *course = [self selectedCourse];
+    NSInteger index = 0;
+    if (course != nil) {
+        index = [menu indexOfItemWithTitle:[course valueForKey:@"name"]];
+    }
+    [self.courseSelectionPopup selectItemAtIndex:index];
+}
+
+- (IBAction)chooseCourse:(id)sender {
+    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Course"];
+    [request setPredicate:[NSPredicate predicateWithFormat:@"name == %@", [sender title]]];
+    [request setFetchLimit:1];
+    NSArray *matchingCourses = [self.managedObjectContext executeFetchRequest:request error:nil];
+    [self.courses setSelectedObjects:matchingCourses];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"ASCourseChanged" object:self.managedObjectContext];
+}
+
+- (IBAction)addCourse:(id)sender {
+    [self.courses add:sender];
+}
+
+- (IBAction)removeCourse:(id)sender {
+    [self.courses remove:sender];
+}
+
+- (IBAction)duplicateCourse:(id)sender {
+    NSArray *s = [self.courses selectedObjects];
+    if ([s count] == 1) {
+        NSManagedObject *orign = [s objectAtIndex:0];
+        NSManagedObject *dup = [NSEntityDescription insertNewObjectForEntityForName:@"Course" inManagedObjectContext:self.managedObjectContext];
+        [dup setValue:[orign valueForKey:@"name"] forKey:@"name"];
+        [dup setValue:[orign valueForKey:@"length"] forKey:@"length"];
+        [dup setValue:[orign valueForKey:@"cuts"] forKey:@"cuts"];
+        for (NSManagedObject *c in [orign valueForKey:@"classes"]) {
+            [[dup valueForKey:@"classes"] addObject:c];
+        }
+        for (NSManagedObject *c in [orign valueForKey:@"courses"]) {
+            [[dup valueForKey:@"courses"] addObject:c];
+        }
+        
+        [self.courseTable reloadData];
+    }
 }
 
 @end
