@@ -60,6 +60,7 @@
     @synchronized(self) {
         cacheArray = [ma retain];
     }
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"ASOverprintChanged" object:nil];
 }
 
 #pragma mark ASOverprintProvider

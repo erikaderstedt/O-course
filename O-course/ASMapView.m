@@ -46,7 +46,7 @@
 	[self setPostsFrameChangedNotifications:YES];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameChanged:) name:NSViewFrameDidChangeNotification object:[self enclosingScrollView]];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(courseChanged:) name:@"ASCourseChanged" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(overprintChanged:) name:@"ASOverprintChanged" object:nil];
     
     [[self enclosingScrollView] setBackgroundColor:[NSColor whiteColor]];
 }
@@ -212,14 +212,6 @@
     NSPoint p = [theEvent locationInWindow];
     p = [self convertPoint:p fromView:nil];
 
-    if (self.state != kASMapViewNormal) {
-        [CATransaction begin];
-        [CATransaction setDisableActions:YES];
-        [[self magnifyingGlass] setPosition:NSPointToCGPoint(p)];
-        [innerMagnifyingGlassLayer setNeedsDisplay];
-        [CATransaction commit];
-        return;
-    }
     if (self.state == kASMapViewNormal || dragged == YES) return;
 
     p = NSPointFromCGPoint([tiledLayer convertPoint:NSPointToCGPoint(p) fromLayer:[self layer]]);
@@ -480,7 +472,7 @@ static CGFloat randomFloat()
     CGPathRelease(path);
 }
 
-- (void)courseChanged:(NSNotification *)n {
+- (void)overprintChanged:(NSNotification *)n {
     [overprintLayer setNeedsDisplay];
     [self setNeedsDisplay:YES];
 }

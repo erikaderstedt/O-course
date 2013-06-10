@@ -75,7 +75,7 @@
     [regularAttributes retain];
     [dimensionsAttributes retain];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(courseChanged:) name:@"ASCourseChanged" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(courseChanged:) name:@"ASOverprintChanged" object:nil];
 }
 
 - (void)courseChanged:(NSNotification *)n {
