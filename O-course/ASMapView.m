@@ -186,7 +186,9 @@
 
 - (void)mouseDragged:(NSEvent *)theEvent {
     dragged = YES;
-    
+    NSPoint p = [theEvent locationInWindow];
+    p = [self convertPoint:p fromView:nil];
+
     CATransform3D transform = tiledLayer.transform;
     CGRect r = CGRectMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds), fabs([theEvent deltaX]), fabs([theEvent deltaY]));
     r = [tiledLayer convertRect:r fromLayer:[self layer]];
@@ -196,18 +198,28 @@
     [CATransaction setDisableActions:YES];
     tiledLayer.transform = transform;
     overprintLayer.transform = transform;
-    [CATransaction commit];
-    
     if (self.showMagnifyingGlass) {
-        [innerMagnifyingGlassLayer setNeedsDisplay];
+        // It's hidden, but we do this anyway.
+        [[self magnifyingGlass] setPosition:NSPointToCGPoint(p)];
     }
+    [CATransaction commit];
+
 }
 
 - (void)mouseUp:(NSEvent *)theEvent {
-    if (self.state == kASMapViewNormal || dragged == YES) return;
-
     NSPoint p = [theEvent locationInWindow];
     p = [self convertPoint:p fromView:nil];
+
+    if (self.state != kASMapViewNormal) {
+        [CATransaction begin];
+        [CATransaction setDisableActions:YES];
+        [[self magnifyingGlass] setPosition:NSPointToCGPoint(p)];
+        [innerMagnifyingGlassLayer setNeedsDisplay];
+        [CATransaction commit];
+        return;
+    }
+    if (self.state == kASMapViewNormal || dragged == YES) return;
+
     p = NSPointFromCGPoint([tiledLayer convertPoint:NSPointToCGPoint(p) fromLayer:[self layer]]);
 
     // Tell the overprint provider that a new control should be added at that position. Supply the symbol number from the map provider.
