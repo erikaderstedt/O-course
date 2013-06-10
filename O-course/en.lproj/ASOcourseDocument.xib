@@ -118,8 +118,8 @@
 				<bool key="NS.localized">NO</bool>
 				<bool key="NS.allowsfloats">YES</bool>
 			</object>
-			<object class="NSViewController" id="768691815"/>
-			<object class="NSPopover" id="1005966528">
+			<object class="NSViewController" id="44584047"/>
+			<object class="NSPopover" id="544307832">
 				<nil key="NSNextResponder"/>
 				<int key="NSAppearance">0</int>
 				<int key="NSBehavior">2</int>
@@ -165,14 +165,14 @@
 					<int key="NSToolbarDisplayMode">2</int>
 					<int key="NSToolbarSizeMode">2</int>
 					<dictionary class="NSMutableDictionary" key="NSToolbarIBIdentifiedItems">
-						<object class="NSToolbarItem" key="0829DA0D-2880-42FB-A34C-981E6487E6D5" id="734509294">
+						<object class="NSToolbarItem" key="0829DA0D-2880-42FB-A34C-981E6487E6D5" id="670141400">
 							<object class="NSMutableString" key="NSToolbarItemIdentifier">
 								<characters key="NS.bytes">0829DA0D-2880-42FB-A34C-981E6487E6D5</characters>
 							</object>
 							<string key="NSToolbarItemLabel">Definitions</string>
 							<string key="NSToolbarItemPaletteLabel">Definitions</string>
 							<nil key="NSToolbarItemToolTip"/>
-							<object class="NSButton" key="NSToolbarItemView" id="187348172">
+							<object class="NSButton" key="NSToolbarItemView" id="116283277">
 								<reference key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{16, 14}, {33, 41}}</string>
@@ -180,7 +180,7 @@
 								<reference key="NSNextKeyView"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<bool key="NSEnabled">YES</bool>
-								<object class="NSButtonCell" key="NSCell" id="584754152">
+								<object class="NSButtonCell" key="NSCell" id="334053747">
 									<int key="NSCellFlags">67108864</int>
 									<int key="NSCellFlags2">134217728</int>
 									<string key="NSContents"/>
@@ -190,10 +190,10 @@
 										<int key="NSfFlags">1044</int>
 									</object>
 									<string key="NSCellIdentifier">_NS:9</string>
-									<reference key="NSControlView" ref="187348172"/>
+									<reference key="NSControlView" ref="116283277"/>
 									<int key="NSButtonFlags">136069120</int>
 									<int key="NSButtonFlags2">65</int>
-									<object class="NSCustomResource" key="NSNormalImage" id="735070804">
+									<object class="NSCustomResource" key="NSNormalImage" id="1009427147">
 										<string key="NSClassName">NSImage</string>
 										<string key="NSResourceName">Control definitions</string>
 									</object>
@@ -204,7 +204,7 @@
 								</object>
 								<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 							</object>
-							<reference key="NSToolbarItemImage" ref="735070804"/>
+							<reference key="NSToolbarItemImage" ref="1009427147"/>
 							<nil key="NSToolbarItemTarget"/>
 							<nil key="NSToolbarItemAction"/>
 							<string key="NSToolbarItemMinSize">{33, 24}</string>
@@ -215,7 +215,7 @@
 							<bool key="NSToolbarIsUserRemovable">YES</bool>
 							<int key="NSToolbarItemVisibilityPriority">0</int>
 						</object>
-						<object class="NSToolbarItem" key="2E0DB483-FB30-46D4-BF5E-7B96EF29DBDD" id="980284438">
+						<object class="NSToolbarItem" key="2E0DB483-FB30-46D4-BF5E-7B96EF29DBDD" id="428101533">
 							<object class="NSMutableString" key="NSToolbarItemIdentifier">
 								<characters key="NS.bytes">2E0DB483-FB30-46D4-BF5E-7B96EF29DBDD</characters>
 							</object>
@@ -259,7 +259,7 @@
 							<bool key="NSToolbarIsUserRemovable">YES</bool>
 							<int key="NSToolbarItemVisibilityPriority">0</int>
 						</object>
-						<object class="NSToolbarItem" key="F34478DE-A61E-4493-A2EF-1C1E7BE04AEA" id="1035853941">
+						<object class="NSToolbarItem" key="F34478DE-A61E-4493-A2EF-1C1E7BE04AEA" id="942449414">
 							<object class="NSMutableString" key="NSToolbarItemIdentifier">
 								<characters key="NS.bytes">F34478DE-A61E-4493-A2EF-1C1E7BE04AEA</characters>
 							</object>
@@ -363,20 +363,20 @@
 						</object>
 					</dictionary>
 					<array class="NSMutableArray" key="NSToolbarIBAllowedItems">
-						<reference ref="980284438"/>
+						<reference ref="428101533"/>
 						<reference ref="13158074"/>
-						<reference ref="1035853941"/>
+						<reference ref="942449414"/>
 						<reference ref="586444655"/>
 						<reference ref="451587152"/>
 						<reference ref="826032405"/>
-						<reference ref="734509294"/>
+						<reference ref="670141400"/>
 					</array>
 					<array key="NSToolbarIBDefaultItems">
-						<reference ref="980284438"/>
+						<reference ref="428101533"/>
 						<reference ref="13158074"/>
-						<reference ref="1035853941"/>
+						<reference ref="942449414"/>
 						<reference ref="826032405"/>
-						<reference ref="734509294"/>
+						<reference ref="670141400"/>
 						<reference ref="451587152"/>
 						<reference ref="586444655"/>
 					</array>
@@ -535,7 +535,7 @@
 					</object>
 				</array>
 			</object>
-			<object class="NSCustomView" id="247132464">
+			<object class="NSCustomView" id="587592684">
 				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">268</int>
 				<string key="NSFrameSize">{224, 460}</string>
@@ -592,7 +592,7 @@
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">controlDefinitionsPopover</string>
 						<reference key="source" ref="512844837"/>
-						<reference key="destination" ref="1005966528"/>
+						<reference key="destination" ref="544307832"/>
 					</object>
 					<int key="connectionID">101031</int>
 				</object>
@@ -600,7 +600,7 @@
 					<object class="IBActionConnection" key="connection">
 						<string key="label">showControlDefinitionsPopover:</string>
 						<reference key="source" ref="512844837"/>
-						<reference key="destination" ref="187348172"/>
+						<reference key="destination" ref="116283277"/>
 					</object>
 					<int key="connectionID">101032</int>
 				</object>
@@ -608,7 +608,7 @@
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">showControlDefinitionsToolbarItem</string>
 						<reference key="source" ref="512844837"/>
-						<reference key="destination" ref="734509294"/>
+						<reference key="destination" ref="670141400"/>
 					</object>
 					<int key="connectionID">101033</int>
 				</object>
@@ -672,7 +672,7 @@
 					<object class="IBActionConnection" key="connection">
 						<string key="label">goIntoAddStartMode:</string>
 						<reference key="source" ref="627403326"/>
-						<reference key="destination" ref="980284438"/>
+						<reference key="destination" ref="428101533"/>
 					</object>
 					<int key="connectionID">101012</int>
 				</object>
@@ -680,7 +680,7 @@
 					<object class="IBActionConnection" key="connection">
 						<string key="label">goIntoAddFinishMode:</string>
 						<reference key="source" ref="627403326"/>
-						<reference key="destination" ref="1035853941"/>
+						<reference key="destination" ref="942449414"/>
 					</object>
 					<int key="connectionID">101014</int>
 				</object>
@@ -696,7 +696,7 @@
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">controlDefinitionsPopover</string>
 						<reference key="source" ref="960323290"/>
-						<reference key="destination" ref="1005966528"/>
+						<reference key="destination" ref="544307832"/>
 					</object>
 					<int key="connectionID">101020</int>
 				</object>
@@ -704,7 +704,7 @@
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">showControlDefinitionsToolbarItem</string>
 						<reference key="source" ref="960323290"/>
-						<reference key="destination" ref="734509294"/>
+						<reference key="destination" ref="670141400"/>
 					</object>
 					<int key="connectionID">101026</int>
 				</object>
@@ -767,23 +767,23 @@
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">view</string>
-						<reference key="source" ref="768691815"/>
-						<reference key="destination" ref="247132464"/>
+						<reference key="source" ref="44584047"/>
+						<reference key="destination" ref="587592684"/>
 					</object>
 					<int key="connectionID">101019</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">contentViewController</string>
-						<reference key="source" ref="1005966528"/>
-						<reference key="destination" ref="768691815"/>
+						<reference key="source" ref="544307832"/>
+						<reference key="destination" ref="44584047"/>
 					</object>
 					<int key="connectionID">101017</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">popoverForCDEGH</string>
-						<reference key="source" ref="247132464"/>
+						<reference key="source" ref="587592684"/>
 						<reference key="destination" ref="295013323"/>
 					</object>
 					<int key="connectionID">101028</int>
@@ -791,10 +791,18 @@
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">provider</string>
-						<reference key="source" ref="247132464"/>
+						<reference key="source" ref="587592684"/>
 						<reference key="destination" ref="18770258"/>
 					</object>
 					<int key="connectionID">101030</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">selectionView</string>
+						<reference key="source" ref="587592684"/>
+						<reference key="destination" ref="129236480"/>
+					</object>
+					<int key="connectionID">101045</int>
 				</object>
 			</array>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -1007,9 +1015,9 @@
 							<reference ref="826032405"/>
 							<reference ref="586444655"/>
 							<reference ref="13158074"/>
-							<reference ref="980284438"/>
-							<reference ref="1035853941"/>
-							<reference ref="734509294"/>
+							<reference ref="428101533"/>
+							<reference ref="942449414"/>
+							<reference ref="670141400"/>
 						</array>
 						<reference key="parent" ref="275939982"/>
 					</object>
@@ -1035,51 +1043,51 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">101009</int>
-						<reference key="object" ref="980284438"/>
+						<reference key="object" ref="428101533"/>
 						<reference key="parent" ref="647643406"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">101013</int>
-						<reference key="object" ref="1035853941"/>
+						<reference key="object" ref="942449414"/>
 						<reference key="parent" ref="647643406"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">101015</int>
-						<reference key="object" ref="768691815"/>
+						<reference key="object" ref="44584047"/>
 						<reference key="parent" ref="0"/>
 						<string key="objectName">Popover View Controller</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">101016</int>
-						<reference key="object" ref="1005966528"/>
+						<reference key="object" ref="544307832"/>
 						<reference key="parent" ref="0"/>
 						<string key="objectName">Control definitions popover</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">101018</int>
-						<reference key="object" ref="247132464"/>
+						<reference key="object" ref="587592684"/>
 						<reference key="parent" ref="0"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">101025</int>
-						<reference key="object" ref="734509294"/>
+						<reference key="object" ref="670141400"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="187348172"/>
+							<reference ref="116283277"/>
 						</array>
 						<reference key="parent" ref="647643406"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">101023</int>
-						<reference key="object" ref="187348172"/>
+						<reference key="object" ref="116283277"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="584754152"/>
+							<reference ref="334053747"/>
 						</array>
-						<reference key="parent" ref="734509294"/>
+						<reference key="parent" ref="670141400"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">101024</int>
-						<reference key="object" ref="584754152"/>
-						<reference key="parent" ref="187348172"/>
+						<reference key="object" ref="334053747"/>
+						<reference key="parent" ref="116283277"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">101038</int>
@@ -1158,7 +1166,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">101043</int>
+			<int key="maxID">101045</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
