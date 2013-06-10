@@ -86,6 +86,8 @@ out_error:
 @synthesize overprintController, courseController;
 @synthesize projectController;
 @synthesize mapURL;
+@synthesize controlDefinitionsPopover;
+@synthesize showControlDefinitionsToolbarItem;
 
 - (Project *)project {
     Project *p = [Project projectInManagedObjectContext:[self managedObjectContext]];
@@ -370,6 +372,15 @@ out_error:
         }
 	}
 	return success;
+}
+
+
+- (IBAction)showControlDefinitionsPopover:(id)sender {
+    /*    NSView *v = [(NSToolbarItem *)sender view];
+     NSRect r = [v convertRect:[v bounds] toView:nil];
+     r = [[[v window] contentView] convertRect:r fromView:nil];
+     */
+    [self.controlDefinitionsPopover showRelativeToRect:[[self.showControlDefinitionsToolbarItem view] bounds] ofView:[self.showControlDefinitionsToolbarItem view] preferredEdge:NSMinYEdge];
 }
 
 @end

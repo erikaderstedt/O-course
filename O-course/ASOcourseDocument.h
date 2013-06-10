@@ -24,11 +24,15 @@
 	NSManagedObjectContext *_context;
 	NSManagedObjectModel *_model;
 }
-@property (nonatomic,retain) IBOutlet ASMapView *mapView;
-@property (nonatomic,retain) IBOutlet ASOverprintController *overprintController;
-@property (nonatomic,retain) IBOutlet ASCourseController *courseController;
-@property (nonatomic,retain) IBOutlet NSObjectController *projectController;
+@property (nonatomic,assign) IBOutlet ASMapView *mapView;
+@property (nonatomic,assign) IBOutlet ASOverprintController *overprintController;
+@property (nonatomic,assign) IBOutlet ASCourseController *courseController;
+@property (nonatomic,assign) IBOutlet NSObjectController *projectController;
 @property (nonatomic,retain) NSURL *mapURL;
+@property (nonatomic,assign) IBOutlet NSPopover *controlDefinitionsPopover;
+@property (nonatomic,assign) IBOutlet NSToolbarItem *showControlDefinitionsToolbarItem;
+
+- (IBAction)showControlDefinitionsPopover:(id)sender;
 
 - (NSManagedObjectContext *)managedObjectContext;
 

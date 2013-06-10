@@ -48,6 +48,10 @@
 		03A5114A13B7AF0E00469BCF /* ASOCADController_Line.m in Sources */ = {isa = PBXBuildFile; fileRef = 03A5114813B7AF0E00469BCF /* ASOCADController_Line.m */; };
 		03A5114B13B7AF0E00469BCF /* ASOCADController_Line.m in Sources */ = {isa = PBXBuildFile; fileRef = 03A5114813B7AF0E00469BCF /* ASOCADController_Line.m */; };
 		03B86EA21763AD0200C4A358 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 03B86EA41763AD0200C4A358 /* Localizable.strings */; };
+		03B86EA71765376000C4A358 /* Control.png in Resources */ = {isa = PBXBuildFile; fileRef = 03B86EA61765376000C4A358 /* Control.png */; };
+		03B86EA917653A2E00C4A358 /* Finish.png in Resources */ = {isa = PBXBuildFile; fileRef = 03B86EA817653A2E00C4A358 /* Finish.png */; };
+		03B86EAC17653C6100C4A358 /* Control definitions.png in Resources */ = {isa = PBXBuildFile; fileRef = 03B86EAA17653C6100C4A358 /* Control definitions.png */; };
+		03B86EAD17653C6100C4A358 /* Start.png in Resources */ = {isa = PBXBuildFile; fileRef = 03B86EAB17653C6100C4A358 /* Start.png */; };
 		03B90D3B14330A530033216D /* CoordinateTransverser.m in Sources */ = {isa = PBXBuildFile; fileRef = 03B90D3A14330A530033216D /* CoordinateTransverser.m */; };
 		03B90D3D143315A10033216D /* CoordinateTransverser.m in Sources */ = {isa = PBXBuildFile; fileRef = 03B90D3A14330A530033216D /* CoordinateTransverser.m */; };
 		03C305161347B5FA00FB8133 /* ASOCADController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03C305151347B5FA00FB8133 /* ASOCADController.m */; };
@@ -141,6 +145,10 @@
 		03AAFEC41443874D008567E3 /* OCAD9Format.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = OCAD9Format.txt; sourceTree = "<group>"; };
 		03B86EA31763AD0200C4A358 /* en */ = {isa = PBXFileReference; lastKnownFileType = file; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		03B86EA51763AD3B00C4A358 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
+		03B86EA61765376000C4A358 /* Control.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Control.png; sourceTree = "<group>"; };
+		03B86EA817653A2E00C4A358 /* Finish.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Finish.png; sourceTree = "<group>"; };
+		03B86EAA17653C6100C4A358 /* Control definitions.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Control definitions.png"; sourceTree = "<group>"; };
+		03B86EAB17653C6100C4A358 /* Start.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Start.png; sourceTree = "<group>"; };
 		03B90D3914330A530033216D /* CoordinateTransverser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoordinateTransverser.h; sourceTree = "<group>"; };
 		03B90D3A14330A530033216D /* CoordinateTransverser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoordinateTransverser.m; sourceTree = "<group>"; };
 		03C305141347B5FA00FB8133 /* ASOCADController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASOCADController.h; sourceTree = "<group>"; };
@@ -316,8 +324,12 @@
 			children = (
 				03B86EA41763AD0200C4A358 /* Localizable.strings */,
 				03FA63A91570125300EF4ACF /* linen_texture.jpg */,
+				03B86EA61765376000C4A358 /* Control.png */,
+				03B86EAA17653C6100C4A358 /* Control definitions.png */,
+				03B86EAB17653C6100C4A358 /* Start.png */,
 				033DA8A8144EF8E600C787F8 /* README */,
 				032001D212FE9EF900707BA5 /* ASOcourseDocument.xib */,
+				03B86EA817653A2E00C4A358 /* Finish.png */,
 				032001D512FE9EF900707BA5 /* MainMenu.xib */,
 			);
 			path = Resources;
@@ -475,6 +487,10 @@
 				032001D712FE9EF900707BA5 /* MainMenu.xib in Resources */,
 				03FA63AA1570125300EF4ACF /* linen_texture.jpg in Resources */,
 				03B86EA21763AD0200C4A358 /* Localizable.strings in Resources */,
+				03B86EA71765376000C4A358 /* Control.png in Resources */,
+				03B86EA917653A2E00C4A358 /* Finish.png in Resources */,
+				03B86EAC17653C6100C4A358 /* Control definitions.png in Resources */,
+				03B86EAD17653C6100C4A358 /* Start.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
