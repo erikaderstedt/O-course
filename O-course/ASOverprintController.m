@@ -146,7 +146,7 @@
                 if (drawConnectingLines) {
                     angle = [[self class] angleBetweenStartAndFirstControlUsingCache:cacheCopy];
                 } else {
-                    angle = 0.0;
+                    angle = -pi/6.0;
                 }
                 z = 700.0/2.0/cos(pi/6);
                 r = CGRectMake(p.x-400.0, p.y-400.0, 800.0, 800.0);
