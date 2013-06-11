@@ -93,10 +93,10 @@
     
     for (NSDictionary *courseObjectInfo in cache) {
         enum ASCourseObjectType type = (enum ASCourseObjectType)[[courseObjectInfo objectForKey:@"type"] integerValue];
-        if (start == nil && type == kASCourseObjectStart) {
+        if (start == nil && type == kASCourseObjectStart && [[courseObjectInfo objectForKey:@"in_course"] boolValue]) {
             start = courseObjectInfo;
         }
-        if (start != nil && type == kASCourseObjectControl) {
+        if (start != nil && type == kASCourseObjectControl && [[courseObjectInfo objectForKey:@"in_course"] boolValue]) {
             firstControlAfter = courseObjectInfo;
             break;
         }
@@ -127,7 +127,8 @@
 
         enum ASCourseObjectType type = (enum ASCourseObjectType)[[courseObjectInfo objectForKey:@"type"] integerValue];
         CGPoint p = NSPointToCGPoint([[courseObjectInfo objectForKey:@"position"] pointValue]);
-        CGContextSetStrokeColorWithColor(ctx, ([courseObjectInfo objectForKey:@"in_course"]?[self overprintColor]:[self transparentOverprintColor]));
+        BOOL inCourse = [[courseObjectInfo objectForKey:@"in_course"] boolValue];
+        CGContextSetStrokeColorWithColor(ctx, (inCourse?[self overprintColor]:[self transparentOverprintColor]));
         
         CGRect r;
         CGFloat z;
@@ -143,7 +144,7 @@
                 }
                 break;
             case kASCourseObjectStart:
-                if (drawConnectingLines) {
+                if (drawConnectingLines && inCourse) {
                     angle = [[self class] angleBetweenStartAndFirstControlUsingCache:cacheCopy];
                 } else {
                     angle = -M_PI/6.0;
@@ -175,7 +176,7 @@
                 break;
         }
         
-        if (drawConnectingLines) {
+        if (drawConnectingLines && inCourse) {
             if (previousCourseObject) {
                 enum ASCourseObjectType otype = (enum ASCourseObjectType)[[previousCourseObject objectForKey:@"type"] integerValue];
                 angle = [[self class] angleBetweenCourseObjectInfos:previousCourseObject and:courseObjectInfo];
