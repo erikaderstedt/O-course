@@ -209,7 +209,6 @@ out_error:
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [projectController release];
     [mapURL release];
     
     [super dealloc];
