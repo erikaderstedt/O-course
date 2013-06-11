@@ -184,7 +184,7 @@
      [NSSortDescriptor sortDescriptorWithKey:@"added" ascending:YES]]];
     
     NSMutableSet *set = [NSMutableSet setWithArray:[managedObjectContext executeFetchRequest:fr error:nil]];
-    [set minusSet:[course valueForKey:@"controls"]];
+    [set minusSet:[(NSOrderedSet *)[course valueForKey:@"controls"] set]];
     return [set objectEnumerator];
 }
 
