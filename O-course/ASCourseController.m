@@ -236,8 +236,10 @@
     [unusedIndices removeIndex:numberOfMenuItems-2];
     NSMutableArray *coursesWithoutMenuItems = [NSMutableArray arrayWithCapacity:5];
     for (NSManagedObject *course in [self.courses arrangedObjects]) {
-        NSInteger i = [menu indexOfItemWithTitle:[course valueForKey:@"name"]];
-        if (i != -1) {
+        NSString *title = [course valueForKey:@"name"];
+        if (title == nil) title = NSLocalizedString(@"New course", nil);
+        NSInteger i = [menu indexOfItemWithTitle:title];
+        if (i != -1 && [unusedIndices containsIndex:i]) {
             [unusedIndices removeIndex:i];
         } else {
             [coursesWithoutMenuItems addObject:course];
@@ -247,13 +249,17 @@
         [menu removeItemAtIndex:idx];
     }];
     for (NSManagedObject *course in coursesWithoutMenuItems) {
-        [[menu insertItemWithTitle:[course valueForKey:@"name"] action:@selector(chooseCourse:) keyEquivalent:@"" atIndex:1] setTarget:self];
+        NSString *title = [course valueForKey:@"name"];
+        if (title == nil) title = NSLocalizedString(@"New course", nil);
+        [[menu insertItemWithTitle:title action:@selector(chooseCourse:) keyEquivalent:@"" atIndex:1] setTarget:self];
     }
     
     // Select one in the popup.
     NSManagedObject *course = [self selectedCourse];
     NSInteger index = 0;
     if (course != nil) {
+        NSString *title = [course valueForKey:@"name"];
+        if (title == nil) title = NSLocalizedString(@"New course", nil);
         index = [menu indexOfItemWithTitle:[course valueForKey:@"name"]];
     }
     [self.courseSelectionPopup selectItemAtIndex:index];

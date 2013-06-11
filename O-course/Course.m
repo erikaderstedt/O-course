@@ -10,4 +10,10 @@
 
 @implementation Course
 
+- (void)awakeFromInsert {
+    [super awakeFromInsert];
+    
+    [self setPrimitiveValue:NSLocalizedString(@"New course", nil) forKey:@"name"];
+}
+
 @end
