@@ -459,10 +459,10 @@ static CGFloat randomFloat()
             CGPathAddEllipseInRect(path, NULL, CGRectMake(45, 45, 90, 90));
             break;
         case kASMapViewAddStart:
-            z = 1.5*70.0/2.0/cos(pi/6);
+            z = 1.5*70.0/2.0/cos(M_PI/6);
             CGPathMoveToPoint(path, NULL, middle.x, middle.y + z);
-            CGPathAddLineToPoint(path, NULL, middle.x + cos(pi/6)*z, middle.y - sin(pi/6)*z);
-            CGPathAddLineToPoint(path, NULL, middle.x - cos(pi/6)*z, middle.y - sin(pi/6)*z);
+            CGPathAddLineToPoint(path, NULL, middle.x + cos(M_PI/6)*z, middle.y - sin(M_PI/6)*z);
+            CGPathAddLineToPoint(path, NULL, middle.x - cos(M_PI/6)*z, middle.y - sin(M_PI/6)*z);
             CGPathCloseSubpath(path);
             break;
         case kASMapViewAddFinish:

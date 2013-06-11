@@ -119,6 +119,4 @@
     [self setNeedsDisplay:YES];
 }
 
-     
-
 @end

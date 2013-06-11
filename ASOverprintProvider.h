@@ -13,7 +13,7 @@
 
 @protocol ASOverprintProvider <NSObject>
 
-- (id <ASCourseObject>)courseObjectAtPosition:(CGPoint)position;
+//- (id <ASCourseObject>)courseObjectAtPosition:(CGPoint)position;
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx;
 
 @end

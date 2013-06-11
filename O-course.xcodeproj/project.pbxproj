@@ -143,8 +143,8 @@
 		03AAFEC21443874D008567E3 /* OCAD8Format.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = OCAD8Format.txt; sourceTree = "<group>"; };
 		03AAFEC31443874D008567E3 /* OCAD9Format.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = OCAD9Format.pdf; sourceTree = "<group>"; };
 		03AAFEC41443874D008567E3 /* OCAD9Format.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = OCAD9Format.txt; sourceTree = "<group>"; };
-		03B86EA31763AD0200C4A358 /* en */ = {isa = PBXFileReference; lastKnownFileType = file; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
-		03B86EA51763AD3B00C4A358 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
+		03B86EA31763AD0200C4A358 /* en */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = file; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		03B86EA51763AD3B00C4A358 /* sv */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
 		03B86EA61765376000C4A358 /* Control.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Control.png; sourceTree = "<group>"; };
 		03B86EA817653A2E00C4A358 /* Finish.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Finish.png; sourceTree = "<group>"; };
 		03B86EAA17653C6100C4A358 /* Control definitions.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Control definitions.png"; sourceTree = "<group>"; };
@@ -160,11 +160,11 @@
 		03EEB29E147194A300BD9E0F /* ASOverprintController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASOverprintController.h; sourceTree = "<group>"; };
 		03EEB29F147194A300BD9E0F /* ASOverprintController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASOverprintController.m; sourceTree = "<group>"; };
 		03EEB2A2147194DB00BD9E0F /* ASControlDescriptionProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASControlDescriptionProvider.h; sourceTree = "<group>"; };
-		03EEB2A314719D2C00BD9E0F /* ASCourseObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASCourseObject.h; sourceTree = "<group>"; };
+		03EEB2A314719D2C00BD9E0F /* ASCourseObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = ASCourseObject.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		03EEB2A41471C0D100BD9E0F /* ASControlDescriptionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASControlDescriptionView.h; sourceTree = "<group>"; };
-		03EEB2A51471C0D100BD9E0F /* ASControlDescriptionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASControlDescriptionView.m; sourceTree = "<group>"; };
+		03EEB2A51471C0D100BD9E0F /* ASControlDescriptionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = ASControlDescriptionView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		03EEB2A7147427F400BD9E0F /* ASCourseController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASCourseController.h; sourceTree = "<group>"; };
-		03EEB2A8147427F400BD9E0F /* ASCourseController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASCourseController.m; sourceTree = "<group>"; };
+		03EEB2A8147427F400BD9E0F /* ASCourseController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = ASCourseController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		03EEB2AA1474330500BD9E0F /* ASDistanceFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASDistanceFormatter.h; sourceTree = "<group>"; };
 		03EEB2AB1474330500BD9E0F /* ASDistanceFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASDistanceFormatter.m; sourceTree = "<group>"; };
 		03F2C769142C725F0053A47F /* Project.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Project.h; path = "O-course/Project.h"; sourceTree = "<group>"; };
@@ -172,7 +172,7 @@
 		03FA639F156FEBB700EF4ACF /* ASCourseObjectSelectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASCourseObjectSelectionView.h; sourceTree = "<group>"; };
 		03FA63A0156FEBB700EF4ACF /* ASCourseObjectSelectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASCourseObjectSelectionView.m; sourceTree = "<group>"; };
 		03FA63A3156FEE3A00EF4ACF /* ASControlDescriptionView+CourseObjects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ASControlDescriptionView+CourseObjects.h"; sourceTree = "<group>"; };
-		03FA63A4156FEE3A00EF4ACF /* ASControlDescriptionView+CourseObjects.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ASControlDescriptionView+CourseObjects.m"; sourceTree = "<group>"; };
+		03FA63A4156FEE3A00EF4ACF /* ASControlDescriptionView+CourseObjects.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = "ASControlDescriptionView+CourseObjects.m"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		03FA63A61570006200EF4ACF /* ASEditableControlDescriptionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASEditableControlDescriptionView.h; sourceTree = "<group>"; };
 		03FA63A71570006200EF4ACF /* ASEditableControlDescriptionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASEditableControlDescriptionView.m; sourceTree = "<group>"; };
 		03FA63A91570125300EF4ACF /* linen_texture.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = linen_texture.jpg; sourceTree = "<group>"; };

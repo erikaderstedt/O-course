@@ -120,7 +120,7 @@
     CGRect clipBox = CGContextGetClipBoundingBox(ctx);
     CGFloat angle; // In radians.
 
-    NSInteger controlNumber = 1;
+//    NSInteger controlNumber = 1;
     NSDictionary *previousCourseObject = nil;
     
     for (NSDictionary *courseObjectInfo in cacheCopy) {
@@ -146,14 +146,14 @@
                 if (drawConnectingLines) {
                     angle = [[self class] angleBetweenStartAndFirstControlUsingCache:cacheCopy];
                 } else {
-                    angle = -pi/6.0;
+                    angle = -M_PI/6.0;
                 }
-                z = 700.0/2.0/cos(pi/6);
+                z = 700.0/2.0/cos(M_PI/6);
                 r = CGRectMake(p.x-400.0, p.y-400.0, 800.0, 800.0);
                 CGContextBeginPath(ctx);
                 CGContextMoveToPoint(ctx, p.x + z*cos(angle), p.y + z*sin(angle));
-                angle += 2.0*pi/3.0; CGContextAddLineToPoint(ctx, p.x + z*cos(angle), p.y + z*sin(angle));
-                angle += 2.0*pi/3.0; CGContextAddLineToPoint(ctx, p.x + z*cos(angle), p.y + z*sin(angle));
+                angle += 2.0*M_PI/3.0; CGContextAddLineToPoint(ctx, p.x + z*cos(angle), p.y + z*sin(angle));
+                angle += 2.0*M_PI/3.0; CGContextAddLineToPoint(ctx, p.x + z*cos(angle), p.y + z*sin(angle));
 
                 CGContextClosePath(ctx);
                 CGContextSetLineWidth(ctx, 35.0);
@@ -179,11 +179,11 @@
             if (previousCourseObject) {
                 enum ASCourseObjectType otype = (enum ASCourseObjectType)[[previousCourseObject objectForKey:@"type"] integerValue];
                 angle = [[self class] angleBetweenCourseObjectInfos:previousCourseObject and:courseObjectInfo];
-                CGFloat startSize = 0.5*((otype == kASCourseObjectControl)?600.0:(700.0/cos(pi/6)));
-                CGFloat endSize = 0.5*((type == kASCourseObjectControl)?600.0:(700.0/cos(pi/6)));
+                CGFloat startSize = 0.5*((otype == kASCourseObjectControl)?600.0:(700.0/cos(M_PI/6)));
+                CGFloat endSize = 0.5*((type == kASCourseObjectControl)?600.0:(700.0/cos(M_PI/6)));
                 CGPoint op = NSPointToCGPoint([[previousCourseObject objectForKey:@"position"] pointValue]);
                 CGPoint startPoint = CGPointMake(op.x + cos(angle)*startSize, op.y + sin(angle)*startSize);
-                CGPoint endPoint = CGPointMake(p.x + cos(angle+pi)*endSize, p.y + sin(angle+pi)*endSize);
+                CGPoint endPoint = CGPointMake(p.x + cos(angle+M_PI)*endSize, p.y + sin(angle+M_PI)*endSize);
                 CGContextBeginPath(ctx);
                 CGContextMoveToPoint(ctx, startPoint.x, startPoint.y);
                 CGContextAddLineToPoint(ctx, endPoint.x, endPoint.y);

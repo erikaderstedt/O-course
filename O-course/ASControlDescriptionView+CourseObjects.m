@@ -752,5 +752,8 @@
     return pathArray;
 }
 
+- (void)setValue:(NSNumber *)value forColumn:(enum ASControlDescriptionColumn)column {
+    NSAssert(NO, @"A regular ASControlDescriptionView is not editable.");
+}
 
 @end
