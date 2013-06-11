@@ -45,19 +45,10 @@
     [regularAttributes release];
     [dimensionsAttributes release];
     
-    [linenTextureColor release];
-    [dropShadow release];
-    
     [super dealloc];
 }
 
 - (void)setup {
-    
-    linenTextureColor = [[NSColor colorWithPatternImage:[NSImage imageNamed:@"linen_texture.jpg"]] retain];
-    dropShadow = [[NSShadow alloc] init];
-    [dropShadow setShadowColor:[NSColor colorWithDeviceRed:0.0 green:0.0 blue:0.0 alpha:0.6]];
-    [dropShadow setShadowBlurRadius:5.0];
-    [dropShadow setShadowOffset:NSMakeSize(4.0, -4.0)];
     
     NSMutableParagraphStyle *mps = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
     [mps setAlignment:NSCenterTextAlignment];
@@ -189,15 +180,9 @@
         [self recalculateLayout];
     }
     
-    [NSGraphicsContext saveGraphicsState];
-    [linenTextureColor set];
-    [NSBezierPath fillRect:[self bounds]];
-    
     [[NSColor whiteColor] set];
-    [dropShadow set];
-    [NSBezierPath fillRect:NSRectFromCGRect(actualDescriptionBounds)];
-    [NSGraphicsContext restoreGraphicsState];
-    
+    [NSBezierPath fillRect:[self bounds]];
+        
     [overprintColor set];
 
     // Frame all of it.

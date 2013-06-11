@@ -22,10 +22,6 @@
     
     ASDistanceFormatter *distanceFormatter;
     
-    NSColor *linenTextureColor;
-    NSShadow *dropShadow;
-    
-    // Layout
 @protected
     CGFloat  blockSize;
     CGRect  paperBounds;
