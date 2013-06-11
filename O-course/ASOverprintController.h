@@ -25,6 +25,7 @@
     ASOcourseDocument *document;
     
     CGColorRef _overprintColor;
+    CGColorRef _transparentOverprintColor;
     
     NSArray *cacheArray;
     NSData *cachedCuts;

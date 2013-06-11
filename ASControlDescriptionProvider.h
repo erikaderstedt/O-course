@@ -62,8 +62,9 @@ enum ASControlDescriptionColumn {
 // Each item returned by the course object enumerator conforms
 // to <ASControlDescriptionItem>
 - (NSEnumerator *)courseObjectEnumerator;
+- (NSEnumerator *)notSelectedCourseObjectEnumerator;
 
-- (BOOL)allObjectsSelected;
+- (BOOL)specificCourseSelected;
 
 @end
 

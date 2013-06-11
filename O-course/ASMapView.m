@@ -97,6 +97,7 @@
         courseObjectShapeLayer.strokeColor = [[ASControlDescriptionView defaultOverprintColor] CGColor];
         courseObjectShapeLayer.fillColor = nil;
         courseObjectShapeLayer.lineWidth = 3.5f*1.5;
+        courseObjectShapeLayer.opacity = 0.5;
         [_magnifyingGlass addSublayer:courseObjectShapeLayer];
         
 	}
@@ -365,6 +366,12 @@
             overprintLayer.name = @"overprint";
             overprintLayer.needsDisplayOnBoundsChange = YES;
             overprintLayer.backgroundColor = CGColorCreateGenericRGB(0.0, 0.0, 0.0, 0.0);
+            /*
+             To use simulated overprint:
+            overprintLayer.backgroundColor = CGColorCreateGenericRGB(1.0, 1.0, 1.0, 1.0);
+            CIFilter *mulBlend = [CIFilter filterWithName:@"CIMultiplyCompositing"];
+            overprintLayer.compositingFilter = mulBlend;
+             */
             overprintLayer.tileSize = tiledLayer.tileSize;
             overprintLayer.levelsOfDetail = tiledLayer.levelsOfDetail;
             overprintLayer.levelsOfDetailBias = tiledLayer.levelsOfDetailBias;
@@ -475,6 +482,9 @@ static CGFloat randomFloat()
 - (void)overprintChanged:(NSNotification *)n {
     [overprintLayer setNeedsDisplay];
     [self setNeedsDisplay:YES];
+    
+    // Update tracking areas.
+    
 }
 
 @end

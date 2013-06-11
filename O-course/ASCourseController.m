@@ -171,8 +171,25 @@
     return [[managedObjectContext executeFetchRequest:fr error:nil] objectEnumerator];
 }
 
-- (BOOL)allObjectsSelected {
-    return ![[self.courses selectedObjects] count];
+// Each item returned by the course object enumerator conforms
+// to <ASControlDescriptionItem>
+- (NSEnumerator *)notSelectedCourseObjectEnumerator {
+    if (![[self.courses selectedObjects] count]) {
+        return [@[] objectEnumerator];
+    }
+    NSManagedObject *course = [[self.courses arrangedObjects] objectAtIndex:0];
+    
+    NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"CourseObject"];
+    [fr setSortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"type" ascending:YES],
+     [NSSortDescriptor sortDescriptorWithKey:@"added" ascending:YES]]];
+    
+    NSMutableSet *set = [NSMutableSet setWithArray:[managedObjectContext executeFetchRequest:fr error:nil]];
+    [set minusSet:[course valueForKey:@"controls"]];
+    return [set objectEnumerator];
+}
+
+- (BOOL)specificCourseSelected {
+    return [[self.courses selectedObjects] count];
 }
 
 - (BOOL)addCourseObject:(enum ASCourseObjectType)objectType atLocation:(CGPoint)location symbolNumber:(NSInteger)symbolNumber {
