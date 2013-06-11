@@ -34,6 +34,7 @@
 
 - (void)setup;
 
+- (void)adjustFrameSizeForLayout;
 - (void)recalculateLayout;
 
 - (NSInteger)numberOfItems;

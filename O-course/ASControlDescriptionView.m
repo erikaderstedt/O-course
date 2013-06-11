@@ -47,6 +47,9 @@
     
     [super dealloc];
 }
+- (void)viewWillMoveToSuperview:(NSView *)newSuperview {
+    NSLog(@"superview %@", newSuperview);
+}
 
 - (void)setup {
     
@@ -93,11 +96,18 @@
 
 }
 
+- (void)adjustFrameSizeForLayout {
+    [self recalculateLayout];
+    CGRect  bounds = [self bounds];
+    NSSize sz = actualDescriptionBounds.size;
+    if (sz.height < bounds.size.width / 8.0 + 1) sz.height = ceil(bounds.size.width/8.0 + 1);
+    [self setFrameSize:sz];
+}
+
 - (void)recalculateLayout {
     CGRect  bounds = [self bounds];
-    bounds = CGRectInset(bounds, INSET_DIST*2.0, INSET_DIST*2.0);
 
-    CGFloat height = [self heightForWidth:bounds.size.width];
+    CGFloat height = [self heightForWidth:(bounds.size.width - 2.0*INSET_DIST)];
     if (height == 0.0) {
         blockSize = 0.0;
         actualDescriptionBounds = CGRectZero;
@@ -106,7 +116,7 @@
     
     CGFloat y, x;
     
-    blockSize = bounds.size.width / 8.0;
+    blockSize = (bounds.size.width - 2.0*INSET_DIST) / 8.0;
     
     x = bounds.origin.x;
     y = height + (0.5 * (bounds.size.height - height));

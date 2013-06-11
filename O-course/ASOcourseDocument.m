@@ -16,6 +16,7 @@
 
 #import "ASOverprintController.h"
 #import "ASCourseController.h"
+#import "ASControlDescriptionView.h"
 #import "MyDocumentController.h"
 
 #include <fcntl.h>
@@ -187,6 +188,7 @@ out_error:
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(undoOrRedo:) name:NSUndoManagerDidUndoChangeNotification object:[[self managedObjectContext] undoManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(undoOrRedo:) name:NSUndoManagerDidRedoChangeNotification object:[[self managedObjectContext] undoManager]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(courseChanged:) name:@"ASCourseChanged" object:[self managedObjectContext]];
 }
 
 - (void)undoOrRedo:(NSNotification *)n {
@@ -389,7 +391,16 @@ out_error:
         [self.controlDefinitionsPopover performClose:sender];
         return;
     }
+    
+    // Update the definition size.
+    [self courseChanged:nil];
     [self.controlDefinitionsPopover showRelativeToRect:[[self.showControlDefinitionsToolbarItem view] bounds] ofView:[self.showControlDefinitionsToolbarItem view] preferredEdge:NSMinYEdge];
+}
+
+- (void)courseChanged:(NSNotification *)n {
+    [(ASControlDescriptionView *)[[self.controlDefinitionsPopover contentViewController] view] adjustFrameSizeForLayout];
+    [self.controlDefinitionsPopover setContentSize:[[[self.controlDefinitionsPopover contentViewController] view] bounds].size];
+    
 }
 
 @end
