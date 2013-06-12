@@ -13,7 +13,7 @@
 @class ASControlDescriptionView;
 @class ASCourseObjectSelectionView;
 
-@interface ASCourseController : NSObject <NSTableViewDataSource, NSTableViewDelegate, ASCourseProvider, ASCourseDelegate>
+@interface ASCourseController : NSObject <NSTableViewDataSource, NSTableViewDelegate, ASControlDescriptionDataSource, ASCourseDataSource>
 
 @property (nonatomic, weak) IBOutlet NSManagedObjectContext *managedObjectContext;
 @property (nonatomic, weak) IBOutlet NSArrayController *courses;

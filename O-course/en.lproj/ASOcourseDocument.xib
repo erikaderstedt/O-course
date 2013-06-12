@@ -138,7 +138,7 @@
 				<int key="NSvFlags">268</int>
 				<string key="NSFrameSize">{285, 79}</string>
 				<reference key="NSSuperview"/>
-				<reference key="NSNextKeyView"/>
+				<reference key="NSWindow"/>
 				<string key="NSReuseIdentifierKey">_NS:9</string>
 				<string key="NSClassName">ASCourseObjectSelectionView</string>
 			</object>
@@ -177,10 +177,9 @@
 							<string key="NSToolbarItemPaletteLabel">Definitions</string>
 							<nil key="NSToolbarItemToolTip"/>
 							<object class="NSButton" key="NSToolbarItemView" id="376849763">
-								<reference key="NSNextResponder"/>
+								<nil key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{16, 14}, {33, 41}}</string>
-								<reference key="NSSuperview"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSButtonCell" key="NSCell" id="51006321">
@@ -270,10 +269,9 @@
 							<string key="NSToolbarItemPaletteLabel">Bana</string>
 							<nil key="NSToolbarItemToolTip"/>
 							<object class="NSPopUpButton" key="NSToolbarItemView" id="250668471">
-								<reference key="NSNextResponder"/>
+								<nil key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{0, 14}, {100, 28}}</string>
-								<reference key="NSSuperview"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSPopUpButtonCell" key="NSCell" id="277692951">
@@ -477,7 +475,7 @@
 				<nil key="NSUserInterfaceItemIdentifier"/>
 				<string key="NSWindowContentMinSize">{94, 86}</string>
 				<object class="NSView" key="NSWindowView" id="158704167">
-					<reference key="NSNextResponder"/>
+					<nil key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<array class="NSMutableArray" key="NSSubviews">
 						<object class="NSScrollView" id="767478366">
@@ -494,7 +492,6 @@
 											<array class="NSMutableArray" key="NSSubviews"/>
 											<string key="NSFrameSize">{534, 453}</string>
 											<reference key="NSSuperview" ref="485901114"/>
-											<reference key="NSWindow"/>
 											<reference key="NSNextKeyView" ref="1007100409"/>
 											<bool key="NSViewIsLayerTreeHost">YES</bool>
 											<string key="NSClassName">ASMapView</string>
@@ -502,7 +499,6 @@
 									</array>
 									<string key="NSFrame">{{1, 1}, {534, 453}}</string>
 									<reference key="NSSuperview" ref="767478366"/>
-									<reference key="NSWindow"/>
 									<reference key="NSNextKeyView" ref="627403326"/>
 									<reference key="NSDocView" ref="627403326"/>
 									<object class="NSColor" key="NSBGColor">
@@ -521,7 +517,6 @@
 									<int key="NSvFlags">-2147483392</int>
 									<string key="NSFrame">{{365, 1}, {15, 704}}</string>
 									<reference key="NSSuperview" ref="767478366"/>
-									<reference key="NSWindow"/>
 									<reference key="NSNextKeyView" ref="398094403"/>
 									<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 									<reference key="NSTarget" ref="767478366"/>
@@ -534,8 +529,6 @@
 									<int key="NSvFlags">-2147483392</int>
 									<string key="NSFrame">{{1, 705}, {364, 15}}</string>
 									<reference key="NSSuperview" ref="767478366"/>
-									<reference key="NSWindow"/>
-									<reference key="NSNextKeyView"/>
 									<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 									<int key="NSsFlags">1</int>
 									<reference key="NSTarget" ref="767478366"/>
@@ -545,7 +538,6 @@
 							</array>
 							<string key="NSFrameSize">{536, 455}</string>
 							<reference key="NSSuperview" ref="158704167"/>
-							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="485901114"/>
 							<bool key="NSViewIsLayerTreeHost">YES</bool>
 							<int key="NSsFlags">264754</int>
@@ -558,11 +550,9 @@
 						</object>
 					</array>
 					<string key="NSFrameSize">{536, 455}</string>
-					<reference key="NSSuperview"/>
-					<reference key="NSWindow"/>
 					<reference key="NSNextKeyView" ref="767478366"/>
 				</object>
-				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
+				<string key="NSScreenRect">{{0, 0}, {1440, 900}}</string>
 				<string key="NSMinSize">{94, 140}</string>
 				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
 				<int key="NSWindowCollectionBehavior">128</int>
@@ -982,7 +972,7 @@
 					<reference key="NSNextKeyView" ref="613372587"/>
 					<string key="NSReuseIdentifierKey">_NS:21</string>
 				</object>
-				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
+				<string key="NSScreenRect">{{0, 0}, {1440, 900}}</string>
 				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
 				<bool key="NSWindowIsRestorable">YES</bool>
 			</object>
@@ -1127,27 +1117,11 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
-						<string key="label">controlDefinitionsPopover</string>
-						<reference key="source" ref="960323290"/>
-						<reference key="destination" ref="60470943"/>
-					</object>
-					<int key="connectionID">101020</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">courseProvider</string>
+						<string key="label">dataSource</string>
 						<reference key="source" ref="960323290"/>
 						<reference key="destination" ref="18770258"/>
 					</object>
-					<int key="connectionID">101136</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">showControlDefinitionsToolbarItem</string>
-						<reference key="source" ref="960323290"/>
-						<reference key="destination" ref="376764886"/>
-					</object>
-					<int key="connectionID">101026</int>
+					<int key="connectionID">101210</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
@@ -1300,14 +1274,6 @@
 						<reference key="destination" ref="151321615"/>
 					</object>
 					<int key="connectionID">101134</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">delegate</string>
-						<reference key="source" ref="129236480"/>
-						<reference key="destination" ref="151321615"/>
-					</object>
-					<int key="connectionID">101135</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -2377,7 +2343,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">101209</int>
+			<int key="maxID">101210</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -2484,20 +2450,17 @@
 				<object class="IBPartialClassDescription">
 					<string key="className">ASCourseObjectSelectionView</string>
 					<string key="superclassName">NSView</string>
-					<dictionary class="NSMutableDictionary" key="outlets">
-						<string key="dataSource">id</string>
-						<string key="delegate">id</string>
-					</dictionary>
-					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
-						<object class="IBToOneOutletInfo" key="dataSource">
+					<object class="NSMutableDictionary" key="outlets">
+						<string key="NS.key.0">dataSource</string>
+						<string key="NS.object.0">id</string>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<string key="NS.key.0">dataSource</string>
+						<object class="IBToOneOutletInfo" key="NS.object.0">
 							<string key="name">dataSource</string>
 							<string key="candidateClassName">id</string>
 						</object>
-						<object class="IBToOneOutletInfo" key="delegate">
-							<string key="name">delegate</string>
-							<string key="candidateClassName">id</string>
-						</object>
-					</dictionary>
+					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">./Classes/ASCourseObjectSelectionView.h</string>
@@ -2587,6 +2550,8 @@
 					<dictionary class="NSMutableDictionary" key="actions">
 						<string key="chooseBackgroundMap:">id</string>
 						<string key="showControlDefinitionsPopover:">id</string>
+						<string key="zoomIn:">id</string>
+						<string key="zoomOut:">id</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="actionInfosByName">
 						<object class="IBActionInfo" key="chooseBackgroundMap:">
@@ -2595,6 +2560,14 @@
 						</object>
 						<object class="IBActionInfo" key="showControlDefinitionsPopover:">
 							<string key="name">showControlDefinitionsPopover:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="zoomIn:">
+							<string key="name">zoomIn:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="zoomOut:">
+							<string key="name">zoomOut:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 					</dictionary>
@@ -2641,12 +2614,12 @@
 					<string key="className">ASOverprintController</string>
 					<string key="superclassName">NSObject</string>
 					<dictionary class="NSMutableDictionary" key="outlets">
-						<string key="courseProvider">id</string>
+						<string key="dataSource">id</string>
 						<string key="document">ASOcourseDocument</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
-						<object class="IBToOneOutletInfo" key="courseProvider">
-							<string key="name">courseProvider</string>
+						<object class="IBToOneOutletInfo" key="dataSource">
+							<string key="name">dataSource</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="document">

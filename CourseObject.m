@@ -10,41 +10,13 @@
 
 @implementation CourseObject
 
-- (enum ControlDescriptionItemType)controlDescriptionItemType {
-    enum ASCourseObjectType courseObjectType = self.objectType;
-    enum ControlDescriptionItemType cdType;
-    switch (courseObjectType) {
-        case kASCourseObjectControl:
-            cdType = kASRegularControl;
-            break;
-        case kASCourseObjectFinish:
-            cdType = kASFinish;
-            break;
-        case kASCourseObjectStart:
-            cdType = kASStart;
-            break;
-        default:
-            break;
-    }
-    return cdType;
+- (enum ASCourseObjectType)courseObjectType {
+    enum ASCourseObjectType courseObjectType = (enum ASCourseObjectType)[[self valueForKey:@"type"] integerValue];
+    return courseObjectType;
 }
 
-- (void)setControlDescriptionItemType:(enum ControlDescriptionItemType)_type {
-    enum ASCourseObjectType coType;
-    switch (_type) {
-        case kASRegularControl:
-            coType = kASCourseObjectControl;
-            break;
-        case kASFinish:
-            coType = kASCourseObjectFinish;
-            break;
-        case kASStart:
-            coType = kASCourseObjectStart;
-            break;
-        default:
-            break;
-    }
-    [self setValue:@(coType) forKey:@"type"];
+- (void)setCourseObjectType:(enum ASCourseObjectType)_type {
+    [self setValue:@(_type) forKey:@"type"];
 }
 
 - (void)awakeFromInsert {

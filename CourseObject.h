@@ -18,10 +18,8 @@
 @property (nonatomic,strong) NSNumber *position_y;
 @property (nonatomic,strong) NSNumber *distance;
 @property (nonatomic,strong) NSNumber *angle;
-@property (nonatomic,assign) enum ASCourseObjectType objectType;
+@property (nonatomic,assign) enum ASCourseObjectType courseObjectType;
 @property (nonatomic,strong) NSData *data;
-
-@property (nonatomic,assign) enum ControlDescriptionItemType controlDescriptionItemType;
 
 @property (nonatomic,strong) NSNumber *controlCode;
 @property (nonatomic,strong) NSNumber *whichOfAnySimilarFeature;

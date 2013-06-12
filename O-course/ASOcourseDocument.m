@@ -11,7 +11,6 @@
 #import "ASGenericImageController.h"
 #import "ASMapView.h"
 #import "Project.h"
-#import "ASOverprintProvider.h"
 #import "CourseObject.h"
 
 #import "ASOverprintController.h"

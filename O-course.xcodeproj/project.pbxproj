@@ -156,7 +156,6 @@
 		03C305171347B60B00FB8133 /* ASMapProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASMapProvider.h; sourceTree = "<group>"; };
 		03CE92A1142E6C06003EBECD /* MyDocumentController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyDocumentController.h; sourceTree = "<group>"; };
 		03CE92A2142E6C06003EBECD /* MyDocumentController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyDocumentController.m; sourceTree = "<group>"; };
-		03EEB29C1471943C00BD9E0F /* ASOverprintProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASOverprintProvider.h; sourceTree = "<group>"; };
 		03EEB29E147194A300BD9E0F /* ASOverprintController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASOverprintController.h; sourceTree = "<group>"; };
 		03EEB29F147194A300BD9E0F /* ASOverprintController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASOverprintController.m; sourceTree = "<group>"; };
 		03EEB2A2147194DB00BD9E0F /* ASControlDescriptionProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASControlDescriptionProvider.h; sourceTree = "<group>"; };
@@ -372,7 +371,6 @@
 			children = (
 				03C305171347B60B00FB8133 /* ASMapProvider.h */,
 				03EEB2A314719D2C00BD9E0F /* ASCourseObject.h */,
-				03EEB29C1471943C00BD9E0F /* ASOverprintProvider.h */,
 				03EEB2A2147194DB00BD9E0F /* ASControlDescriptionProvider.h */,
 			);
 			name = Protocols;

@@ -7,21 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
-enum ControlDescriptionItemType {
-	kASStart,
-	kASRegularControl,
-	kASTapedRouteFromControl,		// Specify distance
-	kASTapedRouteBetweenControls,	// Specify distance
-	kASMandatoryCrossingPoint,
-	kASMandatoryPassing,
-	kASTapedRouteToMapExchange,		// Specify distance
-	kASTapedRouteToFinish,			// Specify distance
-	kASPartlyTapedRouteToFinish,	// Specify distance
-	kASRouteToFinish,				// Specify distance
-    kASFinish                       // The finish is not actually displayed on the control description.
-                                    // This control type is never present.
-};
+#import "ASCourseObject.h"
 
 enum ASControlDescriptionColumn {
     kASControlNumber,
@@ -37,7 +23,7 @@ enum ASControlDescriptionColumn {
 
 @protocol ASControlDescriptionItem  <NSObject>
 
-- (enum ControlDescriptionItemType)controlDescriptionItemType;
+- (enum ASCourseObjectType)courseObjectType;
 - (NSNumber *)distance;
 - (NSNumber *)controlCode;
 - (NSNumber *)whichOfAnySimilarFeature;
@@ -51,7 +37,7 @@ enum ASControlDescriptionColumn {
 @end
 
 // Course is an opaque type for this.
-@protocol ASCourseProvider <NSObject>
+@protocol ASControlDescriptionDataSource <NSObject>
 
 - (NSString *)eventName;
 - (NSString *)classNames;
@@ -61,10 +47,8 @@ enum ASControlDescriptionColumn {
 
 // Each item returned by the course object enumerator conforms
 // to <ASControlDescriptionItem>
-- (NSEnumerator *)courseObjectEnumerator;
-- (NSEnumerator *)notSelectedCourseObjectEnumerator;
-
-- (BOOL)specificCourseSelected;
+- (NSEnumerator *)controlDescriptionItemEnumerator;
+- (NSEnumerator *)notSelectedControlDescriptionItemEnumerator;
 
 @end
 
@@ -78,12 +62,6 @@ enum ASControlDescriptionColumn {
 - (void)setCombinationSymbol:(NSNumber *)combinationSymbol;
 - (void)setLocationOfTheControlFlag:(NSNumber *)locationOfTheControlFlag;
 - (void)setOtherInformation:(NSNumber *)otherInformation;
-
-@end
-
-@protocol ASCourseObjectSelectionViewDelegate <NSObject>
-
-- (NSInteger)selectedValueForColumn:(enum ASControlDescriptionColumn)column;
 
 @end
 

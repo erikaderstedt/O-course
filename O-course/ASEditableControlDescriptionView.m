@@ -40,11 +40,11 @@
     }
     
     // Add a tracking area for each element that can be changed.
-    NSInteger topItem = [self numberOfItems] - [[[self.provider courseObjectEnumerator] allObjects] count];
+    NSInteger topItem = [self numberOfItems] - [[[self.provider controlDescriptionItemEnumerator] allObjects] count];
     NSArray *regularColumns = @[@(kASWhichOfAnySimilarFeature), @(kASFeature), @(kASAppearanceOrSecondaryFeature), @(kASDimensionsOrCombinations), @(kASLocationOfTheControlFlag), @(kASOtherInformation)];
     
-    for (id <ASControlDescriptionItem> object in [self.provider courseObjectEnumerator]) {
-        if ([object controlDescriptionItemType] == kASRegularControl) {
+    for (id <ASControlDescriptionItem> object in [self.provider controlDescriptionItemEnumerator]) {
+        if ([object courseObjectType] == kASCourseObjectControl) {
             
             for (NSNumber *columnIntegerValue in regularColumns) {
                 enum ASControlDescriptionColumn column = (enum ASControlDescriptionColumn)[columnIntegerValue intValue];

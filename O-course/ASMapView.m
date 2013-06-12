@@ -49,6 +49,72 @@
 }
 
 #pragma mark -
+#pragma mark Map loading
+
+- (void)mapLoaded {
+    
+    if (self.mapProvider != nil) {
+        if (tiledLayer == nil) {
+            
+            tiledLayer = [CATiledLayer layer];
+            tiledLayer.name = @"tiled";
+            tiledLayer.needsDisplayOnBoundsChange = YES;
+            CGColorRef white = CGColorCreateGenericRGB(1.0, 1.0, 1.0, 1.0);
+            tiledLayer.backgroundColor = white;
+            CGColorRelease(white);
+            tiledLayer.tileSize = CGSizeMake(512.0, 512.0);
+            
+            tiledLayer.levelsOfDetail = 7;
+            tiledLayer.levelsOfDetailBias = 2;
+            
+            tiledLayer.anchorPoint = CGPointMake(0.0, 0.0);
+            tiledLayer.position = CGPointMake(0.0, 0.0);
+            
+            overprintLayer = [CATiledLayer layer];
+            overprintLayer.name = @"overprint";
+            overprintLayer.needsDisplayOnBoundsChange = YES;
+            CGColorRef blackTransparent = CGColorCreateGenericRGB(0.0, 0.0, 0.0, 0.0);
+            overprintLayer.backgroundColor = blackTransparent;
+            CGColorRelease(blackTransparent);
+            /*
+             To use simulated overprint:
+             overprintLayer.backgroundColor = CGColorCreateGenericRGB(1.0, 1.0, 1.0, 1.0);
+             CIFilter *mulBlend = [CIFilter filterWithName:@"CIMultiplyCompositing"];
+             overprintLayer.compositingFilter = mulBlend;
+             */
+            overprintLayer.tileSize = tiledLayer.tileSize;
+            overprintLayer.levelsOfDetail = tiledLayer.levelsOfDetail;
+            overprintLayer.levelsOfDetailBias = tiledLayer.levelsOfDetailBias;
+            overprintLayer.anchorPoint = tiledLayer.anchorPoint;
+            overprintLayer.position = tiledLayer.position;
+        }
+        mapBounds = [self.mapProvider mapBounds];
+        tiledLayer.bounds = mapBounds; overprintLayer.bounds = mapBounds;
+        tiledLayer.delegate = self; overprintLayer.delegate = overprintProvider;
+        [[self layer] addSublayer:tiledLayer]; [[self layer] addSublayer:overprintLayer];
+        tiledLayer.contents = nil;
+        [tiledLayer setNeedsDisplay];
+        overprintLayer.contents = nil;
+        [overprintLayer setNeedsDisplay];
+        
+        // Calculate the initial zoom as the minimum zoom.
+        NSRect cv = [[[self enclosingScrollView] contentView] frame];
+        minZoom = [self calculateMinimumZoomForFrame:cv];
+        [self setZoom:minZoom*3.0];
+    } else {
+        if (tiledLayer != nil) {
+            tiledLayer.delegate = nil;
+            [tiledLayer removeFromSuperlayer];
+            
+            overprintLayer.delegate = nil;
+            [overprintLayer removeFromSuperlayer];
+        }
+    }
+    
+	[self setNeedsDisplay:YES];
+}
+
+#pragma mark -
 #pragma mark Magnifying glass
 
 - (CALayer *)magnifyingGlass {
@@ -75,17 +141,12 @@
         innerMagnifyingGlassLayer.bounds = NSRectToCGRect(f);
         innerMagnifyingGlassLayer.frame = innerMagnifyingGlassLayer.bounds;
         innerMagnifyingGlassLayer.name = @"magnification";
-//        innerMagnifyingGlassLayer.filters = @[lozenge];
         innerMagnifyingGlassLayer.needsDisplayOnBoundsChange = YES;
         innerMagnifyingGlassLayer.masksToBounds = YES;
         innerMagnifyingGlassLayer.contents = nil;
         CGColorRef white = CGColorCreateGenericRGB(1.0, 1.0, 1.0, 1.0);
         innerMagnifyingGlassLayer.backgroundColor = white;
         CGColorRelease(white);
-/*        innerMagnifyingGlassLayer.tileSize = CGSizeMake(512.0, 512.0);
-        
-        innerMagnifyingGlassLayer.levelsOfDetail = 7;
-        innerMagnifyingGlassLayer.levelsOfDetailBias = 2; */
         innerMagnifyingGlassLayer.delegate = self;
         [_magnifyingGlass addSublayer:innerMagnifyingGlassLayer];
         [innerMagnifyingGlassLayer setNeedsDisplay];
@@ -126,6 +187,13 @@
 	[CATransaction commit];
 }
 
+- (IBAction)toggleMagnifyingGlass:(id)sender {
+	self.showMagnifyingGlass = !self.showMagnifyingGlass;
+}
+
+#pragma mark -
+#pragma mark Mouse tracking
+
 - (void)updateTrackingAreas {
 	[super updateTrackingAreas];
     
@@ -145,11 +213,8 @@
 	}
     
     // Now add tracking areas for each course object.
+//    for (self.overprintProvider)
 
-}
-
-- (IBAction)toggleMagnifyingGlass:(id)sender {
-	self.showMagnifyingGlass = !self.showMagnifyingGlass;
 }
 
 - (void)mouseEntered:(NSEvent *)theEvent {
@@ -178,12 +243,7 @@
 }
 
 #pragma mark -
-
-- (void)ensureFirstResponder {
-    if ([[self window] firstResponder] != self) {
-        [[self window] makeFirstResponder:self];
-    }
-}
+#pragma mark Regular mouse events
 
 - (void)mouseDown:(NSEvent *)theEvent {
     dragged = NO;
@@ -239,35 +299,14 @@
     
     
     NSInteger i = [self.mapProvider symbolNumberAtPosition:p];
-    NSLog(@"Adding symbol number %ld", (long)i);
+
     [self.courseDelegate addCourseObject:addingType atLocation:p symbolNumber:i];
     [overprintLayer setNeedsDisplay];
     [innerMagnifyingGlassLayer setNeedsDisplay];
 }
 
-- (void)cancelOperation:(id)sender {
-    [self revertToStandardMode:sender];
-}
-
-- (IBAction)revertToStandardMode:(id)sender {
-    self.state = kASMapViewNormal;
-}
-
-- (IBAction)goIntoAddControlsMode:(id)sender {
-    self.state = kASMapViewAddControls;
-}
-
-- (IBAction)goIntoAddStartMode:(id)sender {
-    self.state = kASMapViewAddStart;
-}
-
-- (IBAction)goIntoAddFinishMode:(id)sender {
-    self.state = kASMapViewAddFinish;
-}
-
-- (BOOL)isOpaque {
-	return YES;
-}
+#pragma mark -
+#pragma mark Zooming
 
 - (CGFloat)calculateMinimumZoomForFrame:(NSRect)frame {
     if (mapBounds.size.width == 0.0 || mapBounds.size.height == 0.0) return 0.0;
@@ -277,8 +316,6 @@
 - (void)frameChanged:(NSNotification *)n {
 	minZoom = [self calculateMinimumZoomForFrame:[[n object] frame]];
 	if (self.zoom < minZoom) [self setZoom:minZoom];
-	
-//	[[[self enclosingScrollView] contentView] viewFrameChanged:n];
 }
 
 - (void)setZoom:(CGFloat)zoom {
@@ -347,73 +384,7 @@
     self.zoom = (1.0 + [event magnification])* self.zoom;
 }
 
-- (void)mapLoaded {
-    
-    if (self.mapProvider != nil) {
-        if (tiledLayer == nil) {
-
-            tiledLayer = [CATiledLayer layer];
-            tiledLayer.name = @"tiled";
-            tiledLayer.needsDisplayOnBoundsChange = YES;
-            CGColorRef white = CGColorCreateGenericRGB(1.0, 1.0, 1.0, 1.0);
-            tiledLayer.backgroundColor = white;
-            CGColorRelease(white);
-            tiledLayer.tileSize = CGSizeMake(512.0, 512.0);
-            
-            tiledLayer.levelsOfDetail = 7;
-            tiledLayer.levelsOfDetailBias = 2;
-            
-            tiledLayer.anchorPoint = CGPointMake(0.0, 0.0);
-            tiledLayer.position = CGPointMake(0.0, 0.0);
-            
-            overprintLayer = [CATiledLayer layer];
-            overprintLayer.name = @"overprint";
-            overprintLayer.needsDisplayOnBoundsChange = YES;
-            CGColorRef blackTransparent = CGColorCreateGenericRGB(0.0, 0.0, 0.0, 0.0);
-            overprintLayer.backgroundColor = blackTransparent;
-            CGColorRelease(blackTransparent);
-            /*
-             To use simulated overprint:
-            overprintLayer.backgroundColor = CGColorCreateGenericRGB(1.0, 1.0, 1.0, 1.0);
-            CIFilter *mulBlend = [CIFilter filterWithName:@"CIMultiplyCompositing"];
-            overprintLayer.compositingFilter = mulBlend;
-             */
-            overprintLayer.tileSize = tiledLayer.tileSize;
-            overprintLayer.levelsOfDetail = tiledLayer.levelsOfDetail;
-            overprintLayer.levelsOfDetailBias = tiledLayer.levelsOfDetailBias;
-            overprintLayer.anchorPoint = tiledLayer.anchorPoint;
-            overprintLayer.position = tiledLayer.position;
-        }
-        mapBounds = [self.mapProvider mapBounds];
-        tiledLayer.bounds = mapBounds; overprintLayer.bounds = mapBounds;
-        tiledLayer.delegate = self; overprintLayer.delegate = overprintProvider;
-        [[self layer] addSublayer:tiledLayer]; [[self layer] addSublayer:overprintLayer];
-        tiledLayer.contents = nil;
-        [tiledLayer setNeedsDisplay];
-        overprintLayer.contents = nil;
-        [overprintLayer setNeedsDisplay];
-        
-        // Calculate the initial zoom as the minimum zoom.
-        NSRect cv = [[[self enclosingScrollView] contentView] frame];
-        minZoom = [self calculateMinimumZoomForFrame:cv];
-        [self setZoom:minZoom*3.0];
-    } else {
-        if (tiledLayer != nil) {
-            tiledLayer.delegate = nil;
-            [tiledLayer removeFromSuperlayer];
-            
-            overprintLayer.delegate = nil;
-            [overprintLayer removeFromSuperlayer];
-        }
-    }
-    
-	[self setNeedsDisplay:YES];
-}
-
-static CGFloat randomFloat()
-{
-	return random() / (double)LONG_MAX;
-}
+#pragma mark Drawing
 
 // CATiledLayer delegate stuff.
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
@@ -443,6 +414,9 @@ static CGFloat randomFloat()
         
     } 
 }
+
+#pragma mark -
+#pragma mark State handling
 
 - (void)setState:(enum ASMapViewUIState)s2 {
     state = s2;
@@ -484,12 +458,45 @@ static CGFloat randomFloat()
     CGPathRelease(path);
 }
 
+- (void)cancelOperation:(id)sender {
+    [self revertToStandardMode:sender];
+}
+
+- (IBAction)revertToStandardMode:(id)sender {
+    self.state = kASMapViewNormal;
+}
+
+- (IBAction)goIntoAddControlsMode:(id)sender {
+    self.state = kASMapViewAddControls;
+}
+
+- (IBAction)goIntoAddStartMode:(id)sender {
+    self.state = kASMapViewAddStart;
+}
+
+- (IBAction)goIntoAddFinishMode:(id)sender {
+    self.state = kASMapViewAddFinish;
+}
+
+#pragma mark -
+#pragma mark Miscellaneous
+
 - (void)overprintChanged:(NSNotification *)n {
     [overprintLayer setNeedsDisplay];
     [self setNeedsDisplay:YES];
     
     // Update tracking areas.
     [self updateTrackingAreas];
+}
+
+- (BOOL)isOpaque {
+	return YES;
+}
+
+- (void)ensureFirstResponder {
+    if ([[self window] firstResponder] != self) {
+        [[self window] makeFirstResponder:self];
+    }
 }
 
 

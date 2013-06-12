@@ -7,8 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "ASOverprintProvider.h"
-#import "ASControlDescriptionProvider.h"
+#import "ASCourseObject.h"
+#import "ASMapProvider.h"
 
 // Users of the overprint and/or the control description can observe
 // "course" to know when to update.
@@ -32,7 +32,7 @@
     
     BOOL drawConnectingLines;
 }
-@property (nonatomic,weak) IBOutlet id <ASCourseProvider> courseProvider;
+@property (nonatomic,weak) IBOutlet id <ASCourseDataSource> dataSource;
 @property (nonatomic,weak) IBOutlet ASOcourseDocument *document;
 
 - (CGColorRef)overprintColor;

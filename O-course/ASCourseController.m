@@ -21,7 +21,6 @@
 @synthesize courseTable;
 @synthesize controlDescription;
 
-
 - (void)willAppear {
     [courses addObserver:self forKeyPath:@"arrangedObjects" options:0 context:(__bridge void *)(self)];
 }
@@ -116,7 +115,7 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:@"ASCourseChanged" object:self.managedObjectContext];
 }
 
-#pragma mark ASControlDescriptionProvider
+#pragma mark ASControlDescriptionDataSource
 
 - (NSManagedObject *)selectedCourse {
     if ([[self.courses selectedObjects] count]) {
@@ -152,7 +151,7 @@
 
 // Each item returned by the course object enumerator conforms
 // to <ASControlDescriptionItem>
-- (NSEnumerator *)courseObjectEnumerator {
+- (NSEnumerator *)controlDescriptionItemEnumerator {
     if ([[self.courses selectedObjects] count]) {
         NSManagedObject *course = [self.courses arrangedObjects][0];
         return [[course valueForKey:@"controls"] objectEnumerator];
@@ -167,7 +166,7 @@
 
 // Each item returned by the course object enumerator conforms
 // to <ASControlDescriptionItem>
-- (NSEnumerator *)notSelectedCourseObjectEnumerator {
+- (NSEnumerator *)notSelectedControlDescriptionItemEnumerator {
     if (![[self.courses selectedObjects] count]) {
         return [@[] objectEnumerator];
     }
@@ -182,9 +181,7 @@
     return [set objectEnumerator];
 }
 
-- (BOOL)specificCourseSelected {
-    return [[self.courses selectedObjects] count];
-}
+#pragma mark ASCourseDataSource
 
 - (BOOL)addCourseObject:(enum ASCourseObjectType)objectType atLocation:(CGPoint)location symbolNumber:(NSInteger)symbolNumber {
     
@@ -194,7 +191,7 @@
     object.added = [NSDate date];
     [object setPosition:location];
     
-    object.objectType = objectType;
+    object.courseObjectType = objectType;
     if (objectType == kASCourseObjectControl) {
         [object assignNextFreeControlCode];
     }
@@ -209,6 +206,25 @@
     
     return YES;
 }
+
+- (BOOL)specificCourseSelected {
+    return [[self.courses selectedObjects] count];
+}
+
+- (void)enumerateCourseObjectsUsingBlock:(void (^)(id <ASCourseObject> object, BOOL inSelectedCourse))handler {
+    NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"CourseObject"];
+    NSArray *allCourseObjects = [[self managedObjectContext] executeFetchRequest:fr error:nil];
+    BOOL allSelected = ![self specificCourseSelected];
+    for (CourseObject *courseObject in allCourseObjects) {
+        if (allSelected)
+            handler(courseObject, YES);
+        else
+            handler(courseObject, [[self.courses selectedObjects] containsObject:courseObject]);
+    }
+}
+
+#pragma mark -
+#pragma mark Other
 
 - (IBAction)showCoursePanel:(id)sender {
     [[[self managedObjectContext] undoManager] beginUndoGrouping];

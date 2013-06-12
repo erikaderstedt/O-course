@@ -58,15 +58,12 @@
     NSMutableArray *ma = [NSMutableArray arrayWithCapacity:100];
 
     //    NSInteger controlNumber = 1;
-    drawConnectingLines = [self.courseProvider specificCourseSelected];
-    for (CourseObject *object in [self.courseProvider courseObjectEnumerator]) {
+    drawConnectingLines = [self.dataSource specificCourseSelected];
+    [self.dataSource enumerateCourseObjectsUsingBlock:^(id<ASCourseObject> object, BOOL inSelectedCourse) {
         [ma addObject:@{ @"position":[NSValue valueWithPoint:NSPointFromCGPoint(object.position)],
-         @"type":[object valueForKey:@"type"], @"in_course":@YES}];
-    }
-    for (CourseObject *object in [self.courseProvider notSelectedCourseObjectEnumerator]) {
-        [ma addObject:@{ @"position":[NSValue valueWithPoint:NSPointFromCGPoint(object.position)],
-         @"type":[object valueForKey:@"type"], @"in_course":@NO}];
-    }
+         @"type":@([object courseObjectType]), @"in_course":@(inSelectedCourse)}];
+    }];
+    
     @synchronized(self) {
         cacheArray = ma;
     }

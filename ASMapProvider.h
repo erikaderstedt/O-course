@@ -9,6 +9,12 @@
 #import <Foundation/Foundation.h>
 #import <QuartzCore/QuartzCore.h>
 
+@protocol ASOverprintProvider <NSObject>
+
+- (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx;
+
+@end
+
 @protocol ASMapProvider <NSObject>
 
 - (NSInteger)symbolNumberAtPosition:(CGPoint)p;

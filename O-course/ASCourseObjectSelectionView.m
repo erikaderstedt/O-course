@@ -12,7 +12,7 @@
 
 @implementation ASCourseObjectSelectionView
 
-@synthesize dataSource, delegate;
+@synthesize dataSource;
 @synthesize column=_column;
 
 - (void)awakeFromNib {
@@ -136,7 +136,6 @@
     
     NSArray *supportedValues = [self.dataSource supportedValuesForColumn:self.column];
     NSInteger rowIndex = 0, columnIndex = 0;
-//    NSInteger selectedValue = [self.delegate selectedValueForColumn:self.column];
     CGContextRef ctx = [[NSGraphicsContext currentContext] graphicsPort];
     for (NSNumber *aValue in supportedValues) {
         NSRect thisRect = NSRectFromCGRect([self boundsForRow:rowIndex column:columnIndex]);

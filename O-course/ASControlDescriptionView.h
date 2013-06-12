@@ -29,7 +29,7 @@
     
     BOOL layoutNeedsUpdate;
 }
-@property (nonatomic,weak) IBOutlet id <ASCourseProvider> provider;
+@property (nonatomic,weak) IBOutlet id <ASControlDescriptionDataSource> provider;
 
 - (void)setup;
 

@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "ASMapProvider.h"
-#import "ASOverprintProvider.h"
+#import "ASCourseObject.h"
 #import <QuartzCore/QuartzCore.h>
 
 #define MAX_ZOOM 1.5
@@ -45,7 +45,7 @@ enum ASMapViewUIState {
 }
 @property(nonatomic,strong) id <ASMapProvider> mapProvider;
 @property(nonatomic,strong) id <ASOverprintProvider> overprintProvider;
-@property(nonatomic,weak) IBOutlet id <ASCourseDelegate> courseDelegate;
+@property(nonatomic,weak) IBOutlet id <ASCourseDataSource> courseDelegate;
 @property(nonatomic,assign) BOOL showMagnifyingGlass;
 @property(nonatomic,assign) CGFloat zoom;
 @property(nonatomic,assign) enum ASMapViewUIState state;

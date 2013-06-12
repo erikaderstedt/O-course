@@ -12,7 +12,7 @@
 
 @dynamic mapBookmark;
 
-+ (Project *)projectInManagedObjectContext:(NSManagedObjectContext *)moc {
++ (instancetype)projectInManagedObjectContext:(NSManagedObjectContext *)moc {
     if (moc == nil) return nil;
     
     NSFetchRequest *r = [[[moc persistentStoreCoordinator] managedObjectModel] fetchRequestTemplateForName:@"THE_PROJECT"];

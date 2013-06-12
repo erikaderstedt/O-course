@@ -101,18 +101,30 @@ enum ASFeature {
 enum ASCourseObjectType {
     kASCourseObjectStart,
     kASCourseObjectControl,
-    kASCourseObjectFinish,
+    kASCourseObjectTapedRouteFromControl,		// Specify distance
+	kASCourseObjectTapedRouteBetweenControls,	// Specify distance
+	kASCourseObjectMandatoryCrossingPoint,
+	kASCourseObjectMandatoryPassing,
+	kASCourseObjectTapedRouteToMapExchange,		// Specify distance
+	kASCourseObjectTapedRouteToFinish,			// Specify distance
+	kASCourseObjectPartlyTapedRouteToFinish,	// Specify distance
+	kASCourseObjectRouteToFinish,				// Specify distance
+    kASCourseObjectFinish                       // The finish is not actually displayed on
 };
 
 @protocol ASCourseObject <NSObject>
 
+- (enum ASCourseObjectType)courseObjectType;
 - (CGPoint)position;
 - (void)setPosition:(CGPoint)newPosition;
 
 @end
 
-@protocol ASCourseDelegate <NSObject>
+@protocol ASCourseDataSource <NSObject>
 
 - (BOOL)addCourseObject:(enum ASCourseObjectType)objectType atLocation:(CGPoint)location symbolNumber:(NSInteger)symbolNumber;
+- (void)enumerateCourseObjectsUsingBlock:(void (^)(id <ASCourseObject> object, BOOL inSelectedCourse))handler;
+
+- (BOOL)specificCourseSelected;
 
 @end
