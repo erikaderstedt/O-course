@@ -134,11 +134,9 @@
 			</object>
 			<object class="NSViewController" id="603562653"/>
 			<object class="NSCustomView" id="129236480">
-				<reference key="NSNextResponder"/>
+				<nil key="NSNextResponder"/>
 				<int key="NSvFlags">268</int>
 				<string key="NSFrameSize">{285, 79}</string>
-				<reference key="NSSuperview"/>
-				<reference key="NSWindow"/>
 				<string key="NSReuseIdentifierKey">_NS:9</string>
 				<string key="NSClassName">ASCourseObjectSelectionView</string>
 			</object>
@@ -621,7 +619,7 @@
 										<object class="NSTableView" id="741939773">
 											<reference key="NSNextResponder" ref="109719039"/>
 											<int key="NSvFlags">256</int>
-											<string key="NSFrameSize">{545.5, 279}</string>
+											<string key="NSFrameSize">{547, 279}</string>
 											<reference key="NSSuperview" ref="109719039"/>
 											<reference key="NSNextKeyView" ref="1050712557"/>
 											<string key="NSReuseIdentifierKey">_NS:13</string>
@@ -631,7 +629,7 @@
 											<object class="NSTableHeaderView" key="NSHeaderView" id="444483360">
 												<reference key="NSNextResponder" ref="1050712557"/>
 												<int key="NSvFlags">256</int>
-												<string key="NSFrameSize">{545.5, 17}</string>
+												<string key="NSFrameSize">{547, 17}</string>
 												<reference key="NSSuperview" ref="1050712557"/>
 												<reference key="NSNextKeyView" ref="109719039"/>
 												<string key="NSReuseIdentifierKey">_NS:16</string>
@@ -1060,14 +1058,6 @@
 					<int key="connectionID">100914</int>
 				</object>
 				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">courseDelegate</string>
-						<reference key="source" ref="627403326"/>
-						<reference key="destination" ref="18770258"/>
-					</object>
-					<int key="connectionID">100919</int>
-				</object>
-				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
 						<string key="label">goIntoAddStartMode:</string>
 						<reference key="source" ref="627403326"/>
@@ -1106,6 +1096,14 @@
 						<reference key="destination" ref="90853670"/>
 					</object>
 					<int key="connectionID">101014</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">courseDataSource</string>
+						<reference key="source" ref="627403326"/>
+						<reference key="destination" ref="18770258"/>
+					</object>
+					<int key="connectionID">101211</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -2343,7 +2341,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">101210</int>
+			<int key="maxID">101211</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">

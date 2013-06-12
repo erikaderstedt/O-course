@@ -20,6 +20,7 @@
 
 enum ASMapViewUIState {
     kASMapViewNormal,
+    kASMapViewDraggingCourseObject,
     kASMapViewAddControls,
     kASMapViewAddStart,
     kASMapViewAddFinish
@@ -38,6 +39,7 @@ enum ASMapViewUIState {
     
     CATiledLayer *tiledLayer;
     CATiledLayer *overprintLayer;
+    CALayer *dragIndicatorLayer;
     CGFloat _zoom;
 	CGFloat minZoom;
     
@@ -45,7 +47,8 @@ enum ASMapViewUIState {
 }
 @property(nonatomic,strong) id <ASMapProvider> mapProvider;
 @property(nonatomic,strong) id <ASOverprintProvider> overprintProvider;
-@property(nonatomic,weak) IBOutlet id <ASCourseDataSource> courseDelegate;
+@property(nonatomic,weak) IBOutlet id <ASCourseDataSource> courseDataSource;
+@property(nonatomic,strong) id <ASCourseObject> draggedCourseObject;
 @property(nonatomic,assign) BOOL showMagnifyingGlass;
 @property(nonatomic,assign) CGFloat zoom;
 @property(nonatomic,assign) enum ASMapViewUIState state;

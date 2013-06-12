@@ -37,10 +37,6 @@
     return self;
 }
 
-- (void)viewWillMoveToSuperview:(NSView *)newSuperview {
-    NSLog(@"superview %@", newSuperview);
-}
-
 - (void)setup {
     
     NSMutableParagraphStyle *mps = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];

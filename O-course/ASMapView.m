@@ -15,7 +15,7 @@
 
 @synthesize mapProvider, overprintProvider;
 @synthesize showMagnifyingGlass;
-@synthesize courseDelegate;
+@synthesize courseDataSource;
 @synthesize state=state;
 
 - (id)initWithFrame:(NSRect)frame {
@@ -34,9 +34,7 @@
 }
 
 - (void)dealloc {
-	
 	[_magnifyingGlass removeFromSuperlayer];
-	
 }
 
 - (void)awakeFromNib {
@@ -87,6 +85,14 @@
             overprintLayer.levelsOfDetailBias = tiledLayer.levelsOfDetailBias;
             overprintLayer.anchorPoint = tiledLayer.anchorPoint;
             overprintLayer.position = tiledLayer.position;
+            
+            dragIndicatorLayer = [CALayer layer];
+            dragIndicatorLayer.name = @"drag indicator";
+            CGColorRef shadowGrey = CGColorCreateGenericRGB(0.3, 0.3, 0.3, 0.7);
+            dragIndicatorLayer.backgroundColor = shadowGrey;
+            CGColorRelease(shadowGrey);
+            dragIndicatorLayer.cornerRadius = 3.0;
+            dragIndicatorLayer.hidden = YES;
         }
         mapBounds = [self.mapProvider mapBounds];
         tiledLayer.bounds = mapBounds; overprintLayer.bounds = mapBounds;
@@ -96,6 +102,8 @@
         [tiledLayer setNeedsDisplay];
         overprintLayer.contents = nil;
         [overprintLayer setNeedsDisplay];
+        
+        [tiledLayer addSublayer:dragIndicatorLayer];
         
         // Calculate the initial zoom as the minimum zoom.
         NSRect cv = [[[self enclosingScrollView] contentView] frame];
@@ -197,35 +205,59 @@
 - (void)updateTrackingAreas {
 	[super updateTrackingAreas];
     
+    NSArray *tas = [self trackingAreas];
+    for (NSTrackingArea *ta in tas) {
+        [self removeTrackingArea:ta];
+    }
+    glassTrackingArea = nil;
+
     // Handle the glass tracking area, which is to get mouseMoved messages for
     // the magnifying glass.
-	[self removeTrackingArea:glassTrackingArea];
 	if (self.showMagnifyingGlass) {
 		glassTrackingArea = [[NSTrackingArea alloc] initWithRect:[self bounds] 
-														 options:NSTrackingMouseMoved | NSTrackingMouseEnteredAndExited | NSTrackingActiveInKeyWindow 
+														 options:NSTrackingMouseMoved | NSTrackingMouseEnteredAndExited | NSTrackingActiveInKeyWindow
 														   owner:self 
 														userInfo:nil];		 
 		[self addTrackingArea:glassTrackingArea];
 	} else {
-		if (glassTrackingArea != nil) {
-			glassTrackingArea = nil;
-		}
-	}
-    
-    // Now add tracking areas for each course object.
-//    for (self.overprintProvider)
-
+        // Now add tracking areas for each course object.
+        [self.courseDataSource enumerateCourseObjectsUsingBlock:^(id<ASCourseObject> object, BOOL inSelectedCourse) {
+            // Add a tracking rect for this object.
+            // Set up a userInfo object for the tracking areas. We need to remember to check that the object actually
+            // exists when we get around to dealing with an event for the given tracking area.
+            CGPoint positionInMap = [object position];
+            CGRect r = CGRectMake(positionInMap.x - 150.0, positionInMap.y-150.0, 300.0, 300.0);
+            NSRect rectInView = NSRectFromCGRect([tiledLayer convertRect:r toLayer:[self layer]]);
+            NSTrackingArea *ta = [[NSTrackingArea alloc] initWithRect:rectInView options:NSTrackingMouseEnteredAndExited | NSTrackingActiveInKeyWindow owner:self userInfo:@{@"object":object}];
+            [self addTrackingArea:ta];
+            
+            // Are there affiliated digits?
+        }];
+    }
 }
 
 - (void)mouseEntered:(NSEvent *)theEvent {
-	[NSCursor hide];
+    if (self.showMagnifyingGlass) {
+        [NSCursor hide];
+        [[self magnifyingGlass] setHidden:NO];
+    } else {
+        if (self.state != kASMapViewDraggingCourseObject) {
+            // Move our "selection" rect layer to this location.
+            [CATransaction begin];
+            [CATransaction setDisableActions:YES];
+            dragIndicatorLayer.frame = [tiledLayer convertRect:NSRectToCGRect([[theEvent trackingArea] rect]) fromLayer:[self layer]];
+            dragIndicatorLayer.cornerRadius = dragIndicatorLayer.frame.size.width*0.5;
+            [CATransaction commit];
+            dragIndicatorLayer.hidden = NO;
+            self.draggedCourseObject = [[[theEvent trackingArea] userInfo] objectForKey:@"object"];
+        }
+    }
 }
 
 - (void)mouseMoved:(NSEvent *)theEvent {
 	NSAssert(self.showMagnifyingGlass, @"Not showing magnifying glass?");
 	NSPoint p = [theEvent locationInWindow];
     p = [self convertPoint:p fromView:nil];
-//	p = [self convertPointFromBase:p];
 
 	CALayer *l = [self magnifyingGlass];
 	if (l.hidden) l.hidden = NO;	
@@ -238,22 +270,47 @@
 }
 
 - (void)mouseExited:(NSEvent *)theEvent {
-	[[self magnifyingGlass] setHidden:YES];
-	[NSCursor unhide];
+    if (self.showMagnifyingGlass) {
+        [[self magnifyingGlass] setHidden:YES];
+        [NSCursor unhide];
+    }
+    if (self.state != kASMapViewDraggingCourseObject) {
+        self.draggedCourseObject = nil;
+        dragIndicatorLayer.hidden = YES;
+    }
 }
 
 #pragma mark -
 #pragma mark Regular mouse events
-
+/*
 - (void)mouseDown:(NSEvent *)theEvent {
-    dragged = NO;
+//    dragged = NO;
+    NSPoint eventLocationInView = [self convertPoint:[theEvent locationInWindow] fromView:nil];
+    
+    if (self.state == kASMapViewNormal && self.draggedCourseObject != nil) {
+        self.state = kASMapViewDraggingCourseObject;
+        
+    }
+
 }
-
+*/
 - (void)mouseDragged:(NSEvent *)theEvent {
-    dragged = YES;
-    NSPoint p = [theEvent locationInWindow];
-    p = [self convertPoint:p fromView:nil];
-
+//    dragged = YES;
+    NSPoint eventLocationInView = [self convertPoint:[theEvent locationInWindow] fromView:nil];
+    if (self.draggedCourseObject != nil && self.state == kASMapViewNormal) {
+        self.state = kASMapViewDraggingCourseObject;
+        dragIndicatorLayer.hidden = YES;
+    }
+    
+    
+    if (self.state == kASMapViewDraggingCourseObject) {
+        // Invalidate the overprint for this object.
+        // Change the location of the dragged object.
+        // Invalidate the overprint for this object.
+        // (Move the dragIndicatorLayer to the new position.)
+    }
+    
+/*
     CATransform3D transform = tiledLayer.transform;
     CGRect r = CGRectMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds), fabs([theEvent deltaX]), fabs([theEvent deltaY]));
     r = [tiledLayer convertRect:r fromLayer:[self layer]];
@@ -267,22 +324,26 @@
         // It's hidden, but we do this anyway.
         [[self magnifyingGlass] setPosition:NSPointToCGPoint(p)];
     }
-    [CATransaction commit];
+    [CATransaction commit];*/
 
 }
 
 - (void)mouseUp:(NSEvent *)theEvent {
-    NSPoint p = [theEvent locationInWindow];
-    p = [self convertPoint:p fromView:nil];
-
-    if (self.state == kASMapViewNormal || dragged == YES) return;
-
-    p = NSPointFromCGPoint([tiledLayer convertPoint:NSPointToCGPoint(p) fromLayer:[self layer]]);
+    NSLog(@"up");
+    NSPoint eventLocationInView = [self convertPoint:[theEvent locationInWindow] fromView:nil];
 
     // Tell the overprint provider that a new control should be added at that position. Supply the symbol number from the map provider.
     //
     enum ASCourseObjectType addingType;
     switch (self.state) {
+        case kASMapViewNormal:
+            return;
+            break;
+        case kASMapViewDraggingCourseObject:
+            self.state = kASMapViewNormal;
+            [self updateTrackingAreas];
+            return;
+            break;
         case kASMapViewAddControls:
             addingType = kASCourseObjectControl;
             break;
@@ -297,10 +358,10 @@
             break;
     };
     
-    
+    NSPoint p = NSPointFromCGPoint([tiledLayer convertPoint:NSPointToCGPoint(eventLocationInView) fromLayer:[self layer]]);
     NSInteger i = [self.mapProvider symbolNumberAtPosition:p];
 
-    [self.courseDelegate addCourseObject:addingType atLocation:p symbolNumber:i];
+    [self.courseDataSource addCourseObject:addingType atLocation:p symbolNumber:i];
     [overprintLayer setNeedsDisplay];
     [innerMagnifyingGlassLayer setNeedsDisplay];
 }
@@ -422,10 +483,12 @@
     state = s2;
     CGMutablePathRef path = NULL;
     
-    if (state == kASMapViewNormal) {
-        self.showMagnifyingGlass = NO;
+    if (state == kASMapViewNormal || state == kASMapViewDraggingCourseObject) {
+        if (self.showMagnifyingGlass == YES)
+            self.showMagnifyingGlass = NO;
     } else {
-        self.showMagnifyingGlass = YES;
+        if (self.showMagnifyingGlass == NO)
+            self.showMagnifyingGlass = YES;
     }
 
     CGPoint middle = CGPointMake(90.0, 90.0);
