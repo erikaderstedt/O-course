@@ -64,7 +64,7 @@
             return nil;
         } else {
             if (rowIndex - 1 < [[self.courses arrangedObjects] count]) {
-                return [[[self.courses arrangedObjects] objectAtIndex:(rowIndex - 1)] valueForKey:@"length"];
+                return [[self.courses arrangedObjects][(rowIndex - 1)] valueForKey:@"length"];
             }
             return nil;
         }
@@ -76,7 +76,7 @@
             return @([[self managedObjectContext] countForFetchRequest:request error:nil]);
         } else {
             if (rowIndex - 1 < [[self.courses arrangedObjects] count]) {
-                NSManagedObject *thisCourse = [[self.courses arrangedObjects] objectAtIndex:(rowIndex - 1)];
+                NSManagedObject *thisCourse = [self.courses arrangedObjects][(rowIndex - 1)];
                 return @([[[[thisCourse valueForKey:@"controls"] allObjects] filteredArrayUsingPredicate:controlsOnly] count]);
             }
             return nil;
@@ -86,7 +86,7 @@
             return NSLocalizedString(@"<all objects>", nil);
         } else {
             if (rowIndex - 1 < [[self.courses arrangedObjects] count]) {
-                return [[[self.courses arrangedObjects] objectAtIndex:(rowIndex - 1)] valueForKey:@"name"];
+                return [[self.courses arrangedObjects][(rowIndex - 1)] valueForKey:@"name"];
             }
             return nil;
         }
@@ -97,7 +97,7 @@
 - (void)tableView:(NSTableView *)aTableView setObjectValue:(id)anObject forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
     if ([[aTableColumn identifier] isEqualToString:@"course"]) {
         if (rowIndex > 0 && (rowIndex - 1 < [[self.courses arrangedObjects] count])) {
-            [[[self.courses arrangedObjects] objectAtIndex:(rowIndex - 1)] setValue:anObject forKey:@"name"];
+            [[self.courses arrangedObjects][(rowIndex - 1)] setValue:anObject forKey:@"name"];
         }
     }
 }
@@ -126,7 +126,7 @@
 
 - (NSManagedObject *)selectedCourse {
     if ([[self.courses selectedObjects] count]) {
-        NSManagedObject *course = [[self.courses arrangedObjects] objectAtIndex:0];
+        NSManagedObject *course = [self.courses arrangedObjects][0];
         return course;
     }
     return nil;
@@ -160,7 +160,7 @@
 // to <ASControlDescriptionItem>
 - (NSEnumerator *)courseObjectEnumerator {
     if ([[self.courses selectedObjects] count]) {
-        NSManagedObject *course = [[self.courses arrangedObjects] objectAtIndex:0];
+        NSManagedObject *course = [self.courses arrangedObjects][0];
         return [[course valueForKey:@"controls"] objectEnumerator];
     }
 
@@ -177,7 +177,7 @@
     if (![[self.courses selectedObjects] count]) {
         return [@[] objectEnumerator];
     }
-    NSManagedObject *course = [[self.courses arrangedObjects] objectAtIndex:0];
+    NSManagedObject *course = [self.courses arrangedObjects][0];
     
     NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"CourseObject"];
     [fr setSortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"type" ascending:YES],
@@ -302,7 +302,7 @@
 - (IBAction)duplicateCourse:(id)sender {
     NSArray *s = [self.courses selectedObjects];
     if ([s count] == 1) {
-        NSManagedObject *orign = [s objectAtIndex:0];
+        NSManagedObject *orign = s[0];
         NSManagedObject *dup = [NSEntityDescription insertNewObjectForEntityForName:@"Course" inManagedObjectContext:self.managedObjectContext];
         [dup setValue:[orign valueForKey:@"name"] forKey:@"name"];
         [dup setValue:[orign valueForKey:@"length"] forKey:@"length"];

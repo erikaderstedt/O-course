@@ -81,8 +81,8 @@
     CGFloat angle = 0.0;
 
     if (courseObjectInfo != nil || secondCourseObjectInfo != nil) {
-        CGPoint p1 = NSPointToCGPoint([[courseObjectInfo objectForKey:@"position"] pointValue]);
-        CGPoint p2 = NSPointToCGPoint([[secondCourseObjectInfo objectForKey:@"position"] pointValue]);
+        CGPoint p1 = NSPointToCGPoint([courseObjectInfo[@"position"] pointValue]);
+        CGPoint p2 = NSPointToCGPoint([secondCourseObjectInfo[@"position"] pointValue]);
         angle = atan2( p2.y-p1.y,p2.x-p1.x);
     }
     return angle;
@@ -92,11 +92,11 @@
     NSDictionary *start = nil, *firstControlAfter = nil;
     
     for (NSDictionary *courseObjectInfo in cache) {
-        enum ASCourseObjectType type = (enum ASCourseObjectType)[[courseObjectInfo objectForKey:@"type"] integerValue];
-        if (start == nil && type == kASCourseObjectStart && [[courseObjectInfo objectForKey:@"in_course"] boolValue]) {
+        enum ASCourseObjectType type = (enum ASCourseObjectType)[courseObjectInfo[@"type"] integerValue];
+        if (start == nil && type == kASCourseObjectStart && [courseObjectInfo[@"in_course"] boolValue]) {
             start = courseObjectInfo;
         }
-        if (start != nil && type == kASCourseObjectControl && [[courseObjectInfo objectForKey:@"in_course"] boolValue]) {
+        if (start != nil && type == kASCourseObjectControl && [courseObjectInfo[@"in_course"] boolValue]) {
             firstControlAfter = courseObjectInfo;
             break;
         }
@@ -125,9 +125,9 @@
     
     for (NSDictionary *courseObjectInfo in cacheCopy) {
 
-        enum ASCourseObjectType type = (enum ASCourseObjectType)[[courseObjectInfo objectForKey:@"type"] integerValue];
-        CGPoint p = NSPointToCGPoint([[courseObjectInfo objectForKey:@"position"] pointValue]);
-        BOOL inCourse = [[courseObjectInfo objectForKey:@"in_course"] boolValue];
+        enum ASCourseObjectType type = (enum ASCourseObjectType)[courseObjectInfo[@"type"] integerValue];
+        CGPoint p = NSPointToCGPoint([courseObjectInfo[@"position"] pointValue]);
+        BOOL inCourse = [courseObjectInfo[@"in_course"] boolValue];
         CGContextSetStrokeColorWithColor(ctx, (inCourse?[self overprintColor]:[self transparentOverprintColor]));
         
         CGRect r;
@@ -178,11 +178,11 @@
         
         if (drawConnectingLines && inCourse) {
             if (previousCourseObject) {
-                enum ASCourseObjectType otype = (enum ASCourseObjectType)[[previousCourseObject objectForKey:@"type"] integerValue];
+                enum ASCourseObjectType otype = (enum ASCourseObjectType)[previousCourseObject[@"type"] integerValue];
                 angle = [[self class] angleBetweenCourseObjectInfos:previousCourseObject and:courseObjectInfo];
                 CGFloat startSize = 0.5*((otype == kASCourseObjectControl)?600.0:(700.0/cos(M_PI/6)));
                 CGFloat endSize = 0.5*((type == kASCourseObjectControl)?600.0:(700.0/cos(M_PI/6)));
-                CGPoint op = NSPointToCGPoint([[previousCourseObject objectForKey:@"position"] pointValue]);
+                CGPoint op = NSPointToCGPoint([previousCourseObject[@"position"] pointValue]);
                 CGPoint startPoint = CGPointMake(op.x + cos(angle)*startSize, op.y + sin(angle)*startSize);
                 CGPoint endPoint = CGPointMake(p.x + cos(angle+M_PI)*endSize, p.y + sin(angle+M_PI)*endSize);
                 CGContextBeginPath(ctx);

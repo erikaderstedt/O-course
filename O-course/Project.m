@@ -21,7 +21,7 @@
     if ([projects count] != 1) {
         return nil;
     }
-    return [projects objectAtIndex:0];
+    return projects[0];
 }
 
 - (BOOL)setMapURL:(NSURL *)url error:(NSError **)error {

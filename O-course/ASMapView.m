@@ -128,6 +128,9 @@
 
 - (void)updateTrackingAreas {
 	[super updateTrackingAreas];
+    
+    // Handle the glass tracking area, which is to get mouseMoved messages for
+    // the magnifying glass.
 	[self removeTrackingArea:glassTrackingArea];
 	if (self.showMagnifyingGlass) {
 		if (glassTrackingArea != nil) {
@@ -144,6 +147,9 @@
 			glassTrackingArea = nil;
 		}
 	}
+    
+    // Now add tracking areas for each course object.
+
 }
 
 - (IBAction)toggleMagnifyingGlass:(id)sender {
@@ -484,7 +490,8 @@ static CGFloat randomFloat()
     [self setNeedsDisplay:YES];
     
     // Update tracking areas.
-    
+    [self updateTrackingAreas];
 }
+
 
 @end

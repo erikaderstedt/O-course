@@ -27,13 +27,13 @@
         input_string = rawBuffer;
     }
     
-    NSString *string = [NSString stringWithCString:input_string encoding:NSASCIIStringEncoding];
+    NSString *string = @(input_string);
 
     // Load the font name and size.
     CGFloat conversionFactor = (2.54/72.0)*100.0;
     rawBuffer = text->fontname;
     rawBuffer[text->fontnamelength] = 0;
-    NSString *fontName = [NSString stringWithCString:rawBuffer encoding:NSASCIIStringEncoding];
+    NSString *fontName = @(rawBuffer);
 
     // Die, Arial, die!
     if ([fontName isEqualToString:@"Arial"]) {
@@ -231,22 +231,22 @@
     
     NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity:3];
     if (frame != NULL) {
-        [d setObject:(id)frame forKey:@"frame"];
+        d[@"frame"] = (id)frame;
         CFRelease(frame);
     }
-    [d setObject:(id)p forKey:@"path"];
+    d[@"path"] = (id)p;
     CGPathRelease(p);
     
     if (e->angle != 0 && e->angle != 3600) {
-        [d setObject:[NSNumber numberWithDouble:((CGFloat)e->angle)/10.0] forKey:@"angle"];
+        d[@"angle"] = @(((CGFloat)e->angle)/10.0);
 
-        [d setObject:[NSNumber numberWithInt:midx] forKey:@"midX"];
-        [d setObject:[NSNumber numberWithInt:midy] forKey:@"midY"];
+        d[@"midX"] = @(midx);
+        d[@"midY"] = @(midy);
     }
     if (e->symbol != NULL) {
-        [d setObject:[NSValue valueWithPointer:e] forKey:@"element"];
+        d[@"element"] = [NSValue valueWithPointer:e];
     }
-    [d setObject:[NSNumber numberWithInt:e->color] forKey:@"colornum"];
+    d[@"colornum"] = [NSNumber numberWithInt:e->color];
     
     return d;    
 }

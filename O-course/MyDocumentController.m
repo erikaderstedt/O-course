@@ -20,9 +20,9 @@
         NSError *e = nil;
         
         if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
-            e = [NSError errorWithDomain:NSCocoaErrorDomain code:1 userInfo:[NSDictionary dictionaryWithObject:NSLocalizedString(@"File not found.", nil) forKey:NSLocalizedDescriptionKey]];
+            e = [NSError errorWithDomain:NSCocoaErrorDomain code:1 userInfo:@{NSLocalizedDescriptionKey: NSLocalizedString(@"File not found.", nil)}];
         } else if (!supported_version([path cStringUsingEncoding:NSUTF8StringEncoding])) {
-            e = [NSError errorWithDomain:NSCocoaErrorDomain code:1 userInfo:[NSDictionary dictionaryWithObject:NSLocalizedString(@"Invalid OCAD version. Only versions 9 and 10 are supported.", nil) forKey:NSLocalizedDescriptionKey]];
+            e = [NSError errorWithDomain:NSCocoaErrorDomain code:1 userInfo:@{NSLocalizedDescriptionKey: NSLocalizedString(@"Invalid OCAD version. Only versions 9 and 10 are supported.", nil)}];
         }
         
         if (e != nil) {
@@ -92,7 +92,7 @@
 
 + (NSOpenPanel *)openPanelForBackgroundMap {
     NSOpenPanel *op = [NSOpenPanel openPanel];
-    [op setAllowedFileTypes:[NSArray arrayWithObjects:@"pdf",@"ocd", @"tiff",@"jpg",@"jpeg",@"gif",@"tif", nil]];
+    [op setAllowedFileTypes:@[@"pdf",@"ocd", @"tiff",@"jpg",@"jpeg",@"gif",@"tif"]];
     [op setAllowsOtherFileTypes:YES];
     [op setAllowsMultipleSelection:NO];
     [op setTitle:NSLocalizedString(@"Select a background map", nil)];

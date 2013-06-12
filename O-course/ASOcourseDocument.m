@@ -109,7 +109,7 @@ out_error:
     for (ASOcourseDocument *doc in [[NSDocumentController sharedDocumentController] documents]) {
         if ([doc managedObjectContext] == context) {
             if ([[doc windowControllers] count] > 0)
-                return [[[doc windowControllers] objectAtIndex:0] window];
+                return [[doc windowControllers][0] window];
             return nil;
         }
     }
@@ -255,8 +255,8 @@ out_error:
 - (NSURL *)temporaryStoreURL {
 	NSURL *u = nil;
     NSArray *stores = [[self persistentStoreCoordinator] persistentStores];
-    if ([stores count] != 0 && [[stores objectAtIndex:0] URL] != nil) {
-		u = [[stores objectAtIndex:0] URL];
+    if ([stores count] != 0 && [stores[0] URL] != nil) {
+		u = [stores[0] URL];
 	}
 	return u;
 }
@@ -365,12 +365,12 @@ out_error:
         if (success) {
             // Check that all keys exist and have the correct values
             NSMutableDictionary *md = [NSMutableDictionary dictionaryWithCapacity:3];
-            [md setObject:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"] forKey:(NSString *)kMDItemCreator];
-			[md setObject:@"1.0" forKey:@"O-course version"];
+            md[(NSString *)kMDItemCreator] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
+			md[@"O-course version"] = @"1.0";
             
             BOOL change = NO;
             for (NSString *key in [md allKeys]) {
-                if (![[metadata objectForKey:key] isEqual:[md objectForKey:key]]) {
+                if (![metadata[key] isEqual:md[key]]) {
                     change = YES;
                 }
             }

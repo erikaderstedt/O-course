@@ -42,7 +42,7 @@
 }
 
 - (NSArray *)supportedValuesForColumn:(enum ASControlDescriptionColumn)column {
-    NSArray *values = [NSArray array];
+    NSArray *values = @[];
     switch (column) {
         case kASWhichOfAnySimilarFeature:
             values =  @[@(kASFeatureNotSpecified), @(kASFeatureNorth),

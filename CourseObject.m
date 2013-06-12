@@ -52,8 +52,8 @@
     
     [self setPrimitiveValue:[NSDate date] forKey:@"added"];
     if ([[[self entity] name] isEqualToString:@"Control"]) {
-        [self setPrimitiveValue:[NSNumber numberWithInt:kASFeatureNone] forKey:@"controlFeature"];
-        [self setPrimitiveValue:[NSNumber numberWithInt:kASFeatureNotSpecified] forKey:@"whichOfAnySimilarFeature"];
+        [self setPrimitiveValue:@(kASFeatureNone) forKey:@"controlFeature"];
+        [self setPrimitiveValue:@(kASFeatureNotSpecified) forKey:@"whichOfAnySimilarFeature"];
     }
 }
 
@@ -77,8 +77,8 @@
 }
 
 - (void)setPosition:(CGPoint)p {
-    [self setPrimitiveValue:[NSNumber numberWithDouble:p.x] forKey:@"position_x"];
-    [self setValue:[NSNumber numberWithDouble:p.y] forKey:@"position_y"];
+    [self setPrimitiveValue:@(p.x) forKey:@"position_x"];
+    [self setValue:@(p.y) forKey:@"position_y"];
 }
 
 - (NSInteger)controlNumber {

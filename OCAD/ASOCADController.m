@@ -254,7 +254,7 @@ static CGFloat colorData[170] = {
         if (ocdf->string_rec_types[i] != 8) continue;
 
         NSArray *a = [[NSString stringWithCString:ocdf->strings[i] encoding:NSISOLatin1StringEncoding] componentsSeparatedByString:@"\t"];
-        NSString *backgroundFileName = [a objectAtIndex:0];
+        NSString *backgroundFileName = a[0];
         if ([backgroundFileName rangeOfString:@"\\"].location != NSNotFound) {
             backgroundFileName = [[backgroundFileName componentsSeparatedByString:@"\\"] lastObject];
         } else {
@@ -269,7 +269,7 @@ static CGFloat colorData[170] = {
             NSMetadataQuery *query = [[NSMetadataQuery alloc] init];
             [query setDelegate:self];
             [query setPredicate:[NSPredicate predicateWithFormat:@"name == %@", backgroundFileName]];
-            [query setSearchScopes:[NSArray arrayWithObject:NSMetadataQueryUserHomeScope]];
+            [query setSearchScopes:@[NSMetadataQueryUserHomeScope]];
             [spotlightQueries addObject:query];
             [query release];
         } else {
@@ -278,7 +278,7 @@ static CGFloat colorData[170] = {
                 ASOCADController *map = [[ASOCADController alloc] initWithOCADFile:[basePath stringByAppendingPathComponent:backgroundFileName]];
                 if (map != nil) {
                     [map prepareCacheWithAreaTransform:self.areaColorTransform];
-                    [backgroundImage setObject:map forKey:@"mapProvider"];
+                    backgroundImage[@"mapProvider"] = map;
                     [map release];
                 } else {
                     continue;
@@ -286,7 +286,7 @@ static CGFloat colorData[170] = {
             } else {
                 ASGenericImageController *bg = [[ASGenericImageController alloc] initWithContentsOfFile:[basePath stringByAppendingPathComponent:backgroundFileName]];
                 if (bg != nil) {
-                    [backgroundImage setObject:bg forKey:@"mapProvider"];
+                    backgroundImage[@"mapProvider"] = bg;
                     [bg release];
                 }
                 continue;
@@ -425,7 +425,7 @@ static CGFloat colorData[170] = {
  
     i = NSNotFound;
     for (NSDictionary *background in backgroundImages) {
-        id <ASMapProvider> map = [background objectForKey:@"mapProvider"];
+        id <ASMapProvider> map = background[@"mapProvider"];
         i = [map symbolNumberAtPosition:p];
         if (i != NSNotFound) return i;
     }
@@ -455,11 +455,11 @@ static CGFloat colorData[170] = {
 			case ocad_line_object:
 				a = [self cachedDrawingInfoForLineObject:e];
                 if ([a count] == 2) {
-                    NSDictionary *mainLine = [a objectAtIndex:1];
+                    NSDictionary *mainLine = a[1];
                     [objects addObject:mainLine];
                 }
 				if ([a count] > 0) {
-                    b = [a objectAtIndex:0];
+                    b = a[0];
                     for (NSDictionary *linePart in b) {
                         [objects addObject:linePart];
                     }
@@ -537,20 +537,20 @@ static CGFloat colorData[170] = {
     for (NSInvocationOperation *op in invocations) { 
         NSArray *items= [op result];
         for (NSDictionary *item in items) {
-            cachedDrawingInfo[j].fillColor = (CGColorRef)[item objectForKey:@"fillColor"];
-            cachedDrawingInfo[j].secondaryFillColor = (CGColorRef)[item objectForKey:@"2ndFillColor"];
+            cachedDrawingInfo[j].fillColor = (CGColorRef)item[@"fillColor"];
+            cachedDrawingInfo[j].secondaryFillColor = (CGColorRef)item[@"2ndFillColor"];
            
-            if ([item objectForKey:@"fillMode"]) {
-                cachedDrawingInfo[j].fillMode = (enum CGPathDrawingMode)[[item objectForKey:@"fillMode"] intValue];
+            if (item[@"fillMode"]) {
+                cachedDrawingInfo[j].fillMode = (enum CGPathDrawingMode)[item[@"fillMode"] intValue];
             } else {
                 cachedDrawingInfo[j].fillMode = kCGPathFill;
             }
-            cachedDrawingInfo[j].path = (CGPathRef)[item objectForKey:@"path"];
-            cachedDrawingInfo[j].frame  =(CTFrameRef)[item objectForKey:@"frame"];
-            cachedDrawingInfo[j].angle = [[item objectForKey:@"angle"] doubleValue];
-            cachedDrawingInfo[j].midpoint = CGPointMake([[item objectForKey:@"midX"] doubleValue], [[item objectForKey:@"midY"] doubleValue]);
-            cachedDrawingInfo[j].element = [[item objectForKey:@"element"] pointerValue];
-            cachedDrawingInfo[j].colornum = [[item objectForKey:@"colornum"] intValue];
+            cachedDrawingInfo[j].path = (CGPathRef)item[@"path"];
+            cachedDrawingInfo[j].frame  =(CTFrameRef)item[@"frame"];
+            cachedDrawingInfo[j].angle = [item[@"angle"] doubleValue];
+            cachedDrawingInfo[j].midpoint = CGPointMake([item[@"midX"] doubleValue], [item[@"midY"] doubleValue]);
+            cachedDrawingInfo[j].element = [item[@"element"] pointerValue];
+            cachedDrawingInfo[j].colornum = [item[@"colornum"] intValue];
 
             if (cachedDrawingInfo[j].path != NULL) CGPathRetain(cachedDrawingInfo[j].path);
             if (cachedDrawingInfo[j].fillColor != NULL) CGColorRetain(cachedDrawingInfo[j].fillColor);
@@ -607,7 +607,7 @@ static CGFloat colorData[170] = {
 - (NSArray *)cachedDrawingInfoForPointObject:(struct ocad_element *)e {
     struct ocad_point_symbol *point = (struct ocad_point_symbol *)(e->symbol);
     
-    if (point == NULL || point->status == 2) return [NSArray array];
+    if (point == NULL || point->status == 2) return @[];
     
     
     float angle = 0.0;
@@ -642,15 +642,15 @@ static CGFloat colorData[170] = {
     
     if (rect->line_width != 0) {
         CGPathRef strokedPath = CGPathCreateCopyByStrokingPath(p, NULL, rect->line_width, kCGLineCapButt, kCGLineJoinBevel, 0.5*((float)rect->line_width));
-        d = [NSDictionary dictionaryWithObjectsAndKeys:(id)color,@"fillColor", strokedPath, @"path",
-             [NSValue valueWithPointer:e], @"element", 
-             [NSNumber numberWithInt:e->color], @"colornum", nil];
+        d = @{@"fillColor": (id)color, (id)@"path": (id)strokedPath,
+             @"element": [NSValue valueWithPointer:e], 
+             @"colornum": [NSNumber numberWithInt:e->color]};
         CGPathRelease(strokedPath);
     } else {
-		d = [NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", 
-             p, @"path", 
-             [NSValue valueWithPointer:e], @"element",
-             [NSNumber numberWithInt:e->color], @"colornum", nil];
+		d = @{@"fillColor": (id)color, 
+             (id)@"path": (id)p, 
+             @"element": [NSValue valueWithPointer:e],
+             @"colornum": [NSNumber numberWithInt:e->color]};
 	}
 	CGPathRelease(p);
 	
@@ -684,10 +684,9 @@ static CGFloat colorData[170] = {
                 }
                 CGPathRef strokedPath = CGPathCreateCopyByStrokingPath(path, NULL, se->line_width, kCGLineCapButt, kCGLineJoinBevel, 0.5*((float)se->line_width));
 				
-                [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", strokedPath, @"path",
-                                  [NSValue valueWithPointer:element], @"element",
-                                  [NSNumber numberWithInt:se->color], @"colornum",
-                                  nil]];
+                [cache addObject:@{@"fillColor": (id)color, (id)@"path": (id)strokedPath,
+                                  @"element": [NSValue valueWithPointer:element],
+                                  @"colornum": [NSNumber numberWithInt:se->color]}];
                 CGPathRelease(strokedPath);
                 break;
             case 2: /* Area */
@@ -702,22 +701,22 @@ static CGFloat colorData[170] = {
                     }
                 }
 				CGPathCloseSubpath(path);
-                [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", path, @"path",
-                                  [NSNumber numberWithInt:se->color], @"colornum",
-                                  [NSValue valueWithPointer:element], @"element", nil]];
+                [cache addObject:@{@"fillColor": (id)color, (id)@"path": (id)path,
+                                  @"colornum": [NSNumber numberWithInt:se->color],
+                                  @"element": [NSValue valueWithPointer:element]}];
                 break;
             case 3:
             case 4: /* Dot. */
 				CGPathAddEllipseInRect(path, &at, CGRectMake(-(se->diameter / 2) + (se->points[0].x >> 8), -(se->diameter / 2) + (se->points[0].y >> 8), se->diameter, se->diameter));
                 if (se->symbol_type == 3) {
                     CGPathRef strokedPath = CGPathCreateCopyByStrokingPath(path, NULL, se->line_width, kCGLineCapButt, kCGLineJoinBevel, 0.5*((float)se->line_width));
-					[cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", strokedPath, @"path",
-                                      [NSNumber numberWithInt:se->color], @"colornum",
-                                      [NSValue valueWithPointer:element], @"element",nil]];
+					[cache addObject:@{@"fillColor": (id)color, (id)@"path": (id)strokedPath,
+                                      @"colornum": [NSNumber numberWithInt:se->color],
+                                      @"element": [NSValue valueWithPointer:element]}];
                 } else {
-                    [cache addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)color, @"fillColor", path, @"path",
-                                      [NSNumber numberWithInt:se->color], @"colornum",
-                                      [NSValue valueWithPointer:element], @"element", nil]];
+                    [cache addObject:@{@"fillColor": (id)color, (id)@"path": (id)path,
+                                      @"colornum": [NSNumber numberWithInt:se->color],
+                                      @"element": [NSValue valueWithPointer:element]}];
                 }
                 break;
             default:
@@ -751,7 +750,7 @@ static CGFloat colorData[170] = {
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx useSecondaryTransform:(BOOL)useSecondaryTransform {
 
     for (NSDictionary *background in backgroundImages) {
-        id <ASMapProvider> map = [background objectForKey:@"mapProvider"];
+        id <ASMapProvider> map = background[@"mapProvider"];
         [map drawLayer:layer inContext:ctx];
     }
     CGContextSetTextDrawingMode(ctx, kCGTextFill);

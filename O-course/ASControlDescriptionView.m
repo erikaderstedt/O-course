@@ -81,9 +81,9 @@
     overprintColor = [newColor retain];
     [oldOverprint release];
     
-    [boldAttributes setObject:overprintColor forKey:NSForegroundColorAttributeName];
-    [regularAttributes setObject:overprintColor forKey:NSForegroundColorAttributeName];
-    [dimensionsAttributes setObject:overprintColor forKey:NSForegroundColorAttributeName];
+    boldAttributes[NSForegroundColorAttributeName] = overprintColor;
+    regularAttributes[NSForegroundColorAttributeName] = overprintColor;
+    dimensionsAttributes[NSForegroundColorAttributeName] = overprintColor;
     
     [self setNeedsDisplay:YES];
 }

@@ -102,7 +102,7 @@
 
 - (void)mouseDown:(NSEvent *)theEvent {
     if (activeTrackingArea != nil && [activeTrackingArea userInfo]) {
-        NSNumber *v = [[activeTrackingArea userInfo] objectForKey:@"value"];
+        NSNumber *v = [activeTrackingArea userInfo][@"value"];
         [self.dataSource setValue:v forColumn:self.column];
     }
 }
@@ -165,7 +165,7 @@
         NSString *string = nil;
         
         if (activeTrackingArea != nil && [activeTrackingArea userInfo]) {
-            string = [self.dataSource localizedNameForValue:[[[activeTrackingArea userInfo] objectForKey:@"value"] intValue] inColumn:self.column];
+            string = [self.dataSource localizedNameForValue:[[activeTrackingArea userInfo][@"value"] intValue] inColumn:self.column];
         }
                       
         [string drawWithRect:stringRect options:NSStringDrawingUsesLineFragmentOrigin attributes:textAttributes];

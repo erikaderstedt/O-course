@@ -44,37 +44,33 @@
 
     if (area->fill_enabled) {
         CGColorRef fillColor = [self colorWithNumber:area->fill_color];
-        [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)fillColor, @"fillColor", p, @"path", 
-                           [NSNumber numberWithInt:kCGPathEOFill], @"fillMode",
-                           [NSNumber numberWithInt:area->fill_color], @"colornum",
-                           [NSValue valueWithPointer:e],@"element",
-
-                           nil]];
+        [result addObject:@{@"fillColor": (id)fillColor, (id)@"path": (id)p, 
+                           @"fillMode": @(kCGPathEOFill),
+                           @"colornum": [NSNumber numberWithInt:area->fill_color],
+                           @"element": [NSValue valueWithPointer:e]}];
     }
     
     if (area->hatch_mode > 0) {
-        [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:[hatchColors objectForKey:[NSNumber numberWithInt:area->symnum]], @"fillColor", 
-                           [NSNumber numberWithInt:kCGPathEOFill], @"fillMode",
-                           [NSNumber numberWithInt:area->hatch_color], @"colornum",
-                           p, @"path", [NSValue valueWithPointer:e],@"element",
-                           [transformedHatchColors objectForKey:@(area->symnum)], @"2ndFillColor", nil]];
+        [result addObject:@{@"fillColor": hatchColors[[NSNumber numberWithInt:area->symnum]], 
+                           @"fillMode": @(kCGPathEOFill),
+                           @"colornum": [NSNumber numberWithInt:area->hatch_color],
+                           (id)@"path": (id)p, @"element": [NSValue valueWithPointer:e],
+                           @"2ndFillColor": transformedHatchColors[@(area->symnum)]}];
         if (area->hatch_mode == 2) {
-            [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:[secondaryHatchColors objectForKey:[NSNumber numberWithInt:area->symnum]], @"fillColor",
-                               [NSNumber numberWithInt:kCGPathEOFill], @"fillMode",
-                               [NSNumber numberWithInt:area->hatch_color], @"colornum",
-                               p, @"path", [NSValue valueWithPointer:e],@"element",
-                                                          [transformedSecondaryHatchColors objectForKey:@(area->symnum)], @"2ndFillColor",
-                               nil]];
+            [result addObject:@{@"fillColor": secondaryHatchColors[[NSNumber numberWithInt:area->symnum]],
+                               @"fillMode": @(kCGPathEOFill),
+                               @"colornum": [NSNumber numberWithInt:area->hatch_color],
+                               (id)@"path": (id)p, @"element": [NSValue valueWithPointer:e],
+                                                          @"2ndFillColor": transformedSecondaryHatchColors[@(area->symnum)]}];
         }
     }
 
     if (area->structure_mode != 0) {
-        [result addObject:[NSDictionary dictionaryWithObjectsAndKeys:[structureColors objectForKey:[NSNumber numberWithInt:area->symnum]], @"fillColor", 
-                           [NSNumber numberWithInt:kCGPathEOFill], @"fillMode",
-                           [NSNumber numberWithInt:((struct ocad_symbol_element *)area->coords)->color], @"colornum",
-                           p, @"path", [NSValue valueWithPointer:e],@"element",
-                                                      [transformedStructureColors objectForKey:@(area->symnum)], @"2ndFillColor",
-                           nil]];
+        [result addObject:@{@"fillColor": structureColors[[NSNumber numberWithInt:area->symnum]], 
+                           @"fillMode": @(kCGPathEOFill),
+                           @"colornum": [NSNumber numberWithInt:((struct ocad_symbol_element *)area->coords)->color],
+                           (id)@"path": (id)p, @"element": [NSValue valueWithPointer:e],
+                                                      @"2ndFillColor": transformedStructureColors[@(area->symnum)]}];
     }
     
     CGPathRelease(p);
@@ -111,7 +107,7 @@
 
 - (void)assignColors:(NSArray *)scolors toDictionaries:(NSArray *)dicts withSymbolNumber:(NSInteger)num {
     for (int i = 0; i < 2; i++) {
-        [dicts[i] setObject:scolors[i] forKey:@(num)];
+        (dicts[i])[@(num)] = scolors[i];
     }
 }
 

@@ -79,8 +79,8 @@
     if (activeTrackingArea != nil) {
         NSDictionary *userInfo = [activeTrackingArea userInfo];
         if (userInfo) {
-            self.selectionView.column = (enum ASControlDescriptionColumn)[[userInfo objectForKey:@"column"] intValue];
-            self.activeObject = [userInfo objectForKey:@"object"];
+            self.selectionView.column = (enum ASControlDescriptionColumn)[userInfo[@"column"] intValue];
+            self.activeObject = userInfo[@"object"];
         } else {
             self.selectionView.column = kASAllColumns;
         }

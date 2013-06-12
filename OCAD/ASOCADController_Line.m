@@ -35,7 +35,7 @@
     if (e->nCoordinates == 0 || 
        // Höjder av hjälpkurvor, 103001, har status == 2. (line != NULL && line->status == 2 /* Hidden */) ||
         (line != NULL && line->selected == 512 /* Also hidden ? */)) {
-        return [NSArray array];
+        return @[];
     }
     
     CGLineCap capStyle = kCGLineCapButt;
@@ -81,24 +81,24 @@
         
         if (line->dbl_flags > 0) {
             CGPathRef strokedRoad = CGPathCreateCopyByStrokingPath(road, NULL, (float)line->dbl_width, capStyle, joinStyle, 0.5*((float)line->dbl_width));
-            roadCache = [NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_fill_color], @"fillColor", 
-                         [NSNumber numberWithInt:line->dbl_fill_color],@"colornum",
-                         [NSValue valueWithPointer:e], @"element",
-                         strokedRoad, @"path", nil];
+            roadCache = @{@"fillColor": (id)[self colorWithNumber:line->dbl_fill_color], 
+                         @"colornum": [NSNumber numberWithInt:line->dbl_fill_color],
+                         @"element": [NSValue valueWithPointer:e],
+                         (id)@"path": (id)strokedRoad};
             CGPathRelease(strokedRoad);
         }
         CGPathRelease(road);
         CGPathRef strokedLeft = CGPathCreateCopyByStrokingPath(left, NULL, (float)line->dbl_left_width, capStyle, joinStyle, 0.5*((float)line->dbl_left_width));
         CGPathRef strokedRight = CGPathCreateCopyByStrokingPath(right, NULL, (float)line->dbl_right_width, capStyle, joinStyle, 0.5*((float)line->dbl_right_width));
         
-        [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_left_color], @"fillColor", 
-                               [NSNumber numberWithInt:line->dbl_left_color],@"colornum",
-                               [NSValue valueWithPointer:e], @"element",
-							   strokedLeft, @"path", nil]];
-        [cachedData addObject:[NSDictionary dictionaryWithObjectsAndKeys:(id)[self colorWithNumber:line->dbl_right_color], @"fillColor", 
-                               [NSNumber numberWithInt:line->dbl_right_color],@"colornum",
-                               [NSValue valueWithPointer:e], @"element",
-							   strokedRight, @"path", nil]]; 
+        [cachedData addObject:@{@"fillColor": (id)[self colorWithNumber:line->dbl_left_color], 
+                               @"colornum": [NSNumber numberWithInt:line->dbl_left_color],
+                               @"element": [NSValue valueWithPointer:e],
+							   (id)@"path": (id)strokedLeft}];
+        [cachedData addObject:@{@"fillColor": (id)[self colorWithNumber:line->dbl_right_color], 
+                               @"colornum": [NSNumber numberWithInt:line->dbl_right_color],
+                               @"element": [NSValue valueWithPointer:e],
+							   (id)@"path": (id)strokedRight}]; 
         CGPathRelease(strokedLeft);
         CGPathRelease(strokedRight);
         CGPathRelease(left);
@@ -186,13 +186,13 @@
         int colornum = (line != NULL)?line->line_color:e->color;
         float linewidth = (line != NULL)?line->line_width:e->linewidth;
         
-        [mainLine setObject:[NSNumber numberWithInt:colornum] forKey:@"colornum"];
-        [mainLine setObject:[NSNumber numberWithFloat:linewidth] forKey:@"width"];
-        [mainLine setObject:[NSValue valueWithPointer:e] forKey:@"element"];
+        mainLine[@"colornum"] = @(colornum);
+        mainLine[@"width"] = @(linewidth);
+        mainLine[@"element"] = [NSValue valueWithPointer:e];
             
         CGPathRef strokedPath = CGPathCreateCopyByStrokingPath(path, NULL, linewidth, capStyle, joinStyle, 0.5*linewidth);
-        [mainLine setObject:(id)strokedPath forKey:@"path"];
-        [mainLine setObject:(id)[self colorWithNumber:colornum] forKey:@"fillColor"];
+        mainLine[@"path"] = (id)strokedPath;
+        mainLine[@"fillColor"] = (id)[self colorWithNumber:colornum];
         [cachedData addObject:mainLine];
         CGPathRelease(path);
         CGPathRelease(strokedPath);
@@ -299,7 +299,7 @@
     [ct release];
 #endif
     
-    return [NSArray arrayWithObjects:cachedData, roadCache, nil];
+    return @[cachedData, roadCache];
     
 }
 
