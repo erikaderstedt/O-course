@@ -28,6 +28,7 @@
     }
     
     NSString *string = @(input_string);
+    if (string == nil) string = @"";
 
     // Load the font name and size.
     CGFloat conversionFactor = (2.54/72.0)*100.0;
