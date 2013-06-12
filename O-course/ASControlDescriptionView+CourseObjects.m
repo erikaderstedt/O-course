@@ -739,6 +739,7 @@
     NSArray *pathArray;
     if (nonfilled != NULL) {
         pathArray = @[(__bridge id)fillable, (__bridge id)nonfilled];
+        CGPathRelease(nonfilled);
     } else {
         pathArray = @[(__bridge id)fillable];
     }

@@ -684,6 +684,7 @@ static CGFloat colorData[170] = {
 					[cache addObject:@{@"fillColor": (__bridge id)color, @"path": (__bridge id)strokedPath,
                                       @"colornum": [NSNumber numberWithInt:se->color],
                                       @"element": [NSValue valueWithPointer:element]}];
+                    CGPathRelease(strokedPath);
                 } else {
                     [cache addObject:@{@"fillColor": (__bridge id)color, @"path": (__bridge id)path,
                                       @"colornum": [NSNumber numberWithInt:se->color],

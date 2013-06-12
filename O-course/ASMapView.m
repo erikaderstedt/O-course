@@ -233,6 +233,7 @@
             addingType = kASCourseObjectFinish;
             break;
         default:
+            return;
             break;
     };
     
@@ -292,7 +293,7 @@
     
     // If the magnifying glass is active, we can save its position in window coordinates, and then reset that same position in window coordinates
     // afterwards.
-    CGPoint magGlassPositionInWindow;
+    CGPoint magGlassPositionInWindow = CGPointMake(0.0, 0.0);
     if (self.showMagnifyingGlass) {
         magGlassPositionInWindow = [self convertPoint:NSPointFromCGPoint(self.magnifyingGlass.position) toView:nil];
     }
@@ -354,7 +355,9 @@
             tiledLayer = [CATiledLayer layer];
             tiledLayer.name = @"tiled";
             tiledLayer.needsDisplayOnBoundsChange = YES;
-            tiledLayer.backgroundColor = CGColorCreateGenericRGB(1.0, 1.0, 1.0, 1.0);
+            CGColorRef white = CGColorCreateGenericRGB(1.0, 1.0, 1.0, 1.0);
+            tiledLayer.backgroundColor = white;
+            CGColorRelease(white);
             tiledLayer.tileSize = CGSizeMake(512.0, 512.0);
             
             tiledLayer.levelsOfDetail = 7;
@@ -366,7 +369,9 @@
             overprintLayer = [CATiledLayer layer];
             overprintLayer.name = @"overprint";
             overprintLayer.needsDisplayOnBoundsChange = YES;
-            overprintLayer.backgroundColor = CGColorCreateGenericRGB(0.0, 0.0, 0.0, 0.0);
+            CGColorRef blackTransparent = CGColorCreateGenericRGB(0.0, 0.0, 0.0, 0.0);
+            overprintLayer.backgroundColor = blackTransparent;
+            CGColorRelease(blackTransparent);
             /*
              To use simulated overprint:
             overprintLayer.backgroundColor = CGColorCreateGenericRGB(1.0, 1.0, 1.0, 1.0);
