@@ -8,10 +8,15 @@
 
 #import <Foundation/Foundation.h>
 #import <QuartzCore/QuartzCore.h>
+#import "ASCourseObject.h"
 
 @protocol ASOverprintProvider <NSObject>
 
+- (CGRect)frameForCourseObject:(id <ASCourseObject>)object;
+- (CGSize)frameSizeForCourseObjectType:(enum ASCourseObjectType)type;
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx;
+- (void)updateOverprint;
+- (void)updateCourseObject:(id <ASCourseObject>)courseObject withNewPosition:(CGPoint)p inLayer:(CATiledLayer *)layer;
 
 @end
 

@@ -305,9 +305,10 @@
     
     if (self.state == kASMapViewDraggingCourseObject) {
         // Invalidate the overprint for this object.
-        // Change the location of the dragged object.
-        // Invalidate the overprint for this object.
-        // (Move the dragIndicatorLayer to the new position.)
+        
+        [self.overprintProvider updateCourseObject:self.draggedCourseObject
+                                   withNewPosition:[tiledLayer convertPoint:eventLocationInView fromLayer:[self layer]]
+                                           inLayer:overprintLayer];
     }
     
 /*

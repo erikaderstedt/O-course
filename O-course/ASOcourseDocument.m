@@ -181,7 +181,7 @@ out_error:
     [self.courseController setManagedObjectContext:[self managedObjectContext]];
     [self.courseController willAppear];
     
-    [self.overprintController updateCache];
+    [self.overprintController updateOverprint];
     mapView.overprintProvider = self.overprintController;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(undoOrRedo:) name:NSUndoManagerDidUndoChangeNotification object:[[self managedObjectContext] undoManager]];

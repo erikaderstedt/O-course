@@ -36,6 +36,5 @@
 @property (nonatomic,weak) IBOutlet ASOcourseDocument *document;
 
 - (CGColorRef)overprintColor;
-- (void)updateCache;
 
 @end

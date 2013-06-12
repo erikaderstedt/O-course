@@ -47,10 +47,11 @@
 }
 
 - (void)courseChanged:(NSNotification *)n {
-    [self performSelectorOnMainThread:@selector(updateCache) withObject:nil waitUntilDone:NO];
+    [self performSelectorOnMainThread:@selector(updateOverprint) withObject:nil waitUntilDone:NO];
 }
 
-- (void)updateCache {
+- (void)updateOverprint {
+
     NSAssert([NSThread isMainThread], @"Not the main thread.");
     @synchronized(self) {
         cacheArray = nil;
@@ -69,6 +70,30 @@
         cacheArray = ma;
     }
     [[NSNotificationCenter defaultCenter] postNotificationName:@"ASOverprintChanged" object:nil];
+}
+
+- (void)updateCourseObject:(id <ASCourseObject>)courseObject withNewPosition:(CGPoint)p inLayer:(CATiledLayer *)layer {
+    @synchronized(self) {
+        NSMutableArray *ma = [NSMutableArray arrayWithArray:cacheArray];
+        NSPoint p_orig = NSPointFromCGPoint([courseObject position]);
+        __block NSUInteger modifyIndex = NSNotFound;
+        [ma enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            NSDictionary *d = (NSDictionary *)obj;
+            NSPoint p_this = [[d objectForKey:@"position"] pointValue];
+            if (p_orig.x == p_this.x && p_orig.y == p_this.y) {
+                modifyIndex = idx;
+                *stop = YES;
+            }
+        }];
+        if (modifyIndex != NSNotFound) {
+            [layer setNeedsDisplayInRect:[self frameForCourseObject:courseObject]];
+            courseObject.position = p;
+            [ma replaceObjectAtIndex:modifyIndex withObject:@{ @"position":[NSValue valueWithPoint:NSPointFromCGPoint(p)],
+             @"type":@([courseObject courseObjectType]), @"in_course":[[ma objectAtIndex:modifyIndex] valueForKey:@"in_course"]}];
+            [layer setNeedsDisplayInRect:[self frameForCourseObject:courseObject]];
+            cacheArray = ma;
+        }
+    }
 }
 
 + (CGFloat)angleBetweenCourseObjectInfos:(NSDictionary *)courseObjectInfo and:(NSDictionary *)secondCourseObjectInfo {
@@ -96,6 +121,26 @@
         }
     }
     return [self angleBetweenCourseObjectInfos:start and:firstControlAfter];
+}
+
+- (CGRect)frameForCourseObject:(id <ASCourseObject>)object {
+    enum ASCourseObjectType type = [object courseObjectType];
+    if (type == kASCourseObjectControl || type == kASCourseObjectFinish ||
+        type == kASCourseObjectMandatoryCrossingPoint || type == kASCourseObjectMandatoryPassing) {
+        CGSize sz = [self frameSizeForCourseObjectType:type];
+        CGPoint p = [object position];
+        return CGRectIntegral(CGRectMake(p.x - sz.width*0.5, p.y - sz.height*0.5, sz.width, sz.height));
+    }
+    
+    NSAssert(NO, @"Unsupported course object type.");
+    return CGRectZero;
+}
+
+- (CGSize)frameSizeForCourseObjectType:(enum ASCourseObjectType)type {
+    if (type == kASCourseObjectStart) {
+        return CGSizeMake(700.0/cos(M_PI/6), 700.0/cos(M_PI/6));
+    }
+    return CGSizeMake(600.0, 600.0);
 }
 
 #pragma mark ASOverprintProvider
@@ -195,5 +240,6 @@
     }
     
 }
+
 
 @end
