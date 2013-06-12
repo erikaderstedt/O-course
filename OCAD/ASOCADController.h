@@ -14,6 +14,12 @@
 #import <CoreText/CoreText.h>
 #endif
 
+#if __has_feature(attribute_objc_ivar_unused)
+#define UNUSED_IVAR __attribute__((unused))
+#else
+#define UNUSED_IVAR
+#endif
+
 struct ocad_cache {
     CGRect      boundingBox;       // The path bounding box is cached because determining it is a fairly expensive operation.
     CGPathRef   path;              
@@ -40,7 +46,7 @@ struct ocad_cache {
     struct  ocad_cache **sortedCache;
     int     num_cached_objects;
 
-    NSString *ocd_path;
+    NSString *ocd_path UNUSED_IVAR;
     struct ocad_file *ocdf;
     
     struct LRect currentBox;
@@ -49,13 +55,13 @@ struct ocad_cache {
     CGColorRef blackColor;
     int *colorList;
     
-    NSMutableDictionary *structureColors;
-    NSMutableDictionary *hatchColors;
-    NSMutableDictionary *secondaryHatchColors;
+    NSMutableDictionary *structureColors UNUSED_IVAR;
+    NSMutableDictionary *hatchColors UNUSED_IVAR;
+    NSMutableDictionary *secondaryHatchColors UNUSED_IVAR;
 
-    NSMutableDictionary *transformedStructureColors;
-    NSMutableDictionary *transformedHatchColors;
-    NSMutableDictionary *transformedSecondaryHatchColors;
+    NSMutableDictionary *transformedStructureColors UNUSED_IVAR;
+    NSMutableDictionary *transformedHatchColors UNUSED_IVAR;
+    NSMutableDictionary *transformedSecondaryHatchColors UNUSED_IVAR;
 
     int         brown_start;
     int         brown_stop;

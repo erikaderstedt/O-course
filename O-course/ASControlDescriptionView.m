@@ -409,7 +409,7 @@
     [self getLineDash:dashes count:&numDashes phase:&phase];
     
     NSPoint points[3];
-    NSPoint currentPoint, nextPoint;
+    NSPoint currentPoint = CGPointMake(0.0, 0.0), nextPoint;
     CGFloat remainingDistanceOnCurrentDashIndex, f;
     NSInteger dashIndex;
     
