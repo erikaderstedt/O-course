@@ -30,7 +30,7 @@
     
     BOOL layoutNeedsUpdate;
 }
-@property (nonatomic,retain) IBOutlet id <ASCourseProvider> provider;
+@property (nonatomic,strong) IBOutlet id <ASCourseProvider> provider;
 
 - (void)setup;
 

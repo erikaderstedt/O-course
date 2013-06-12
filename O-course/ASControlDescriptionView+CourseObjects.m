@@ -18,7 +18,7 @@
 
 @implementation ASControlDescriptionView (CourseObjects)
 
-- (CFArrayRef)createPathsForColumn:(enum ASControlDescriptionColumn)column 
+- (NSArray *)createPathsForColumn:(enum ASControlDescriptionColumn)column
                          withValue:(NSNumber *)value 
                         atPosition:(CGPoint)p 
                           withSize:(CGFloat)sz {
@@ -178,7 +178,7 @@
 #define C_TRIPLE_LINE_SPACING 0.5
 #define C_MARK_DOT 0.2
 
-- (CFArrayRef)createPathsForWhichOfAnySimilarFeatureWithValue:(NSNumber *)value transform:(CGAffineTransform *)tran {
+- (NSArray *)createPathsForWhichOfAnySimilarFeatureWithValue:(NSNumber *)value transform:(CGAffineTransform *)tran {
     enum ASWhichOfAnySimilarFeature feature = (enum ASWhichOfAnySimilarFeature)[value intValue];
     CGMutablePathRef path = CGPathCreateMutable(), subpath = NULL;
     CGPathRef fillable;
@@ -274,21 +274,18 @@
     if (tran != NULL) lw /= tran->a;
     fillable = CGPathCreateCopyByStrokingPath(path, tran, lw, kCGLineCapButt, kCGLineJoinBevel, 0.0);
     CGPathRelease(path);
-    CFArrayRef pathArray;
+    NSArray *pathArray;
     if (subpath != NULL) {
-        CGPathRef paths[2] = {fillable, subpath};
-        pathArray = CFArrayCreate(NULL, (const void **)paths, 2, &kCFTypeArrayCallBacks);
-        CGPathRelease(subpath);
+        pathArray = @[(__bridge id)fillable, (__bridge id)subpath];
     } else {
-        CGPathRef paths[1] = {fillable};
-        pathArray = CFArrayCreate(NULL, (const void **)paths, 1, &kCFTypeArrayCallBacks);
+        pathArray = @[(__bridge id)fillable];
     }
     CGPathRelease(fillable);
     
     return pathArray;
 }
 
-- (CFArrayRef)createPathsForFeatureOrAppearance:(NSNumber *)value transform:(CGAffineTransform *)tran {
+- (NSArray *)createPathsForFeatureOrAppearance:(NSNumber *)value transform:(CGAffineTransform *)tran {
     enum ASFeature feature = (enum ASFeature)[value intValue];
     CGMutablePathRef path = CGPathCreateMutable(), nonfilled = NULL;
     CGPathRef fillable;
@@ -738,15 +735,12 @@
     if (tran != NULL) lw /= tran->a;
     fillable = CGPathCreateCopyByStrokingPath(path, tran, lw, kCGLineCapButt, kCGLineJoinBevel, 0.0);
     CGPathRelease(path);
-    CFArrayRef pathArray;
+    NSArray *pathArray;
     if (nonfilled != NULL) {
-        CGPathRef paths[2] = {fillable, nonfilled};
-        pathArray = CFArrayCreate(NULL, (const void **)paths, 2, &kCFTypeArrayCallBacks);
-        CGPathRelease(nonfilled);
+        pathArray = @[(__bridge id)fillable, (__bridge id)nonfilled];
     } else {
-        CGPathRef paths[1] = {fillable};
-        pathArray = CFArrayCreate(NULL, (const void **)paths, 1, &kCFTypeArrayCallBacks);
-    }    
+        pathArray = @[(__bridge id)fillable];
+    }
     CGPathRelease(fillable);
     
     return pathArray;

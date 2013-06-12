@@ -21,15 +21,9 @@
 @synthesize courseTable;
 @synthesize controlDescription;
 
-- (void)dealloc {
-    [managedObjectContext release];
-    [courses release];
-    
-    [super dealloc];
-}
 
 - (void)willAppear {
-    [courses addObserver:self forKeyPath:@"arrangedObjects" options:0 context:self];
+    [courses addObserver:self forKeyPath:@"arrangedObjects" options:0 context:(__bridge void *)(self)];
 }
 
 - (void)willDisappear {
@@ -40,7 +34,7 @@
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    if (context == self) {
+    if (context == (__bridge void *)(self)) {
         // Restock the table
         [self updateCoursePopup];
         [self.courseTable reloadData];

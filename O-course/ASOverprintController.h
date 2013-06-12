@@ -22,7 +22,7 @@
 
 @interface ASOverprintController : NSObject <ASOverprintProvider> {
     NSManagedObject *course;
-    ASOcourseDocument *document;
+    ASOcourseDocument *__weak document;
     
     CGColorRef _overprintColor;
     CGColorRef _transparentOverprintColor;
@@ -32,8 +32,8 @@
     
     BOOL drawConnectingLines;
 }
-@property (nonatomic,assign) IBOutlet id <ASCourseProvider> courseProvider;
-@property (nonatomic,assign) IBOutlet ASOcourseDocument *document;
+@property (nonatomic,unsafe_unretained) IBOutlet id <ASCourseProvider> courseProvider;
+@property (nonatomic,weak) IBOutlet ASOcourseDocument *document;
 
 - (CGColorRef)overprintColor;
 - (void)updateCache;

@@ -14,8 +14,8 @@
     NSTrackingArea *activeTrackingArea;
 }
 
-@property (nonatomic,assign) IBOutlet ASCourseObjectSelectionView *selectionView;
-@property (nonatomic,assign) IBOutlet NSPopover *popoverForCDEGH;
-@property (nonatomic,retain) id <ASEditableControlDescriptionItem> activeObject;
+@property (nonatomic,weak) IBOutlet ASCourseObjectSelectionView *selectionView;
+@property (nonatomic,weak) IBOutlet NSPopover *popoverForCDEGH;
+@property (nonatomic,strong) id <ASEditableControlDescriptionItem> activeObject;
 
 @end

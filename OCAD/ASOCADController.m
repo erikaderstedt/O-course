@@ -247,7 +247,6 @@ static CGFloat colorData[170] = {
     int i;
     
     backgroundImages = [[NSMutableArray alloc] initWithCapacity:5];
-    if (spotlightQueries != nil) [spotlightQueries release];
     spotlightQueries = [[NSMutableArray alloc] initWithCapacity:5];
     
     for (i = 0; i < ocdf->num_strings; i++) {
@@ -271,7 +270,6 @@ static CGFloat colorData[170] = {
             [query setPredicate:[NSPredicate predicateWithFormat:@"name == %@", backgroundFileName]];
             [query setSearchScopes:@[NSMetadataQueryUserHomeScope]];
             [spotlightQueries addObject:query];
-            [query release];
         } else {
             
             if ([[backgroundFileName pathExtension] isEqualToString:@"ocd"] ) {
@@ -279,7 +277,6 @@ static CGFloat colorData[170] = {
                 if (map != nil) {
                     [map prepareCacheWithAreaTransform:self.areaColorTransform];
                     backgroundImage[@"mapProvider"] = map;
-                    [map release];
                 } else {
                     continue;
                 }
@@ -287,7 +284,6 @@ static CGFloat colorData[170] = {
                 ASGenericImageController *bg = [[ASGenericImageController alloc] initWithContentsOfFile:[basePath stringByAppendingPathComponent:backgroundFileName]];
                 if (bg != nil) {
                     backgroundImage[@"mapProvider"] = bg;
-                    [bg release];
                 }
                 continue;
             }
@@ -325,19 +321,7 @@ static CGFloat colorData[170] = {
         [q stopQuery];
     }
 #endif
-#if ! __has_feature(objc_arc)
-    [spotlightQueries release];
-    [ocadFilePath release];
-    [structureColors release];
-    [hatchColors release];
-    [secondaryHatchColors release];
-    
-    [transformedStructureColors release];
-    [transformedHatchColors release];
-    [transformedSecondaryHatchColors release];
-    
-    [backgroundImages release];
-#endif
+
     if (colors != NULL) CFRelease(colors);
 
     if (cachedDrawingInfo != NULL) {
@@ -358,10 +342,6 @@ static CGFloat colorData[170] = {
     
     if (colorList != NULL) free(colorList);    
     if (blackColor != NULL) CGColorRelease(blackColor);
-	
-#if ! __has_feature(objc_arc)
-	[super dealloc];
-#endif
 }
 
 - (BOOL)supportsBrownImage {
@@ -423,7 +403,6 @@ static CGFloat colorData[170] = {
         return element->symnum / 1000;
     }
  
-    i = NSNotFound;
     for (NSDictionary *background in backgroundImages) {
         id <ASMapProvider> map = background[@"mapProvider"];
         i = [map symbolNumberAtPosition:p];
@@ -537,16 +516,16 @@ static CGFloat colorData[170] = {
     for (NSInvocationOperation *op in invocations) { 
         NSArray *items= [op result];
         for (NSDictionary *item in items) {
-            cachedDrawingInfo[j].fillColor = (CGColorRef)item[@"fillColor"];
-            cachedDrawingInfo[j].secondaryFillColor = (CGColorRef)item[@"2ndFillColor"];
+            cachedDrawingInfo[j].fillColor = (__bridge CGColorRef)item[@"fillColor"];
+            cachedDrawingInfo[j].secondaryFillColor = (__bridge CGColorRef)item[@"2ndFillColor"];
            
             if (item[@"fillMode"]) {
                 cachedDrawingInfo[j].fillMode = (enum CGPathDrawingMode)[item[@"fillMode"] intValue];
             } else {
                 cachedDrawingInfo[j].fillMode = kCGPathFill;
             }
-            cachedDrawingInfo[j].path = (CGPathRef)item[@"path"];
-            cachedDrawingInfo[j].frame  =(CTFrameRef)item[@"frame"];
+            cachedDrawingInfo[j].path = (__bridge CGPathRef)item[@"path"];
+            cachedDrawingInfo[j].frame  =(__bridge CTFrameRef)item[@"frame"];
             cachedDrawingInfo[j].angle = [item[@"angle"] doubleValue];
             cachedDrawingInfo[j].midpoint = CGPointMake([item[@"midX"] doubleValue], [item[@"midY"] doubleValue]);
             cachedDrawingInfo[j].element = [item[@"element"] pointerValue];
@@ -594,15 +573,7 @@ static CGFloat colorData[170] = {
         brown_stop = brown_start;
         while (brown_stop < num_cached_objects && sortedCache[brown_stop]->colornum == browncolor) brown_stop++;
     }
-    
-#if ! __has_feature(objc_arc)
-    for (NSInvocationOperation *op in invocations) {
-        [op release];
-    }
-    [queue release];
-#endif
 }
-
 
 - (NSArray *)cachedDrawingInfoForPointObject:(struct ocad_element *)e {
     struct ocad_point_symbol *point = (struct ocad_point_symbol *)(e->symbol);
@@ -642,13 +613,13 @@ static CGFloat colorData[170] = {
     
     if (rect->line_width != 0) {
         CGPathRef strokedPath = CGPathCreateCopyByStrokingPath(p, NULL, rect->line_width, kCGLineCapButt, kCGLineJoinBevel, 0.5*((float)rect->line_width));
-        d = @{@"fillColor": (id)color, (id)@"path": (id)strokedPath,
+        d = @{@"fillColor": (__bridge id)color, @"path": (__bridge id)strokedPath,
              @"element": [NSValue valueWithPointer:e], 
              @"colornum": [NSNumber numberWithInt:e->color]};
         CGPathRelease(strokedPath);
     } else {
-		d = @{@"fillColor": (id)color, 
-             (id)@"path": (id)p, 
+		d = @{@"fillColor": (__bridge id)color, 
+             (id)@"path": (__bridge id)p, 
              @"element": [NSValue valueWithPointer:e],
              @"colornum": [NSNumber numberWithInt:e->color]};
 	}
@@ -684,7 +655,7 @@ static CGFloat colorData[170] = {
                 }
                 CGPathRef strokedPath = CGPathCreateCopyByStrokingPath(path, NULL, se->line_width, kCGLineCapButt, kCGLineJoinBevel, 0.5*((float)se->line_width));
 				
-                [cache addObject:@{@"fillColor": (id)color, (id)@"path": (id)strokedPath,
+                [cache addObject:@{@"fillColor": (__bridge id)color, @"path": (__bridge id)strokedPath,
                                   @"element": [NSValue valueWithPointer:element],
                                   @"colornum": [NSNumber numberWithInt:se->color]}];
                 CGPathRelease(strokedPath);
@@ -701,7 +672,7 @@ static CGFloat colorData[170] = {
                     }
                 }
 				CGPathCloseSubpath(path);
-                [cache addObject:@{@"fillColor": (id)color, (id)@"path": (id)path,
+                [cache addObject:@{@"fillColor": (__bridge id)color, @"path": (__bridge id)path,
                                   @"colornum": [NSNumber numberWithInt:se->color],
                                   @"element": [NSValue valueWithPointer:element]}];
                 break;
@@ -710,11 +681,11 @@ static CGFloat colorData[170] = {
 				CGPathAddEllipseInRect(path, &at, CGRectMake(-(se->diameter / 2) + (se->points[0].x >> 8), -(se->diameter / 2) + (se->points[0].y >> 8), se->diameter, se->diameter));
                 if (se->symbol_type == 3) {
                     CGPathRef strokedPath = CGPathCreateCopyByStrokingPath(path, NULL, se->line_width, kCGLineCapButt, kCGLineJoinBevel, 0.5*((float)se->line_width));
-					[cache addObject:@{@"fillColor": (id)color, (id)@"path": (id)strokedPath,
+					[cache addObject:@{@"fillColor": (__bridge id)color, @"path": (__bridge id)strokedPath,
                                       @"colornum": [NSNumber numberWithInt:se->color],
                                       @"element": [NSValue valueWithPointer:element]}];
                 } else {
-                    [cache addObject:@{@"fillColor": (id)color, (id)@"path": (id)path,
+                    [cache addObject:@{@"fillColor": (__bridge id)color, @"path": (__bridge id)path,
                                       @"colornum": [NSNumber numberWithInt:se->color],
                                       @"element": [NSValue valueWithPointer:element]}];
                 }

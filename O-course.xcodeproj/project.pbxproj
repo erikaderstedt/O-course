@@ -143,7 +143,7 @@
 		03AAFEC21443874D008567E3 /* OCAD8Format.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = OCAD8Format.txt; sourceTree = "<group>"; };
 		03AAFEC31443874D008567E3 /* OCAD9Format.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = OCAD9Format.pdf; sourceTree = "<group>"; };
 		03AAFEC41443874D008567E3 /* OCAD9Format.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = OCAD9Format.txt; sourceTree = "<group>"; };
-		03B86EA31763AD0200C4A358 /* en */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = file; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		03B86EA31763AD0200C4A358 /* en */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		03B86EA51763AD3B00C4A358 /* sv */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
 		03B86EA61765376000C4A358 /* Control.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Control.png; sourceTree = "<group>"; };
 		03B86EA817653A2E00C4A358 /* Finish.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Finish.png; sourceTree = "<group>"; };
@@ -664,6 +664,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_ENTITLEMENTS = "O-course/O-course.entitlements";
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
@@ -684,6 +685,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_ENTITLEMENTS = "O-course/O-course.entitlements";
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
@@ -703,6 +705,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -727,6 +731,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";

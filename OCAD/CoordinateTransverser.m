@@ -94,7 +94,6 @@ CGPoint translatePoint(CGPoint p, float distance, float angle) {
     if (_rightPath != NULL) {
         CGPathRelease(_rightPath);
     }
-    [super dealloc];
 }
 
 - (void)reset {
@@ -307,7 +306,7 @@ CGPoint translatePoint(CGPoint p, float distance, float angle) {
 }
 
 - (CGPoint)advanceSegmentWhileStroking:(BOOL)stroke {
-    CGPoint p1, cp1, cp2;
+    CGPoint p1 = CGPointMake(0.0, 0.0), cp1, cp2;
     BOOL atNextCornerPoint = NO;
     
     // Assumes that the current point is at p0.
@@ -414,7 +413,7 @@ CGPoint translatePoint(CGPoint p, float distance, float angle) {
             p1 = [self coordinateAtIndex:currentIndex + 3];
             cp1 = [self coordinateAtIndex:currentIndex + 1];
             cp2 = [self coordinateAtIndex:currentIndex + 2];
-            CGPoint bp, p;
+            CGPoint bp = CGPointMake(0.0, 0.0), p;
             CGFloat stepDist;
             
             p = bezierCurvePoint(currentFraction, p0, cp1, cp2, p1);

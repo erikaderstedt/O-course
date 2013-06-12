@@ -9,7 +9,7 @@
 #import <CoreData/CoreData.h>
 
 @interface Project : NSManagedObject
-@property(nonatomic,retain) NSData *mapBookmark;
+@property(nonatomic,strong) NSData *mapBookmark;
 
 + (Project *)projectInManagedObjectContext:(NSManagedObjectContext *)moc;
 

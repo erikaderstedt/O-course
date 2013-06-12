@@ -165,7 +165,6 @@ out_error:
             ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:s];
             [o prepareCacheWithAreaTransform:CGAffineTransformIdentity secondaryTransform:CGAffineTransformMakeScale(0.15, 0.15)];
             mapView.mapProvider = o;
-            [o autorelease];
         } else {
             ASGenericImageController *i = [[ASGenericImageController alloc] initWithContentsOfFile:s];
             mapView.mapProvider = i;
@@ -211,9 +210,7 @@ out_error:
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [mapURL release];
     
-    [super dealloc];
 }
 
 - (IBAction)zoomIn:(id)sender {
@@ -280,7 +277,7 @@ out_error:
 - (NSManagedObjectModel *)managedObjectModel {
 	if (_model) return _model;
     
-    _model = [[NSManagedObjectModel mergedModelFromBundles:@[[NSBundle mainBundle]]] retain];
+    _model = [NSManagedObjectModel mergedModelFromBundles:@[[NSBundle mainBundle]]];
 	return _model;
 }
 
@@ -379,7 +376,6 @@ out_error:
                 NSMutableDictionary * mutableMetadata = [metadata mutableCopy];
                 [mutableMetadata addEntriesFromDictionary:md];
                 success = [NSPersistentStoreCoordinator setMetadata:mutableMetadata forPersistentStoreOfType:nil URL:absoluteURL error:outError];
-                [mutableMetadata release];
             }
         }
 	}

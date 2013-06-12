@@ -90,9 +90,9 @@ enum ASControlDescriptionColumn {
 @protocol ASCourseObjectSelectionViewDataSource <NSObject>
 
 - (NSArray *)supportedValuesForColumn:(enum ASControlDescriptionColumn)column;
-- (CFArrayRef)createPathsForColumn:(enum ASControlDescriptionColumn)column withValue:(NSNumber *)value atPosition:(CGPoint)p withSize:(CGFloat)sz;
-- (CFArrayRef)createPathsForWhichOfAnySimilarFeatureWithValue:(NSNumber *)value transform:(CGAffineTransform *)tran;
-- (CFArrayRef)createPathsForFeatureOrAppearance:(NSNumber *)value transform:(CGAffineTransform *)tran;
+- (NSArray *)createPathsForColumn:(enum ASControlDescriptionColumn)column withValue:(NSNumber *)value atPosition:(CGPoint)p withSize:(CGFloat)sz;
+- (NSArray *)createPathsForWhichOfAnySimilarFeatureWithValue:(NSNumber *)value transform:(CGAffineTransform *)tran;
+- (NSArray *)createPathsForFeatureOrAppearance:(NSNumber *)value transform:(CGAffineTransform *)tran;
 - (NSString *)localizedNameForValue:(NSInteger)value inColumn:(enum ASControlDescriptionColumn)column;
 
 - (void)setValue:(NSNumber *)value forColumn:(enum ASControlDescriptionColumn)column;

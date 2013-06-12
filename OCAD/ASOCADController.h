@@ -71,7 +71,7 @@ struct ocad_cache {
 }
 @property(nonatomic,assign) CGAffineTransform areaColorTransform;
 @property(nonatomic,assign) CGAffineTransform secondaryAreaColorTransform;
-@property(nonatomic,retain) NSString *ocadFilePath;
+@property(nonatomic,strong) NSString *ocadFilePath;
 
 - (id)initWithOCADFile:(NSString *)path;
 - (void)prepareCacheWithAreaTransform:(CGAffineTransform)transform;

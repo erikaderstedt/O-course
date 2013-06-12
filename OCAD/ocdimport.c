@@ -115,7 +115,11 @@ void load_symbols(struct ocad_file *f) {
     }
     f->num_symbols = j;
     
-    f->symbols = calloc(sizeof(struct ocad_symbol *), f->num_symbols);
+    if (f->num_symbols > 0) {
+        f->symbols = calloc(sizeof(struct ocad_symbol *), f->num_symbols);
+    } else {
+        f->symbols = NULL;
+    }
     
     i = f->header->symbolindex;
     j = 0;
@@ -133,7 +137,7 @@ void load_symbols(struct ocad_file *f) {
         }
         i = b->nextsymbolblock;
     }
-    b = (struct ocad_symbol_block *)((f->data) + f->header->symbolindex);
+//    b = (struct ocad_symbol_block *)((f->data) + f->header->symbolindex);
 }
 
 void load_objects(struct ocad_file *f) {
@@ -167,7 +171,12 @@ void load_objects(struct ocad_file *f) {
             i = b->nextindexblock;
         }
     }
-    f->elements = calloc(sizeof(struct ocad_element *), j);
+    int numberOfElements = j;
+    if (numberOfElements > 0) {
+        f->elements = calloc(sizeof(struct ocad_element *), numberOfElements);
+    } else {
+        f->elements = NULL;
+    }
     
     i = f->header->objectindex;
     j = 0;
@@ -178,7 +187,8 @@ void load_objects(struct ocad_file *f) {
     r.upper_right.y = -1e30;
     
     if (version8) {
-        while (i != 0) {
+        // The numberOfElements > 0 condition is for the static analyzer
+        while (i != 0 && numberOfElements > 0) {
             b8 = (struct ocad8_object_index_block *)((f->data) + i);
             
             for (k = 0; k < 256 && b8->indices[k].position != 0; k++) {
@@ -205,7 +215,8 @@ void load_objects(struct ocad_file *f) {
             i = b8->nextindexblock;
         }
     } else {
-        while (i != 0) {
+        // The numberOfElements > 0 condition is for the static analyzer
+        while (i != 0 && numberOfElements > 0) {
             b = (struct ocad_object_index_block *)((f->data) + i);
             
             for (k = 0; k < 256 && b->indices[k].position != 0; k++) {
@@ -253,8 +264,13 @@ void load_strings(struct ocad_file *f) {
     }
     f->num_strings = j;
 
-    f->strings = calloc(sizeof(char *), f->num_strings);
-    f->string_rec_types = calloc(sizeof(int), f->num_strings);
+    if (f->num_strings > 0) {
+        f->strings = calloc(sizeof(char *), f->num_strings);
+        f->string_rec_types = calloc(sizeof(int), f->num_strings);
+    } else {
+        f->strings = NULL;
+        f->string_rec_types = NULL;
+    }
     i = f->header->stringindex;
     j = 0;
     int currentstring = 0;

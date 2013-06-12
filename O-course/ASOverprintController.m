@@ -15,13 +15,10 @@
 @synthesize document;
 
 - (void)dealloc {
-    [cacheArray release];
-    [cachedCuts release];
     
     if (_overprintColor != NULL) CGColorRelease(_overprintColor);
     if (_transparentOverprintColor != NULL) CGColorRelease(_transparentOverprintColor);
     
-    [super dealloc];
 }
 
 - (CGColorRef)overprintColor {
@@ -55,7 +52,6 @@
 - (void)updateCache {
     NSAssert([NSThread isMainThread], @"Not the main thread.");
     @synchronized(self) {
-        [cacheArray release];
         cacheArray = nil;
     }
     
@@ -72,7 +68,7 @@
          @"type":[object valueForKey:@"type"], @"in_course":@NO}];
     }
     @synchronized(self) {
-        cacheArray = [ma retain];
+        cacheArray = ma;
     }
     [[NSNotificationCenter defaultCenter] postNotificationName:@"ASOverprintChanged" object:nil];
 }
@@ -151,14 +147,16 @@
                 }
                 z = 700.0/2.0/cos(M_PI/6);
                 r = CGRectMake(p.x-400.0, p.y-400.0, 800.0, 800.0);
-                CGContextBeginPath(ctx);
-                CGContextMoveToPoint(ctx, p.x + z*cos(angle), p.y + z*sin(angle));
-                angle += 2.0*M_PI/3.0; CGContextAddLineToPoint(ctx, p.x + z*cos(angle), p.y + z*sin(angle));
-                angle += 2.0*M_PI/3.0; CGContextAddLineToPoint(ctx, p.x + z*cos(angle), p.y + z*sin(angle));
-
-                CGContextClosePath(ctx);
-                CGContextSetLineWidth(ctx, 35.0);
-                CGContextStrokePath(ctx);
+                if (CGRectIntersectsRect(r, clipBox)) {
+                    CGContextBeginPath(ctx);
+                    CGContextMoveToPoint(ctx, p.x + z*cos(angle), p.y + z*sin(angle));
+                    angle += 2.0*M_PI/3.0; CGContextAddLineToPoint(ctx, p.x + z*cos(angle), p.y + z*sin(angle));
+                    angle += 2.0*M_PI/3.0; CGContextAddLineToPoint(ctx, p.x + z*cos(angle), p.y + z*sin(angle));
+                    
+                    CGContextClosePath(ctx);
+                    CGContextSetLineWidth(ctx, 35.0);
+                    CGContextStrokePath(ctx);
+                }
                 break;
             case kASCourseObjectFinish:
                 r = CGRectMake(p.x-350.0, p.y-350.0, 700.0, 700.0);

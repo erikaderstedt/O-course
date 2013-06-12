@@ -22,9 +22,7 @@
             NSImageRep *r = [i bestRepresentationForRect:bounds context:nil hints:nil];
             image = [r CGImageForProposedRect:NULL context:nil hints:nil];
             CGImageRetain(image);
-            [i release];
         } else {
-            [self release];
             return nil;
         }
     }
@@ -34,7 +32,6 @@
 
 - (void)dealloc {
     if (image != NULL) CGImageRelease(image);
-    [super dealloc];
 }
 
 - (NSInteger)symbolNumberAtPosition:(CGPoint)p {

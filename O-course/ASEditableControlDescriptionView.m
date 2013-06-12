@@ -36,7 +36,7 @@
     
     if ([provider eventName] != nil) {
         NSTrackingArea *ta = [[NSTrackingArea alloc] initWithRect:NSRectFromCGRect(eventBounds) options:NSTrackingMouseEnteredAndExited | NSTrackingActiveInKeyWindow owner:self userInfo:nil];
-        [self addTrackingArea:[ta autorelease]];
+        [self addTrackingArea:ta];
     }
     
     // Add a tracking area for each element that can be changed.

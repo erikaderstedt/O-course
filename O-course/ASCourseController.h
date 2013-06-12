@@ -16,14 +16,14 @@
 @interface ASCourseController : NSObject <NSTableViewDataSource, NSTableViewDelegate, ASCourseProvider, ASCourseDelegate> {
     NSManagedObjectContext *managedObjectContext;
     NSArrayController *courses;
-    NSTableView *courseTable;
+    NSTableView *__weak courseTable;
 }
-@property (nonatomic, retain) IBOutlet NSManagedObjectContext *managedObjectContext;
-@property (nonatomic, retain) IBOutlet NSArrayController *courses;
-@property (nonatomic, assign) IBOutlet NSTableView *courseTable;
-@property (nonatomic, assign) IBOutlet ASControlDescriptionView *controlDescription;
-@property (nonatomic, assign) IBOutlet NSPanel *coursePanel;
-@property (nonatomic, assign) IBOutlet NSPopUpButton *courseSelectionPopup;
+@property (nonatomic, strong) IBOutlet NSManagedObjectContext *managedObjectContext;
+@property (nonatomic, strong) IBOutlet NSArrayController *courses;
+@property (nonatomic, weak) IBOutlet NSTableView *courseTable;
+@property (nonatomic, weak) IBOutlet ASControlDescriptionView *controlDescription;
+@property (nonatomic, weak) IBOutlet NSPanel *coursePanel;
+@property (nonatomic, weak) IBOutlet NSPopUpButton *courseSelectionPopup;
 
 - (IBAction)showCoursePanel:(id)sender;
 - (IBAction)okCoursePanel:(id)sender;

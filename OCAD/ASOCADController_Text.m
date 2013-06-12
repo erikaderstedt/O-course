@@ -43,7 +43,7 @@
     CGFloat fontSize = ((CGFloat)text->fontsize)*conversionFactor;
 
     // We need to shrink the font size a bit to fit within the tight bounding rectangles of some text objects.
-    CTFontRef font = CTFontCreateWithName((CFStringRef)fontName, fontSize*0.95, NULL);
+    CTFontRef font = CTFontCreateWithName((__bridge CFStringRef)fontName, fontSize*0.95, NULL);
     if (font == NULL) {
         NSLog(@"Replacing '%@' with Lucida Grande", fontName);
         font = CTFontCreateWithName(CFSTR("Lucida Grande"), fontSize, NULL);
@@ -231,10 +231,10 @@
     
     NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity:3];
     if (frame != NULL) {
-        d[@"frame"] = (id)frame;
+        d[@"frame"] = (__bridge id)frame;
         CFRelease(frame);
     }
-    d[@"path"] = (id)p;
+    d[@"path"] = (__bridge id)p;
     CGPathRelease(p);
     
     if (e->angle != 0 && e->angle != 3600) {

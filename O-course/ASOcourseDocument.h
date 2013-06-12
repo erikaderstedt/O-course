@@ -15,22 +15,22 @@
 
 @interface ASOcourseDocument : NSDocument {
 @private
-	ASMapView *mapView;
-    ASOverprintController *overprintController;
-    ASCourseController *courseController;
-    NSObjectController *projectController;
+	ASMapView *__weak mapView;
+    ASOverprintController *__weak overprintController;
+    ASCourseController *__weak courseController;
+    NSObjectController *__weak projectController;
     
     NSPersistentStoreCoordinator *_psc;
 	NSManagedObjectContext *_context;
 	NSManagedObjectModel *_model;
 }
-@property (nonatomic,assign) IBOutlet ASMapView *mapView;
-@property (nonatomic,assign) IBOutlet ASOverprintController *overprintController;
-@property (nonatomic,assign) IBOutlet ASCourseController *courseController;
-@property (nonatomic,assign) IBOutlet NSObjectController *projectController;
-@property (nonatomic,retain) NSURL *mapURL;
-@property (nonatomic,assign) IBOutlet NSPopover *controlDefinitionsPopover;
-@property (nonatomic,assign) IBOutlet NSToolbarItem *showControlDefinitionsToolbarItem;
+@property (nonatomic,weak) IBOutlet ASMapView *mapView;
+@property (nonatomic,weak) IBOutlet ASOverprintController *overprintController;
+@property (nonatomic,weak) IBOutlet ASCourseController *courseController;
+@property (nonatomic,weak) IBOutlet NSObjectController *projectController;
+@property (nonatomic,strong) NSURL *mapURL;
+@property (nonatomic,weak) IBOutlet NSPopover *controlDefinitionsPopover;
+@property (nonatomic,weak) IBOutlet NSToolbarItem *showControlDefinitionsToolbarItem;
 
 - (IBAction)showControlDefinitionsPopover:(id)sender;
 

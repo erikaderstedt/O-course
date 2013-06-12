@@ -37,16 +37,6 @@
     return self;
 }
 
-- (void)dealloc {
-    [provider release];
-    [overprintColor release];
-    
-    [boldAttributes release];
-    [regularAttributes release];
-    [dimensionsAttributes release];
-    
-    [super dealloc];
-}
 - (void)viewWillMoveToSuperview:(NSView *)newSuperview {
     NSLog(@"superview %@", newSuperview);
 }
@@ -58,16 +48,12 @@
     boldAttributes = [NSMutableDictionary dictionaryWithObjectsAndKeys:mps, NSParagraphStyleAttributeName, [NSFont fontWithName:@"Helvetica-Bold" size:16.0], NSFontAttributeName, nil];
     regularAttributes = [NSMutableDictionary dictionaryWithObjectsAndKeys:mps, NSParagraphStyleAttributeName, [NSFont fontWithName:@"Helvetica" size:14.0], NSFontAttributeName, nil];
     dimensionsAttributes = [NSMutableDictionary dictionaryWithObject:mps forKey:NSParagraphStyleAttributeName];
-    [mps release]; 
 
     [self setOverprintColor:[[self class] defaultOverprintColor]];
     
     // 
     distanceFormatter = [[ASDistanceFormatter alloc] init];
     
-    [boldAttributes retain];
-    [regularAttributes retain];
-    [dimensionsAttributes retain];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(courseChanged:) name:@"ASOverprintChanged" object:nil];
 }
@@ -77,9 +63,7 @@
 }
 
 - (void)setOverprintColor:(NSColor *)newColor {
-    NSColor *oldOverprint = overprintColor;
-    overprintColor = [newColor retain];
-    [oldOverprint release];
+    overprintColor = newColor;
     
     boldAttributes[NSForegroundColorAttributeName] = overprintColor;
     regularAttributes[NSForegroundColorAttributeName] = overprintColor;
@@ -98,7 +82,7 @@
 
 - (void)adjustFrameSizeForLayout {
     [self recalculateLayout];
-    CGRect  bounds = [self bounds];
+    CGRect bounds = [self bounds];
     NSSize sz = actualDescriptionBounds.size;
     if (sz.height < bounds.size.width / 8.0 + 1) sz.height = ceil(bounds.size.width/8.0 + 1);
     [self setFrameSize:sz];
@@ -283,24 +267,21 @@
             
             CGContextRef ctx = [[NSGraphicsContext currentContext] graphicsPort];
             if (type == kASRegularControl && [item whichOfAnySimilarFeature] != nil) {
-                CFArrayRef paths = [self createPathsForColumn:kASWhichOfAnySimilarFeature withValue:[item whichOfAnySimilarFeature] atPosition:CGPointMake(x+2.5*blockSize, y + 0.5*blockSize) withSize:blockSize];
-                for (int i = 0; i < CFArrayGetCount(paths); i++) {
+                NSArray *paths = [self createPathsForColumn:kASWhichOfAnySimilarFeature withValue:[item whichOfAnySimilarFeature] atPosition:CGPointMake(x+2.5*blockSize, y + 0.5*blockSize) withSize:blockSize];
+                for (id thePath in paths) {
                     CGContextBeginPath(ctx);
-                    CGContextAddPath(ctx, (CGPathRef)CFArrayGetValueAtIndex(paths, i));
+                    CGContextAddPath(ctx, (__bridge CGPathRef)thePath);
                     CGContextFillPath(ctx);
                 }
-                CFRelease(paths);
             }
             
             if (type == kASRegularControl && [item controlFeature] != nil) {
-                CFArrayRef paths = [self createPathsForColumn:kASFeature withValue:[item controlFeature] atPosition:CGPointMake(x+3.5*blockSize+1.0, y + 0.5*blockSize) withSize:blockSize];
-                for (int i = 0; i < CFArrayGetCount(paths); i++) {
+                NSArray *paths = [self createPathsForColumn:kASFeature withValue:[item controlFeature] atPosition:CGPointMake(x+3.5*blockSize+1.0, y + 0.5*blockSize) withSize:blockSize];
+                for (id thePath in paths) {
                     CGContextBeginPath(ctx);
-                    CGContextAddPath(ctx, (CGPathRef)CFArrayGetValueAtIndex(paths, i));
+                    CGContextAddPath(ctx, (__bridge CGPathRef)thePath);
                     CGContextFillPath(ctx);
                 }
-                CFRelease(paths);
-                
             }
         } else {
             // Draw any of the different variations of taped routes.

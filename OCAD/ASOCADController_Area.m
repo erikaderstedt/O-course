@@ -44,7 +44,7 @@
 
     if (area->fill_enabled) {
         CGColorRef fillColor = [self colorWithNumber:area->fill_color];
-        [result addObject:@{@"fillColor": (id)fillColor, (id)@"path": (id)p, 
+        [result addObject:@{@"fillColor": (__bridge id)fillColor, (id)@"path": (__bridge id)p,
                            @"fillMode": @(kCGPathEOFill),
                            @"colornum": [NSNumber numberWithInt:area->fill_color],
                            @"element": [NSValue valueWithPointer:e]}];
@@ -54,13 +54,13 @@
         [result addObject:@{@"fillColor": hatchColors[[NSNumber numberWithInt:area->symnum]], 
                            @"fillMode": @(kCGPathEOFill),
                            @"colornum": [NSNumber numberWithInt:area->hatch_color],
-                           (id)@"path": (id)p, @"element": [NSValue valueWithPointer:e],
+                           (id)@"path": (__bridge id)p, @"element": [NSValue valueWithPointer:e],
                            @"2ndFillColor": transformedHatchColors[@(area->symnum)]}];
         if (area->hatch_mode == 2) {
             [result addObject:@{@"fillColor": secondaryHatchColors[[NSNumber numberWithInt:area->symnum]],
                                @"fillMode": @(kCGPathEOFill),
                                @"colornum": [NSNumber numberWithInt:area->hatch_color],
-                               (id)@"path": (id)p, @"element": [NSValue valueWithPointer:e],
+                               (id)@"path": (__bridge id)p, @"element": [NSValue valueWithPointer:e],
                                                           @"2ndFillColor": transformedSecondaryHatchColors[@(area->symnum)]}];
         }
     }
@@ -69,7 +69,7 @@
         [result addObject:@{@"fillColor": structureColors[[NSNumber numberWithInt:area->symnum]], 
                            @"fillMode": @(kCGPathEOFill),
                            @"colornum": [NSNumber numberWithInt:((struct ocad_symbol_element *)area->coords)->color],
-                           (id)@"path": (id)p, @"element": [NSValue valueWithPointer:e],
+                           (id)@"path": (__bridge id)p, @"element": [NSValue valueWithPointer:e],
                                                       @"2ndFillColor": transformedStructureColors[@(area->symnum)]}];
     }
     
@@ -87,19 +87,19 @@
     inv = [NSInvocation invocationWithMethodSignature:ms];
     [inv setTarget:self];
     [inv setSelector:@selector(createStructureColors)];
-    [queue addOperation:[[[NSInvocationOperation alloc] initWithInvocation:inv] autorelease]];
+    [queue addOperation:[[NSInvocationOperation alloc] initWithInvocation:inv]];
     
     ms = [self methodSignatureForSelector:@selector(createHatchColors)];
     inv = [NSInvocation invocationWithMethodSignature:ms];
     [inv setTarget:self];
     [inv setSelector:@selector(createHatchColors)];
-    [queue addOperation:[[[NSInvocationOperation alloc] initWithInvocation:inv] autorelease]];
+    [queue addOperation:[[NSInvocationOperation alloc] initWithInvocation:inv]];
 
     ms = [self methodSignatureForSelector:@selector(createSecondaryHatchColors)];
     inv = [NSInvocation invocationWithMethodSignature:ms];
     [inv setTarget:self];
     [inv setSelector:@selector(createSecondaryHatchColors)];
-    [queue addOperation:[[[NSInvocationOperation alloc] initWithInvocation:inv] autorelease]];
+    [queue addOperation:[[NSInvocationOperation alloc] initWithInvocation:inv]];
 
     [queue waitUntilAllOperationsAreFinished];
 
@@ -125,8 +125,6 @@
         [self assignColors:[self structureColorsForSymbol:area] toDictionaries:@[structureColors, transformedStructureColors] withSymbolNumber:area->symnum];
     }
     
-    [structureColors retain];
-    [transformedStructureColors retain];
 }
 
 - (void)createHatchColors {
@@ -144,8 +142,6 @@
         [self assignColors:[self hatchColorsForSymbol:area index:0] toDictionaries:@[hatchColors, transformedHatchColors] withSymbolNumber:area->symnum];
     }
     
-    [hatchColors retain];
-    [transformedHatchColors retain];
 }
 
 - (void)createSecondaryHatchColors {
@@ -163,8 +159,6 @@
         [self assignColors:[self hatchColorsForSymbol:area index:1] toDictionaries:@[secondaryHatchColors, transformedSecondaryHatchColors] withSymbolNumber:area->symnum];
     }
     
-    [secondaryHatchColors retain];
-    [transformedSecondaryHatchColors retain];
 }
 
 - (NSArray *)structureColorsForSymbol:(struct ocad_area_symbol *)a {
@@ -178,7 +172,10 @@
     CGAffineTransform transform2 = self.secondaryAreaColorTransform;
 
     NSAssert(a->structure_mode == 1 || a->structure_mode == 2, @"Invalid structure mode!");
-    if (a->data_size == 0) return @[(id)[self colorWithNumber:0], (id)[self colorWithNumber:0]];
+    if (a->data_size == 0) {
+        CGColorSpaceRelease(cspace);
+        return @[(id)[self colorWithNumber:0], (id)[self colorWithNumber:0]];
+    }
 
     pRect = CGRectMake(-0.5*((CGFloat)a->structure_width), -0.5*((CGFloat)a->structure_height), a->structure_width, a->structure_height);
     if (a->structure_mode == 2) {
@@ -261,7 +258,7 @@
 
     CGColorSpaceRelease(cspace);
 
-   return @[(id)structureColor, (id)secondStructureColor];
+   return @[(id)CFBridgingRelease(structureColor), (id)CFBridgingRelease(secondStructureColor)];
 }
 
 - (NSArray *)hatchColorsForSymbol:(struct ocad_area_symbol *)a index:(int)index {
@@ -318,7 +315,7 @@
     }
     CGColorSpaceRelease(cspace);
 
-    return @[(id)c, (id)transformedHatchColor];
+    return @[(id)CFBridgingRelease(c), (id)CFBridgingRelease(transformedHatchColor)];
 }
 
 @end
@@ -382,6 +379,7 @@ void drawStructured(void *info, CGContextRef context) {
             mode = kCGPathEOFill;
             break;
         default:
+            mode = kCGPathStroke; // Not used.
             break;
     }
     

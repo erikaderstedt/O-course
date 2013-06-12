@@ -26,8 +26,6 @@
                        NSFontAttributeName: [NSFont fontWithName:@"Helvetica-Light" size:13.0],
                        NSForegroundColorAttributeName: [NSColor darkGrayColor]};
 
-    [mps release];
-    [textAttributes retain];
 }
 
 - (void)viewWillMoveToWindow:(NSWindow *)newWindow {
@@ -145,16 +143,15 @@
         if (NSIntersectsRect(thisRect, dirtyRect)) {
             CGPoint midPoint = CGPointMake(((CGFloat)columnIndex + 0.5)*blockSize.width, viewSize.height - (0.5+ (CGFloat)rowIndex)*blockSize.height);
             [[NSColor blackColor] set];
-            CFArrayRef paths = [self.dataSource createPathsForColumn:self.column
+            NSArray *paths = [self.dataSource createPathsForColumn:self.column
                                                            withValue:aValue
                                                           atPosition:midPoint
                                                             withSize:blockSize.height ];
-            for (int i = 0; i < CFArrayGetCount(paths); i++) {
+            for (id thePath in paths) {
                 CGContextBeginPath(ctx);
-                CGContextAddPath(ctx, (CGPathRef)CFArrayGetValueAtIndex(paths, i));
+                CGContextAddPath(ctx, (__bridge CGPathRef)thePath);
                 CGContextFillPath(ctx);
             }
-            CFRelease(paths);
         }
         if (++columnIndex == numberOfColumns) {
             ++rowIndex;

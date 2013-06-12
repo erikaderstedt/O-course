@@ -34,12 +34,9 @@
 }
 
 - (void)dealloc {
-	[mapProvider release];
 	
 	[_magnifyingGlass removeFromSuperlayer];
-	[_magnifyingGlass release];
 	
-	[super dealloc];
 }
 
 - (void)awakeFromNib {
@@ -67,7 +64,6 @@
 		[_magnifyingGlass setShadowOffset:CGSizeMake(0.0, -3.0)];
 		[_magnifyingGlass setShadowRadius:3.0];
         [_magnifyingGlass setCornerRadius:75.0];
-		[_magnifyingGlass retain];
         
         innerMagnifyingGlassLayer = [CALayer layer];
         // Set up a transform for the innerMagnifyingGlassLayer.
@@ -133,9 +129,6 @@
     // the magnifying glass.
 	[self removeTrackingArea:glassTrackingArea];
 	if (self.showMagnifyingGlass) {
-		if (glassTrackingArea != nil) {
-			[glassTrackingArea release];
-		}
 		glassTrackingArea = [[NSTrackingArea alloc] initWithRect:[self bounds] 
 														 options:NSTrackingMouseMoved | NSTrackingMouseEnteredAndExited | NSTrackingActiveInKeyWindow 
 														   owner:self 
@@ -143,7 +136,6 @@
 		[self addTrackingArea:glassTrackingArea];
 	} else {
 		if (glassTrackingArea != nil) {
-			[glassTrackingArea release];
 			glassTrackingArea = nil;
 		}
 	}
@@ -363,7 +355,6 @@
             
             tiledLayer.levelsOfDetail = 7;
             tiledLayer.levelsOfDetailBias = 2;
-            [tiledLayer retain];
             
             tiledLayer.anchorPoint = CGPointMake(0.0, 0.0);
             tiledLayer.position = CGPointMake(0.0, 0.0);
@@ -383,7 +374,6 @@
             overprintLayer.levelsOfDetailBias = tiledLayer.levelsOfDetailBias;
             overprintLayer.anchorPoint = tiledLayer.anchorPoint;
             overprintLayer.position = tiledLayer.position;
-            [overprintLayer retain];
         }
         mapBounds = [self.mapProvider mapBounds];
         tiledLayer.bounds = mapBounds; overprintLayer.bounds = mapBounds;

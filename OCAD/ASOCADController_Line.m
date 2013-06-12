@@ -84,7 +84,7 @@
             roadCache = @{@"fillColor": (id)[self colorWithNumber:line->dbl_fill_color], 
                          @"colornum": [NSNumber numberWithInt:line->dbl_fill_color],
                          @"element": [NSValue valueWithPointer:e],
-                         (id)@"path": (id)strokedRoad};
+                         (id)@"path": (__bridge id)strokedRoad};
             CGPathRelease(strokedRoad);
         }
         CGPathRelease(road);
@@ -94,11 +94,11 @@
         [cachedData addObject:@{@"fillColor": (id)[self colorWithNumber:line->dbl_left_color], 
                                @"colornum": [NSNumber numberWithInt:line->dbl_left_color],
                                @"element": [NSValue valueWithPointer:e],
-							   (id)@"path": (id)strokedLeft}];
+							   (id)@"path": (__bridge id)strokedLeft}];
         [cachedData addObject:@{@"fillColor": (id)[self colorWithNumber:line->dbl_right_color], 
                                @"colornum": [NSNumber numberWithInt:line->dbl_right_color],
                                @"element": [NSValue valueWithPointer:e],
-							   (id)@"path": (id)strokedRight}]; 
+							   (id)@"path": (__bridge id)strokedRight}];
         CGPathRelease(strokedLeft);
         CGPathRelease(strokedRight);
         CGPathRelease(left);
@@ -161,7 +161,7 @@
                     last_dash = actual_dash_length;
                 }
                 
-                total_gaps += gaps;
+                //total_gaps += gaps;
                 
                 // Ok, the calculation is done for this segment. Now traverse it.
                 int gaps_traversed;
@@ -191,7 +191,7 @@
         mainLine[@"element"] = [NSValue valueWithPointer:e];
             
         CGPathRef strokedPath = CGPathCreateCopyByStrokingPath(path, NULL, linewidth, capStyle, joinStyle, 0.5*linewidth);
-        mainLine[@"path"] = (id)strokedPath;
+        mainLine[@"path"] = (__bridge id)strokedPath;
         mainLine[@"fillColor"] = (id)[self colorWithNumber:colornum];
         [cachedData addObject:mainLine];
         CGPathRelease(path);
@@ -295,10 +295,8 @@
                                                         totalDataSize:0
                                                               element:e]];
     }
-#if ! __has_feature(objc_arc)
-    [ct release];
-#endif
     
+    if (roadCache == nil) return @[cachedData];
     return @[cachedData, roadCache];
     
 }
