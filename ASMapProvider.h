@@ -16,7 +16,8 @@
 - (CGSize)frameSizeForCourseObjectType:(enum ASCourseObjectType)type;
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx;
 - (void)updateOverprint;
-- (void)updateCourseObject:(id <ASCourseObject>)courseObject withNewPosition:(CGPoint)p inLayer:(CATiledLayer *)layer;
+- (void)hideCourseObject:(id <ASCourseObject>)courseObject informLayer:(CATiledLayer *)layer;
+- (void)showCourseObject:(id <ASCourseObject>)courseObject informLayer:(CATiledLayer *)layer;
 
 @end
 

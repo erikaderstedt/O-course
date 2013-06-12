@@ -63,7 +63,7 @@
     drawConnectingLines = [self.dataSource specificCourseSelected];
     [self.dataSource enumerateCourseObjectsUsingBlock:^(id<ASCourseObject> object, BOOL inSelectedCourse) {
         [ma addObject:@{ @"position":[NSValue valueWithPoint:NSPointFromCGPoint(object.position)],
-         @"type":@([object courseObjectType]), @"in_course":@(inSelectedCourse)}];
+         @"type":@([object courseObjectType]), @"in_course":@(inSelectedCourse), @"hidden":@NO}];
     }];
     
     @synchronized(self) {
@@ -89,7 +89,7 @@
             [layer setNeedsDisplayInRect:[self frameForCourseObject:courseObject]];
             courseObject.position = p;
             [ma replaceObjectAtIndex:modifyIndex withObject:@{ @"position":[NSValue valueWithPoint:NSPointFromCGPoint(p)],
-             @"type":@([courseObject courseObjectType]), @"in_course":[[ma objectAtIndex:modifyIndex] valueForKey:@"in_course"]}];
+             @"type":@([courseObject courseObjectType]), @"in_course":[[ma objectAtIndex:modifyIndex] valueForKey:@"in_course"], @"hidden":[[ma objectAtIndex:modifyIndex] valueForKey:@"hidden"]}];
             [layer setNeedsDisplayInRect:[self frameForCourseObject:courseObject]];
             cacheArray = ma;
         }
@@ -126,7 +126,7 @@
 - (CGRect)frameForCourseObject:(id <ASCourseObject>)object {
     enum ASCourseObjectType type = [object courseObjectType];
     if (type == kASCourseObjectControl || type == kASCourseObjectFinish ||
-        type == kASCourseObjectMandatoryCrossingPoint || type == kASCourseObjectMandatoryPassing) {
+        type == kASCourseObjectMandatoryCrossingPoint || type == kASCourseObjectMandatoryPassing || type == kASCourseObjectStart) {
         CGSize sz = [self frameSizeForCourseObjectType:type];
         CGPoint p = [object position];
         return CGRectIntegral(CGRectMake(p.x - sz.width*0.5, p.y - sz.height*0.5, sz.width, sz.height));
@@ -141,6 +141,37 @@
         return CGSizeMake(700.0/cos(M_PI/6), 700.0/cos(M_PI/6));
     }
     return CGSizeMake(600.0, 600.0);
+}
+
+- (void)alterCourseObject:(id<ASCourseObject>)courseObject informLayer:(CATiledLayer *)layer hidden:(BOOL)hide {
+    @synchronized(self) {
+        NSMutableArray *ma = [NSMutableArray arrayWithArray:cacheArray];
+        NSPoint p_orig = NSPointFromCGPoint([courseObject position]);
+        __block NSUInteger modifyIndex = NSNotFound;
+        [ma enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            NSDictionary *d = (NSDictionary *)obj;
+            NSPoint p_this = [[d objectForKey:@"position"] pointValue];
+            if (p_orig.x == p_this.x && p_orig.y == p_this.y) {
+                modifyIndex = idx;
+                *stop = YES;
+            }
+        }];
+        if (modifyIndex != NSNotFound) {
+            NSMutableDictionary *values = [NSMutableDictionary dictionaryWithDictionary:[ma objectAtIndex:modifyIndex]];
+            [values setObject:@(hide) forKey:@"hidden"];
+            [ma replaceObjectAtIndex:modifyIndex withObject:values];
+            [layer setNeedsDisplayInRect:[self frameForCourseObject:courseObject]];
+            cacheArray = ma;
+        }
+    }
+}
+
+- (void)showCourseObject:(id<ASCourseObject>)courseObject informLayer:(CATiledLayer *)layer {
+    [self alterCourseObject:courseObject informLayer:layer hidden:NO];
+}
+
+- (void)hideCourseObject:(id<ASCourseObject>)courseObject informLayer:(CATiledLayer *)layer {
+    [self alterCourseObject:courseObject informLayer:layer hidden:YES];
 }
 
 #pragma mark ASOverprintProvider
@@ -163,7 +194,7 @@
     NSDictionary *previousCourseObject = nil;
     
     for (NSDictionary *courseObjectInfo in cacheCopy) {
-
+        
         enum ASCourseObjectType type = (enum ASCourseObjectType)[courseObjectInfo[@"type"] integerValue];
         CGPoint p = NSPointToCGPoint([courseObjectInfo[@"position"] pointValue]);
         BOOL inCourse = [courseObjectInfo[@"in_course"] boolValue];
@@ -171,7 +202,7 @@
         
         CGRect r;
         CGFloat z;
-        
+        if ([[courseObjectInfo objectForKey:@"hidden"] boolValue] == NO) {
         switch (type) {
             case kASCourseObjectControl:
                 r = CGRectMake(p.x-300.0, p.y-300.0, 600.0, 600.0);
@@ -215,6 +246,7 @@
                 break;
             default:
                 break;
+        }
         }
         
         if (drawConnectingLines && inCourse) {

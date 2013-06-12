@@ -176,6 +176,8 @@
 - (void)setShowMagnifyingGlass:(BOOL)b {
     [self ensureFirstResponder];
     
+    if (b == showMagnifyingGlass) return;
+    
 	showMagnifyingGlass = b;
 	CALayer *l = [self magnifyingGlass];
 	if (b) {
@@ -282,55 +284,29 @@
 
 #pragma mark -
 #pragma mark Regular mouse events
-/*
-- (void)mouseDown:(NSEvent *)theEvent {
-//    dragged = NO;
-    NSPoint eventLocationInView = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-    
-    if (self.state == kASMapViewNormal && self.draggedCourseObject != nil) {
-        self.state = kASMapViewDraggingCourseObject;
-        
-    }
 
-}
-*/
 - (void)mouseDragged:(NSEvent *)theEvent {
-//    dragged = YES;
     NSPoint eventLocationInView = [self convertPoint:[theEvent locationInWindow] fromView:nil];
     if (self.draggedCourseObject != nil && self.state == kASMapViewNormal) {
         self.state = kASMapViewDraggingCourseObject;
         dragIndicatorLayer.hidden = YES;
     }
     
-    
     if (self.state == kASMapViewDraggingCourseObject) {
-        // Invalidate the overprint for this object.
+        CALayer *l = [self magnifyingGlass];
+        if (l.hidden) l.hidden = NO;
+        [CATransaction begin];
+        [CATransaction setDisableActions:YES];
         
-        [self.overprintProvider updateCourseObject:self.draggedCourseObject
-                                   withNewPosition:[tiledLayer convertPoint:eventLocationInView fromLayer:[self layer]]
-                                           inLayer:overprintLayer];
+        [[self magnifyingGlass] setPosition:NSPointToCGPoint(eventLocationInView)];
+        [innerMagnifyingGlassLayer setNeedsDisplay];
+        [CATransaction commit];
+        // Invalidate the overprint for this object.
+        [self.overprintProvider hideCourseObject:self.draggedCourseObject informLayer:overprintLayer];
     }
-    
-/*
-    CATransform3D transform = tiledLayer.transform;
-    CGRect r = CGRectMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds), fabs([theEvent deltaX]), fabs([theEvent deltaY]));
-    r = [tiledLayer convertRect:r fromLayer:[self layer]];
-    transform = CATransform3DTranslate(transform, r.size.width*SIGN_OF([theEvent deltaX]), -r.size.height*SIGN_OF([theEvent deltaY]), 0);
-    
-    [CATransaction begin];
-    [CATransaction setDisableActions:YES];
-    tiledLayer.transform = transform;
-    overprintLayer.transform = transform;
-    if (self.showMagnifyingGlass) {
-        // It's hidden, but we do this anyway.
-        [[self magnifyingGlass] setPosition:NSPointToCGPoint(p)];
-    }
-    [CATransaction commit];*/
-
 }
 
 - (void)mouseUp:(NSEvent *)theEvent {
-    NSLog(@"up");
     NSPoint eventLocationInView = [self convertPoint:[theEvent locationInWindow] fromView:nil];
 
     // Tell the overprint provider that a new control should be added at that position. Supply the symbol number from the map provider.
@@ -341,7 +317,11 @@
             return;
             break;
         case kASMapViewDraggingCourseObject:
+            [self.draggedCourseObject setPosition:[tiledLayer convertPoint:eventLocationInView fromLayer:[self layer]]];
+            [self.overprintProvider showCourseObject:self.draggedCourseObject informLayer:overprintLayer];
+            [self.overprintProvider updateOverprint];
             self.state = kASMapViewNormal;
+            self.draggedCourseObject = nil;
             [self updateTrackingAreas];
             return;
             break;
@@ -484,7 +464,7 @@
     state = s2;
     CGMutablePathRef path = NULL;
     
-    if (state == kASMapViewNormal || state == kASMapViewDraggingCourseObject) {
+    if (state == kASMapViewNormal) {
         if (self.showMagnifyingGlass == YES)
             self.showMagnifyingGlass = NO;
     } else {
@@ -514,6 +494,27 @@
             z = 1.5*70;
             CGPathAddEllipseInRect(path, NULL, CGRectMake(middle.x-0.5*z, middle.y-0.5*z, z, z));
             break;
+        case kASMapViewDraggingCourseObject:
+            switch ([self.draggedCourseObject courseObjectType]) {
+                case kASCourseObjectControl:
+                    CGPathAddEllipseInRect(path, NULL, CGRectMake(45, 45, 90, 90));
+                    break;
+                case kASCourseObjectFinish:
+                    z = 1.5*50;
+                    CGPathAddEllipseInRect(path, NULL, CGRectMake(middle.x-0.5*z, middle.y-0.5*z, z, z));
+                    z = 1.5*70;
+                    CGPathAddEllipseInRect(path, NULL, CGRectMake(middle.x-0.5*z, middle.y-0.5*z, z, z));
+                    break;
+                case kASCourseObjectStart:
+                    z = 1.5*70.0/2.0/cos(M_PI/6);
+                    CGPathMoveToPoint(path, NULL, middle.x, middle.y + z);
+                    CGPathAddLineToPoint(path, NULL, middle.x + cos(M_PI/6)*z, middle.y - sin(M_PI/6)*z);
+                    CGPathAddLineToPoint(path, NULL, middle.x - cos(M_PI/6)*z, middle.y - sin(M_PI/6)*z);
+                    CGPathCloseSubpath(path);
+
+                default:
+                    break;
+            }
         default:
             break;
     }
