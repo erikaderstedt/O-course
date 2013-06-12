@@ -59,7 +59,9 @@
 		[_magnifyingGlass setBounds:NSRectToCGRect(f)];
 		[_magnifyingGlass setAnchorPoint:CGPointMake(0.5, 0.5)];
 		[_magnifyingGlass setHidden:YES];
-		[_magnifyingGlass setShadowColor:CGColorCreateGenericGray(0.2, 1.0)];
+        CGColorRef gray = CGColorCreateGenericGray(0.2, 1.0);
+		[_magnifyingGlass setShadowColor:gray];
+        CGColorRelease(gray);
 		[_magnifyingGlass setShadowOpacity:0.5];
 		[_magnifyingGlass setShadowOffset:CGSizeMake(0.0, -3.0)];
 		[_magnifyingGlass setShadowRadius:3.0];
@@ -77,7 +79,9 @@
         innerMagnifyingGlassLayer.needsDisplayOnBoundsChange = YES;
         innerMagnifyingGlassLayer.masksToBounds = YES;
         innerMagnifyingGlassLayer.contents = nil;
-        innerMagnifyingGlassLayer.backgroundColor = CGColorCreateGenericRGB(1.0, 1.0, 1.0, 1.0);
+        CGColorRef white = CGColorCreateGenericRGB(1.0, 1.0, 1.0, 1.0);
+        innerMagnifyingGlassLayer.backgroundColor = white;
+        CGColorRelease(white);
 /*        innerMagnifyingGlassLayer.tileSize = CGSizeMake(512.0, 512.0);
         
         innerMagnifyingGlassLayer.levelsOfDetail = 7;

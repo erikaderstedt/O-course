@@ -34,16 +34,16 @@
         [self removeTrackingArea:ta];
     }
     
-    if ([provider eventName] != nil) {
+    if ([self.provider eventName] != nil) {
         NSTrackingArea *ta = [[NSTrackingArea alloc] initWithRect:NSRectFromCGRect(eventBounds) options:NSTrackingMouseEnteredAndExited | NSTrackingActiveInKeyWindow owner:self userInfo:nil];
         [self addTrackingArea:ta];
     }
     
     // Add a tracking area for each element that can be changed.
-    NSInteger topItem = [self numberOfItems] - [[[provider courseObjectEnumerator] allObjects] count];
+    NSInteger topItem = [self numberOfItems] - [[[self.provider courseObjectEnumerator] allObjects] count];
     NSArray *regularColumns = @[@(kASWhichOfAnySimilarFeature), @(kASFeature), @(kASAppearanceOrSecondaryFeature), @(kASDimensionsOrCombinations), @(kASLocationOfTheControlFlag), @(kASOtherInformation)];
     
-    for (id <ASControlDescriptionItem> object in [provider courseObjectEnumerator]) {
+    for (id <ASControlDescriptionItem> object in [self.provider courseObjectEnumerator]) {
         if ([object controlDescriptionItemType] == kASRegularControl) {
             
             for (NSNumber *columnIntegerValue in regularColumns) {

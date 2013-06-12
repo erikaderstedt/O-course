@@ -32,7 +32,7 @@
     
     BOOL drawConnectingLines;
 }
-@property (nonatomic,unsafe_unretained) IBOutlet id <ASCourseProvider> courseProvider;
+@property (nonatomic,weak) IBOutlet id <ASCourseProvider> courseProvider;
 @property (nonatomic,weak) IBOutlet ASOcourseDocument *document;
 
 - (CGColorRef)overprintColor;

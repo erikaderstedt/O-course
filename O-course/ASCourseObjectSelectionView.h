@@ -23,8 +23,8 @@
 }
 
 @property (nonatomic, assign) enum ASControlDescriptionColumn column;
-@property (nonatomic, strong) IBOutlet id <ASCourseObjectSelectionViewDelegate> delegate;
-@property (nonatomic, strong) IBOutlet id <ASCourseObjectSelectionViewDataSource> dataSource;
+@property (nonatomic, weak) IBOutlet id <ASCourseObjectSelectionViewDelegate> delegate;
+@property (nonatomic, weak) IBOutlet id <ASCourseObjectSelectionViewDataSource> dataSource;
 
 - (CGRect)boundsForRow:(NSInteger)rowIndex column:(NSInteger)columnIndex;
 

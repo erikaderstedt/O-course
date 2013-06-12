@@ -277,6 +277,7 @@
     NSArray *pathArray;
     if (subpath != NULL) {
         pathArray = @[(__bridge id)fillable, (__bridge id)subpath];
+        CGPathRelease(subpath);
     } else {
         pathArray = @[(__bridge id)fillable];
     }

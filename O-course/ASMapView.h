@@ -26,9 +26,6 @@ enum ASMapViewUIState {
 };
 
 @interface ASMapView : NSView {
-	id <ASMapProvider> mapProvider;
-    id <ASOverprintProvider> overprintProvider;
-    id <ASCourseDelegate> __unsafe_unretained courseDelegate;
     
 	CGRect mapBounds;
     BOOL dragged;
@@ -48,7 +45,7 @@ enum ASMapViewUIState {
 }
 @property(nonatomic,strong) id <ASMapProvider> mapProvider;
 @property(nonatomic,strong) id <ASOverprintProvider> overprintProvider;
-@property(nonatomic,unsafe_unretained) IBOutlet id <ASCourseDelegate> courseDelegate;
+@property(nonatomic,weak) IBOutlet id <ASCourseDelegate> courseDelegate;
 @property(nonatomic,assign) BOOL showMagnifyingGlass;
 @property(nonatomic,assign) CGFloat zoom;
 @property(nonatomic,assign) enum ASMapViewUIState state;

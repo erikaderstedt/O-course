@@ -274,7 +274,7 @@ void load_strings(struct ocad_file *f) {
     i = f->header->stringindex;
     j = 0;
     int currentstring = 0;
-    while (i != 0) {
+    while (i != 0 && f->num_strings > 0) {
         b = (struct ocad_string_index_block *)((f->data) + i);
         
         for (k = 0; k < 256 && b->indices[k].position != 0; k++) {
