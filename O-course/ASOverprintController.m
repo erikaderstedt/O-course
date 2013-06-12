@@ -9,6 +9,7 @@
 #import "ASOverprintController.h"
 #import "CourseObject.h"
 #import "ASOcourseDocument.h"
+#import "CoordinateTransverser.h"
 
 @implementation ASOverprintController
 
@@ -76,7 +77,7 @@
     if (courseObjectInfo != nil || secondCourseObjectInfo != nil) {
         CGPoint p1 = NSPointToCGPoint([courseObjectInfo[@"position"] pointValue]);
         CGPoint p2 = NSPointToCGPoint([secondCourseObjectInfo[@"position"] pointValue]);
-        angle = atan2( p2.y-p1.y,p2.x-p1.x);
+        angle = angle_between_points(p1, p2);
     }
     return angle;
 }
@@ -175,11 +176,12 @@
             if (previousCourseObject) {
                 enum ASCourseObjectType otype = (enum ASCourseObjectType)[previousCourseObject[@"type"] integerValue];
                 angle = [[self class] angleBetweenCourseObjectInfos:previousCourseObject and:courseObjectInfo];
-                CGFloat startSize = 0.5*((otype == kASCourseObjectControl)?600.0:(700.0/cos(M_PI/6)));
-                CGFloat endSize = 0.5*((type == kASCourseObjectControl)?600.0:(700.0/cos(M_PI/6)));
-                CGPoint op = NSPointToCGPoint([previousCourseObject[@"position"] pointValue]);
-                CGPoint startPoint = CGPointMake(op.x + cos(angle)*startSize, op.y + sin(angle)*startSize);
-                CGPoint endPoint = CGPointMake(p.x + cos(angle+M_PI)*endSize, p.y + sin(angle+M_PI)*endSize);
+                CGPoint startPoint = translatePoint(NSPointToCGPoint([previousCourseObject[@"position"] pointValue]),
+                                                    0.5*((otype == kASCourseObjectControl)?600.0:(700.0/cos(M_PI/6))),
+                                                    angle);
+                CGPoint endPoint = translatePoint(p,
+                                                  0.5*((type == kASCourseObjectControl)?600.0:(700.0/cos(M_PI/6))),
+                                                  angle+M_PI);
                 CGContextBeginPath(ctx);
                 CGContextMoveToPoint(ctx, startPoint.x, startPoint.y);
                 CGContextAddLineToPoint(ctx, endPoint.x, endPoint.y);

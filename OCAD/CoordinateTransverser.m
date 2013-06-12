@@ -8,6 +8,11 @@
 
 #import "CoordinateTransverser.h"
 
+/*! Calculate the distance between two points in the OCAD "Bizarro" way (the name comes from the purple-pen source code).
+ *\param p1 The first point.
+ *\param p2 The second point.
+ *\returns The distance.
+ */
 CGFloat ocad_distance_between_points(CGPoint p1, CGPoint p2) {
     // According to purple-pen, OCAD does not calculate distance normally. Instead it is approximated using the 'Bizarro' (their name)
     // distance metric.
@@ -19,10 +24,23 @@ CGFloat ocad_distance_between_points(CGPoint p1, CGPoint p2) {
     return 0.5*(bd+ld);    
 }
 
+/*! Calculate the distance between two points in the Pythagoran way.
+ *\param p1 The first point.
+ *\param p2 The second point.
+ *\returns The distance.
+ */
 CGFloat regular_distance_between_points(CGPoint p1, CGPoint p2) {
     return sqrtf((p2.x-p1.x)*(p2.x-p1.x) + (p2.y-p1.y)*(p2.y-p1.y));
 }
 
+/*! Given a Bezier curve and a curve parameter, calculates corresponding point at that parameter.
+ *\param t The curve parameter, ranging from 0 (the beginning) to 1 (the end).
+ *\param p0 The starting point of the curve.
+ *\param cp1 The first control point.
+ *\param cp2 The second control point.
+ *\param p1 The ending point of the curve.
+ *\returns The requested point along the curve.
+ */
 CGPoint bezierCurvePoint(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint p1) {
     CGPoint bp;
     bp.x = p1.x*t*t*t + 3.0*cp2.x*t*t*(1.0-t) + 3.0*cp1.x*t*(1.0-t)*(1.0-t) + p0.x*(1.0-t)*(1.0-t)*(1.0-t);
@@ -30,6 +48,15 @@ CGPoint bezierCurvePoint(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint 
     return bp;
 }
 
+/*! Splits a Bezier curve into two Bezier curves at a specified curve parameter.
+ *\param t A curve parameter indicating where to split the Bezier curve.
+ *\param p0 The starting point of the curve.
+ *\param cp1 The first control point.
+ *\param cp2 The second control point.
+ *\param p1 The ending point of the curve.
+ *\param points A pointer that can hold 8 CGPoint structures. On exit, this will contain the 4 Bezier points for the first and second curves, respectively.
+ */
+ 
 void splitBezier(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint p1, CGPoint *points) {
     float s = 1.0 - t;
     CGPoint f00t, f01t, f11t, f0tt, f1tt, fttt;
@@ -57,10 +84,21 @@ void splitBezier(float t, CGPoint p0, CGPoint cp1, CGPoint cp2, CGPoint p1, CGPo
     points[7] = p1;
 }
 
+/*! Calculate the angle between two points, in radians.
+ *\param p1 The first point.
+ *\param p2 The second point.
+ *\returns The angle, in radians.
+ */
 CGFloat angle_between_points(CGPoint p1, CGPoint p2) {
     return atan2(p2.y - p1.y, p2.x - p1.x);
 }
 
+/*! Get a new point, related to an old point by a distance and an angle.
+ *\param p The starting point.
+ *\param distance The distance.
+ *\param angle The angle (in radians).
+ *\returns The new point.
+ */
 CGPoint translatePoint(CGPoint p, float distance, float angle) {
     CGPoint q;
     q.x = p.x + cosf(angle)*distance;
