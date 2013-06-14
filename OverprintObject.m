@@ -6,16 +6,16 @@
 //  Copyright (c) 2012 Aderstedt Software AB. All rights reserved.
 //
 
-#import "CourseObject.h"
+#import "OverprintObject.h"
 
-@implementation CourseObject
+@implementation OverprintObject
 
-- (enum ASCourseObjectType)courseObjectType {
-    enum ASCourseObjectType courseObjectType = (enum ASCourseObjectType)[[self valueForKey:@"type"] integerValue];
-    return courseObjectType;
+- (enum ASOverprintObjectType)objectType {
+    enum ASOverprintObjectType objectType = (enum ASOverprintObjectType)[[self valueForKey:@"type"] integerValue];
+    return objectType;
 }
 
-- (void)setCourseObjectType:(enum ASCourseObjectType)_type {
+- (void)setObjectType:(enum ASOverprintObjectType)_type {
     [self setValue:@(_type) forKey:@"type"];
 }
 
@@ -27,14 +27,6 @@
         [self setPrimitiveValue:@(kASFeatureNone) forKey:@"controlFeature"];
         [self setPrimitiveValue:@(kASFeatureNotSpecified) forKey:@"whichOfAnySimilarFeature"];
     }
-}
-
-- (enum ASCourseObjectType)objectType {
-    return (enum ASCourseObjectType)[[self valueForKey:@"type"] integerValue];
-}
-
-- (void)setObjectType:(enum ASCourseObjectType)objectType {
-    [self setValue:@((NSInteger)objectType) forKey:@"type"];
 }
 
 @dynamic added;
@@ -69,17 +61,17 @@
 - (void)assignNextFreeControlCode {
     // Excluded numbers : 66, 68, 89, 99,
     // Don't do this in awakeFromInsert.
-    NSAssert([self objectType] == kASCourseObjectControl, @"Assigning control code to something that is not a control");
+    NSAssert([self objectType] == kASOverprintObjectControl, @"Assigning control code to something that is not a control");
     
     self.controlCode = nil;
     
-    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"CourseObject"];
+    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"OverprintObject"];
     [request setSortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"controlCode" ascending:YES]]];
     [request setPredicate:[NSPredicate predicateWithFormat:@"controlCode != nil"]];
     
     NSArray *otherControls = [[self managedObjectContext] executeFetchRequest:request error:nil];
     NSInteger freeCode = 31;
-    for (CourseObject *control in otherControls) {
+    for (OverprintObject *control in otherControls) {
         if ([control.controlCode integerValue] != freeCode) {
             break;
         } else {
@@ -172,5 +164,12 @@
     self.controlFeature = @(feature);
 }
 
+- (NSInteger)symbolNumber {
+    return [self.controlFeature integerValue];
+}
+
+- (void)addToCourse:(NSManagedObject *)course {
+    [[self valueForKey:@"course"] addObject:course];
+}
 
 @end

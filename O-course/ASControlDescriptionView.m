@@ -8,7 +8,7 @@
 
 #import "ASControlDescriptionView.h"
 #import "ASDistanceFormatter.h"
-#import "CourseObject.h"
+#import "OverprintObject.h"
 #import "ASControlDescriptionView+CourseObjects.h"
 
 #define THICK_LINE  (2.0)
@@ -230,18 +230,18 @@
     // Draw the items.
     NSInteger consecutiveRegularControls = 0, controlNumber = 1;
     for (id <ASControlDescriptionItem> item in [self.provider controlDescriptionItemEnumerator]) {
-        enum ASCourseObjectType type = [item courseObjectType];
-        [NSBezierPath setDefaultLineWidth:((++consecutiveRegularControls == 3) || (type == kASCourseObjectStart))?THICK_LINE:THIN_LINE];
+        enum ASOverprintObjectType type = [item objectType];
+        [NSBezierPath setDefaultLineWidth:((++consecutiveRegularControls == 3) || (type == kASOverprintObjectStart))?THICK_LINE:THIN_LINE];
         x = paperBounds.origin.x;
         [NSBezierPath strokeLineFromPoint:NSMakePoint(x, y) 
                                   toPoint:NSMakePoint(x + paperBounds.size.width, y)];
 
-        if (type == kASCourseObjectStart || type == kASCourseObjectControl) { 
+        if (type == kASOverprintObjectStart || type == kASOverprintObjectControl) { 
 
             [self drawThickGridAtOrigin:NSMakePoint(x, y)];
             [self drawThinGridAtOrigin:NSMakePoint(x, y)];
 
-            if (type == kASCourseObjectControl) {
+            if (type == kASOverprintObjectControl) {
                 // Draw number and control code.
                 NSString *s = [NSString stringWithFormat:@"%d", (int)(controlNumber++)];
                 sz = [s boundingRectWithSize:block
@@ -262,7 +262,7 @@
             }
             
             CGContextRef ctx = [[NSGraphicsContext currentContext] graphicsPort];
-            if (type == kASCourseObjectControl && [item whichOfAnySimilarFeature] != nil) {
+            if (type == kASOverprintObjectControl && [item whichOfAnySimilarFeature] != nil) {
                 NSArray *paths = [self createPathsForColumn:kASWhichOfAnySimilarFeature withValue:[item whichOfAnySimilarFeature] atPosition:CGPointMake(x+2.5*blockSize, y + 0.5*blockSize) withSize:blockSize];
                 for (id thePath in paths) {
                     CGContextBeginPath(ctx);
@@ -271,7 +271,7 @@
                 }
             }
             
-            if (type == kASCourseObjectControl && [item controlFeature] != nil) {
+            if (type == kASOverprintObjectControl && [item controlFeature] != nil) {
                 NSArray *paths = [self createPathsForColumn:kASFeature withValue:[item controlFeature] atPosition:CGPointMake(x+3.5*blockSize+1.0, y + 0.5*blockSize) withSize:blockSize];
                 for (id thePath in paths) {
                     CGContextBeginPath(ctx);
@@ -301,7 +301,7 @@
     }
 }
 
-- (NSBezierPath *)bezierPathForTapedRoute:(enum ASCourseObjectType)routeType atPosition:(NSPoint)p blankSegment:(CGFloat)leaveThisBlank {
+- (NSBezierPath *)bezierPathForTapedRoute:(enum ASOverprintObjectType)routeType atPosition:(NSPoint)p blankSegment:(CGFloat)leaveThisBlank {
     [NSBezierPath setDefaultLineWidth:THIN_LINE];
     CGFloat center = p.y + 0.5*blockSize;
 
@@ -310,8 +310,8 @@
     
     // Opening arrow mark.
     CGFloat lineStart = 1.0*blockSize;
-    if (routeType != kASCourseObjectTapedRouteFromControl && routeType != kASCourseObjectTapedRouteBetweenControls) {
-        if (routeType == kASCourseObjectPartlyTapedRouteToFinish) {
+    if (routeType != kASOverprintObjectTapedRouteFromControl && routeType != kASOverprintObjectTapedRouteBetweenControls) {
+        if (routeType == kASOverprintObjectPartlyTapedRouteToFinish) {
             [bp moveToPoint:NSMakePoint(p.x + 1.5*blockSize, p.y + 0.5*(1.0 - ARROW_FRACTION)*blockSize)];
             [bp relativeLineToPoint:NSMakePoint(0.5*blockSize, 0.5*ARROW_FRACTION*blockSize)];
             [bp relativeLineToPoint:NSMakePoint(-0.5*blockSize, 0.5*ARROW_FRACTION*blockSize)];
@@ -328,11 +328,11 @@
     [bp relativeLineToPoint:NSMakePoint(0.5*blockSize, 0.5*ARROW_FRACTION*blockSize)];
     [bp relativeLineToPoint:NSMakePoint(-0.5*blockSize, 0.5*ARROW_FRACTION*blockSize)];
 
-    if (routeType == kASCourseObjectPartlyTapedRouteToFinish ||
-        routeType == kASCourseObjectTapedRouteToFinish ||
-        routeType == kASCourseObjectTapedRouteToMapExchange ||
-        routeType == kASCourseObjectTapedRouteFromControl ||
-        routeType == kASCourseObjectTapedRouteBetweenControls) {
+    if (routeType == kASOverprintObjectPartlyTapedRouteToFinish ||
+        routeType == kASOverprintObjectTapedRouteToFinish ||
+        routeType == kASOverprintObjectTapedRouteToMapExchange ||
+        routeType == kASOverprintObjectTapedRouteFromControl ||
+        routeType == kASOverprintObjectTapedRouteBetweenControls) {
         
         NSBezierPath *tapedRoute = [NSBezierPath bezierPath];
         CGFloat dashes[2] = {0.4*blockSize, 0.075*blockSize};
@@ -349,18 +349,18 @@
     }
     
     // Draw the end symbol
-    if (routeType != kASCourseObjectTapedRouteToMapExchange) {
+    if (routeType != kASOverprintObjectTapedRouteToMapExchange) {
         NSRect r = NSIntegralRect(NSInsetRect(NSMakeRect(p.x + 7.0*blockSize, p.y, blockSize, blockSize), (1.0-CIRCLE_FRACTION)*0.5*blockSize,(1.0-CIRCLE_FRACTION)*0.5*blockSize));
-        if (routeType == kASCourseObjectTapedRouteToFinish ||
-            routeType == kASCourseObjectRouteToFinish ||
-            routeType == kASCourseObjectPartlyTapedRouteToFinish) {
+        if (routeType == kASOverprintObjectTapedRouteToFinish ||
+            routeType == kASOverprintObjectRouteToFinish ||
+            routeType == kASOverprintObjectPartlyTapedRouteToFinish) {
             [bp appendBezierPathWithOvalInRect:NSInsetRect(r, -0.04*blockSize, -0.04*blockSize)];
             [bp appendBezierPathWithOvalInRect:NSInsetRect(r, 0.04*blockSize, 0.04*blockSize)];
         } else {
             [bp appendBezierPathWithOvalInRect:r];
             
         }
-    } else if (routeType != kASCourseObjectTapedRouteFromControl) {
+    } else if (routeType != kASOverprintObjectTapedRouteFromControl) {
         [bp moveToPoint:NSMakePoint(p.x + 7.0*blockSize, p.y)];
         [bp relativeLineToPoint:NSMakePoint(blockSize, 0.0)];
         [bp relativeLineToPoint:NSMakePoint(-0.5*blockSize, blockSize)];

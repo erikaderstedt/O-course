@@ -7,7 +7,7 @@
 //
 
 #import "ASOverprintController.h"
-#import "CourseObject.h"
+#import "OverprintObject.h"
 #import "ASOcourseDocument.h"
 #import "CoordinateTransverser.h"
 
@@ -43,6 +43,8 @@
 }
 
 - (void)awakeFromNib {
+    [super awakeFromNib];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(courseChanged:) name:@"ASCourseChanged" object:[self.document managedObjectContext]];
 }
 
@@ -61,9 +63,9 @@
 
     //    NSInteger controlNumber = 1;
     drawConnectingLines = [self.dataSource specificCourseSelected];
-    [self.dataSource enumerateCourseObjectsUsingBlock:^(id<ASCourseObject> object, BOOL inSelectedCourse) {
+    [self.dataSource enumerateOverprintObjectsUsingBlock:^(id<ASOverprintObject> object, BOOL inSelectedCourse) {
         [ma addObject:@{ @"position":[NSValue valueWithPoint:NSPointFromCGPoint(object.position)],
-         @"type":@([object courseObjectType]), @"in_course":@(inSelectedCourse), @"hidden":@NO}];
+         @"type":@([object objectType]), @"in_course":@(inSelectedCourse), @"hidden":@NO}];
     }];
     
     @synchronized(self) {
@@ -72,7 +74,7 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:@"ASOverprintChanged" object:nil];
 }
 
-- (void)updateCourseObject:(id <ASCourseObject>)courseObject withNewPosition:(CGPoint)p inLayer:(CATiledLayer *)layer {
+- (void)updateOverprintObject:(id <ASOverprintObject>)courseObject withNewPosition:(CGPoint)p inLayer:(CATiledLayer *)layer {
     @synchronized(self) {
         NSMutableArray *ma = [NSMutableArray arrayWithArray:cacheArray];
         NSPoint p_orig = NSPointFromCGPoint([courseObject position]);
@@ -86,11 +88,11 @@
             }
         }];
         if (modifyIndex != NSNotFound) {
-            [layer setNeedsDisplayInRect:[self frameForCourseObject:courseObject]];
+            [layer setNeedsDisplayInRect:[self frameForOverprintObject:courseObject]];
             courseObject.position = p;
             [ma replaceObjectAtIndex:modifyIndex withObject:@{ @"position":[NSValue valueWithPoint:NSPointFromCGPoint(p)],
-             @"type":@([courseObject courseObjectType]), @"in_course":[[ma objectAtIndex:modifyIndex] valueForKey:@"in_course"], @"hidden":[[ma objectAtIndex:modifyIndex] valueForKey:@"hidden"]}];
-            [layer setNeedsDisplayInRect:[self frameForCourseObject:courseObject]];
+             @"type":@([courseObject objectType]), @"in_course":[[ma objectAtIndex:modifyIndex] valueForKey:@"in_course"], @"hidden":[[ma objectAtIndex:modifyIndex] valueForKey:@"hidden"]}];
+            [layer setNeedsDisplayInRect:[self frameForOverprintObject:courseObject]];
             cacheArray = ma;
         }
     }
@@ -111,11 +113,11 @@
     NSDictionary *start = nil, *firstControlAfter = nil;
     
     for (NSDictionary *courseObjectInfo in cache) {
-        enum ASCourseObjectType type = (enum ASCourseObjectType)[courseObjectInfo[@"type"] integerValue];
-        if (start == nil && type == kASCourseObjectStart && [courseObjectInfo[@"in_course"] boolValue]) {
+        enum ASOverprintObjectType type = (enum ASOverprintObjectType)[courseObjectInfo[@"type"] integerValue];
+        if (start == nil && type == kASOverprintObjectStart && [courseObjectInfo[@"in_course"] boolValue]) {
             start = courseObjectInfo;
         }
-        if (start != nil && type == kASCourseObjectControl && [courseObjectInfo[@"in_course"] boolValue]) {
+        if (start != nil && type == kASOverprintObjectControl && [courseObjectInfo[@"in_course"] boolValue]) {
             firstControlAfter = courseObjectInfo;
             break;
         }
@@ -123,11 +125,11 @@
     return [self angleBetweenCourseObjectInfos:start and:firstControlAfter];
 }
 
-- (CGRect)frameForCourseObject:(id <ASCourseObject>)object {
-    enum ASCourseObjectType type = [object courseObjectType];
-    if (type == kASCourseObjectControl || type == kASCourseObjectFinish ||
-        type == kASCourseObjectMandatoryCrossingPoint || type == kASCourseObjectMandatoryPassing || type == kASCourseObjectStart) {
-        CGSize sz = [self frameSizeForCourseObjectType:type];
+- (CGRect)frameForOverprintObject:(id <ASOverprintObject>)object {
+    enum ASOverprintObjectType type = [object objectType];
+    if (type == kASOverprintObjectControl || type == kASOverprintObjectFinish ||
+        type == kASOverprintObjectMandatoryCrossingPoint || type == kASOverprintObjectMandatoryPassing || type == kASOverprintObjectStart) {
+        CGSize sz = [self frameSizeForOverprintObjectType:type];
         CGPoint p = [object position];
         return CGRectIntegral(CGRectMake(p.x - sz.width*0.5, p.y - sz.height*0.5, sz.width, sz.height));
     }
@@ -136,14 +138,14 @@
     return CGRectZero;
 }
 
-- (CGSize)frameSizeForCourseObjectType:(enum ASCourseObjectType)type {
-    if (type == kASCourseObjectStart) {
+- (CGSize)frameSizeForOverprintObjectType:(enum ASOverprintObjectType)type {
+    if (type == kASOverprintObjectStart) {
         return CGSizeMake(700.0/cos(M_PI/6), 700.0/cos(M_PI/6));
     }
     return CGSizeMake(600.0, 600.0);
 }
 
-- (void)alterCourseObject:(id<ASCourseObject>)courseObject informLayer:(CATiledLayer *)layer hidden:(BOOL)hide {
+- (void)alterCourseObject:(id<ASOverprintObject>)courseObject informLayer:(CATiledLayer *)layer hidden:(BOOL)hide {
     @synchronized(self) {
         NSMutableArray *ma = [NSMutableArray arrayWithArray:cacheArray];
         NSPoint p_orig = NSPointFromCGPoint([courseObject position]);
@@ -160,17 +162,17 @@
             NSMutableDictionary *values = [NSMutableDictionary dictionaryWithDictionary:[ma objectAtIndex:modifyIndex]];
             [values setObject:@(hide) forKey:@"hidden"];
             [ma replaceObjectAtIndex:modifyIndex withObject:values];
-            [layer setNeedsDisplayInRect:[self frameForCourseObject:courseObject]];
+            [layer setNeedsDisplayInRect:[self frameForOverprintObject:courseObject]];
             cacheArray = ma;
         }
     }
 }
 
-- (void)showCourseObject:(id<ASCourseObject>)courseObject informLayer:(CATiledLayer *)layer {
+- (void)showOverprintObject:(id<ASOverprintObject>)courseObject informLayer:(CATiledLayer *)layer {
     [self alterCourseObject:courseObject informLayer:layer hidden:NO];
 }
 
-- (void)hideCourseObject:(id<ASCourseObject>)courseObject informLayer:(CATiledLayer *)layer {
+- (void)hideOverprintObject:(id<ASOverprintObject>)courseObject informLayer:(CATiledLayer *)layer {
     [self alterCourseObject:courseObject informLayer:layer hidden:YES];
 }
 
@@ -195,7 +197,7 @@
     
     for (NSDictionary *courseObjectInfo in cacheCopy) {
         
-        enum ASCourseObjectType type = (enum ASCourseObjectType)[courseObjectInfo[@"type"] integerValue];
+        enum ASOverprintObjectType type = (enum ASOverprintObjectType)[courseObjectInfo[@"type"] integerValue];
         CGPoint p = NSPointToCGPoint([courseObjectInfo[@"position"] pointValue]);
         BOOL inCourse = [courseObjectInfo[@"in_course"] boolValue];
         CGContextSetStrokeColorWithColor(ctx, (inCourse?[self overprintColor]:[self transparentOverprintColor]));
@@ -204,7 +206,7 @@
         CGFloat z;
         if ([[courseObjectInfo objectForKey:@"hidden"] boolValue] == NO) {
         switch (type) {
-            case kASCourseObjectControl:
+            case kASOverprintObjectControl:
                 r = CGRectMake(p.x-300.0, p.y-300.0, 600.0, 600.0);
                 if (CGRectIntersectsRect(CGRectInset(r, -50.0, -50.0), clipBox)) {
                     CGContextBeginPath(ctx);
@@ -213,7 +215,7 @@
                     CGContextStrokePath(ctx);
                 }
                 break;
-            case kASCourseObjectStart:
+            case kASOverprintObjectStart:
                 if (drawConnectingLines && inCourse) {
                     angle = [[self class] angleBetweenStartAndFirstControlUsingCache:cacheCopy];
                 } else {
@@ -232,7 +234,7 @@
                     CGContextStrokePath(ctx);
                 }
                 break;
-            case kASCourseObjectFinish:
+            case kASOverprintObjectFinish:
                 r = CGRectMake(p.x-350.0, p.y-350.0, 700.0, 700.0);
                 if (CGRectIntersectsRect(CGRectInset(r, -50.0, -50.0), clipBox)) {
                     CGContextBeginPath(ctx);
@@ -251,13 +253,13 @@
         
         if (drawConnectingLines && inCourse) {
             if (previousCourseObject) {
-                enum ASCourseObjectType otype = (enum ASCourseObjectType)[previousCourseObject[@"type"] integerValue];
+                enum ASOverprintObjectType otype = (enum ASOverprintObjectType)[previousCourseObject[@"type"] integerValue];
                 angle = [[self class] angleBetweenCourseObjectInfos:previousCourseObject and:courseObjectInfo];
                 CGPoint startPoint = translatePoint(NSPointToCGPoint([previousCourseObject[@"position"] pointValue]),
-                                                    0.5*((otype == kASCourseObjectControl)?600.0:(700.0/cos(M_PI/6))),
+                                                    0.5*((otype == kASOverprintObjectControl)?600.0:(700.0/cos(M_PI/6))),
                                                     angle);
                 CGPoint endPoint = translatePoint(p,
-                                                  0.5*((type == kASCourseObjectControl)?600.0:(700.0/cos(M_PI/6))),
+                                                  0.5*((type == kASOverprintObjectControl)?600.0:(700.0/cos(M_PI/6))),
                                                   angle+M_PI);
                 CGContextBeginPath(ctx);
                 CGContextMoveToPoint(ctx, startPoint.x, startPoint.y);

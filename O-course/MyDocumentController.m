@@ -10,7 +10,7 @@
 #import "ASOcourseDocument.h"
 #import "Project.h"
 #import "ocdimport.h"
-#import "CourseObject.h"
+#import "OverprintObject.h"
 
 @implementation MyDocumentController
 

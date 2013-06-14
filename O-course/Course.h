@@ -8,7 +8,11 @@
 
 #import <CoreData/CoreData.h>
 
+@class OverprintObject;
+
 @interface Course : NSManagedObject
 
+- (void)appendOverprintObject:(OverprintObject *)object;
+- (void)insertOverprintObject:(OverprintObject *)object atPosition:(NSUInteger)position;
 
 @end

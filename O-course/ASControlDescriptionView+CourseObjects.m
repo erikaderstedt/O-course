@@ -8,7 +8,7 @@
 
 #import "ASControlDescriptionView+CourseObjects.h"
 #import "ASControlDescriptionProvider.h"
-#import "CourseObject.h"
+#import "OverprintObject.h"
 
 #define SYMBOL_SIZE 64
 #define SQRT2   0.7

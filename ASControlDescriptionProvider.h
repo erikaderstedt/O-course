@@ -23,7 +23,7 @@ enum ASControlDescriptionColumn {
 
 @protocol ASControlDescriptionItem  <NSObject>
 
-- (enum ASCourseObjectType)courseObjectType;
+- (enum ASOverprintObjectType)objectType;
 - (NSNumber *)distance;
 - (NSNumber *)controlCode;
 - (NSNumber *)whichOfAnySimilarFeature;
@@ -48,7 +48,7 @@ enum ASControlDescriptionColumn {
 // Each item returned by the course object enumerator conforms
 // to <ASControlDescriptionItem>
 - (NSEnumerator *)controlDescriptionItemEnumerator;
-- (NSEnumerator *)notSelectedControlDescriptionItemEnumerator;
+//- (NSEnumerator *)notSelectedControlDescriptionItemEnumerator;
 
 @end
 

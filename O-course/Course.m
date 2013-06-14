@@ -7,6 +7,7 @@
 //
 
 #import "Course.h"
+#import "OverprintObject.h"
 
 @implementation Course
 
@@ -14,6 +15,17 @@
     [super awakeFromInsert];
     
     [self setPrimitiveValue:NSLocalizedString(@"New course", nil) forKey:@"name"];
+}
+
+- (void)appendOverprintObject:(OverprintObject *)object {
+    [self insertOverprintObject:object atPosition:[[self valueForKey:@"courseObjects"] count]];
+}
+
+- (void)insertOverprintObject:(OverprintObject *)object atPosition:(NSUInteger)position {
+    NSManagedObject *courseObject = [NSEntityDescription insertNewObjectForEntityForName:@"CourseObject" inManagedObjectContext:self.managedObjectContext];
+    
+    [courseObject setValue:object forKey:@"overprintObject"];
+    [(NSMutableOrderedSet *)[self valueForKey:@"courseObjects"] insertObject:courseObject atIndex:position];
 }
 
 @end

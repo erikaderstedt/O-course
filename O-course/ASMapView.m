@@ -223,7 +223,7 @@
 		[self addTrackingArea:glassTrackingArea];
 	} else {
         // Now add tracking areas for each course object.
-        [self.courseDataSource enumerateCourseObjectsUsingBlock:^(id<ASCourseObject> object, BOOL inSelectedCourse) {
+        [self.courseDataSource enumerateOverprintObjectsUsingBlock:^(id<ASOverprintObject> object, BOOL inSelectedCourse) {
             // Add a tracking rect for this object.
             // Set up a userInfo object for the tracking areas. We need to remember to check that the object actually
             // exists when we get around to dealing with an event for the given tracking area.
@@ -302,7 +302,7 @@
         [innerMagnifyingGlassLayer setNeedsDisplay];
         [CATransaction commit];
         // Invalidate the overprint for this object.
-        [self.overprintProvider hideCourseObject:self.draggedCourseObject informLayer:overprintLayer];
+        [self.overprintProvider hideOverprintObject:self.draggedCourseObject informLayer:overprintLayer];
     }
 }
 
@@ -311,14 +311,20 @@
 
     // Tell the overprint provider that a new control should be added at that position. Supply the symbol number from the map provider.
     //
-    enum ASCourseObjectType addingType;
+    enum ASOverprintObjectType addingType;
     switch (self.state) {
         case kASMapViewNormal:
+            if ([self.courseDataSource specificCourseSelected]) {
+                // Add to current course.
+                
+            }
+            self.draggedCourseObject = nil;
             return;
             break;
         case kASMapViewDraggingCourseObject:
             [self.draggedCourseObject setPosition:[tiledLayer convertPoint:eventLocationInView fromLayer:[self layer]]];
-            [self.overprintProvider showCourseObject:self.draggedCourseObject informLayer:overprintLayer];
+            [self.draggedCourseObject setSymbolNumber:[self.mapProvider symbolNumberAtPosition:self.draggedCourseObject.position]];
+            [self.overprintProvider showOverprintObject:self.draggedCourseObject informLayer:overprintLayer];
             [self.overprintProvider updateOverprint];
             self.state = kASMapViewNormal;
             self.draggedCourseObject = nil;
@@ -326,13 +332,13 @@
             return;
             break;
         case kASMapViewAddControls:
-            addingType = kASCourseObjectControl;
+            addingType = kASOverprintObjectControl;
             break;
         case kASMapViewAddStart:
-            addingType = kASCourseObjectStart;
+            addingType = kASOverprintObjectStart;
             break;
         case kASMapViewAddFinish:
-            addingType = kASCourseObjectFinish;
+            addingType = kASOverprintObjectFinish;
             break;
         default:
             return;
@@ -342,7 +348,7 @@
     NSPoint p = NSPointFromCGPoint([tiledLayer convertPoint:NSPointToCGPoint(eventLocationInView) fromLayer:[self layer]]);
     NSInteger i = [self.mapProvider symbolNumberAtPosition:p];
 
-    [self.courseDataSource addCourseObject:addingType atLocation:p symbolNumber:i];
+    [self.courseDataSource addOverprintObject:addingType atLocation:p symbolNumber:i];
     [overprintLayer setNeedsDisplay];
     [innerMagnifyingGlassLayer setNeedsDisplay];
 }
@@ -495,17 +501,17 @@
             CGPathAddEllipseInRect(path, NULL, CGRectMake(middle.x-0.5*z, middle.y-0.5*z, z, z));
             break;
         case kASMapViewDraggingCourseObject:
-            switch ([self.draggedCourseObject courseObjectType]) {
-                case kASCourseObjectControl:
+            switch ([self.draggedCourseObject objectType]) {
+                case kASOverprintObjectControl:
                     CGPathAddEllipseInRect(path, NULL, CGRectMake(45, 45, 90, 90));
                     break;
-                case kASCourseObjectFinish:
+                case kASOverprintObjectFinish:
                     z = 1.5*50;
                     CGPathAddEllipseInRect(path, NULL, CGRectMake(middle.x-0.5*z, middle.y-0.5*z, z, z));
                     z = 1.5*70;
                     CGPathAddEllipseInRect(path, NULL, CGRectMake(middle.x-0.5*z, middle.y-0.5*z, z, z));
                     break;
-                case kASCourseObjectStart:
+                case kASOverprintObjectStart:
                     z = 1.5*70.0/2.0/cos(M_PI/6);
                     CGPathMoveToPoint(path, NULL, middle.x, middle.y + z);
                     CGPathAddLineToPoint(path, NULL, middle.x + cos(M_PI/6)*z, middle.y - sin(M_PI/6)*z);

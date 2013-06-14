@@ -44,7 +44,7 @@
     NSArray *regularColumns = @[@(kASWhichOfAnySimilarFeature), @(kASFeature), @(kASAppearanceOrSecondaryFeature), @(kASDimensionsOrCombinations), @(kASLocationOfTheControlFlag), @(kASOtherInformation)];
     
     for (id <ASControlDescriptionItem> object in [self.provider controlDescriptionItemEnumerator]) {
-        if ([object courseObjectType] == kASCourseObjectControl) {
+        if ([object objectType] == kASOverprintObjectControl) {
             
             for (NSNumber *columnIntegerValue in regularColumns) {
                 enum ASControlDescriptionColumn column = (enum ASControlDescriptionColumn)[columnIntegerValue intValue];

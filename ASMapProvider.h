@@ -12,12 +12,12 @@
 
 @protocol ASOverprintProvider <NSObject>
 
-- (CGRect)frameForCourseObject:(id <ASCourseObject>)object;
-- (CGSize)frameSizeForCourseObjectType:(enum ASCourseObjectType)type;
+- (CGRect)frameForOverprintObject:(id <ASOverprintObject>)object;
+- (CGSize)frameSizeForOverprintObjectType:(enum ASOverprintObjectType)type;
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx;
 - (void)updateOverprint;
-- (void)hideCourseObject:(id <ASCourseObject>)courseObject informLayer:(CATiledLayer *)layer;
-- (void)showCourseObject:(id <ASCourseObject>)courseObject informLayer:(CATiledLayer *)layer;
+- (void)hideOverprintObject:(id <ASOverprintObject>)courseObject informLayer:(CATiledLayer *)layer;
+- (void)showOverprintObject:(id <ASOverprintObject>)courseObject informLayer:(CATiledLayer *)layer;
 
 @end
 

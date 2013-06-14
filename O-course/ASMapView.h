@@ -48,7 +48,7 @@ enum ASMapViewUIState {
 @property(nonatomic,strong) id <ASMapProvider> mapProvider;
 @property(nonatomic,strong) id <ASOverprintProvider> overprintProvider;
 @property(nonatomic,weak) IBOutlet id <ASCourseDataSource> courseDataSource;
-@property(nonatomic,strong) id <ASCourseObject> draggedCourseObject;
+@property(nonatomic,strong) id <ASOverprintObject> draggedCourseObject;
 @property(nonatomic,assign) BOOL showMagnifyingGlass;
 @property(nonatomic,assign) CGFloat zoom;
 @property(nonatomic,assign) enum ASMapViewUIState state;

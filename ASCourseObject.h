@@ -98,33 +98,44 @@ enum ASFeature {
     kASFeatureSpecialItem2
 };
 
-enum ASCourseObjectType {
-    kASCourseObjectStart,
-    kASCourseObjectControl,
-    kASCourseObjectTapedRouteFromControl,		// Specify distance
-	kASCourseObjectTapedRouteBetweenControls,	// Specify distance
-	kASCourseObjectMandatoryCrossingPoint,
-	kASCourseObjectMandatoryPassing,
-	kASCourseObjectTapedRouteToMapExchange,		// Specify distance
-	kASCourseObjectTapedRouteToFinish,			// Specify distance
-	kASCourseObjectPartlyTapedRouteToFinish,	// Specify distance
-	kASCourseObjectRouteToFinish,				// Specify distance
-    kASCourseObjectFinish                       // The finish is not actually displayed on
+enum ASOverprintObjectType {
+    kASOverprintObjectStart,
+    kASOverprintObjectControl,
+    kASOverprintObjectTapedRouteFromControl,		// Specify distance
+	kASOverprintObjectTapedRouteBetweenControls,	// Specify distance
+	kASOverprintObjectMandatoryCrossingPoint,
+	kASOverprintObjectMandatoryPassing,
+	kASOverprintObjectTapedRouteToMapExchange,		// Specify distance
+	kASOverprintObjectTapedRouteToFinish,			// Specify distance
+	kASOverprintObjectPartlyTapedRouteToFinish,	// Specify distance
+	kASOverprintObjectRouteToFinish,				// Specify distance
+    kASOverprintObjectFinish,                       // The finish is not actually displayed on
+    kASOverprintObjectMedical,
+    kASOverprintObjectRefreshments,
+    kASOverprintObjectForbiddenRoute,
+    kASOverprintObjectForbiddenArea,
+    kASOverprintObjectCrossingPoint
 };
 
-@protocol ASCourseObject <NSObject>
+@protocol ASOverprintObject <NSObject>
 
-- (enum ASCourseObjectType)courseObjectType;
+- (enum ASOverprintObjectType)objectType;
 - (CGPoint)position;
 - (void)setPosition:(CGPoint)newPosition;
+
+- (void)setSymbolNumber:(NSInteger)number;
+- (NSInteger)symbolNumber;
 
 @end
 
 @protocol ASCourseDataSource <NSObject>
 
-- (BOOL)addCourseObject:(enum ASCourseObjectType)objectType atLocation:(CGPoint)location symbolNumber:(NSInteger)symbolNumber;
-- (void)enumerateCourseObjectsUsingBlock:(void (^)(id <ASCourseObject> object, BOOL inSelectedCourse))handler;
-
+- (BOOL)addOverprintObject:(enum ASOverprintObjectType)objectType atLocation:(CGPoint)location symbolNumber:(NSInteger)symbolNumber;
+- (void)enumerateOverprintObjectsUsingBlock:(void (^)(id <ASOverprintObject> object, BOOL inSelectedCourse))handler;
+- (void)appendOverprintObjectToSelectedCourse:(id <ASOverprintObject>)object;
 - (BOOL)specificCourseSelected;
+
+- (NSEnumerator *)overprintObjectsInSelectedCourseEnumerator;
+- (NSEnumerator *)overprintObjectsNotInSelectedCourseEnumerator;
 
 @end

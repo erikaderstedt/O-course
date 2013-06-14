@@ -11,14 +11,14 @@
 #import "ASControlDescriptionProvider.h"
 
 
-@interface CourseObject : NSManagedObject <ASControlDescriptionItem, ASCourseObject>
+@interface OverprintObject : NSManagedObject <ASControlDescriptionItem, ASOverprintObject>
 
 @property (nonatomic,strong) NSDate *added;
 @property (nonatomic,strong) NSNumber *position_x;
 @property (nonatomic,strong) NSNumber *position_y;
 @property (nonatomic,strong) NSNumber *distance;
 @property (nonatomic,strong) NSNumber *angle;
-@property (nonatomic,assign) enum ASCourseObjectType courseObjectType;
+@property (nonatomic,assign) enum ASOverprintObjectType objectType;
 @property (nonatomic,strong) NSData *data;
 
 @property (nonatomic,strong) NSNumber *controlCode;
