@@ -16,10 +16,8 @@
 @synthesize document;
 
 - (void)dealloc {
-    
     if (_overprintColor != NULL) CGColorRelease(_overprintColor);
     if (_transparentOverprintColor != NULL) CGColorRelease(_transparentOverprintColor);
-    
 }
 
 - (CGColorRef)overprintColor {
@@ -43,9 +41,11 @@
 }
 
 - (void)awakeFromNib {
-    [super awakeFromNib];
-    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(courseChanged:) name:@"ASCourseChanged" object:[self.document managedObjectContext]];
+}
+
+- (void)teardown {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ASCourseChanged" object:[self.document managedObjectContext]];
 }
 
 - (void)courseChanged:(NSNotification *)n {
@@ -56,27 +56,42 @@
 
     NSAssert([NSThread isMainThread], @"Not the main thread.");
     @synchronized(self) {
-        cacheArray = nil;
+        self.cacheArray = nil;
     }
     
     NSMutableArray *ma = [NSMutableArray arrayWithCapacity:100];
 
     //    NSInteger controlNumber = 1;
     drawConnectingLines = [self.dataSource specificCourseSelected];
-    [self.dataSource enumerateOverprintObjectsUsingBlock:^(id<ASOverprintObject> object, BOOL inSelectedCourse) {
-        [ma addObject:@{ @"position":[NSValue valueWithPoint:NSPointFromCGPoint(object.position)],
-         @"type":@([object objectType]), @"in_course":@(inSelectedCourse), @"hidden":@NO}];
+    NSMutableArray *drawnObjects = [NSMutableArray arrayWithCapacity:100];
+    [self.dataSource enumerateOverprintObjectsInSelectedCourseUsingBlock:^(id<ASOverprintObject> object, NSInteger index) {
+        
+        [ma addObject:@{
+         @"position":[NSValue valueWithPoint:NSPointFromCGPoint(object.position)],
+         @"type":@([object objectType]),
+         @"in_course":@(YES),
+         @"hidden":@NO,
+         @"draw":@(![drawnObjects containsObject:object])}];
+        [drawnObjects addObject:object];
+    }];
+    [self.dataSource enumerateOtherOverprintObjectsUsingBlock:^(id<ASOverprintObject> object) {
+        [ma addObject:@{
+         @"position":[NSValue valueWithPoint:NSPointFromCGPoint(object.position)],
+         @"type":@([object objectType]),
+         @"in_course":@(NO),
+         @"hidden":@NO,
+         @"draw":@(YES)}];
     }];
     
     @synchronized(self) {
-        cacheArray = ma;
+        self.cacheArray = ma;
     }
     [[NSNotificationCenter defaultCenter] postNotificationName:@"ASOverprintChanged" object:nil];
 }
 
 - (void)updateOverprintObject:(id <ASOverprintObject>)courseObject withNewPosition:(CGPoint)p inLayer:(CATiledLayer *)layer {
     @synchronized(self) {
-        NSMutableArray *ma = [NSMutableArray arrayWithArray:cacheArray];
+        NSMutableArray *ma = [NSMutableArray arrayWithArray:self.cacheArray];
         NSPoint p_orig = NSPointFromCGPoint([courseObject position]);
         __block NSUInteger modifyIndex = NSNotFound;
         [ma enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
@@ -93,7 +108,7 @@
             [ma replaceObjectAtIndex:modifyIndex withObject:@{ @"position":[NSValue valueWithPoint:NSPointFromCGPoint(p)],
              @"type":@([courseObject objectType]), @"in_course":[[ma objectAtIndex:modifyIndex] valueForKey:@"in_course"], @"hidden":[[ma objectAtIndex:modifyIndex] valueForKey:@"hidden"]}];
             [layer setNeedsDisplayInRect:[self frameForOverprintObject:courseObject]];
-            cacheArray = ma;
+            self.cacheArray = ma;
         }
     }
 }
@@ -147,7 +162,7 @@
 
 - (void)alterCourseObject:(id<ASOverprintObject>)courseObject informLayer:(CATiledLayer *)layer hidden:(BOOL)hide {
     @synchronized(self) {
-        NSMutableArray *ma = [NSMutableArray arrayWithArray:cacheArray];
+        NSMutableArray *ma = [NSMutableArray arrayWithArray:self.cacheArray];
         NSPoint p_orig = NSPointFromCGPoint([courseObject position]);
         __block NSUInteger modifyIndex = NSNotFound;
         [ma enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
@@ -163,7 +178,7 @@
             [values setObject:@(hide) forKey:@"hidden"];
             [ma replaceObjectAtIndex:modifyIndex withObject:values];
             [layer setNeedsDisplayInRect:[self frameForOverprintObject:courseObject]];
-            cacheArray = ma;
+            self.cacheArray = ma;
         }
     }
 }
@@ -181,11 +196,11 @@
 // This is called on several different background threads. It isn't practical to use different managed object context for this.
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
 
-    if (cacheArray == nil) return;
+    if (self.cacheArray == nil) return;
     
     NSArray *cacheCopy;
     @synchronized(self) {
-        cacheCopy = [NSArray arrayWithArray:cacheArray];
+        cacheCopy = [NSArray arrayWithArray:self.cacheArray];
     }
     
     // Draw the actual course.
@@ -204,51 +219,52 @@
         
         CGRect r;
         CGFloat z;
-        if ([[courseObjectInfo objectForKey:@"hidden"] boolValue] == NO) {
-        switch (type) {
-            case kASOverprintObjectControl:
-                r = CGRectMake(p.x-300.0, p.y-300.0, 600.0, 600.0);
-                if (CGRectIntersectsRect(CGRectInset(r, -50.0, -50.0), clipBox)) {
-                    CGContextBeginPath(ctx);
-                    CGContextAddEllipseInRect(ctx, r);
-                    CGContextSetLineWidth(ctx, 35.0);
-                    CGContextStrokePath(ctx);
-                }
-                break;
-            case kASOverprintObjectStart:
-                if (drawConnectingLines && inCourse) {
-                    angle = [[self class] angleBetweenStartAndFirstControlUsingCache:cacheCopy];
-                } else {
-                    angle = -M_PI/6.0;
-                }
-                z = 700.0/2.0/cos(M_PI/6);
-                r = CGRectMake(p.x-400.0, p.y-400.0, 800.0, 800.0);
-                if (CGRectIntersectsRect(r, clipBox)) {
-                    CGContextBeginPath(ctx);
-                    CGContextMoveToPoint(ctx, p.x + z*cos(angle), p.y + z*sin(angle));
-                    angle += 2.0*M_PI/3.0; CGContextAddLineToPoint(ctx, p.x + z*cos(angle), p.y + z*sin(angle));
-                    angle += 2.0*M_PI/3.0; CGContextAddLineToPoint(ctx, p.x + z*cos(angle), p.y + z*sin(angle));
-                    
-                    CGContextClosePath(ctx);
-                    CGContextSetLineWidth(ctx, 35.0);
-                    CGContextStrokePath(ctx);
-                }
-                break;
-            case kASOverprintObjectFinish:
-                r = CGRectMake(p.x-350.0, p.y-350.0, 700.0, 700.0);
-                if (CGRectIntersectsRect(CGRectInset(r, -50.0, -50.0), clipBox)) {
-                    CGContextBeginPath(ctx);
-                    CGContextSetLineWidth(ctx, 35.0);
-                    CGContextAddEllipseInRect(ctx, r);
-                    r = CGRectMake(p.x-250.0, p.y-250.0, 500.0, 500.0);
-                    CGContextAddEllipseInRect(ctx, r);
-                    CGContextStrokePath(ctx);
-                    
-                }
-                break;
-            default:
-                break;
-        }
+        if ([[courseObjectInfo objectForKey:@"hidden"] boolValue] == NO &&
+            [[courseObjectInfo objectForKey:@"draw"] boolValue] == YES) {
+            switch (type) {
+                case kASOverprintObjectControl:
+                    r = CGRectMake(p.x-300.0, p.y-300.0, 600.0, 600.0);
+                    if (CGRectIntersectsRect(CGRectInset(r, -50.0, -50.0), clipBox)) {
+                        CGContextBeginPath(ctx);
+                        CGContextAddEllipseInRect(ctx, r);
+                        CGContextSetLineWidth(ctx, 35.0);
+                        CGContextStrokePath(ctx);
+                    }
+                    break;
+                case kASOverprintObjectStart:
+                    if (drawConnectingLines && inCourse) {
+                        angle = [[self class] angleBetweenStartAndFirstControlUsingCache:cacheCopy];
+                    } else {
+                        angle = -M_PI/6.0;
+                    }
+                    z = 700.0/2.0/cos(M_PI/6);
+                    r = CGRectMake(p.x-400.0, p.y-400.0, 800.0, 800.0);
+                    if (CGRectIntersectsRect(r, clipBox)) {
+                        CGContextBeginPath(ctx);
+                        CGContextMoveToPoint(ctx, p.x + z*cos(angle), p.y + z*sin(angle));
+                        angle += 2.0*M_PI/3.0; CGContextAddLineToPoint(ctx, p.x + z*cos(angle), p.y + z*sin(angle));
+                        angle += 2.0*M_PI/3.0; CGContextAddLineToPoint(ctx, p.x + z*cos(angle), p.y + z*sin(angle));
+                        
+                        CGContextClosePath(ctx);
+                        CGContextSetLineWidth(ctx, 35.0);
+                        CGContextStrokePath(ctx);
+                    }
+                    break;
+                case kASOverprintObjectFinish:
+                    r = CGRectMake(p.x-350.0, p.y-350.0, 700.0, 700.0);
+                    if (CGRectIntersectsRect(CGRectInset(r, -50.0, -50.0), clipBox)) {
+                        CGContextBeginPath(ctx);
+                        CGContextSetLineWidth(ctx, 35.0);
+                        CGContextAddEllipseInRect(ctx, r);
+                        r = CGRectMake(p.x-250.0, p.y-250.0, 500.0, 500.0);
+                        CGContextAddEllipseInRect(ctx, r);
+                        CGContextStrokePath(ctx);
+                        
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
         
         if (drawConnectingLines && inCourse) {
@@ -270,10 +286,7 @@
             }
             previousCourseObject = courseObjectInfo;
         }
-
     }
-    
 }
-
 
 @end

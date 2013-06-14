@@ -27,14 +27,15 @@
     CGColorRef _overprintColor;
     CGColorRef _transparentOverprintColor;
     
-    NSArray *cacheArray;
     NSData *cachedCuts;
     
     BOOL drawConnectingLines;
 }
 @property (nonatomic,weak) IBOutlet id <ASCourseDataSource> dataSource;
 @property (nonatomic,weak) IBOutlet ASOcourseDocument *document;
+@property (nonatomic,strong) NSArray *cacheArray;
 
 - (CGColorRef)overprintColor;
 
+- (void)teardown;
 @end

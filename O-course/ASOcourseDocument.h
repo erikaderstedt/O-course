@@ -15,9 +15,6 @@
 
 @interface ASOcourseDocument : NSDocument {
 @private
-	ASMapView *__weak mapView;
-    ASOverprintController *__weak overprintController;
-    ASCourseController *__weak courseController;
     NSObjectController *__weak projectController;
     
     NSPersistentStoreCoordinator *_psc;
@@ -25,8 +22,8 @@
 	NSManagedObjectModel *_model;
 }
 @property (nonatomic,weak) IBOutlet ASMapView *mapView;
-@property (nonatomic,weak) IBOutlet ASOverprintController *overprintController;
-@property (nonatomic,weak) IBOutlet ASCourseController *courseController;
+@property (nonatomic,strong) IBOutlet ASOverprintController *overprintController;
+@property (nonatomic,strong) IBOutlet ASCourseController *courseController;
 @property (nonatomic,weak) IBOutlet NSObjectController *projectController;
 @property (nonatomic,strong) NSURL *mapURL;
 @property (nonatomic,weak) IBOutlet NSPopover *controlDefinitionsPopover;

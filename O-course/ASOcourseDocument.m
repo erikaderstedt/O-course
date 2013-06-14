@@ -181,12 +181,14 @@ out_error:
     [self.courseController setManagedObjectContext:[self managedObjectContext]];
     [self.courseController willAppear];
     
-    [self.overprintController updateOverprint];
+//    [self.overprintController updateOverprint];
     mapView.overprintProvider = self.overprintController;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(undoOrRedo:) name:NSUndoManagerDidUndoChangeNotification object:[[self managedObjectContext] undoManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(undoOrRedo:) name:NSUndoManagerDidRedoChangeNotification object:[[self managedObjectContext] undoManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(courseChanged:) name:@"ASCourseChanged" object:[self managedObjectContext]];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"ASCourseChanged" object:[self managedObjectContext]];
 }
 
 - (void)undoOrRedo:(NSNotification *)n {
@@ -194,6 +196,11 @@ out_error:
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
+    [self.overprintController teardown];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSUndoManagerDidRedoChangeNotification object:[[self managedObjectContext] undoManager]];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSUndoManagerDidUndoChangeNotification object:[[self managedObjectContext] undoManager]];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ASCourseChanged" object:[[self managedObjectContext] undoManager]];
     
     [self.courseController setManagedObjectContext:nil];
     [self.courseController willDisappear];

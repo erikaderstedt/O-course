@@ -37,6 +37,10 @@
     return self;
 }
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ASOverprintChanged" object:nil];
+}
+
 - (void)setup {
     
     NSMutableParagraphStyle *mps = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
@@ -229,6 +233,7 @@
     
     // Draw the items.
     NSInteger consecutiveRegularControls = 0, controlNumber = 1;
+    [self.pro]
     for (id <ASControlDescriptionItem> item in [self.provider controlDescriptionItemEnumerator]) {
         enum ASOverprintObjectType type = [item objectType];
         [NSBezierPath setDefaultLineWidth:((++consecutiveRegularControls == 3) || (type == kASOverprintObjectStart))?THICK_LINE:THIN_LINE];

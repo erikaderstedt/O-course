@@ -63,7 +63,7 @@
             return nil;
         }
     } else if ([[aTableColumn identifier] isEqualToString:@"number_of_controls"]) {
-        NSPredicate *controlsOnly = [NSPredicate predicateWithFormat:@"type == %@", @(kASOverprintObjectControl)];
+        NSPredicate *controlsOnly = [NSPredicate predicateWithFormat:@"overprintObject.type == %@", @(kASOverprintObjectControl)];
         if (rowIndex == 0) {
             NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"CourseObject"];
             [request setPredicate:controlsOnly];
@@ -71,7 +71,7 @@
         } else {
             if (rowIndex - 1 < [[self.courses arrangedObjects] count]) {
                 NSManagedObject *thisCourse = [self.courses arrangedObjects][(rowIndex - 1)];
-                return @([[[[thisCourse valueForKey:@"controls"] allObjects] filteredArrayUsingPredicate:controlsOnly] count]);
+                return @([[[[thisCourse valueForKey:@"courseObjects"] allObjects] filteredArrayUsingPredicate:controlsOnly] count]);
             }
             return nil;
         }
@@ -150,8 +150,20 @@
     return nil; // Not yet implemented.
 }
 
-// Each item returned by the course object enumerator conforms
-// to <ASControlDescriptionItem>
+- (NSInteger)numberOfControlDescriptionItems {
+    if ([[self.courses selectedObjects] count]) {
+        NSManagedObject *course = [self.courses arrangedObjects][0];
+        return [[course valueForKeyPath:@"courseObjects.@count"] integerValue];
+    }
+    NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"OverprintObject"];
+    return [[self managedObjectContext] countForFetchRequest:fr error:nil];
+}
+
+- (void)enumerateControlDescriptionItemsUsingBlock:(void (^)(id<ASControlDescriptionItem>))handler {
+    if ([[self.courses selectedObjects] count]) {
+    
+}
+
 - (NSEnumerator *)controlDescriptionItemEnumerator {
     if ([[self.courses selectedObjects] count]) {
         NSManagedObject *course = [self.courses arrangedObjects][0];
@@ -163,25 +175,6 @@
                              [NSSortDescriptor sortDescriptorWithKey:@"added" ascending:YES]]];
     
     return [[managedObjectContext executeFetchRequest:fr error:nil] objectEnumerator];
-}
-
-- (NSEnumerator *)overprintObjectsInSelectedCourseEnumerator {
-    return [self controlDescriptionItemEnumerator];
-}
-
-- (NSEnumerator *)overprintObjectsNotInSelectedCourseEnumerator {
-        if (![[self.courses selectedObjects] count]) {
-            return [@[] objectEnumerator];
-        }
-        NSManagedObject *course = [self.courses arrangedObjects][0];
-        
-        NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"OverprintObject"];
-        [fr setSortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"type" ascending:YES],
-         [NSSortDescriptor sortDescriptorWithKey:@"added" ascending:YES]]];
-        
-        NSMutableSet *set = [NSMutableSet setWithArray:[managedObjectContext executeFetchRequest:fr error:nil]];
-        [set minusSet:[course valueForKeyPath:@"courseObjects.overprintObject"]];
-        return [set objectEnumerator];
 }
 
 // Each item returned by the course object enumerator conforms
@@ -217,21 +210,46 @@
     return [[self.courses selectedObjects] count];
 }
 
-- (void)enumerateOverprintObjectsUsingBlock:(void (^)(id <ASOverprintObject> object, BOOL inSelectedCourse))handler {
+- (void)enumerateOverprintObjectsInSelectedCourseUsingBlock:(void (^)(id <ASOverprintObject> object, NSInteger index))handler {
+    __block NSInteger reg = 1;
+    Course *selectedCourse = [self selectedCourse];
+    if (selectedCourse == nil) return;
+    for (NSManagedObject *courseObject in [selectedCourse valueForKey:@"courseObjects"]) {
+        OverprintObject *o = [courseObject valueForKey:@"overprintObject"];
+        NSAssert(o != nil, @"No overprint object!");
+        handler(o, ([o objectType] == kASOverprintObjectControl)?(reg++):(NSNotFound));
+    }
+}
+
+- (void)enumerateOtherOverprintObjectsUsingBlock:(void (^)(id <ASOverprintObject> object))handler {
     NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"OverprintObject"];
     NSArray *allCourseObjects = [[self managedObjectContext] executeFetchRequest:fr error:nil];
-    BOOL allSelected = ![self specificCourseSelected];
+
+    NSOrderedSet *objectsInSelected = [[self selectedCourse] valueForKeyPath:@"courseObjects.overprintObject"];
+    NSMutableSet *notSelected = [NSMutableSet setWithArray:allCourseObjects];
+    [notSelected minusSet:[objectsInSelected set]];
+    for (OverprintObject *courseObject in notSelected) {
+            handler(courseObject);
+    }
+}
+
+- (void)enumerateAllOverprintObjectsUsingBlock:(void (^)(id <ASOverprintObject> object))handler {
+    NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"OverprintObject"];
+    NSArray *allCourseObjects = [[self managedObjectContext] executeFetchRequest:fr error:nil];
+    
     for (OverprintObject *courseObject in allCourseObjects) {
-        if (allSelected)
-            handler(courseObject, YES);
-        else
-            handler(courseObject, [[[self.courses valueForKeyPath:@"overprintObject"] selectedObjects] containsObject:courseObject]);
+        handler(courseObject);
     }
 }
 
 - (void)appendOverprintObjectToSelectedCourse:(id<ASOverprintObject>)object {
     NSAssert([self specificCourseSelected], @"No specific course selected");
     
+    // Get the actual NSManagedObject from the id <ASOverprintObject>
+    OverprintObject *o = (OverprintObject *)object;
+    [[self selectedCourse] appendOverprintObject:o];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"ASCourseChanged" object:self.managedObjectContext];
+
 }
 
 #pragma mark -

@@ -34,13 +34,16 @@
 }
 
 - (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewFrameDidChangeNotification object:[self enclosingScrollView]];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ASOverprintChanged" object:nil];
 	[_magnifyingGlass removeFromSuperlayer];
 }
 
 - (void)awakeFromNib {
+    [super awakeFromNib];
+    
 	[self setPostsFrameChangedNotifications:YES];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameChanged:) name:NSViewFrameDidChangeNotification object:[self enclosingScrollView]];
-    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(overprintChanged:) name:@"ASOverprintChanged" object:nil];
     
     [[self enclosingScrollView] setBackgroundColor:[NSColor whiteColor]];
@@ -223,7 +226,7 @@
 		[self addTrackingArea:glassTrackingArea];
 	} else {
         // Now add tracking areas for each course object.
-        [self.courseDataSource enumerateOverprintObjectsUsingBlock:^(id<ASOverprintObject> object, BOOL inSelectedCourse) {
+        [self.courseDataSource enumerateAllOverprintObjectsUsingBlock:^(id<ASOverprintObject> object) {
             // Add a tracking rect for this object.
             // Set up a userInfo object for the tracking areas. We need to remember to check that the object actually
             // exists when we get around to dealing with an event for the given tracking area.
@@ -316,7 +319,7 @@
         case kASMapViewNormal:
             if ([self.courseDataSource specificCourseSelected]) {
                 // Add to current course.
-                
+                [self.courseDataSource appendOverprintObjectToSelectedCourse:self.draggedCourseObject];
             }
             self.draggedCourseObject = nil;
             return;

@@ -22,10 +22,11 @@
 }
 
 - (void)insertOverprintObject:(OverprintObject *)object atPosition:(NSUInteger)position {
+    NSAssert(object != nil, @"Can't insert a nil object into the course!");
+
     NSManagedObject *courseObject = [NSEntityDescription insertNewObjectForEntityForName:@"CourseObject" inManagedObjectContext:self.managedObjectContext];
-    
     [courseObject setValue:object forKey:@"overprintObject"];
-    [(NSMutableOrderedSet *)[self valueForKey:@"courseObjects"] insertObject:courseObject atIndex:position];
+    [[self mutableOrderedSetValueForKey:@"courseObjects"] insertObject:courseObject atIndex:position];
 }
 
 @end
