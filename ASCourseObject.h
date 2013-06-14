@@ -137,7 +137,4 @@ enum ASOverprintObjectType {
 - (void)appendOverprintObjectToSelectedCourse:(id <ASOverprintObject>)object;
 - (BOOL)specificCourseSelected;
 
-- (NSEnumerator *)overprintObjectsInSelectedCourseEnumerator;
-- (NSEnumerator *)overprintObjectsNotInSelectedCourseEnumerator;
-
 @end

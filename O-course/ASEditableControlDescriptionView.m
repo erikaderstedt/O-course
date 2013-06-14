@@ -40,11 +40,11 @@
     }
     
     // Add a tracking area for each element that can be changed.
-    NSInteger topItem = [self numberOfItems] - [[[self.provider controlDescriptionItemEnumerator] allObjects] count];
+    __block NSInteger topItem = [self numberOfItems] - [self.provider numberOfControlDescriptionItems];
     NSArray *regularColumns = @[@(kASWhichOfAnySimilarFeature), @(kASFeature), @(kASAppearanceOrSecondaryFeature), @(kASDimensionsOrCombinations), @(kASLocationOfTheControlFlag), @(kASOtherInformation)];
     
-    for (id <ASControlDescriptionItem> object in [self.provider controlDescriptionItemEnumerator]) {
-        if ([object objectType] == kASOverprintObjectControl) {
+    [self.provider enumerateControlDescriptionItemsUsingBlock:^(id<ASControlDescriptionItem> item) {
+        if ([item objectType] == kASOverprintObjectControl) {
             
             for (NSNumber *columnIntegerValue in regularColumns) {
                 enum ASControlDescriptionColumn column = (enum ASControlDescriptionColumn)[columnIntegerValue intValue];
@@ -52,12 +52,12 @@
                 NSTrackingArea *ta = [[NSTrackingArea alloc] initWithRect:NSIntegralRect(NSInsetRect(r, 1, 1))
                                                                   options:NSTrackingMouseEnteredAndExited | NSTrackingActiveInKeyWindow
                                                                     owner:self
-                                                                 userInfo:@{@"object":object, @"column":@(column)}];
+                                                                 userInfo:@{@"object":item, @"column":@(column)}];
                 [self addTrackingArea:ta];
             }
             topItem ++;
         }
-    }
+    }];
 }
 
 - (void)mouseEntered:(NSEvent *)theEvent {

@@ -120,7 +120,7 @@
 - (NSInteger)numberOfItems {
     NSInteger numberOfItems;
     
-    numberOfItems = [[[self.provider controlDescriptionItemEnumerator] allObjects] count];
+    numberOfItems = [self.provider numberOfControlDescriptionItems];
     if ([self.provider eventName]) numberOfItems++;
     if ([self.provider classNames]) numberOfItems ++;
     if ([self.provider number] || [self.provider length]) numberOfItems ++;
@@ -183,8 +183,8 @@
     [NSBezierPath setDefaultLineWidth:THICK_LINE];
     [NSBezierPath strokeRect:NSRectFromCGRect(paperBounds)];
     
-    CGFloat x, y;
-    NSSize sz, block;
+    __block CGFloat x, y;
+    __block NSSize sz, block;
     x = CGRectGetMinX(paperBounds);
     y = CGRectGetMaxY(paperBounds);
     block = NSMakeSize(blockSize, blockSize);
@@ -232,30 +232,29 @@
     }
     
     // Draw the items.
-    NSInteger consecutiveRegularControls = 0, controlNumber = 1;
-    [self.pro]
-    for (id <ASControlDescriptionItem> item in [self.provider controlDescriptionItemEnumerator]) {
+    __block NSInteger consecutiveRegularControls = 0, controlNumber = 1;
+    [self.provider enumerateControlDescriptionItemsUsingBlock:^(id<ASControlDescriptionItem> item) {
         enum ASOverprintObjectType type = [item objectType];
         [NSBezierPath setDefaultLineWidth:((++consecutiveRegularControls == 3) || (type == kASOverprintObjectStart))?THICK_LINE:THIN_LINE];
         x = paperBounds.origin.x;
-        [NSBezierPath strokeLineFromPoint:NSMakePoint(x, y) 
+        [NSBezierPath strokeLineFromPoint:NSMakePoint(x, y)
                                   toPoint:NSMakePoint(x + paperBounds.size.width, y)];
-
-        if (type == kASOverprintObjectStart || type == kASOverprintObjectControl) { 
-
+        
+        if (type == kASOverprintObjectStart || type == kASOverprintObjectControl) {
+            
             [self drawThickGridAtOrigin:NSMakePoint(x, y)];
             [self drawThinGridAtOrigin:NSMakePoint(x, y)];
-
+            
             if (type == kASOverprintObjectControl) {
                 // Draw number and control code.
                 NSString *s = [NSString stringWithFormat:@"%d", (int)(controlNumber++)];
                 sz = [s boundingRectWithSize:block
-                                                             options:NSStringDrawingUsesFontLeading 
-                                                          attributes:boldAttributes].size;
+                                     options:NSStringDrawingUsesFontLeading
+                                  attributes:boldAttributes].size;
                 [s drawInRect:NSIntegralRect(NSMakeRect(x, y- 0.5*(blockSize - sz.height), blockSize, blockSize)) withAttributes:boldAttributes];
                 s = [NSString stringWithFormat:@"%@", [item controlCode]];
                 sz = [s boundingRectWithSize:block
-                                     options:NSStringDrawingUsesFontLeading 
+                                     options:NSStringDrawingUsesFontLeading
                                   attributes:regularAttributes].size;
                 [s drawInRect:NSIntegralRect(NSMakeRect(x + blockSize+1.0, y- 0.5*(blockSize - sz.height), blockSize, blockSize)) withAttributes:regularAttributes];
                 
@@ -289,13 +288,13 @@
             // If the previous horizontal divider was drawn with a thin line, we redraw it with a thick line. Always.
             x = paperBounds.origin.x;
             [NSBezierPath setDefaultLineWidth:THICK_LINE];
-            [NSBezierPath strokeLineFromPoint:NSMakePoint(x, y + blockSize) 
-                                          toPoint:NSMakePoint(x + paperBounds.size.width, y + blockSize)];
+            [NSBezierPath strokeLineFromPoint:NSMakePoint(x, y + blockSize)
+                                      toPoint:NSMakePoint(x + paperBounds.size.width, y + blockSize)];
             CGFloat blankSegment = 0.0;
             if ([item distance] != nil) {
                 NSString *s = [distanceFormatter stringFromNumber:[item distance]];
                 sz = [s boundingRectWithSize:NSMakeSize(blockSize * 4.0, blockSize)
-                                     options:NSStringDrawingUsesFontLeading 
+                                     options:NSStringDrawingUsesFontLeading
                                   attributes:regularAttributes].size;
                 [s drawInRect:NSIntegralRect(NSMakeRect(x+2.0*blockSize, y - 0.5*(blockSize - sz.height), 4.0*blockSize, blockSize)) withAttributes:regularAttributes];
                 blankSegment = sz.width;
@@ -303,7 +302,7 @@
             [[self bezierPathForTapedRoute:type atPosition:NSMakePoint(x, y) blankSegment:blankSegment] stroke];
         }
         y -= blockSize;
-    }
+    }];
 }
 
 - (NSBezierPath *)bezierPathForTapedRoute:(enum ASOverprintObjectType)routeType atPosition:(NSPoint)p blankSegment:(CGFloat)leaveThisBlank {

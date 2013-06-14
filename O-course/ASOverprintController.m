@@ -74,11 +74,12 @@
          @"draw":@(![drawnObjects containsObject:object])}];
         [drawnObjects addObject:object];
     }];
+    BOOL singleCourse = [self.dataSource specificCourseSelected];
     [self.dataSource enumerateOtherOverprintObjectsUsingBlock:^(id<ASOverprintObject> object) {
         [ma addObject:@{
          @"position":[NSValue valueWithPoint:NSPointFromCGPoint(object.position)],
          @"type":@([object objectType]),
-         @"in_course":@(NO),
+         @"in_course":@(singleCourse?NO:YES),
          @"hidden":@NO,
          @"draw":@(YES)}];
     }];

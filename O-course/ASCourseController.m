@@ -161,20 +161,19 @@
 
 - (void)enumerateControlDescriptionItemsUsingBlock:(void (^)(id<ASControlDescriptionItem>))handler {
     if ([[self.courses selectedObjects] count]) {
-    
-}
-
-- (NSEnumerator *)controlDescriptionItemEnumerator {
-    if ([[self.courses selectedObjects] count]) {
         NSManagedObject *course = [self.courses arrangedObjects][0];
-        return [[course valueForKeyPath:@"courseObjects.overprintObject"] objectEnumerator];
+        for (NSManagedObject *courseObject in [course valueForKey:@"courseObjects"]) {
+            handler([courseObject valueForKey:@"overprintObject"]);
+        }
+    } else {
+        NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"OverprintObject"];
+        [fr setSortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"type" ascending:YES],
+         [NSSortDescriptor sortDescriptorWithKey:@"added" ascending:YES]]];
+        for (OverprintObject *object in [[self managedObjectContext] executeFetchRequest:fr error:nil]) {
+            handler(object);
+        }
     }
-
-    NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"OverprintObject"];
-    [fr setSortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"type" ascending:YES],
-                             [NSSortDescriptor sortDescriptorWithKey:@"added" ascending:YES]]];
     
-    return [[managedObjectContext executeFetchRequest:fr error:nil] objectEnumerator];
 }
 
 // Each item returned by the course object enumerator conforms
