@@ -134,9 +134,11 @@
 			</object>
 			<object class="NSViewController" id="603562653"/>
 			<object class="NSCustomView" id="129236480">
-				<nil key="NSNextResponder"/>
+				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">268</int>
 				<string key="NSFrameSize">{285, 79}</string>
+				<reference key="NSSuperview"/>
+				<reference key="NSWindow"/>
 				<string key="NSReuseIdentifierKey">_NS:9</string>
 				<string key="NSClassName">ASCourseObjectSelectionView</string>
 			</object>
@@ -473,7 +475,7 @@
 				<nil key="NSUserInterfaceItemIdentifier"/>
 				<string key="NSWindowContentMinSize">{94, 86}</string>
 				<object class="NSView" key="NSWindowView" id="158704167">
-					<nil key="NSNextResponder"/>
+					<reference key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<array class="NSMutableArray" key="NSSubviews">
 						<object class="NSScrollView" id="767478366">
@@ -490,6 +492,7 @@
 											<array class="NSMutableArray" key="NSSubviews"/>
 											<string key="NSFrameSize">{534, 453}</string>
 											<reference key="NSSuperview" ref="485901114"/>
+											<reference key="NSWindow"/>
 											<reference key="NSNextKeyView" ref="1007100409"/>
 											<bool key="NSViewIsLayerTreeHost">YES</bool>
 											<string key="NSClassName">ASMapView</string>
@@ -497,6 +500,7 @@
 									</array>
 									<string key="NSFrame">{{1, 1}, {534, 453}}</string>
 									<reference key="NSSuperview" ref="767478366"/>
+									<reference key="NSWindow"/>
 									<reference key="NSNextKeyView" ref="627403326"/>
 									<reference key="NSDocView" ref="627403326"/>
 									<object class="NSColor" key="NSBGColor">
@@ -515,6 +519,7 @@
 									<int key="NSvFlags">-2147483392</int>
 									<string key="NSFrame">{{365, 1}, {15, 704}}</string>
 									<reference key="NSSuperview" ref="767478366"/>
+									<reference key="NSWindow"/>
 									<reference key="NSNextKeyView" ref="398094403"/>
 									<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 									<reference key="NSTarget" ref="767478366"/>
@@ -527,6 +532,7 @@
 									<int key="NSvFlags">-2147483392</int>
 									<string key="NSFrame">{{1, 705}, {364, 15}}</string>
 									<reference key="NSSuperview" ref="767478366"/>
+									<reference key="NSWindow"/>
 									<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 									<int key="NSsFlags">1</int>
 									<reference key="NSTarget" ref="767478366"/>
@@ -536,6 +542,7 @@
 							</array>
 							<string key="NSFrameSize">{536, 455}</string>
 							<reference key="NSSuperview" ref="158704167"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="485901114"/>
 							<bool key="NSViewIsLayerTreeHost">YES</bool>
 							<int key="NSsFlags">264754</int>
@@ -548,6 +555,8 @@
 						</object>
 					</array>
 					<string key="NSFrameSize">{536, 455}</string>
+					<reference key="NSSuperview"/>
+					<reference key="NSWindow"/>
 					<reference key="NSNextKeyView" ref="767478366"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1440, 900}}</string>
@@ -589,9 +598,11 @@
 				</array>
 			</object>
 			<object class="NSCustomView" id="151321615">
-				<nil key="NSNextResponder"/>
+				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">268</int>
-				<string key="NSFrameSize">{224, 460}</string>
+				<string key="NSFrameSize">{183, 389}</string>
+				<reference key="NSSuperview"/>
+				<reference key="NSWindow"/>
 				<string key="NSReuseIdentifierKey">_NS:9</string>
 				<string key="NSClassName">ASEditableControlDescriptionView</string>
 			</object>
@@ -619,7 +630,7 @@
 										<object class="NSTableView" id="741939773">
 											<reference key="NSNextResponder" ref="109719039"/>
 											<int key="NSvFlags">256</int>
-											<string key="NSFrameSize">{547, 279}</string>
+											<string key="NSFrameSize">{545.5, 279}</string>
 											<reference key="NSSuperview" ref="109719039"/>
 											<reference key="NSNextKeyView" ref="1050712557"/>
 											<string key="NSReuseIdentifierKey">_NS:13</string>
@@ -629,7 +640,7 @@
 											<object class="NSTableHeaderView" key="NSHeaderView" id="444483360">
 												<reference key="NSNextResponder" ref="1050712557"/>
 												<int key="NSvFlags">256</int>
-												<string key="NSFrameSize">{547, 17}</string>
+												<string key="NSFrameSize">{545.5, 17}</string>
 												<reference key="NSSuperview" ref="1050712557"/>
 												<reference key="NSNextKeyView" ref="109719039"/>
 												<string key="NSReuseIdentifierKey">_NS:16</string>
@@ -2370,7 +2381,6 @@
 					<dictionary class="NSMutableDictionary" key="actions">
 						<string key="addCourse:">id</string>
 						<string key="cancelCoursePanel:">id</string>
-						<string key="chooseCourse:">id</string>
 						<string key="duplicateCourse:">id</string>
 						<string key="okCoursePanel:">id</string>
 						<string key="removeCourse:">id</string>
@@ -2383,10 +2393,6 @@
 						</object>
 						<object class="IBActionInfo" key="cancelCoursePanel:">
 							<string key="name">cancelCoursePanel:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="chooseCourse:">
-							<string key="name">chooseCourse:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="duplicateCourse:">
@@ -2527,13 +2533,13 @@
 						</object>
 					</dictionary>
 					<object class="NSMutableDictionary" key="outlets">
-						<string key="NS.key.0">courseDelegate</string>
+						<string key="NS.key.0">courseDataSource</string>
 						<string key="NS.object.0">id</string>
 					</object>
 					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
-						<string key="NS.key.0">courseDelegate</string>
+						<string key="NS.key.0">courseDataSource</string>
 						<object class="IBToOneOutletInfo" key="NS.object.0">
-							<string key="name">courseDelegate</string>
+							<string key="name">courseDataSource</string>
 							<string key="candidateClassName">id</string>
 						</object>
 					</object>
