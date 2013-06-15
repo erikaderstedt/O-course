@@ -143,13 +143,11 @@
         _printedMapLayer.shadowOpacity = 0.3;
         _printedMapLayer.shadowOffset = CGSizeMake(8.0, -8.0);
         _printedMapLayer.shadowRadius = 8.0;
-        _printedMapLayer.hidden = YES;
+        _printedMapLayer.hidden = NO;
         _printedMapLayer.name = @"paper";
 
         CGColorRelease(white);
         CGColorRelease(black);
-        
-        [self adjustPrintedMapLayerForBoundsAndMargins];
         
     }
     return _printedMapLayer;
@@ -173,24 +171,25 @@
     // Set the outer bounds. These are determined
     CGRect r = [[[self enclosingScrollView] superview] bounds], page;
     CGFloat a4ratio = 29.7/21.0;
+    CGFloat fraction = 0.8;
     if (orientation == NSLandscapeOrientation) {
         if (r.size.width / r.size.height > a4ratio) {
             // There will be extra space to the left and right.
-            page.size.height = 0.7*r.size.height;
+            page.size.height = fraction*r.size.height;
             page.size.width = a4ratio*page.size.height;
         } else {
             // There will be extra space top and bottom.
-            page.size.width = 0.7*r.size.width;
-            page.size.height = a4ratio * page.size.width;
+            page.size.width = fraction*r.size.width;
+            page.size.height = page.size.width/a4ratio;
         }
     } else {
         if (r.size.height / r.size.width < a4ratio) {
             // There will be extra space to the left and right.
-            page.size.height = 0.7*r.size.height;
-            page.size.width = a4ratio*page.size.height;
+            page.size.height = fraction*r.size.height;
+            page.size.width = page.size.height/a4ratio;
         } else {
             // There will be extra space top and bottom.
-            page.size.width = 0.7*r.size.width;
+            page.size.width = fraction*r.size.width;
             page.size.height = a4ratio * page.size.width;
         }
     }
@@ -216,15 +215,35 @@
     [_innerMapLayer setFrame:r];
 }
 
-- (void)showPrintedMapLayer {
-    [CATransaction begin];
-    [CATransaction setAnimationDuration:1.0];
-    [[self printedMapLayer] setHidden:NO];
+- (void)showPrintedMap {
     [tiledLayer setFilters:@[[self backgroundMapFilter]]];
-/*    [tiledLayer setValue:@(0.2) forKeyPath:@"filters.skuggkarta.inputSaturation"];
-    [tiledLayer setValue:@(-0.32) forKeyPath:@"filters.skuggkarta.inputBrightness"];
-    [tiledLayer setValue:@(0.62) forKeyPath:@"filters.skuggkarta.inputContrast"];
-*/    [CATransaction commit];
+    [overprintLayer setFilters:@[[self backgroundMapFilter]]];
+
+    CABasicAnimation *unhide = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    unhide.fromValue = @(0.0);
+    unhide.toValue = @(1.0);
+    unhide.duration = 0.6f;
+    [[self printedMapLayer] addAnimation:unhide forKey:nil];
+    
+    CABasicAnimation *b1 = [CABasicAnimation animationWithKeyPath:@"filters.skuggkarta.inputSaturation"];
+    b1.fromValue = @(1.0); b1.toValue = @(0.2);
+    CABasicAnimation *b2 = [CABasicAnimation animationWithKeyPath:@"filters.skuggkarta.inputBrightness"];
+    b2.fromValue = @(0.0); b2.toValue = @(-0.32);
+    CABasicAnimation *b3 = [CABasicAnimation animationWithKeyPath:@"filters.skuggkarta.inputContrast"];
+    b3.fromValue = @(1.0); b3.toValue = @(0.62);
+    CAAnimationGroup *g1 = [CAAnimationGroup animation];
+    g1.removedOnCompletion = YES;
+    g1.animations = @[b1,b2,b3];
+    g1.duration = unhide.duration;
+    [tiledLayer addAnimation:g1 forKey:nil];
+    [overprintLayer addAnimation:g1 forKey:nil];
+}
+
+- (void)hidePrintedMap {
+    [tiledLayer setFilters:@[]];
+    [overprintLayer setFilters:@[]];
+    
+    [[self printedMapLayer] removeFromSuperlayer];
 }
 
 #pragma mark -
@@ -630,8 +649,9 @@
             // Add in the printmap layer
             //
             [[[[self enclosingScrollView] superview] layer] addSublayer:[self printedMapLayer]];
-        
-            [self performSelector:@selector(showPrintedMapLayer) withObject:nil afterDelay:0.01];
+            [self adjustPrintedMapLayerForBoundsAndMargins];
+            [self showPrintedMap];
+            break;
         default:
             break;
     }
@@ -639,8 +659,7 @@
     if (state != kASMapViewLayout) {
         // Remove the filter from the tiledLayer
         // Go back to the other transforms.
-        tiledLayer.filters = @[];
-        [[self printedMapLayer] removeFromSuperlayer];
+        [self hidePrintedMap];
     }
     
     courseObjectShapeLayer.path = path;
