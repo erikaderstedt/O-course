@@ -216,7 +216,6 @@ out_error:
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    
 }
 
 - (IBAction)zoomIn:(id)sender {
@@ -403,6 +402,12 @@ out_error:
     [(ASControlDescriptionView *)[[self.controlDefinitionsPopover contentViewController] view] adjustFrameSizeForLayout];
     [self.controlDefinitionsPopover setContentSize:[[[self.controlDefinitionsPopover contentViewController] view] bounds].size];
     
+}
+
+- (IBAction)printDocument:(id)sender {
+    if (self.mapView.state != kASMapViewLayout) {
+        [self.mapView enterLayoutMode:sender];
+    }
 }
 
 @end

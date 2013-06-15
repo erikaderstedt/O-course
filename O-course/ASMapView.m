@@ -37,6 +37,7 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewFrameDidChangeNotification object:[self enclosingScrollView]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ASOverprintChanged" object:nil];
 	[_magnifyingGlass removeFromSuperlayer];
+    [_printedMapLayer removeFromSuperlayer];
 }
 
 - (void)awakeFromNib {
@@ -126,6 +127,107 @@
 }
 
 #pragma mark -
+#pragma mark Printed map layer
+
+- (CALayer *)printedMapLayer {
+    if (_printedMapLayer == nil) {
+        // The map layer consists of
+        // 1. A custom layer with a white background and a drop shadow
+        //    This layer is placed in [self layer]
+        // 2. A local map CATiledLayer, placed within the custom layer.
+        _printedMapLayer = [CALayer layer];
+        CGColorRef white = CGColorCreateGenericRGB(1.0, 1.0, 1.0, 1.0);
+        CGColorRef black = CGColorCreateGenericRGB(0.0, 0.0, 0.0, 1.0);
+        _printedMapLayer.backgroundColor = white;
+        _printedMapLayer.shadowColor = black;
+        _printedMapLayer.shadowOpacity = 0.3;
+        _printedMapLayer.shadowOffset = CGSizeMake(8.0, -8.0);
+        _printedMapLayer.shadowRadius = 8.0;
+        _printedMapLayer.hidden = YES;
+        _printedMapLayer.name = @"paper";
+
+        CGColorRelease(white);
+        CGColorRelease(black);
+        
+        [self adjustPrintedMapLayerForBoundsAndMargins];
+        
+    }
+    return _printedMapLayer;
+}
+
+- (CIFilter *)backgroundMapFilter {
+    if (_backgroundMapFilter == nil) {
+        _backgroundMapFilter = [CIFilter filterWithName:@"CIColorControls"];
+        [_backgroundMapFilter setDefaults];
+        _backgroundMapFilter.name = @"skuggkarta";
+        [_backgroundMapFilter setValue:@(0.2) forKey:@"inputSaturation"];
+        [_backgroundMapFilter setValue:@(-0.32) forKey:@"inputBrightness"];
+        [_backgroundMapFilter setValue:@(0.62) forKey:@"inputContrast"];
+    }
+    return _backgroundMapFilter;
+}
+
+- (void)adjustPrintedMapLayerForBoundsAndMargins {
+    NSAssert(_printedMapLayer != nil, @"No printed map layer!");
+    
+    // Set the outer bounds. These are determined
+    CGRect r = [[[self enclosingScrollView] superview] bounds], page;
+    CGFloat a4ratio = 29.7/21.0;
+    if (orientation == NSLandscapeOrientation) {
+        if (r.size.width / r.size.height > a4ratio) {
+            // There will be extra space to the left and right.
+            page.size.height = 0.7*r.size.height;
+            page.size.width = a4ratio*page.size.height;
+        } else {
+            // There will be extra space top and bottom.
+            page.size.width = 0.7*r.size.width;
+            page.size.height = a4ratio * page.size.width;
+        }
+    } else {
+        if (r.size.height / r.size.width < a4ratio) {
+            // There will be extra space to the left and right.
+            page.size.height = 0.7*r.size.height;
+            page.size.width = a4ratio*page.size.height;
+        } else {
+            // There will be extra space top and bottom.
+            page.size.width = 0.7*r.size.width;
+            page.size.height = a4ratio * page.size.width;
+        }
+    }
+    page.origin.x = 0.5*(r.size.width - page.size.width);
+    page.origin.y = 0.5*(r.size.height - page.size.height);
+    page = CGRectIntegral(page);
+    [_printedMapLayer setFrame:page];
+    
+    // Set the inner map layer
+    r = _printedMapLayer.bounds;
+    if (orientation == NSLandscapeOrientation) {
+        // The landscape version is rotated counter-clockwise.
+        r.size.height -= leftMargin + rightMargin;
+        r.size.width -= topMargin + bottomMargin;
+        r.origin.x += topMargin;
+        r.origin.y += leftMargin;
+    } else {
+        r.size.width -= leftMargin + rightMargin;
+        r.size.height -= topMargin + bottomMargin;
+        r.origin.x += leftMargin;
+        r.origin.y += bottomMargin;
+    }
+    [_innerMapLayer setFrame:r];
+}
+
+- (void)showPrintedMapLayer {
+    [CATransaction begin];
+    [CATransaction setAnimationDuration:1.0];
+    [[self printedMapLayer] setHidden:NO];
+    [tiledLayer setFilters:@[[self backgroundMapFilter]]];
+/*    [tiledLayer setValue:@(0.2) forKeyPath:@"filters.skuggkarta.inputSaturation"];
+    [tiledLayer setValue:@(-0.32) forKeyPath:@"filters.skuggkarta.inputBrightness"];
+    [tiledLayer setValue:@(0.62) forKeyPath:@"filters.skuggkarta.inputContrast"];
+*/    [CATransaction commit];
+}
+
+#pragma mark -
 #pragma mark Magnifying glass
 
 - (CALayer *)magnifyingGlass {
@@ -198,10 +300,6 @@
 	[CATransaction setDisableActions:YES];
 	[self magnifyingGlass].hidden = YES;
 	[CATransaction commit];
-}
-
-- (IBAction)toggleMagnifyingGlass:(id)sender {
-	self.showMagnifyingGlass = !self.showMagnifyingGlass;
 }
 
 #pragma mark -
@@ -317,7 +415,7 @@
     enum ASOverprintObjectType addingType;
     switch (self.state) {
         case kASMapViewNormal:
-            if ([self.courseDataSource specificCourseSelected]) {
+            if ([self.courseDataSource specificCourseSelected] && self.draggedCourseObject != nil) {
                 // Add to current course.
                 [self.courseDataSource appendOverprintObjectToSelectedCourse:self.draggedCourseObject];
             }
@@ -473,7 +571,7 @@
     state = s2;
     CGMutablePathRef path = NULL;
     
-    if (state == kASMapViewNormal) {
+    if (state == kASMapViewNormal || state == kASMapViewLayout) {
         if (self.showMagnifyingGlass == YES)
             self.showMagnifyingGlass = NO;
     } else {
@@ -524,8 +622,25 @@
                 default:
                     break;
             }
+        case kASMapViewLayout:
+            // Remember the current transform.
+            // Ask the layout controller for the layout for the current course.
+            
+            // (If there is no layout defined, the layout controller will create one).
+            // Add in the printmap layer
+            //
+            [[[[self enclosingScrollView] superview] layer] addSublayer:[self printedMapLayer]];
+        
+            [self performSelector:@selector(showPrintedMapLayer) withObject:nil afterDelay:0.01];
         default:
             break;
+    }
+    
+    if (state != kASMapViewLayout) {
+        // Remove the filter from the tiledLayer
+        // Go back to the other transforms.
+        tiledLayer.filters = @[];
+        [[self printedMapLayer] removeFromSuperlayer];
     }
     
     courseObjectShapeLayer.path = path;
@@ -550,6 +665,10 @@
 
 - (IBAction)goIntoAddFinishMode:(id)sender {
     self.state = kASMapViewAddFinish;
+}
+
+- (IBAction)enterLayoutMode:(id)sender {
+    self.state = kASMapViewLayout;
 }
 
 #pragma mark -

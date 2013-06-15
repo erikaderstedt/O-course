@@ -23,7 +23,8 @@ enum ASMapViewUIState {
     kASMapViewDraggingCourseObject,
     kASMapViewAddControls,
     kASMapViewAddStart,
-    kASMapViewAddFinish
+    kASMapViewAddFinish,
+    kASMapViewLayout
 };
 
 @interface ASMapView : NSView {
@@ -42,6 +43,17 @@ enum ASMapViewUIState {
     CALayer *dragIndicatorLayer;
     CGFloat _zoom;
 	CGFloat minZoom;
+    
+    CATiledLayer *_innerMapLayer;
+    CALayer *_printedMapLayer;
+    CIFilter *_backgroundMapFilter;
+    NSPrintingOrientation orientation;
+    
+    // The margins given are for the portrait orientation.
+    CGFloat topMargin;
+    CGFloat leftMargin;
+    CGFloat rightMargin;
+    CGFloat bottomMargin;
     
     enum ASMapViewUIState state;
 }
@@ -62,6 +74,9 @@ enum ASMapViewUIState {
 - (CGFloat)calculateMinimumZoomForFrame:(NSRect)frame;
 
 - (CALayer *)magnifyingGlass;
-- (IBAction)toggleMagnifyingGlass:(id)sender;
+
+- (IBAction)enterLayoutMode:(id)sender;
+- (CALayer *)printedMapLayer;
+- (void)adjustPrintedMapLayerForBoundsAndMargins;
 
 @end

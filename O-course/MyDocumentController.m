@@ -43,47 +43,7 @@
     NSManagedObjectContext *moc = [doc managedObjectContext];
     NSManagedObject *project = [NSEntityDescription insertNewObjectForEntityForName:@"Project" inManagedObjectContext:moc];
     [project setValue:@"Skinklopp" forKey:@"event"];
-/*    NSManagedObject *course  = [NSEntityDescription insertNewObjectForEntityForName:@"Course" inManagedObjectContext:moc];
-    [course setValue:@"Testbana" forKey:@"name"];
-    [course setValue:project forKey:@"project"];
-    NSMutableOrderedSet *mos = [course mutableOrderedSetValueForKey:@"controls"];
-    
-    CourseObject *obj;
-    obj = [NSEntityDescription insertNewObjectForEntityForName:@"CourseObject" inManagedObjectContext:moc];
-    obj.controlDescriptionItemType = kASStart;
-    [mos addObject:obj];
-    
-    obj = [NSEntityDescription insertNewObjectForEntityForName:@"Control" inManagedObjectContext:moc];
-    obj.controlDescriptionItemType = kASRegularControl;
-    obj.controlCode = [NSNumber numberWithInt:31];
-    obj.controlFeature = [NSNumber numberWithInt:kASFeaturePond];
-    obj.whichOfAnySimilarFeature = [NSNumber numberWithInt:kASFeatureNorth];
-    [mos addObject:obj];
-    
-    obj = [NSEntityDescription insertNewObjectForEntityForName:@"Control" inManagedObjectContext:moc];
-    obj.controlDescriptionItemType = kASRegularControl;
-    obj.controlCode = [NSNumber numberWithInt:32];
-    obj.controlFeature = [NSNumber numberWithInt:kASFeatureCliff];
-    [mos addObject:obj];    
-    
-    obj = [NSEntityDescription insertNewObjectForEntityForName:@"Control" inManagedObjectContext:moc];
-    obj.controlDescriptionItemType = kASRegularControl;
-    obj.controlFeature = [NSNumber numberWithInt:kASFeatureBareRock];
-    obj.controlCode = [NSNumber numberWithInt:33];
-    [mos addObject:obj];    
-    
-    obj = [NSEntityDescription insertNewObjectForEntityForName:@"Control" inManagedObjectContext:moc];
-    obj.controlDescriptionItemType = kASRegularControl;
-    obj.controlFeature = [NSNumber numberWithInt:kASFeatureStonyGround];
-    obj.controlCode = [NSNumber numberWithInt:34];
-  
-    
-    obj = [NSEntityDescription insertNewObjectForEntityForName:@"CourseObject" inManagedObjectContext:moc];
-    obj.controlDescriptionItemType = kASPartlyTapedRouteToFinish;
-    obj.distance = [NSNumber numberWithFloat:0.23];
-    [mos addObject:obj];
-    
-  */
+
     [moc processPendingChanges];
     [[moc undoManager] removeAllActions];
 

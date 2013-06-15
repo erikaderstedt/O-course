@@ -48,7 +48,7 @@
             
             for (NSNumber *columnIntegerValue in regularColumns) {
                 enum ASControlDescriptionColumn column = (enum ASControlDescriptionColumn)[columnIntegerValue intValue];
-                NSRect r = NSRectFromCGRect([self boundsForRow:topItem + 1 column:column]);
+                NSRect r = NSRectFromCGRect([self boundsForRow:topItem column:column]);
                 NSTrackingArea *ta = [[NSTrackingArea alloc] initWithRect:NSIntegralRect(NSInsetRect(r, 1, 1))
                                                                   options:NSTrackingMouseEnteredAndExited | NSTrackingActiveInKeyWindow
                                                                     owner:self

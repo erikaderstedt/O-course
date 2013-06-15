@@ -177,9 +177,10 @@
 							<string key="NSToolbarItemPaletteLabel">Definitions</string>
 							<nil key="NSToolbarItemToolTip"/>
 							<object class="NSButton" key="NSToolbarItemView" id="376849763">
-								<nil key="NSNextResponder"/>
+								<reference key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{16, 14}, {33, 41}}</string>
+								<reference key="NSSuperview"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSButtonCell" key="NSCell" id="51006321">
@@ -269,9 +270,10 @@
 							<string key="NSToolbarItemPaletteLabel">Bana</string>
 							<nil key="NSToolbarItemToolTip"/>
 							<object class="NSPopUpButton" key="NSToolbarItemView" id="250668471">
-								<nil key="NSNextResponder"/>
+								<reference key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{0, 14}, {100, 28}}</string>
+								<reference key="NSSuperview"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSPopUpButtonCell" key="NSCell" id="277692951">
@@ -558,6 +560,7 @@
 					<reference key="NSSuperview"/>
 					<reference key="NSWindow"/>
 					<reference key="NSNextKeyView" ref="767478366"/>
+					<bool key="NSViewIsLayerTreeHost">YES</bool>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1440, 900}}</string>
 				<string key="NSMinSize">{94, 140}</string>
@@ -1115,6 +1118,14 @@
 						<reference key="destination" ref="18770258"/>
 					</object>
 					<int key="connectionID">101211</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">enterLayoutMode:</string>
+						<reference key="source" ref="627403326"/>
+						<reference key="destination" ref="586444655"/>
+					</object>
+					<int key="connectionID">101212</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -2352,7 +2363,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">101211</int>
+			<int key="maxID">101212</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -2504,6 +2515,7 @@
 					<string key="className">ASMapView</string>
 					<string key="superclassName">NSView</string>
 					<dictionary class="NSMutableDictionary" key="actions">
+						<string key="enterLayoutMode:">id</string>
 						<string key="goIntoAddControlsMode:">id</string>
 						<string key="goIntoAddFinishMode:">id</string>
 						<string key="goIntoAddStartMode:">id</string>
@@ -2511,6 +2523,10 @@
 						<string key="toggleMagnifyingGlass:">id</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="actionInfosByName">
+						<object class="IBActionInfo" key="enterLayoutMode:">
+							<string key="name">enterLayoutMode:</string>
+							<string key="candidateClassName">id</string>
+						</object>
 						<object class="IBActionInfo" key="goIntoAddControlsMode:">
 							<string key="name">goIntoAddControlsMode:</string>
 							<string key="candidateClassName">id</string>
@@ -2554,8 +2570,6 @@
 					<dictionary class="NSMutableDictionary" key="actions">
 						<string key="chooseBackgroundMap:">id</string>
 						<string key="showControlDefinitionsPopover:">id</string>
-						<string key="zoomIn:">id</string>
-						<string key="zoomOut:">id</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="actionInfosByName">
 						<object class="IBActionInfo" key="chooseBackgroundMap:">
@@ -2564,14 +2578,6 @@
 						</object>
 						<object class="IBActionInfo" key="showControlDefinitionsPopover:">
 							<string key="name">showControlDefinitionsPopover:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="zoomIn:">
-							<string key="name">zoomIn:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="zoomOut:">
-							<string key="name">zoomOut:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 					</dictionary>
