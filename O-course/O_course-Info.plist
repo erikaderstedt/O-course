@@ -14,7 +14,7 @@
 				<string>courses</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-			<string>compass bezel</string>
+			<string>o-coursedocument</string>
 			<key>CFBundleTypeMIMETypes</key>
 			<array>
 				<string>application/octet-stream</string>
@@ -35,8 +35,6 @@
 			<array>
 				<string>ocd</string>
 			</array>
-			<key>CFBundleTypeIconFile</key>
-			<string>compass bezel</string>
 			<key>CFBundleTypeMIMETypes</key>
 			<array>
 				<string>application/ocad</string>
@@ -52,7 +50,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
-	<string></string>
+	<string>o-courseapp</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.aderstedtsoftware.${PRODUCT_NAME:rfc1034identifier}</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -90,8 +88,6 @@
 			</array>
 			<key>UTTypeDescription</key>
 			<string>OCAD map</string>
-			<key>UTTypeIconFile</key>
-			<string>compass bezel</string>
 			<key>UTTypeIdentifier</key>
 			<string>ch.ocad.map</string>
 			<key>UTTypeTagSpecification</key>

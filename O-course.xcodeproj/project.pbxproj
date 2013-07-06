@@ -47,6 +47,8 @@
 		03A5114913B7AF0E00469BCF /* ASOCADController_Line.h in Headers */ = {isa = PBXBuildFile; fileRef = 03A5114713B7AF0E00469BCF /* ASOCADController_Line.h */; };
 		03A5114A13B7AF0E00469BCF /* ASOCADController_Line.m in Sources */ = {isa = PBXBuildFile; fileRef = 03A5114813B7AF0E00469BCF /* ASOCADController_Line.m */; };
 		03A5114B13B7AF0E00469BCF /* ASOCADController_Line.m in Sources */ = {isa = PBXBuildFile; fileRef = 03A5114813B7AF0E00469BCF /* ASOCADController_Line.m */; };
+		03AAD36C1787574400CA4F9B /* o-courseapp.iconset in Resources */ = {isa = PBXBuildFile; fileRef = 03AAD36A1787574400CA4F9B /* o-courseapp.iconset */; };
+		03AAD36D1787574400CA4F9B /* o-coursedocument.iconset in Resources */ = {isa = PBXBuildFile; fileRef = 03AAD36B1787574400CA4F9B /* o-coursedocument.iconset */; };
 		03B86EA21763AD0200C4A358 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 03B86EA41763AD0200C4A358 /* Localizable.strings */; };
 		03B86EA71765376000C4A358 /* Control.png in Resources */ = {isa = PBXBuildFile; fileRef = 03B86EA61765376000C4A358 /* Control.png */; };
 		03B86EA917653A2E00C4A358 /* Finish.png in Resources */ = {isa = PBXBuildFile; fileRef = 03B86EA817653A2E00C4A358 /* Finish.png */; };
@@ -139,6 +141,8 @@
 		03A5114313B7AE9100469BCF /* ASOCADController_Area.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASOCADController_Area.m; sourceTree = "<group>"; };
 		03A5114713B7AF0E00469BCF /* ASOCADController_Line.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASOCADController_Line.h; sourceTree = "<group>"; };
 		03A5114813B7AF0E00469BCF /* ASOCADController_Line.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASOCADController_Line.m; sourceTree = "<group>"; };
+		03AAD36A1787574400CA4F9B /* o-courseapp.iconset */ = {isa = PBXFileReference; lastKnownFileType = folder.iconset; path = "o-courseapp.iconset"; sourceTree = "<group>"; };
+		03AAD36B1787574400CA4F9B /* o-coursedocument.iconset */ = {isa = PBXFileReference; lastKnownFileType = folder.iconset; path = "o-coursedocument.iconset"; sourceTree = "<group>"; };
 		03AAFEC11443874D008567E3 /* OCAD10Format.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = OCAD10Format.txt; sourceTree = "<group>"; };
 		03AAFEC21443874D008567E3 /* OCAD8Format.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = OCAD8Format.txt; sourceTree = "<group>"; };
 		03AAFEC31443874D008567E3 /* OCAD9Format.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = OCAD9Format.pdf; sourceTree = "<group>"; };
@@ -321,6 +325,8 @@
 		033D6872134B05AE00502CA8 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				03AAD36A1787574400CA4F9B /* o-courseapp.iconset */,
+				03AAD36B1787574400CA4F9B /* o-coursedocument.iconset */,
 				03B86EA41763AD0200C4A358 /* Localizable.strings */,
 				03FA63A91570125300EF4ACF /* linen_texture.jpg */,
 				03B86EA61765376000C4A358 /* Control.png */,
@@ -489,6 +495,8 @@
 				03B86EA917653A2E00C4A358 /* Finish.png in Resources */,
 				03B86EAC17653C6100C4A358 /* Control definitions.png in Resources */,
 				03B86EAD17653C6100C4A358 /* Start.png in Resources */,
+				03AAD36C1787574400CA4F9B /* o-courseapp.iconset in Resources */,
+				03AAD36D1787574400CA4F9B /* o-coursedocument.iconset in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
