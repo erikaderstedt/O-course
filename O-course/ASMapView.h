@@ -44,10 +44,14 @@ enum ASMapViewUIState {
     CGFloat _zoom;
 	CGFloat minZoom;
     
+    CAScrollLayer *_printedMapScrollLayer;
     CATiledLayer *_innerMapLayer;
+    CATiledLayer *_innerOverprintLayer;
     CALayer *_printedMapLayer;
     CIFilter *_backgroundMapFilter;
     NSPrintingOrientation orientation;
+    CGFloat _printingScale;
+    CGSize paperSize; // in mm, in portrait orientation
     
     // The margins given are for the portrait orientation.
     CGFloat topMargin;
@@ -77,6 +81,8 @@ enum ASMapViewUIState {
 
 - (IBAction)enterLayoutMode:(id)sender;
 - (CALayer *)printedMapLayer;
-- (void)adjustPrintedMapLayerForBoundsAndMargins;
+- (void)adjustPrintedMapLayerForBounds;
+
++ (CATransform3D)transformFromRect:(CGRect)src toRect:(CGRect)dst;
 
 @end

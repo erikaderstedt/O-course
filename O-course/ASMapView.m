@@ -10,6 +10,7 @@
 #import "ASControlDescriptionView.h"
 #define GLASS_SIZE 180.0
 #define SIGN_OF(x) ((x > 0.0)?1.0:-1.0)
+#define DEFAULT_PRINTING_SCALE 10000.0
 
 @implementation ASMapView
 
@@ -22,6 +23,8 @@
     self = [super initWithFrame:frame];
     if (self) {
 		_zoom = 1.0;
+        orientation = NSLandscapeOrientation;
+        paperSize = CGSizeMake(210.0, 297.0);
     }
     return self;
 }
@@ -29,6 +32,8 @@
 	self = [super initWithCoder:aDecoder];
 	if (self) {
 		_zoom = 1.0;
+        orientation = NSLandscapeOrientation;
+        paperSize = CGSizeMake(210.0, 297.0);
 	}
 	return self;
 }
@@ -44,71 +49,83 @@
     [super awakeFromNib];
     
 	[self setPostsFrameChangedNotifications:YES];
+    [self setPostsBoundsChangedNotifications:YES];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameChanged:) name:NSViewFrameDidChangeNotification object:[self enclosingScrollView]];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(boundsChanged:) name:NSViewBoundsDidChangeNotification object:self];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(overprintChanged:) name:@"ASOverprintChanged" object:nil];
     
     [[self enclosingScrollView] setBackgroundColor:[NSColor whiteColor]];
+    
+    [self setupTiledLayer];
 }
 
 #pragma mark -
 #pragma mark Map loading
 
+- (void)setupTiledLayer {
+    if (tiledLayer == nil) {
+        
+        tiledLayer = [CATiledLayer layer];
+        tiledLayer.name = @"tiled";
+        tiledLayer.needsDisplayOnBoundsChange = YES;
+        CGColorRef white = CGColorCreateGenericRGB(1.0, 1.0, 1.0, 1.0);
+        tiledLayer.backgroundColor = white;
+        CGColorRelease(white);
+        tiledLayer.tileSize = CGSizeMake(512.0, 512.0);
+        
+        tiledLayer.levelsOfDetail = 7;
+        tiledLayer.levelsOfDetailBias = 2;
+        
+        tiledLayer.anchorPoint = CGPointMake(0.0, 0.0);
+        tiledLayer.position = CGPointMake(0.0, 0.0);
+        
+        overprintLayer = [CATiledLayer layer];
+        overprintLayer.name = @"overprint";
+        overprintLayer.needsDisplayOnBoundsChange = YES;
+        CGColorRef blackTransparent = CGColorCreateGenericRGB(0.0, 0.0, 0.0, 0.0);
+        overprintLayer.backgroundColor = blackTransparent;
+        CGColorRelease(blackTransparent);
+        /*
+         To use simulated overprint:
+         overprintLayer.backgroundColor = CGColorCreateGenericRGB(1.0, 1.0, 1.0, 1.0);
+         CIFilter *mulBlend = [CIFilter filterWithName:@"CIMultiplyCompositing"];
+         overprintLayer.compositingFilter = mulBlend;
+         */
+        overprintLayer.tileSize = tiledLayer.tileSize;
+        overprintLayer.levelsOfDetail = tiledLayer.levelsOfDetail;
+        overprintLayer.levelsOfDetailBias = tiledLayer.levelsOfDetailBias;
+        overprintLayer.anchorPoint = tiledLayer.anchorPoint;
+        overprintLayer.position = tiledLayer.position;
+        
+        dragIndicatorLayer = [CALayer layer];
+        dragIndicatorLayer.name = @"drag indicator";
+        CGColorRef shadowGrey = CGColorCreateGenericRGB(0.3, 0.3, 0.3, 0.7);
+        dragIndicatorLayer.backgroundColor = shadowGrey;
+        CGColorRelease(shadowGrey);
+        dragIndicatorLayer.cornerRadius = 3.0;
+        dragIndicatorLayer.hidden = YES;
+        [tiledLayer addSublayer:dragIndicatorLayer];
+
+        [[self layer] addSublayer:tiledLayer]; [[self layer] addSublayer:overprintLayer];
+        [tiledLayer setFilters:@[[self backgroundMapFilter]]];
+        [overprintLayer setFilters:@[[self backgroundMapFilter]]];
+
+    }
+}
+
 - (void)mapLoaded {
     
     if (self.mapProvider != nil) {
-        if (tiledLayer == nil) {
-            
-            tiledLayer = [CATiledLayer layer];
-            tiledLayer.name = @"tiled";
-            tiledLayer.needsDisplayOnBoundsChange = YES;
-            CGColorRef white = CGColorCreateGenericRGB(1.0, 1.0, 1.0, 1.0);
-            tiledLayer.backgroundColor = white;
-            CGColorRelease(white);
-            tiledLayer.tileSize = CGSizeMake(512.0, 512.0);
-            
-            tiledLayer.levelsOfDetail = 7;
-            tiledLayer.levelsOfDetailBias = 2;
-            
-            tiledLayer.anchorPoint = CGPointMake(0.0, 0.0);
-            tiledLayer.position = CGPointMake(0.0, 0.0);
-            
-            overprintLayer = [CATiledLayer layer];
-            overprintLayer.name = @"overprint";
-            overprintLayer.needsDisplayOnBoundsChange = YES;
-            CGColorRef blackTransparent = CGColorCreateGenericRGB(0.0, 0.0, 0.0, 0.0);
-            overprintLayer.backgroundColor = blackTransparent;
-            CGColorRelease(blackTransparent);
-            /*
-             To use simulated overprint:
-             overprintLayer.backgroundColor = CGColorCreateGenericRGB(1.0, 1.0, 1.0, 1.0);
-             CIFilter *mulBlend = [CIFilter filterWithName:@"CIMultiplyCompositing"];
-             overprintLayer.compositingFilter = mulBlend;
-             */
-            overprintLayer.tileSize = tiledLayer.tileSize;
-            overprintLayer.levelsOfDetail = tiledLayer.levelsOfDetail;
-            overprintLayer.levelsOfDetailBias = tiledLayer.levelsOfDetailBias;
-            overprintLayer.anchorPoint = tiledLayer.anchorPoint;
-            overprintLayer.position = tiledLayer.position;
-            
-            dragIndicatorLayer = [CALayer layer];
-            dragIndicatorLayer.name = @"drag indicator";
-            CGColorRef shadowGrey = CGColorCreateGenericRGB(0.3, 0.3, 0.3, 0.7);
-            dragIndicatorLayer.backgroundColor = shadowGrey;
-            CGColorRelease(shadowGrey);
-            dragIndicatorLayer.cornerRadius = 3.0;
-            dragIndicatorLayer.hidden = YES;
-        }
+        if (tiledLayer == nil) [self setupTiledLayer];
         mapBounds = [self.mapProvider mapBounds];
         tiledLayer.bounds = mapBounds; overprintLayer.bounds = mapBounds;
         tiledLayer.delegate = self; overprintLayer.delegate = overprintProvider;
-        [[self layer] addSublayer:tiledLayer]; [[self layer] addSublayer:overprintLayer];
         tiledLayer.contents = nil;
         [tiledLayer setNeedsDisplay];
         overprintLayer.contents = nil;
         [overprintLayer setNeedsDisplay];
         
-        [tiledLayer addSublayer:dragIndicatorLayer];
-        
+
         // Calculate the initial zoom as the minimum zoom.
         NSRect cv = [[[self enclosingScrollView] contentView] frame];
         minZoom = [self calculateMinimumZoomForFrame:cv];
@@ -140,15 +157,47 @@
         CGColorRef black = CGColorCreateGenericRGB(0.0, 0.0, 0.0, 1.0);
         _printedMapLayer.backgroundColor = white;
         _printedMapLayer.shadowColor = black;
-        _printedMapLayer.shadowOpacity = 0.3;
+        _printedMapLayer.shadowOpacity = 0.6;
         _printedMapLayer.shadowOffset = CGSizeMake(8.0, -8.0);
         _printedMapLayer.shadowRadius = 8.0;
         _printedMapLayer.hidden = NO;
         _printedMapLayer.name = @"paper";
+        
+        _printedMapScrollLayer = [CAScrollLayer layer];
+        _printedMapScrollLayer.anchorPoint = CGPointMake(0.5,0.5);
+        _printedMapScrollLayer.name = @"mapScroller";
+        _printedMapScrollLayer.backgroundColor = white;
+        [_printedMapLayer addSublayer:_printedMapScrollLayer];
 
+        _innerMapLayer = [CATiledLayer layer];
+        _innerMapLayer.name = @"innerMap";
+        _innerMapLayer.needsDisplayOnBoundsChange = YES;
+        _innerMapLayer.backgroundColor = white;
+        _innerMapLayer.tileSize = tiledLayer.tileSize;
+        _innerMapLayer.levelsOfDetail = tiledLayer.levelsOfDetail;
+        _innerMapLayer.levelsOfDetailBias = tiledLayer.levelsOfDetailBias;
+        _innerMapLayer.position = tiledLayer.position;
+        _innerMapLayer.bounds = tiledLayer.bounds;
+        _innerMapLayer.anchorPoint = tiledLayer.anchorPoint;
+        _innerMapLayer.bounds = [self.mapProvider mapBounds];
+        _innerMapLayer.delegate = self;
+        
+        _innerOverprintLayer = [CATiledLayer layer];
+        _innerOverprintLayer.name = @"innerOverprint";
+        _innerOverprintLayer.needsDisplayOnBoundsChange = YES;
+        _innerOverprintLayer.backgroundColor = white;
+        _innerOverprintLayer.tileSize = tiledLayer.tileSize;
+        _innerOverprintLayer.levelsOfDetail = tiledLayer.levelsOfDetail;
+        _innerOverprintLayer.levelsOfDetailBias = tiledLayer.levelsOfDetailBias;
+        _innerOverprintLayer.delegate = self.overprintProvider;
+        /*
+        CIFilter *mulBlend = [CIFilter filterWithName:@"CIMultiplyCompositing"];
+        _innerOverprintLayer.compositingFilter = mulBlend;
+        */
         CGColorRelease(white);
         CGColorRelease(black);
         
+        [_printedMapScrollLayer addSublayer:_innerMapLayer];
     }
     return _printedMapLayer;
 }
@@ -158,19 +207,19 @@
         _backgroundMapFilter = [CIFilter filterWithName:@"CIColorControls"];
         [_backgroundMapFilter setDefaults];
         _backgroundMapFilter.name = @"skuggkarta";
-        [_backgroundMapFilter setValue:@(0.2) forKey:@"inputSaturation"];
+/*        [_backgroundMapFilter setValue:@(0.2) forKey:@"inputSaturation"];
         [_backgroundMapFilter setValue:@(-0.32) forKey:@"inputBrightness"];
         [_backgroundMapFilter setValue:@(0.62) forKey:@"inputContrast"];
-    }
+*/    }
     return _backgroundMapFilter;
 }
 
-- (void)adjustPrintedMapLayerForBoundsAndMargins {
+- (void)adjustPrintedMapLayerForBounds {
     NSAssert(_printedMapLayer != nil, @"No printed map layer!");
     
     // Set the outer bounds. These are determined
     CGRect r = [[[self enclosingScrollView] superview] bounds], page;
-    CGFloat a4ratio = 29.7/21.0;
+    CGFloat a4ratio = paperSize.height/paperSize.width;
     CGFloat fraction = 0.8;
     if (orientation == NSLandscapeOrientation) {
         if (r.size.width / r.size.height > a4ratio) {
@@ -198,7 +247,6 @@
     page = CGRectIntegral(page);
     [_printedMapLayer setFrame:page];
     
-    // Set the inner map layer
     r = _printedMapLayer.bounds;
     if (orientation == NSLandscapeOrientation) {
         // The landscape version is rotated counter-clockwise.
@@ -212,12 +260,60 @@
         r.origin.x += leftMargin;
         r.origin.y += bottomMargin;
     }
-    [_innerMapLayer setFrame:r];
+    [_printedMapScrollLayer setFrame:r];
+    [self setPrintingScale:5000.0];
+
+}
+
+- (void)setPrintingScale:(CGFloat)printingScale {
+    /*
+     * We want to 1) set the frame of the inner map layers
+     * and 2) set the transform of those layers so that just the right
+     * amount of map (and at the correct location) is drawn within the map
+     * layer.
+     * The frame has to be set after the transform is calculated.
+     */
+    _printingScale = printingScale;
+    
+    // Calculate the number of map points that fit in the paper width.
+    // 
+    CGFloat pointsInWidth = ((orientation == NSPortraitOrientation)?paperSize.width:paperSize.height) * 100.0 * printingScale / 15000.0;
+    NSLog(@"points: %f (%f)", pointsInWidth, pointsInWidth/ mapBounds.size.width);
+    // Kastellegården har 38000 pts in x. 380 mm i 15000-del. Låter mycket men kartan har mycket extra så det kan nog stämma.
+    // 297 mm * 100 = 297000 * 10000/15000
+    // Figure out how many points that are visible with the current transform.
+    _innerMapLayer.transform = tiledLayer.transform;
+    CGFloat visibleWidth = _innerMapLayer.visibleRect.size.width;
+
+    [self setPrimitiveZoom:_zoom*visibleWidth/pointsInWidth];
+    
+    // Justera scroll-rect så att den hamnar rätt.
+    
+/*
+    CGRect rectOfVisibleAreaInMapCoordinates = [tiledLayer convertRect:_printedMapScrollLayer.frame fromLayer:_printedMapLayer];
+    // 
+    // Find a transform that takes rectOfVisibleAreaInMapCoordinates to r
+    // Then set this to the transorm of the innerMapLayer and innerOverprintLayer, as well as set the frame to rectOfVisibleAreaInMapCoordinates.
+    
+    // Set the inner map layer
+    CATransform3D sought = [[self class] transformFromRect:rectOfVisibleAreaInMapCoordinates toRect:_printedMapScrollLayer.bounds];
+    _printedMapScrollLayer.sublayerTransform = sought;
+        // Set the trans
+*/ 
+}
+
+- (void)synchronizeInnerTransform {
+    
 }
 
 - (void)showPrintedMap {
-    [tiledLayer setFilters:@[[self backgroundMapFilter]]];
-    [overprintLayer setFilters:@[[self backgroundMapFilter]]];
+    if (tiledLayer.filters == nil || [tiledLayer.filters count] == 0) {
+        tiledLayer.filters = @[[self backgroundMapFilter]];
+        overprintLayer.filters = @[[self backgroundMapFilter]];
+    }
+    
+    _innerMapLayer.transform = tiledLayer.transform;
+
 
     CABasicAnimation *unhide = [CABasicAnimation animationWithKeyPath:@"opacity"];
     unhide.fromValue = @(0.0);
@@ -235,8 +331,23 @@
     g1.removedOnCompletion = YES;
     g1.animations = @[b1,b2,b3];
     g1.duration = unhide.duration;
+    
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+    [tiledLayer setValue:b1.toValue forKeyPath:b1.keyPath];
+    [tiledLayer setValue:b2.toValue forKeyPath:b2.keyPath];
+    [tiledLayer setValue:b3.toValue forKeyPath:b3.keyPath];
+    [overprintLayer setValue:b1.toValue forKeyPath:b1.keyPath];
+    [overprintLayer setValue:b2.toValue forKeyPath:b2.keyPath];
+    [overprintLayer setValue:b3.toValue forKeyPath:b3.keyPath];
+    [CATransaction commit];
+    
     [tiledLayer addAnimation:g1 forKey:nil];
     [overprintLayer addAnimation:g1 forKey:nil];
+    
+    [_printedMapLayer setNeedsDisplay];
+   [_innerMapLayer setNeedsDisplay];
+    [_innerOverprintLayer setNeedsDisplay];
 }
 
 - (void)hidePrintedMap {
@@ -486,7 +597,59 @@
 	if (self.zoom < minZoom) [self setZoom:minZoom];
 }
 
+- (void)boundsChanged:(NSNotification *)n {
+    NSLog(@"bnd");
+}
+
+- (void)scrollWheel:(NSEvent *)theEvent {
+    if (self.state == kASMapViewLayout) {
+        [CATransaction begin];
+        [CATransaction setValue:[NSNumber numberWithFloat:0.0f] forKey:kCATransactionAnimationDuration];
+    }
+
+    [super scrollWheel:theEvent];
+    
+    if (self.state == kASMapViewLayout) {
+        // Track an appropriate transform for the inner paper layer.
+        CGRect paper = [tiledLayer convertRect:_printedMapScrollLayer.frame fromLayer:_printedMapLayer];
+        [_innerMapLayer scrollPoint:CGPointMake(paper.origin.x, paper.origin.y)];
+        [CATransaction commit];
+    }
+}
+
+- (void)setPrimitiveZoom:(CGFloat)z2 {
+    NSClipView *cv = [[self enclosingScrollView] contentView];
+    NSRect v = [cv documentVisibleRect ], f;
+    CGPoint midpointBefore, midpointAfter, tentativeNewOrigin, pointInMapCoordinates;
+	
+    midpointBefore = CGPointMake(NSMidX(v), NSMidY(v));
+	pointInMapCoordinates = [tiledLayer convertPoint:midpointBefore fromLayer:[self layer]];
+    
+    NSRect r = NSMakeRect(0.0, 0.0, mapBounds.size.width*z2, mapBounds.size.height*z2);
+    if (r.size.width == 0.0 || r.size.height == 0.0) r.size = NSMakeSize(1.0, 1.0);
+    
+	[self setFrame:r];
+	f = [self frame];
+	
+	tiledLayer.transform = CATransform3DMakeScale(z2, z2, 1.0);
+    overprintLayer.transform = tiledLayer.transform;
+    
+	midpointAfter = [tiledLayer convertPoint:pointInMapCoordinates toLayer:[self layer]];
+	
+	tentativeNewOrigin = CGPointMake(midpointAfter.x - 0.5*v.size.width, midpointAfter.y - 0.5*v.size.height);
+	if (tentativeNewOrigin.x < 0.0) tentativeNewOrigin.x = 0.0;
+	if (tentativeNewOrigin.y < 0.0) tentativeNewOrigin.y = 0.0;
+	if (tentativeNewOrigin.x + v.size.width > NSMaxX(f)) tentativeNewOrigin.x = NSMaxX(f) - v.size.width;
+	if (tentativeNewOrigin.y + v.size.height > NSMaxY(f)) tentativeNewOrigin.y = NSMaxY(f) - v.size.height;
+    
+	[cv scrollToPoint:NSPointFromCGPoint(tentativeNewOrigin)];
+    
+    _zoom = z2;
+
+}
+
 - (void)setZoom:(CGFloat)zoom {
+    
     // Before we change the zoom, we need to change the anchor point, so that when we change the transform
     // it will zoom in or out around the current center point.
     //
@@ -503,44 +666,19 @@
         magGlassPositionInWindow = [self convertPoint:NSPointFromCGPoint(self.magnifyingGlass.position) toView:nil];
     }
                                 
-	NSClipView *cv = [[self enclosingScrollView] contentView];
-    NSRect v = [cv documentVisibleRect ], f;
-    CGPoint midpointBefore, midpointAfter, tentativeNewOrigin, pointInMapCoordinates;
-	
     if (zoom > MAX_ZOOM) zoom = MAX_ZOOM;
     if (zoom < minZoom) zoom = minZoom;
     
 	[CATransaction begin];
 	[CATransaction setDisableActions:YES];
     
-	midpointBefore = CGPointMake(NSMidX(v), NSMidY(v));
-	pointInMapCoordinates = [tiledLayer convertPoint:midpointBefore fromLayer:[self layer]];
-
-    NSRect r = NSMakeRect(0.0, 0.0, mapBounds.size.width*zoom, mapBounds.size.height*zoom);
-    if (r.size.width == 0.0 || r.size.height == 0.0) r.size = NSMakeSize(1.0, 1.0);
-    
-	[self setFrame:r];
-	f = [self frame];
-	
-	tiledLayer.transform = CATransform3DMakeScale(zoom, zoom, 1.0);
-    overprintLayer.transform = tiledLayer.transform;
-    
-	midpointAfter = [tiledLayer convertPoint:pointInMapCoordinates toLayer:[self layer]];
-	
-	tentativeNewOrigin = CGPointMake(midpointAfter.x - 0.5*v.size.width, midpointAfter.y - 0.5*v.size.height);
-	if (tentativeNewOrigin.x < 0.0) tentativeNewOrigin.x = 0.0;
-	if (tentativeNewOrigin.y < 0.0) tentativeNewOrigin.y = 0.0;
-	if (tentativeNewOrigin.x + v.size.width > NSMaxX(f)) tentativeNewOrigin.x = NSMaxX(f) - v.size.width;
-	if (tentativeNewOrigin.y + v.size.height > NSMaxY(f)) tentativeNewOrigin.y = NSMaxY(f) - v.size.height;
-	[cv scrollToPoint:NSPointFromCGPoint(tentativeNewOrigin)];
+    [self setPrimitiveZoom:zoom];
     if (self.showMagnifyingGlass) {
         [self.magnifyingGlass setPosition:NSPointToCGPoint([self convertPoint:magGlassPositionInWindow fromView:nil])];
         [innerMagnifyingGlassLayer setNeedsDisplay];
     }
 	[CATransaction commit];
 
-    
-    _zoom = zoom;
 }
 
 - (CGFloat)zoom {
@@ -549,14 +687,17 @@
 }
 
 - (void)magnifyWithEvent:(NSEvent *)event {
-    self.zoom = (1.0 + [event magnification])* self.zoom;
+    // Disallow zooming in layout mode.
+    if (self.state != kASMapViewLayout) {
+        self.zoom = (1.0 + [event magnification])* self.zoom;
+    }
 }
 
 #pragma mark Drawing
 
 // CATiledLayer delegate stuff.
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
-    if (layer == tiledLayer) {
+    if (layer == tiledLayer || layer == _innerMapLayer) {
         [mapProvider drawLayer:layer inContext:ctx];
     } else if (layer == innerMagnifyingGlassLayer) {
         CGContextSaveGState(ctx);
@@ -602,7 +743,7 @@
     double z;
 
     path = CGPathCreateMutable();
-    
+
     switch (state) {
         case kASMapViewAddControls:
             CGPathAddEllipseInRect(path, NULL, CGRectMake(45, 45, 90, 90));
@@ -648,9 +789,17 @@
             // (If there is no layout defined, the layout controller will create one).
             // Add in the printmap layer
             //
-            [[[[self enclosingScrollView] superview] layer] addSublayer:[self printedMapLayer]];
-            [self adjustPrintedMapLayerForBoundsAndMargins];
-            [self showPrintedMap];
+                [[[[self enclosingScrollView] superview] layer] addSublayer:[self printedMapLayer]];
+                
+                leftMargin = 50.0;
+                rightMargin = 50.0;
+                topMargin = 50.0;
+                bottomMargin = 50.0;
+                [self adjustPrintedMapLayerForBounds];
+                CGRect paper = [tiledLayer convertRect:_printedMapScrollLayer.frame fromLayer:_printedMapLayer];
+                [_innerMapLayer scrollPoint:CGPointMake(paper.origin.x, paper.origin.y)];
+
+                [self showPrintedMap];
             break;
         default:
             break;
@@ -709,6 +858,35 @@
     if ([[self window] firstResponder] != self) {
         [[self window] makeFirstResponder:self];
     }
+}
+
++ (CATransform3D)transformFromRect:(CGRect)src toRect:(CGRect)dst {
+    /*
+                        [ 1  0  0  0 ]
+     [ x  y  z  1 ]  x  [ 0  1  0  0 ]  =  [ x+1  y+2  z+3  1 ]
+                        [ 0  0  1  0 ]
+                        [ 1  2  3  1 ]
+     */
+    // There is no rotation and only x and y values, so we're looking
+    // for the elements m11, m22, m41, m42.
+    CATransform3D t = CATransform3DIdentity;
+    
+    // Lower left corner gives the following equations:
+    // src.origin.x * m11 + m41 = dst.origin.x
+    // src.origin.y * m22 + m42 = dst.origin.y
+    
+    // Upper right:
+    // (src.origin.x + src.size.width)*m11 + m41 = dst.origin.x + dst.size.width
+    // (src.origin.y + src.size.height)*m22 + m42 = dst.origin.y + dst.size.height
+    
+    // Four equations with four unknowns. Gaussian elimination:
+    // (this would be so much easier with MathML comments)
+    t.m11 = dst.size.width / src.size.width;
+    t.m22 = dst.size.height / src.size.height;
+    t.m41 = dst.origin.x - src.origin.x * t.m11;
+    t.m42 = dst.origin.y - src.origin.y * t.m22;
+
+    return t;
 }
 
 
