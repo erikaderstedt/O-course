@@ -48,10 +48,12 @@
 - (void)awakeFromNib {
     [super awakeFromNib];
     
-	[self setPostsFrameChangedNotifications:YES];
-    [self setPostsBoundsChangedNotifications:YES];
+    NSClipView *vc = [[self enclosingScrollView] contentView];
+    
+    [vc setPostsBoundsChangedNotifications:YES];
+    
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameChanged:) name:NSViewFrameDidChangeNotification object:[self enclosingScrollView]];
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(boundsChanged:) name:NSViewBoundsDidChangeNotification object:self];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(boundsChanged:) name:NSViewBoundsDidChangeNotification object:vc];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(overprintChanged:) name:@"ASOverprintChanged" object:nil];
     
     [[self enclosingScrollView] setBackgroundColor:[NSColor whiteColor]];
@@ -185,10 +187,12 @@
         _innerOverprintLayer = [CATiledLayer layer];
         _innerOverprintLayer.name = @"innerOverprint";
         _innerOverprintLayer.needsDisplayOnBoundsChange = YES;
-        _innerOverprintLayer.backgroundColor = white;
         _innerOverprintLayer.tileSize = tiledLayer.tileSize;
         _innerOverprintLayer.levelsOfDetail = tiledLayer.levelsOfDetail;
         _innerOverprintLayer.levelsOfDetailBias = tiledLayer.levelsOfDetailBias;
+        _innerOverprintLayer.bounds = _innerMapLayer.bounds;
+        _innerOverprintLayer.anchorPoint = _innerMapLayer.anchorPoint;
+        _innerOverprintLayer.position = _innerMapLayer.position;
         _innerOverprintLayer.delegate = self.overprintProvider;
         /*
         CIFilter *mulBlend = [CIFilter filterWithName:@"CIMultiplyCompositing"];
@@ -198,6 +202,8 @@
         CGColorRelease(black);
         
         [_printedMapScrollLayer addSublayer:_innerMapLayer];
+        [_printedMapScrollLayer addSublayer:_innerOverprintLayer];
+
     }
     return _printedMapLayer;
 }
@@ -598,23 +604,14 @@
 }
 
 - (void)boundsChanged:(NSNotification *)n {
-    NSLog(@"bnd");
-}
-
-- (void)scrollWheel:(NSEvent *)theEvent {
-    if (self.state == kASMapViewLayout) {
-        [CATransaction begin];
-        [CATransaction setValue:[NSNumber numberWithFloat:0.0f] forKey:kCATransactionAnimationDuration];
-    }
-
-    [super scrollWheel:theEvent];
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
     
-    if (self.state == kASMapViewLayout) {
-        // Track an appropriate transform for the inner paper layer.
-        CGRect paper = [tiledLayer convertRect:_printedMapScrollLayer.frame fromLayer:_printedMapLayer];
-        [_innerMapLayer scrollPoint:CGPointMake(paper.origin.x, paper.origin.y)];
-        [CATransaction commit];
-    }
+    // Track an appropriate transform for the inner paper layer.
+    CGRect paper = [tiledLayer convertRect:_printedMapScrollLayer.frame fromLayer:_printedMapLayer];
+    [_innerMapLayer scrollPoint:CGPointMake(paper.origin.x, paper.origin.y)];
+    
+    [CATransaction commit];
 }
 
 - (void)setPrimitiveZoom:(CGFloat)z2 {
