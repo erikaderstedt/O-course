@@ -41,6 +41,8 @@
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewFrameDidChangeNotification object:[self enclosingScrollView]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ASOverprintChanged" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewBoundsDidChangeNotification object:[[self enclosingScrollView] contentView]];
+    
 	[_magnifyingGlass removeFromSuperlayer];
     [_printedMapLayer removeFromSuperlayer];
 }
@@ -284,33 +286,19 @@
     // Calculate the number of map points that fit in the paper width.
     // 
     CGFloat pointsInWidth = ((orientation == NSPortraitOrientation)?paperSize.width:paperSize.height) * 100.0 * printingScale / 15000.0;
-    NSLog(@"points: %f (%f)", pointsInWidth, pointsInWidth/ mapBounds.size.width);
+
     // Kastellegården har 38000 pts in x. 380 mm i 15000-del. Låter mycket men kartan har mycket extra så det kan nog stämma.
     // 297 mm * 100 = 297000 * 10000/15000
     // Figure out how many points that are visible with the current transform.
     _innerMapLayer.transform = tiledLayer.transform;
+    _innerOverprintLayer.transform = tiledLayer.transform;
+    
     CGFloat visibleWidth = _innerMapLayer.visibleRect.size.width;
 
     [self setPrimitiveZoom:_zoom*visibleWidth/pointsInWidth];
-    
-    // Justera scroll-rect så att den hamnar rätt.
-    
-/*
-    CGRect rectOfVisibleAreaInMapCoordinates = [tiledLayer convertRect:_printedMapScrollLayer.frame fromLayer:_printedMapLayer];
-    // 
-    // Find a transform that takes rectOfVisibleAreaInMapCoordinates to r
-    // Then set this to the transorm of the innerMapLayer and innerOverprintLayer, as well as set the frame to rectOfVisibleAreaInMapCoordinates.
-    
-    // Set the inner map layer
-    CATransform3D sought = [[self class] transformFromRect:rectOfVisibleAreaInMapCoordinates toRect:_printedMapScrollLayer.bounds];
-    _printedMapScrollLayer.sublayerTransform = sought;
-        // Set the trans
-*/ 
+
 }
 
-- (void)synchronizeInnerTransform {
-    
-}
 
 - (void)showPrintedMap {
     if (tiledLayer.filters == nil || [tiledLayer.filters count] == 0) {
@@ -319,7 +307,7 @@
     }
     
     _innerMapLayer.transform = tiledLayer.transform;
-
+    _innerOverprintLayer.transform = tiledLayer.transform;
 
     CABasicAnimation *unhide = [CABasicAnimation animationWithKeyPath:@"opacity"];
     unhide.fromValue = @(0.0);
@@ -352,7 +340,7 @@
     [overprintLayer addAnimation:g1 forKey:nil];
     
     [_printedMapLayer setNeedsDisplay];
-   [_innerMapLayer setNeedsDisplay];
+    [_innerMapLayer setNeedsDisplay];
     [_innerOverprintLayer setNeedsDisplay];
 }
 
