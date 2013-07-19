@@ -28,8 +28,17 @@
         if (e != nil) {
             completionHandler(nil, NO, e);
         } else {
-            ASOcourseDocument *doc = [self openUntitledDocumentAndDisplay:displayDocument error:nil];
-            [doc setMapURL:url];
+            ASOcourseDocument *doc = [self makeUntitledDocumentOfType:[self defaultType] error:nil];
+            [self addDocument:doc];
+            
+            if (displayDocument) {
+                [doc makeWindowControllers];
+                [doc showWindows];
+                [doc setMapURL:url];
+            } else {
+                [doc setMapURL:url];
+            }
+
             completionHandler(doc, NO, nil);
         }
         return;
