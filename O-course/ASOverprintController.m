@@ -178,7 +178,7 @@
             NSMutableDictionary *values = [NSMutableDictionary dictionaryWithDictionary:[ma objectAtIndex:modifyIndex]];
             [values setObject:@(hide) forKey:@"hidden"];
             [ma replaceObjectAtIndex:modifyIndex withObject:values];
-            [layer setNeedsDisplayInRect:[self frameForOverprintObject:courseObject]];
+            [layer setNeedsDisplayInRect:[layer bounds]];
             self.cacheArray = ma;
         }
     }
@@ -269,7 +269,7 @@
         }
         
         if (drawConnectingLines && inCourse) {
-            if (previousCourseObject) {
+            if (previousCourseObject && (![courseObjectInfo[@"hidden"] boolValue] && ![previousCourseObject[@"hidden"] boolValue])) {
                 enum ASOverprintObjectType otype = (enum ASOverprintObjectType)[previousCourseObject[@"type"] integerValue];
                 angle = [[self class] angleBetweenCourseObjectInfos:previousCourseObject and:courseObjectInfo];
                 CGPoint startPoint = translatePoint(NSPointToCGPoint([previousCourseObject[@"position"] pointValue]),

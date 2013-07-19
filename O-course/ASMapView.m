@@ -713,6 +713,7 @@
 #pragma mark State handling
 
 - (void)setState:(enum ASMapViewUIState)s2 {
+    enum ASMapViewUIState oldState = state;
     state = s2;
     CGMutablePathRef path = NULL;
     
@@ -767,6 +768,7 @@
                 default:
                     break;
             }
+            break;
         case kASMapViewLayout:
             // Remember the current transform.
             // Ask the layout controller for the layout for the current course.
@@ -790,7 +792,7 @@
             break;
     }
     
-    if (state != kASMapViewLayout) {
+    if (oldState == kASMapViewLayout && state != kASMapViewLayout) {
         // Remove the filter from the tiledLayer
         // Go back to the other transforms.
         [self hidePrintedMap];
