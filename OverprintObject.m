@@ -41,7 +41,7 @@
 }
 
 - (void)setPosition:(CGPoint)p {
-    [self setPrimitiveValue:@(p.x) forKey:@"position_x"];
+    [self setValue:@(p.x) forKey:@"position_x"];
     [self setValue:@(p.y) forKey:@"position_y"];
 }
 
