@@ -30,6 +30,8 @@
     NSData *cachedCuts;
     
     BOOL drawConnectingLines;
+    
+    NSDictionary *controlDigitAttributes;
 }
 @property (nonatomic,weak) IBOutlet id <ASCourseDataSource> dataSource;
 @property (nonatomic,weak) IBOutlet ASOcourseDocument *document;

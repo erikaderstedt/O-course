@@ -7,6 +7,7 @@
 //
 
 #import "OverprintObject.h"
+#import "Course.h"
 
 @implementation OverprintObject
 
@@ -43,6 +44,11 @@
 - (void)setPosition:(CGPoint)p {
     [self setValue:@(p.x) forKey:@"position_x"];
     [self setValue:@(p.y) forKey:@"position_y"];
+    
+    NSArray *affectedCourses = [self valueForKeyPath:@"courseObjects.@distinctUnionOfObjects.course"];
+    for (Course *course in affectedCourses) {
+        [course recalculateControlNumberPositions];
+    }
 }
 
 - (NSInteger)controlNumber {
@@ -157,6 +163,11 @@
             feature = kASFeatureBareRock;
             break;
             
+            
+        case 527:
+        case 526:
+            feature = kASFeatureBuilding;
+            break;
         default:
             break;
     }
@@ -170,6 +181,17 @@
 
 - (void)addToCourse:(NSManagedObject *)course {
     [[self valueForKey:@"course"] addObject:course];
+}
+
+- (CGRect)frame {
+    CGPoint p = [self position];
+    // TODO: Adjust frame based on object type.
+    return CGRectMake(p.x - 325.0, p.y - 325.0, 650.0, 650.0);
+}
+
+- (CGPoint)controlCodePosition {
+    CGPoint p = [Course controlNumberPositionBasedOnObjectPosition:[self position] angle:0.75*M_PI];
+    return p;
 }
 
 @end

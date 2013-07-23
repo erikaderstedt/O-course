@@ -32,5 +32,7 @@
 
 - (void)assignNextFreeControlCode;
 - (void)setSymbolNumber:(NSInteger)symbolNumber;
+- (CGRect)frame;
+- (CGPoint)controlCodePosition;
 
 @end

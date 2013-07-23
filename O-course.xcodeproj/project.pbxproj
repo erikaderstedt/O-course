@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		030728D0179A8A74002E3CE7 /* CourseObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 030728CF179A8A74002E3CE7 /* CourseObject.m */; };
 		032001BE12FE9EF900707BA5 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 032001BD12FE9EF900707BA5 /* Cocoa.framework */; };
 		032001C812FE9EF900707BA5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 032001C612FE9EF900707BA5 /* InfoPlist.strings */; };
 		032001CB12FE9EF900707BA5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 032001CA12FE9EF900707BA5 /* main.m */; };
@@ -93,6 +94,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		030728CE179A8A74002E3CE7 /* CourseObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CourseObject.h; sourceTree = "<group>"; };
+		030728CF179A8A74002E3CE7 /* CourseObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CourseObject.m; sourceTree = "<group>"; };
 		032001B912FE9EF900707BA5 /* O-course.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "O-course.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		032001BD12FE9EF900707BA5 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		032001C012FE9EF900707BA5 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -388,6 +391,8 @@
 			children = (
 				03F2C769142C725F0053A47F /* Project.h */,
 				03F2C76A142C72600053A47F /* Project.m */,
+				030728CE179A8A74002E3CE7 /* CourseObject.h */,
+				030728CF179A8A74002E3CE7 /* CourseObject.m */,
 				0385ED7A156E2E630013AB2D /* OverprintObject.h */,
 				0385ED7B156E2E630013AB2D /* OverprintObject.m */,
 				037A4446175F3CD900FFABBD /* Course.h */,
@@ -548,6 +553,7 @@
 				03FA63A5156FEE3A00EF4ACF /* ASControlDescriptionView+CourseObjects.m in Sources */,
 				03FA63A81570006200EF4ACF /* ASEditableControlDescriptionView.m in Sources */,
 				037A4448175F3CD900FFABBD /* Course.m in Sources */,
+				030728D0179A8A74002E3CE7 /* CourseObject.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

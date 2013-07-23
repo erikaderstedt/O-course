@@ -209,18 +209,19 @@
     return [[self.courses selectedObjects] count];
 }
 
-- (void)enumerateOverprintObjectsInSelectedCourseUsingBlock:(void (^)(id <ASOverprintObject> object, NSInteger index))handler {
+- (void)enumerateOverprintObjectsInSelectedCourseUsingBlock:(void (^)(id <ASOverprintObject> object, NSInteger index, CGPoint controlNumberPosition))handler {
     __block NSInteger reg = 1;
     Course *selectedCourse = [self selectedCourse];
     if (selectedCourse == nil) return;
     for (NSManagedObject *courseObject in [selectedCourse valueForKey:@"courseObjects"]) {
         OverprintObject *o = [courseObject valueForKey:@"overprintObject"];
         NSAssert(o != nil, @"No overprint object!");
-        handler(o, ([o objectType] == kASOverprintObjectControl)?(reg++):(NSNotFound));
+        CGPoint numberPosition = CGPointMake([[courseObject valueForKey:@"position_x"] doubleValue], [[courseObject valueForKey:@"position_y"] doubleValue]);
+        handler(o, ([o objectType] == kASOverprintObjectControl)?(reg++):(NSNotFound), numberPosition);
     }
 }
 
-- (void)enumerateOtherOverprintObjectsUsingBlock:(void (^)(id <ASOverprintObject> object))handler {
+- (void)enumerateOtherOverprintObjectsUsingBlock:(void (^)(id <ASOverprintObject> object, NSInteger index, CGPoint controlNumberPosition))handler {
     NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"OverprintObject"];
     NSArray *allCourseObjects = [[self managedObjectContext] executeFetchRequest:fr error:nil];
 
@@ -228,7 +229,7 @@
     NSMutableSet *notSelected = [NSMutableSet setWithArray:allCourseObjects];
     [notSelected minusSet:[objectsInSelected set]];
     for (OverprintObject *courseObject in notSelected) {
-            handler(courseObject);
+        handler(courseObject, [[courseObject controlCode] integerValue], [courseObject controlCodePosition]);
     }
 }
 

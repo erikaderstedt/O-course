@@ -41,6 +41,10 @@
 }
 
 - (void)awakeFromNib {
+    controlDigitAttributes = @{
+                               [NSString stringWithString:(NSString *)kCTForegroundColorFromContextAttributeName]: @(YES),
+                               NSFontAttributeName:[NSFont fontWithName:@"Helvetica Neue" size:400]};
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(courseChanged:) name:@"ASCourseChanged" object:[self.document managedObjectContext]];
 }
 
@@ -64,32 +68,36 @@
     //    NSInteger controlNumber = 1;
     drawConnectingLines = [self.dataSource specificCourseSelected];
     NSMutableArray *drawnObjects = [NSMutableArray arrayWithCapacity:100];
-    [self.dataSource enumerateOverprintObjectsInSelectedCourseUsingBlock:^(id<ASOverprintObject> object, NSInteger index) {
+    [self.dataSource enumerateOverprintObjectsInSelectedCourseUsingBlock:^(id<ASOverprintObject> object, NSInteger index, CGPoint controlNumberPosition) {
         
         [ma addObject:@{
          @"position":[NSValue valueWithPoint:NSPointFromCGPoint(object.position)],
          @"type":@([object objectType]),
          @"in_course":@(YES),
          @"hidden":@NO,
-         @"draw":@(![drawnObjects containsObject:object])}];
+         @"draw":@(![drawnObjects containsObject:object]),
+         @"index":@(index),
+        @"controlNumberPosition":[NSValue valueWithPoint:NSPointFromCGPoint(controlNumberPosition)]}];
         [drawnObjects addObject:object];
     }];
     BOOL singleCourse = [self.dataSource specificCourseSelected];
-    [self.dataSource enumerateOtherOverprintObjectsUsingBlock:^(id<ASOverprintObject> object) {
+    [self.dataSource enumerateOtherOverprintObjectsUsingBlock:^(id<ASOverprintObject> object, NSInteger index, CGPoint controlNumberPosition) {
         [ma addObject:@{
          @"position":[NSValue valueWithPoint:NSPointFromCGPoint(object.position)],
          @"type":@([object objectType]),
          @"in_course":@(singleCourse?NO:YES),
          @"hidden":@NO,
-         @"draw":@(YES)}];
+         @"draw":@(YES), @"index":@(index),
+         @"controlNumberPosition":[NSValue valueWithPoint:NSPointFromCGPoint(controlNumberPosition)]}];
     }];
+    NSLog(@"%@", ma);
     
     @synchronized(self) {
         self.cacheArray = ma;
     }
     [[NSNotificationCenter defaultCenter] postNotificationName:@"ASOverprintChanged" object:nil];
 }
-
+/*
 - (void)updateOverprintObject:(id <ASOverprintObject>)courseObject withNewPosition:(CGPoint)p inLayer:(CATiledLayer *)layer {
     @synchronized(self) {
         NSMutableArray *ma = [NSMutableArray arrayWithArray:self.cacheArray];
@@ -113,7 +121,7 @@
         }
     }
 }
-
+*/
 + (CGFloat)angleBetweenCourseObjectInfos:(NSDictionary *)courseObjectInfo and:(NSDictionary *)secondCourseObjectInfo {
     CGFloat angle = 0.0;
 
@@ -217,6 +225,7 @@
         CGPoint p = NSPointToCGPoint([courseObjectInfo[@"position"] pointValue]);
         BOOL inCourse = [courseObjectInfo[@"in_course"] boolValue];
         CGContextSetStrokeColorWithColor(ctx, (inCourse?[self overprintColor]:[self transparentOverprintColor]));
+        CGContextSetFillColorWithColor(ctx, (inCourse?[self overprintColor]:[self transparentOverprintColor]));
         
         CGRect r;
         CGFloat z;
@@ -265,6 +274,17 @@
                     break;
                 default:
                     break;
+            }
+            
+            if (inCourse) {
+                // Draw control code / control number at the specified position.
+                NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:[courseObjectInfo[@"index"] stringValue] attributes:controlDigitAttributes];
+                CTLineRef line = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef)attributedString);
+                
+                // Set text position and draw the line into the graphics context
+                CGPoint textPosition = [courseObjectInfo[@"controlNumberPosition"] pointValue];
+                CGContextSetTextPosition(ctx, textPosition.x, textPosition.y);
+                CTLineDraw(line, ctx);
             }
         }
         
