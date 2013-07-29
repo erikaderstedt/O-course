@@ -283,7 +283,7 @@
                 
                 // Set text position and draw the line into the graphics context
                 CGPoint textPosition = [courseObjectInfo[@"controlNumberPosition"] pointValue];
-                CGContextSetTextPosition(ctx, textPosition.x, textPosition.y);
+                CGContextSetTextPosition(ctx, textPosition.x, textPosition.y-160.0);
                 CTLineDraw(line, ctx);
             }
         }

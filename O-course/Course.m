@@ -34,7 +34,7 @@
 }
 
 + (CGPoint)controlNumberPositionBasedOnObjectPosition:(CGPoint)position angle:(CGFloat)angle {
-    CGPoint p = CGPointMake(position.x + 700.0*cos(angle), position.y + 550.0*sin(angle));
+    CGPoint p = CGPointMake(position.x + 700.0*cos(angle), position.y + 700.0*sin(angle));
     return p;
 }
 
