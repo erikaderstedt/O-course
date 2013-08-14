@@ -276,7 +276,7 @@
                     break;
             }
             
-            if (inCourse) {
+            if (inCourse && type == kASOverprintObjectControl) {
                 // Draw control code / control number at the specified position.
                 NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:[courseObjectInfo[@"index"] stringValue] attributes:controlDigitAttributes];
                 CTLineRef line = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef)attributedString);

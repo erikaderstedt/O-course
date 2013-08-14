@@ -78,6 +78,7 @@
     NSArray *otherControls = [[self managedObjectContext] executeFetchRequest:request error:nil];
     NSInteger freeCode = 31;
     for (OverprintObject *control in otherControls) {
+        if ([control objectType] != kASOverprintObjectControl) continue;
         if ([control.controlCode integerValue] != freeCode) {
             break;
         } else {
