@@ -823,6 +823,8 @@
 }
 
 - (IBAction)enterLayoutMode:(id)sender {
+    // Make first responder to ensure that we get 'cancelOperation'
+    [[self window] makeFirstResponder:self];
     self.state = kASMapViewLayout;
 }
 
