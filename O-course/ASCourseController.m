@@ -33,6 +33,13 @@
     self.courses = nil;
 }
 
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    
+    [self.courseSelectionPopup setTarget:self];
+    [self.courseSelectionPopup setAction:@selector(changeCourse:)];
+}
+
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if (context == (__bridge void *)(self)) {
         // Restock the table
@@ -120,7 +127,7 @@
 
 - (Course *)selectedCourse {
     if ([[self.courses selectedObjects] count]) {
-        Course *course = [self.courses arrangedObjects][0];
+        Course *course = [self.courses selectedObjects][0];
         return course;
     }
     return nil;
@@ -331,7 +338,10 @@
 }
 
 - (IBAction)addCourse:(id)sender {
-    [self.courses add:sender];
+    NSManagedObject *dup = [NSEntityDescription insertNewObjectForEntityForName:@"Course" inManagedObjectContext:self.managedObjectContext];
+    [dup setValue:[Project projectInManagedObjectContext:self.managedObjectContext] forKey:@"project"];
+    [self.courses addObject:dup];
+    [self.courseTable reloadData];
 }
 
 - (IBAction)removeCourse:(id)sender {
@@ -343,6 +353,7 @@
     if ([s count] == 1) {
         NSManagedObject *orign = s[0];
         NSManagedObject *dup = [NSEntityDescription insertNewObjectForEntityForName:@"Course" inManagedObjectContext:self.managedObjectContext];
+        [dup setValue:[orign valueForKey:@"project"] forKey:@"project"];
         [dup setValue:[orign valueForKey:@"name"] forKey:@"name"];
         [dup setValue:[orign valueForKey:@"length"] forKey:@"length"];
         [dup setValue:[orign valueForKey:@"cuts"] forKey:@"cuts"];

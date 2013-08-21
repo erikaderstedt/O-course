@@ -90,7 +90,6 @@
          @"draw":@(YES), @"index":@(index),
          @"controlNumberPosition":[NSValue valueWithPoint:NSPointFromCGPoint(controlNumberPosition)]}];
     }];
-    NSLog(@"%@", ma);
     
     @synchronized(self) {
         self.cacheArray = ma;
