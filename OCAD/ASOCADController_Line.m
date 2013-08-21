@@ -239,10 +239,14 @@
             } else {
                 // The remaining distance (all - 2.0*initial) is covered by n*spacing + (n-1)*distance;
                 // n is such that distance is closest to the main length.
-                float rem = all - 2.0*initial; 
-                int n = 2;
-                while (fabsf((rem - spacing*n)/(n-1) - distance) > fabsf((rem - spacing*(n+1))/n - distance)) n++;
-                distance = (rem - spacing*n)/((float)n - 1) ;
+                float rem = all - 2.0*initial;
+                int n = round((rem + distance)/(distance + spacing));
+                if (n == 1) {
+                    initial = 0.5*(all - spacing);
+                    distance = all;
+                } else {
+                    distance = (rem - spacing*n)/((float)n - 1) ;
+                }
             }
             
             CGPoint p;
