@@ -22,6 +22,9 @@
 		033DA8B2144EFFC600C787F8 /* ASGenericImageController.m in Sources */ = {isa = PBXBuildFile; fileRef = 033DA8B0144EFFC600C787F8 /* ASGenericImageController.m */; };
 		033DA8B3144EFFC600C787F8 /* ASGenericImageController.m in Sources */ = {isa = PBXBuildFile; fileRef = 033DA8B0144EFFC600C787F8 /* ASGenericImageController.m */; };
 		033DA8B7144F04BD00C787F8 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 033DA8B6144F04BD00C787F8 /* AppKit.framework */; };
+		0367EBAD17CA70A400784BE0 /* Layout.m in Sources */ = {isa = PBXBuildFile; fileRef = 0367EBAC17CA70A400784BE0 /* Layout.m */; };
+		0367EBB017CB3AC900784BE0 /* ASLayoutController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0367EBAF17CB3AC800784BE0 /* ASLayoutController.m */; };
+		0367EBB317CB3CAE00784BE0 /* ASScaleFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0367EBB217CB3CAE00784BE0 /* ASScaleFormatter.m */; };
 		0373FA6D1349A42C006E41C9 /* ASMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0373FA6C1349A42C006E41C9 /* ASMapView.m */; };
 		037A4448175F3CD900FFABBD /* Course.m in Sources */ = {isa = PBXBuildFile; fileRef = 037A4447175F3CD900FFABBD /* Course.m */; };
 		0385ED7C156E2E630013AB2D /* OverprintObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 0385ED7B156E2E630013AB2D /* OverprintObject.m */; };
@@ -119,6 +122,12 @@
 		033DA8AF144EFFC600C787F8 /* ASGenericImageController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASGenericImageController.h; sourceTree = "<group>"; };
 		033DA8B0144EFFC600C787F8 /* ASGenericImageController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASGenericImageController.m; sourceTree = "<group>"; };
 		033DA8B6144F04BD00C787F8 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		0367EBAB17CA70A400784BE0 /* Layout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Layout.h; path = "O-course/Layout.h"; sourceTree = "<group>"; };
+		0367EBAC17CA70A400784BE0 /* Layout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Layout.m; path = "O-course/Layout.m"; sourceTree = "<group>"; };
+		0367EBAE17CB3AC800784BE0 /* ASLayoutController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASLayoutController.h; sourceTree = "<group>"; };
+		0367EBAF17CB3AC800784BE0 /* ASLayoutController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASLayoutController.m; sourceTree = "<group>"; };
+		0367EBB117CB3CAE00784BE0 /* ASScaleFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASScaleFormatter.h; sourceTree = "<group>"; };
+		0367EBB217CB3CAE00784BE0 /* ASScaleFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASScaleFormatter.m; sourceTree = "<group>"; };
 		0373FA6B1349A42C006E41C9 /* ASMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASMapView.h; sourceTree = "<group>"; };
 		0373FA6C1349A42C006E41C9 /* ASMapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASMapView.m; sourceTree = "<group>"; };
 		037A4446175F3CD900FFABBD /* Course.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Course.h; path = "O-course/Course.h"; sourceTree = "<group>"; };
@@ -275,6 +284,8 @@
 				03FA63A0156FEBB700EF4ACF /* ASCourseObjectSelectionView.m */,
 				03FA63A61570006200EF4ACF /* ASEditableControlDescriptionView.h */,
 				03FA63A71570006200EF4ACF /* ASEditableControlDescriptionView.m */,
+				0367EBB117CB3CAE00784BE0 /* ASScaleFormatter.h */,
+				0367EBB217CB3CAE00784BE0 /* ASScaleFormatter.m */,
 				03F2C76C142C81040053A47F /* Model objects */,
 				032001CF12FE9EF900707BA5 /* ASOcourseDocument.h */,
 				032001D012FE9EF900707BA5 /* ASOcourseDocument.m */,
@@ -288,6 +299,8 @@
 				03EEB29F147194A300BD9E0F /* ASOverprintController.m */,
 				03EEB2A7147427F400BD9E0F /* ASCourseController.h */,
 				03EEB2A8147427F400BD9E0F /* ASCourseController.m */,
+				0367EBAE17CB3AC800784BE0 /* ASLayoutController.h */,
+				0367EBAF17CB3AC800784BE0 /* ASLayoutController.m */,
 				03EEB2AA1474330500BD9E0F /* ASDistanceFormatter.h */,
 				03EEB2AB1474330500BD9E0F /* ASDistanceFormatter.m */,
 			);
@@ -389,6 +402,8 @@
 		03F2C76C142C81040053A47F /* Model objects */ = {
 			isa = PBXGroup;
 			children = (
+				0367EBAB17CA70A400784BE0 /* Layout.h */,
+				0367EBAC17CA70A400784BE0 /* Layout.m */,
 				03F2C769142C725F0053A47F /* Project.h */,
 				03F2C76A142C72600053A47F /* Project.m */,
 				030728CE179A8A74002E3CE7 /* CourseObject.h */,
@@ -554,6 +569,9 @@
 				03FA63A81570006200EF4ACF /* ASEditableControlDescriptionView.m in Sources */,
 				037A4448175F3CD900FFABBD /* Course.m in Sources */,
 				030728D0179A8A74002E3CE7 /* CourseObject.m in Sources */,
+				0367EBAD17CA70A400784BE0 /* Layout.m in Sources */,
+				0367EBB017CB3AC900784BE0 /* ASLayoutController.m in Sources */,
+				0367EBB317CB3CAE00784BE0 /* ASScaleFormatter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -9,12 +9,14 @@
 #import "Course.h"
 #import "OverprintObject.h"
 #import "CourseObject.h"
+#import "Layout.h"
 
 @implementation Course
 
 - (void)awakeFromInsert {
     [super awakeFromInsert];
     
+    [self setValue:[Layout defaultLayoutInContext:[self managedObjectContext]] forKey:@"layout"];
     [self setPrimitiveValue:NSLocalizedString(@"New course", nil) forKey:@"name"];
 }
 

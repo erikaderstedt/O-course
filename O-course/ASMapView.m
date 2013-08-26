@@ -8,10 +8,12 @@
 
 #import "ASMapView.h"
 #import "ASControlDescriptionView.h"
+#import "ASLayoutController.h"
+
 #define GLASS_SIZE 180.0
 #define SIGN_OF(x) ((x > 0.0)?1.0:-1.0)
 #define DEFAULT_PRINTING_SCALE 10000.0
-
+#define LAYOUT_VIEW_WIDTH 273.0
 @implementation ASMapView
 
 @synthesize mapProvider, overprintProvider;
@@ -49,6 +51,22 @@
 
 - (void)awakeFromNib {
     [super awakeFromNib];
+    [[self.layoutConfigurationView superview] removeConstraints:[[self.layoutConfigurationView superview] constraints]];
+
+    NSView *v1 = [self enclosingScrollView];
+    NSView *v2 = self.layoutConfigurationView;
+    NSView *cv = [self.layoutConfigurationView superview];
+    [cv addConstraint:[NSLayoutConstraint constraintWithItem:v1 attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:cv attribute:NSLayoutAttributeLeft multiplier:1.0 constant:-1.0]];
+    [cv addConstraint:[NSLayoutConstraint constraintWithItem:v1 attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:cv attribute:NSLayoutAttributeBottom multiplier:1.0 constant:1.0]];
+    [cv addConstraint:[NSLayoutConstraint constraintWithItem:v1 attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:cv attribute:NSLayoutAttributeTop multiplier:1.0 constant:-1.0]];
+    [cv addConstraint:[NSLayoutConstraint constraintWithItem:v1 attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:v2 attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0.0]];
+    [cv addConstraint:[NSLayoutConstraint constraintWithItem:v2 attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:LAYOUT_VIEW_WIDTH]];
+    self.theConstraint = [NSLayoutConstraint constraintWithItem:v1 attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:cv attribute:NSLayoutAttributeRight multiplier:1.0 constant:0.0];
+    [cv addConstraint:self.theConstraint];
+    
+    [cv addConstraint:[NSLayoutConstraint constraintWithItem:v2 attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:cv attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0.0]];
+    [cv addConstraint:[NSLayoutConstraint constraintWithItem:v2 attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:cv attribute:NSLayoutAttributeTop multiplier:1.0 constant:0.0]];
+    
     
     NSClipView *vc = [[self enclosingScrollView] contentView];
     
@@ -59,6 +77,10 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(overprintChanged:) name:@"ASOverprintChanged" object:nil];
     
     [[self enclosingScrollView] setBackgroundColor:[NSColor whiteColor]];
+    
+    
+    
+
     
     [self setupTiledLayer];
 }
@@ -227,6 +249,7 @@
     
     // Set the outer bounds. These are determined
     CGRect r = [[[self enclosingScrollView] superview] bounds], page;
+    r.size.width -= LAYOUT_VIEW_WIDTH;
     CGFloat a4ratio = paperSize.height/paperSize.width;
     CGFloat fraction = 0.8;
     if (orientation == NSLandscapeOrientation) {
@@ -804,10 +827,22 @@
 
 - (void)cancelOperation:(id)sender {
     [self revertToStandardMode:sender];
+    
 }
 
 - (IBAction)revertToStandardMode:(id)sender {
+    [self.layoutController willDisappear];
+
     self.state = kASMapViewNormal;
+    
+    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+        if ([context respondsToSelector:@selector(setAllowsImplicitAnimation:)]) {
+            [context setAllowsImplicitAnimation:YES];
+        }
+        [self.theConstraint setConstant:0.0];
+        [self layoutSubtreeIfNeeded];
+    } completionHandler:^{
+    }];
 }
 
 - (IBAction)goIntoAddControlsMode:(id)sender {
@@ -824,8 +859,21 @@
 
 - (IBAction)enterLayoutMode:(id)sender {
     // Make first responder to ensure that we get 'cancelOperation'
+    
     [[self window] makeFirstResponder:self];
     self.state = kASMapViewLayout;
+
+    [self.layoutController willAppear];
+    
+    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+        if ([context respondsToSelector:@selector(setAllowsImplicitAnimation:)]) {
+            [context setAllowsImplicitAnimation:YES];
+        }
+        [self.theConstraint setConstant:-LAYOUT_VIEW_WIDTH];
+        [self layoutSubtreeIfNeeded];
+    } completionHandler:^{
+    }];
+    
 }
 
 #pragma mark -

@@ -38,6 +38,7 @@
     
     [self.courseSelectionPopup setTarget:self];
     [self.courseSelectionPopup setAction:@selector(changeCourse:)];
+    self.managedObjectContext = [self.courses managedObjectContext];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
@@ -91,6 +92,22 @@
             }
             return nil;
         }
+    } else if ([[aTableColumn identifier] isEqualToString:@"layout"]) {
+        if (rowIndex == 0) {
+            return nil;
+        } else {
+            Course *thisCourse = [self.courses arrangedObjects][(rowIndex - 1)];
+            
+            NSMenu *theMenu = [(NSPopUpButtonCell *)[aTableColumn dataCell] menu];
+            
+            for (NSInteger index = 0; index < [[theMenu itemArray] count]; index++) {
+                if ([[[theMenu itemAtIndex:index] representedObject] isEqual:[thisCourse valueForKey:@"layout"]]) {
+                    return @(index);
+                }
+            }
+
+            return @(NSNotFound);
+        }
     }
     return nil;
 }
@@ -99,6 +116,35 @@
     if ([[aTableColumn identifier] isEqualToString:@"course"]) {
         if (rowIndex > 0 && (rowIndex - 1 < [[self.courses arrangedObjects] count])) {
             [[self.courses arrangedObjects][(rowIndex - 1)] setValue:anObject forKey:@"name"];
+        }
+    } else if ([[aTableColumn identifier] isEqualToString:@"layout"]) {
+        if (rowIndex > 0 && (rowIndex - 1 < [[self.courses arrangedObjects] count])) {
+            Course *thisCourse = [self.courses arrangedObjects][(rowIndex - 1)];
+            
+            if ([anObject intValue] != NSNotFound) {
+                NSMenu *theMenu = [(NSPopUpButtonCell *)[aTableColumn dataCell] menu];
+                NSMenuItem *theMenuItem = [theMenu itemAtIndex:[anObject intValue]];
+            
+                [thisCourse setValue:[theMenuItem representedObject] forKey:@"layout"];
+            } else {
+                [thisCourse setValue:nil forKey:@"layout"];
+            }
+        }
+    }
+}
+
+- (void)tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
+    if ([[tableColumn identifier] isEqualToString:@"layout"]) {
+        // Make sure that the cell menu is correct.
+        NSMenu *menu = [(NSPopUpButtonCell *)cell menu];
+        NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Layout"];
+        [request setSortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
+        NSArray *layouts = [[self managedObjectContext] executeFetchRequest:request error:nil];
+        [menu removeAllItems];
+        for (NSManagedObject *layout in layouts) {
+            NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:[layout valueForKey:@"name"] action:nil keyEquivalent:@""];
+            [item setRepresentedObject:layout];
+            [menu addItem:item];
         }
     }
 }

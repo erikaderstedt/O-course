@@ -27,6 +27,8 @@ enum ASMapViewUIState {
     kASMapViewLayout
 };
 
+@class ASLayoutController;
+
 @interface ASMapView : NSView {
     
 	CGRect mapBounds;
@@ -68,6 +70,9 @@ enum ASMapViewUIState {
 @property(nonatomic,assign) BOOL showMagnifyingGlass;
 @property(nonatomic,assign) CGFloat zoom;
 @property(nonatomic,assign) enum ASMapViewUIState state;
+@property(nonatomic,weak) IBOutlet NSView *layoutConfigurationView;
+@property(weak) IBOutlet ASLayoutController *layoutController;
+@property(weak) NSLayoutConstraint *theConstraint;
 
 - (IBAction)revertToStandardMode:(id)sender;
 - (IBAction)goIntoAddControlsMode:(id)sender;

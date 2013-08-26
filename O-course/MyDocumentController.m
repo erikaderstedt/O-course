@@ -52,6 +52,10 @@
     NSManagedObjectContext *moc = [doc managedObjectContext];
     NSManagedObject *project = [NSEntityDescription insertNewObjectForEntityForName:@"Project" inManagedObjectContext:moc];
     [project setValue:@"Skinklopp" forKey:@"event"];
+    NSManagedObject *layout = [NSEntityDescription insertNewObjectForEntityForName:@"Layout" inManagedObjectContext:moc];
+    [layout setValue:project forKey:@"project"];
+    [layout setValue:NSLocalizedString(@"layout.name.default", nil) forKey:@"name"];
+    [layout setValue:@(YES) forKey:@"default"];
 
     [moc processPendingChanges];
     [[moc undoManager] removeAllActions];
