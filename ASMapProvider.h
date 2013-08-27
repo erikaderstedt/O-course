@@ -28,8 +28,10 @@
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx;
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx useSecondaryTransform:(BOOL)useSecondaryTransform;
 
-- (BOOL)supportsBrownImage;
-- (void)setBrownImage:(BOOL)bi;
-- (BOOL)brownImage;
+- (NSArray *)symbolList;
+
+- (BOOL)supportsHiddenSymbolNumbers;
+- (void)setHiddenSymbolNumbers:(const int32_t *)symbols count:(size_t)count;
+- (const int32_t *)hiddenSymbolNumbers:(size_t *)count;
 
 @end

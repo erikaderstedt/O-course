@@ -63,10 +63,8 @@ struct ocad_cache {
     NSMutableDictionary *transformedHatchColors UNUSED_IVAR;
     NSMutableDictionary *transformedSecondaryHatchColors UNUSED_IVAR;
 
-    int         brown_start;
-    int         brown_stop;
-    BOOL        supportsBrown;
-    BOOL        brownActivated;
+    int32_t     *hiddenSymbols;
+    size_t      hiddenSymbolCount;
 
     NSMutableArray *backgroundImages;
     NSMutableArray *spotlightQueries;
@@ -78,6 +76,7 @@ struct ocad_cache {
 @property(nonatomic,assign) CGAffineTransform areaColorTransform;
 @property(nonatomic,assign) CGAffineTransform secondaryAreaColorTransform;
 @property(nonatomic,strong) NSString *ocadFilePath;
+@property(nonatomic, strong) NSArray *symbolList;
 
 - (id)initWithOCADFile:(NSString *)path;
 - (void)prepareCacheWithAreaTransform:(CGAffineTransform)transform;
@@ -96,5 +95,6 @@ struct ocad_cache {
 - (NSDictionary *)cachedDrawingInfoForRectangleObject:(struct ocad_element *)e;
 - (NSArray *)cacheSymbolElements:(struct ocad_symbol_element *)se atPoint:(CGPoint)origin withAngle:(float)angle totalDataSize:(uint16_t)data_size;
 - (NSArray *)cacheSymbolElements:(struct ocad_symbol_element *)se atPoint:(CGPoint)origin withAngle:(float)angle totalDataSize:(uint16_t)data_size element:(struct ocad_element *)element;
+
 
 @end

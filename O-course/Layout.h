@@ -10,9 +10,9 @@
 #import <CoreData/CoreData.h>
 
 
-enum ASLayoutPaperSize {
-    kASLayoutPaperSizeA4,
-    kASLayoutPaperSizeA3
+enum ASLayoutPaperType {
+    kASLayoutPaperTypeA4,
+    kASLayoutPaperTypeA3
 };
 
 @class Course, Project;
@@ -24,13 +24,20 @@ enum ASLayoutPaperSize {
 @property (nonatomic, retain) id frameColor;
 @property (nonatomic, retain) NSData * hiddenObjectTypes;
 @property (nonatomic, retain) NSString * name;
-@property (nonatomic, retain) NSNumber * paperSize;
+@property (nonatomic, retain) NSNumber * paperType;
 @property (nonatomic, retain) NSNumber * scale;
 @property (nonatomic, retain) NSSet *courses;
 @property (nonatomic, retain) Project *project;
 
 + (instancetype)defaultLayoutInContext:(NSManagedObjectContext *)managedObjectContext;
 - (NSString *)paperName;
+- (NSSize)paperSize;
+
+- (BOOL)symbolNumberIsVisible:(NSInteger)number;
+- (int32_t)allSymbolNumbersVisibleIn:(NSArray *)list;
+- (void)modifySymbolNumber:(NSInteger)number toBeVisible:(BOOL)visible;
+- (void)modifySymbolList:(NSArray *)list toBeVisible:(BOOL)visible;
+- (const int32_t *)hiddenObjects:(size_t *)count;
 
 @end
 

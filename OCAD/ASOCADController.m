@@ -137,6 +137,22 @@ static CGFloat colorData[170] = {
     [self loadBackgroundImagesRelativeToPath:[self.ocadFilePath stringByDeletingLastPathComponent]];
 #endif
     
+    NSMutableArray *ma = [NSMutableArray arrayWithCapacity:ocdf->num_symbols];
+    for (int j = 0; j < ocdf->num_symbols; j++) {
+        struct ocad_symbol *symbol = ocdf->symbols[j];
+        NSInteger symNum = symbol->symnum / 1000;
+        NSString *s = [[NSString alloc] initWithBytes:symbol->description length:symbol->desclength encoding:NSASCIIStringEncoding];
+        BOOL alreadyInList = NO;
+        for (NSDictionary *existingObject in ma) {
+            if ([[existingObject valueForKey:@"number"] integerValue] == symNum) {
+                alreadyInList = YES;
+                break;
+            }
+        }
+        if (!alreadyInList) [ma addObject:@{ @"number": @(symNum), @"name":s}];
+    }
+    self.symbolList = ma;
+    
     free(ocdf);
     ocdf = NULL;
 }
@@ -344,17 +360,26 @@ static CGFloat colorData[170] = {
     if (blackColor != NULL) CGColorRelease(blackColor);
 }
 
-- (BOOL)supportsBrownImage {
-    return supportsBrown;
+- (BOOL)supportsHiddenSymbolNumbers {
+    return YES;
 }
 
-// Caller is responsible for refreshing the view.
-- (void)setBrownImage:(BOOL)bi {
-    brownActivated = YES;
+- (void)setHiddenSymbolNumbers:(const int32_t *)symbols count:(size_t)count {
+    if (hiddenSymbols != NULL) {
+        free(hiddenSymbols);
+    }
+    if (count > 0) {
+        hiddenSymbols = calloc(count, sizeof(int32_t));
+        memcpy(hiddenSymbols, symbols, count * sizeof(int32_t));
+    } else {
+        hiddenSymbols = NULL;
+    }
+    hiddenSymbolCount = count;
 }
 
-- (BOOL)brownImage {
-    return brownActivated;
+- (const int32_t *)hiddenSymbolNumbers:(size_t *)count {
+    *count = hiddenSymbolCount;
+    return hiddenSymbols;
 }
 
 - (CGRect)mapBounds {
@@ -553,26 +578,6 @@ static CGFloat colorData[170] = {
         struct ocad_cache *c2 = *(struct ocad_cache **)o2;
         return colorList[c2->colornum] - colorList[c1->colornum];
     });
-    
-    // Prepare for 'brown only' mode.
-    int nSymbolIndex, snum, browncolor = -1;
-    for (nSymbolIndex = 0; nSymbolIndex < ocdf->num_symbols; nSymbolIndex++) {
-        snum = ocdf->symbols[nSymbolIndex]->symnum / 1000;
-        if (snum > 100 && snum < 200) {
-            browncolor = ((struct ocad_line_symbol *)ocdf->symbols[nSymbolIndex])->line_color;
-            break;
-        }
-        
-    }
-    if (browncolor == -1) {
-        supportsBrown = NO;
-    } else {
-        supportsBrown = YES;
-        brown_start = 0;
-        while (brown_start < num_cached_objects && sortedCache[brown_start]->colornum != browncolor) brown_start++;
-        brown_stop = brown_start;
-        while (brown_stop < num_cached_objects && sortedCache[brown_stop]->colornum == browncolor) brown_stop++;
-    }
 }
 
 - (NSArray *)cachedDrawingInfoForPointObject:(struct ocad_element *)e {
@@ -726,21 +731,19 @@ static CGFloat colorData[170] = {
         [map drawLayer:layer inContext:ctx];
     }
     CGContextSetTextDrawingMode(ctx, kCGTextFill);
-    int i;
+    int i, j2, j3;
     struct ocad_cache *cache;
     CGRect clipBox = CGContextGetClipBoundingBox(ctx);
     
-    int start, stop;
-    if (brownActivated) {
-        start = brown_start;
-        stop = brown_stop;
-    } else {
-        start = 0;
-        stop = num_cached_objects;
-    }
-    
-    for (i = start; i < stop; i++) {
+    for (i = 0; i < num_cached_objects; i++) {
         cache = sortedCache[i];
+        if (hiddenSymbolCount) {
+            j3 = cache->element->symnum / 1000;
+            for (j2 = 0; j2 < hiddenSymbolCount && hiddenSymbols[j2] != j3; j2++);
+            
+            if (j2 != hiddenSymbolCount) continue;
+        }
+        
         CGPathRef path = cache->path;
         CGColorRef fillColor = (useSecondaryTransform && cache->secondaryFillColor)?(cache->secondaryFillColor):(cache->fillColor);
         CGPathDrawingMode fillMode = cache->fillMode;
@@ -777,5 +780,6 @@ static CGFloat colorData[170] = {
     }
      
 }
+
 
 @end

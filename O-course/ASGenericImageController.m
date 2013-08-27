@@ -58,10 +58,21 @@
 }
 
 // Brown image not supported.
-- (BOOL)supportsBrownImage {
+- (BOOL)supportsHiddenSymbolNumbers{
     return NO;
 }
-- (void)setBrownImage:(BOOL)bi {}
-- (BOOL)brownImage { return NO; }
+
+- (void)setHiddenSymbolNumbers:(const int32_t *)symbols count:(size_t)count {
+    NSAssert(NO, @"Not supported on this map provider");
+}
+
+- (const int32_t *)hiddenSymbolNumbers:(size_t *)count {
+    NSAssert(NO, @"Not supported on this map provider");
+    return NULL;
+}
+
+- (NSArray *)symbolList {
+    return @[];
+}
 
 @end

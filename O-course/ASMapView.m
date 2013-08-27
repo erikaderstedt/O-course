@@ -43,6 +43,9 @@
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewFrameDidChangeNotification object:[self enclosingScrollView]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ASOverprintChanged" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ASVisibleSymbolsChanged" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ASLayoutChanged" object:nil];
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewBoundsDidChangeNotification object:[[self enclosingScrollView] contentView]];
     
 	[_magnifyingGlass removeFromSuperlayer];
@@ -75,12 +78,10 @@
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameChanged:) name:NSViewFrameDidChangeNotification object:[self enclosingScrollView]];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(boundsChanged:) name:NSViewBoundsDidChangeNotification object:vc];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(overprintChanged:) name:@"ASOverprintChanged" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(visibleSymbolsChanged:) name:@"ASVisibleSymbolsChanged" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutChanged:) name:@"ASLayoutChanged" object:nil];
     
     [[self enclosingScrollView] setBackgroundColor:[NSColor whiteColor]];
-    
-    
-    
-
     
     [self setupTiledLayer];
 }
@@ -151,6 +152,7 @@
         overprintLayer.contents = nil;
         [overprintLayer setNeedsDisplay];
         
+        [self.layoutController setSymbolList:[self.mapProvider symbolList]];
 
         // Calculate the initial zoom as the minimum zoom.
         NSRect cv = [[[self enclosingScrollView] contentView] frame];
@@ -292,11 +294,12 @@
         r.origin.y += bottomMargin;
     }
     [_printedMapScrollLayer setFrame:r];
-    [self setPrintingScale:5000.0];
-
 }
 
 - (void)setPrintingScale:(CGFloat)printingScale {
+    /* First check that we're on screen. */
+    CGFloat visibleWidth = _innerMapLayer.visibleRect.size.width;
+    NSAssert (visibleWidth > 0.0, @"Not shown?");
     /*
      * We want to 1) set the frame of the inner map layers
      * and 2) set the transform of those layers so that just the right
@@ -307,19 +310,16 @@
     _printingScale = printingScale;
     
     // Calculate the number of map points that fit in the paper width.
-    // 
-    CGFloat pointsInWidth = ((orientation == NSPortraitOrientation)?paperSize.width:paperSize.height) * 100.0 * printingScale / 15000.0;
-
+    //
+    CGFloat pointsInWidth = ((orientation == NSLandscapeOrientation)?paperSize.height:paperSize.width) * 100.0 * printingScale / 15000.0;
     // Kastellegården har 38000 pts in x. 380 mm i 15000-del. Låter mycket men kartan har mycket extra så det kan nog stämma.
     // 297 mm * 100 = 297000 * 10000/15000
-    // Figure out how many points that are visible with the current transform.
+    // visibleWidth is the number of points that are visible with the current transform.
+    // We then adjust the zoom by the quotient visibleWidth/pointsInWidth.
+    // If more are visible than we should have, the zoom is increased.
     _innerMapLayer.transform = tiledLayer.transform;
     _innerOverprintLayer.transform = tiledLayer.transform;
-    
-    CGFloat visibleWidth = _innerMapLayer.visibleRect.size.width;
-
     [self setPrimitiveZoom:_zoom*visibleWidth/pointsInWidth];
-
 }
 
 
@@ -362,9 +362,17 @@
     [tiledLayer addAnimation:g1 forKey:nil];
     [overprintLayer addAnimation:g1 forKey:nil];
     
-    [_printedMapLayer setNeedsDisplay];
-    [_innerMapLayer setNeedsDisplay];
-    [_innerOverprintLayer setNeedsDisplay];
+    [self.layoutController willAppear];
+    
+    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+        if ([context respondsToSelector:@selector(setAllowsImplicitAnimation:)]) {
+            [context setAllowsImplicitAnimation:YES];
+        }
+        [self.theConstraint setConstant:-LAYOUT_VIEW_WIDTH];
+        [self layoutSubtreeIfNeeded];
+    } completionHandler:^{
+    }];
+    
 }
 
 - (void)hidePrintedMap {
@@ -372,6 +380,20 @@
     [overprintLayer setFilters:@[]];
     
     [[self printedMapLayer] removeFromSuperlayer];
+    
+    if ([self.mapProvider supportsHiddenSymbolNumbers]) {
+        [self.mapProvider setHiddenSymbolNumbers:NULL count:0];
+        [tiledLayer setNeedsDisplayInRect:[tiledLayer bounds]];
+    }
+    
+    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+        if ([context respondsToSelector:@selector(setAllowsImplicitAnimation:)]) {
+            [context setAllowsImplicitAnimation:YES];
+        }
+        [self.theConstraint setConstant:0.0];
+        [self layoutSubtreeIfNeeded];
+    } completionHandler:^{
+    }];
 }
 
 #pragma mark -
@@ -556,7 +578,8 @@
 
 - (void)mouseUp:(NSEvent *)theEvent {
     NSPoint eventLocationInView = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-
+    NSPoint p = NSPointFromCGPoint([tiledLayer convertPoint:NSPointToCGPoint(eventLocationInView) fromLayer:[self layer]]);
+    NSInteger i = [self.mapProvider symbolNumberAtPosition:p];
     // Tell the overprint provider that a new control should be added at that position. Supply the symbol number from the map provider.
     //
     enum ASOverprintObjectType addingType;
@@ -593,8 +616,6 @@
             break;
     };
     
-    NSPoint p = NSPointFromCGPoint([tiledLayer convertPoint:NSPointToCGPoint(eventLocationInView) fromLayer:[self layer]]);
-    NSInteger i = [self.mapProvider symbolNumberAtPosition:p];
 
     [self.courseDataSource addOverprintObject:addingType atLocation:p symbolNumber:i];
     [overprintLayer setNeedsDisplay];
@@ -651,6 +672,15 @@
 	if (tentativeNewOrigin.y + v.size.height > NSMaxY(f)) tentativeNewOrigin.y = NSMaxY(f) - v.size.height;
     
 	[cv scrollToPoint:NSPointFromCGPoint(tentativeNewOrigin)];
+    if (self.state == kASMapViewLayout) {
+        NSLog(@"In primitive zoom");
+        _innerMapLayer.transform = tiledLayer.transform;
+        _innerOverprintLayer.transform = overprintLayer.transform;
+        CGRect paper = [tiledLayer convertRect:_printedMapScrollLayer.frame fromLayer:_printedMapLayer];
+        [_innerMapLayer scrollPoint:CGPointMake(paper.origin.x, paper.origin.y)];
+        [_innerMapLayer setNeedsDisplayInRect:[_innerMapLayer bounds]];
+
+    }
     
     _zoom = z2;
 
@@ -793,23 +823,25 @@
             }
             break;
         case kASMapViewLayout:
+        {
             // Remember the current transform.
             // Ask the layout controller for the layout for the current course.
             
             // (If there is no layout defined, the layout controller will create one).
             // Add in the printmap layer
             //
-                [[[[self enclosingScrollView] superview] layer] addSublayer:[self printedMapLayer]];
-                
-                leftMargin = 50.0;
-                rightMargin = 50.0;
-                topMargin = 50.0;
-                bottomMargin = 50.0;
-                [self adjustPrintedMapLayerForBounds];
-                CGRect paper = [tiledLayer convertRect:_printedMapScrollLayer.frame fromLayer:_printedMapLayer];
-                [_innerMapLayer scrollPoint:CGPointMake(paper.origin.x, paper.origin.y)];
-
-                [self showPrintedMap];
+            [[[[self enclosingScrollView] superview] layer] addSublayer:[self printedMapLayer]];
+            
+            leftMargin = 50.0;
+            rightMargin = 50.0;
+            topMargin = 50.0;
+            bottomMargin = 50.0;
+            [self adjustPrintedMapLayerForBounds];
+            
+            [self showPrintedMap];
+            CGRect paper = [tiledLayer convertRect:_printedMapScrollLayer.frame fromLayer:_printedMapLayer];
+            [_innerMapLayer scrollPoint:CGPointMake(paper.origin.x, paper.origin.y)];
+        }
             break;
         default:
             break;
@@ -832,17 +864,8 @@
 
 - (IBAction)revertToStandardMode:(id)sender {
     [self.layoutController willDisappear];
-
-    self.state = kASMapViewNormal;
     
-    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
-        if ([context respondsToSelector:@selector(setAllowsImplicitAnimation:)]) {
-            [context setAllowsImplicitAnimation:YES];
-        }
-        [self.theConstraint setConstant:0.0];
-        [self layoutSubtreeIfNeeded];
-    } completionHandler:^{
-    }];
+    self.state = kASMapViewNormal;
 }
 
 - (IBAction)goIntoAddControlsMode:(id)sender {
@@ -863,21 +886,37 @@
     [[self window] makeFirstResponder:self];
     self.state = kASMapViewLayout;
 
-    [self.layoutController willAppear];
-    
-    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
-        if ([context respondsToSelector:@selector(setAllowsImplicitAnimation:)]) {
-            [context setAllowsImplicitAnimation:YES];
-        }
-        [self.theConstraint setConstant:-LAYOUT_VIEW_WIDTH];
-        [self layoutSubtreeIfNeeded];
-    } completionHandler:^{
-    }];
     
 }
 
 #pragma mark -
 #pragma mark Miscellaneous
+
+- (void)layoutChanged:(NSNotification *)n {
+    NSPrintingOrientation t = [self.layoutController orientation];
+    if (t != orientation) {
+        orientation = t;
+        [self adjustPrintedMapLayerForBounds];
+    }
+    NSSize pSize = [self.layoutController paperSize];
+    paperSize = NSSizeToCGSize(pSize);
+    
+    CGFloat nuScale = (CGFloat)[self.layoutController scale];
+    if (nuScale != _printingScale && nuScale != 0) {
+        _printingScale = nuScale;
+    }
+    [self setPrintingScale:_printingScale];
+}
+
+- (void)visibleSymbolsChanged:(NSNotification *)n {
+    if (self.state == kASMapViewLayout && [self.mapProvider supportsHiddenSymbolNumbers]) {
+        size_t c;
+        const int32_t *hidden = [self.layoutController hiddenObjects:&c];
+        [self.mapProvider setHiddenSymbolNumbers:hidden count:c];
+        [tiledLayer setNeedsDisplayInRect:[tiledLayer bounds]];
+        [_innerMapLayer setNeedsDisplayInRect:[_innerMapLayer bounds]];
+    }
+}
 
 - (void)overprintChanged:(NSNotification *)n {
     [overprintLayer setNeedsDisplay];

@@ -12,10 +12,26 @@
 
 @interface ASLayoutController : NSObject <NSTableViewDataSource, NSTableViewDelegate>
 
-@property (nonatomic, weak) IBOutlet NSArrayController *layouts;
+@property (nonatomic, strong) IBOutlet NSArrayController *layouts;
 @property (weak) IBOutlet NSTableView *layoutsTable;
+@property (weak) IBOutlet NSOutlineView *visibleSymbolsTable;
+@property (weak) NSArray *symbolList;
+@property (assign) BOOL observing;
+
+@property (strong) NSArray *landForms;
+@property (strong) NSArray *rocksAndCliffs;
+@property (strong) NSArray *waterAndMarsh;
+@property (strong) NSArray *vegetation;
+@property (strong) NSArray *manMade;
+@property (assign) BOOL recognizesSymbols;
 
 - (void)willAppear;
 - (void)willDisappear;
+- (void)setSymbolList:(NSArray *)symbolList;
+
+- (const int32_t *)hiddenObjects:(size_t *)count;
+- (NSInteger)scale;
+- (NSPrintingOrientation)orientation;
+- (NSSize)paperSize;
 
 @end
