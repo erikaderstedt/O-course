@@ -163,18 +163,17 @@ out_error:
         if ([[s pathExtension] isEqualToString:@"ocd"]) {
             ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:s];
             [o prepareCacheWithAreaTransform:CGAffineTransformIdentity secondaryTransform:CGAffineTransformMakeScale(0.15, 0.15)];
-            mapView.mapProvider = o;
+            self.mapView.mapProvider = o;
         } else {
             ASGenericImageController *i = [[ASGenericImageController alloc] initWithContentsOfFile:s];
-            mapView.mapProvider = i;
+            self.mapView.mapProvider = i;
         }
         
         [u stopAccessingSecurityScopedResource];
     } else {
-        mapView.mapProvider = nil;
+        self.mapView.mapProvider = nil;
     }
-    
-    [mapView mapLoaded];
+    [self.mapView mapLoaded];
 }
 
 - (void)awakeFromNib {
@@ -189,6 +188,8 @@ out_error:
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(courseChanged:) name:@"ASCourseChanged" object:[self managedObjectContext]];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:@"ASCourseChanged" object:[self managedObjectContext]];
+
+    if (self.mapView.mapProvider == nil) [self updateMap:nil];
 }
 
 - (void)undoOrRedo:(NSNotification *)n {
