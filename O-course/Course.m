@@ -35,6 +35,25 @@
     [self recalculateControlNumberPositions];
 }
 
+- (void)removeLastOccurrenceOfOverprintObject:(OverprintObject *)object {
+    NSEnumerator *enumerator = [[self valueForKey:@"courseObjects"] reverseObjectEnumerator];
+    CourseObject *co;
+    NSInteger i = [[self valueForKey:@"courseObjects"] count]-1;
+    while (co = [enumerator nextObject]) {
+        if ([[co overprintObject] isEqual:object]) break;
+        i--;
+    }
+    if (co != nil) {
+        [[self mutableOrderedSetValueForKey:@"courseObjects"] removeObjectAtIndex:i];
+        co.overprintObject = nil;
+        co.course = nil;
+        [co.managedObjectContext deleteObject:co];
+        [[self managedObjectContext] processPendingChanges];
+        
+        [self recalculateControlNumberPositions];
+    }
+}
+
 + (CGPoint)controlNumberPositionBasedOnObjectPosition:(CGPoint)position angle:(CGFloat)angle {
     CGPoint p = CGPointMake(position.x + 700.0*cos(angle), position.y + 700.0*sin(angle));
     return p;

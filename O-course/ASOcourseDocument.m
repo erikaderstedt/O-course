@@ -155,7 +155,8 @@ out_error:
 
 - (void)updateMap:(NSNotification *)n {
     NSURL *u = [[self project] mapURL];
-
+    if ([u isEqual:self.loadedURL]) return;
+    
     if (u != nil) {
         [u startAccessingSecurityScopedResource];
         
@@ -170,8 +171,10 @@ out_error:
         }
         
         [u stopAccessingSecurityScopedResource];
+        self.loadedURL = u;
     } else {
         self.mapView.mapProvider = nil;
+        self.loadedURL = nil;
     }
     [self.mapView mapLoaded];
 }

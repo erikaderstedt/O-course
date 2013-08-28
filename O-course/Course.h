@@ -14,6 +14,7 @@
 
 - (void)appendOverprintObject:(OverprintObject *)object;
 - (void)insertOverprintObject:(OverprintObject *)object atPosition:(NSUInteger)position;
+- (void)removeLastOccurrenceOfOverprintObject:(OverprintObject *)object;
 
 + (CGPoint)controlNumberPositionBasedOnObjectPosition:(CGPoint)position angle:(CGFloat)angle;
 + (CGRect)controlNumberFrameBasedOnObjectPosition:(CGPoint)position angle:(CGFloat)angle;

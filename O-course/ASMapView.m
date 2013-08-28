@@ -41,6 +41,9 @@
 }
 
 - (void)dealloc {
+    [tiledLayer removeObserver:self forKeyPath:@"transform"];
+    [_innerMapLayer removeObserver:self forKeyPath:@"transform"];
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewFrameDidChangeNotification object:[self enclosingScrollView]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ASOverprintChanged" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ASVisibleSymbolsChanged" object:nil];
@@ -84,6 +87,22 @@
     [[self enclosingScrollView] setBackgroundColor:[NSColor whiteColor]];
     
     [self setupTiledLayer];
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if ([keyPath isEqualToString:@"transform"]) {
+        if (context == (__bridge void *)(_innerMapLayer)) {
+            _innerOverprintLayer.transform = _innerMapLayer.transform;
+        } else if (context == (__bridge void *)(tiledLayer)) {
+            overprintLayer.transform = tiledLayer.transform;
+            if (self.state == kASMapViewLayout) {
+                _innerMapLayer.transform = tiledLayer.transform;
+            }
+        }
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
 }
 
 #pragma mark -
@@ -137,6 +156,7 @@
         [tiledLayer setFilters:@[[self backgroundMapFilter]]];
         [overprintLayer setFilters:@[[self backgroundMapFilter]]];
 
+        [tiledLayer addObserver:self forKeyPath:@"transform" options:0 context:(__bridge void *)(tiledLayer)];
     }
 }
 
@@ -145,6 +165,8 @@
     if (self.mapProvider != nil) {
         if (tiledLayer == nil) [self setupTiledLayer];
         mapBounds = [self.mapProvider mapBounds];
+        mapBounds = CGRectInset(mapBounds, -16384.0, -16384.0);
+
         tiledLayer.bounds = mapBounds; overprintLayer.bounds = mapBounds;
         tiledLayer.delegate = self; overprintLayer.delegate = overprintProvider;
         tiledLayer.contents = nil;
@@ -157,6 +179,8 @@
         // Calculate the initial zoom as the minimum zoom.
         NSRect cv = [[[self enclosingScrollView] contentView] frame];
         minZoom = [self calculateMinimumZoomForFrame:cv];
+        
+        // This will update the frame.
         [self setZoom:minZoom*3.0];
     } else {
         if (tiledLayer != nil) {
@@ -205,7 +229,6 @@
         _innerMapLayer.levelsOfDetail = tiledLayer.levelsOfDetail;
         _innerMapLayer.levelsOfDetailBias = tiledLayer.levelsOfDetailBias;
         _innerMapLayer.position = tiledLayer.position;
-        _innerMapLayer.bounds = tiledLayer.bounds;
         _innerMapLayer.anchorPoint = tiledLayer.anchorPoint;
         _innerMapLayer.bounds = [self.mapProvider mapBounds];
         _innerMapLayer.delegate = self;
@@ -229,6 +252,8 @@
         
         [_printedMapScrollLayer addSublayer:_innerMapLayer];
         [_printedMapScrollLayer addSublayer:_innerOverprintLayer];
+        
+        [_innerMapLayer addObserver:self forKeyPath:@"transform" options:0 context:(__bridge void *)(_innerMapLayer)];
 
     }
     return _printedMapLayer;
@@ -299,7 +324,7 @@
 - (void)setPrintingScale:(CGFloat)printingScale {
     /* First check that we're on screen. */
     CGFloat visibleWidth = _innerMapLayer.visibleRect.size.width;
-    NSAssert (visibleWidth > 0.0, @"Not shown?");
+    if (visibleWidth == 0.0) return;
     /*
      * We want to 1) set the frame of the inner map layers
      * and 2) set the transform of those layers so that just the right
@@ -317,8 +342,6 @@
     // visibleWidth is the number of points that are visible with the current transform.
     // We then adjust the zoom by the quotient visibleWidth/pointsInWidth.
     // If more are visible than we should have, the zoom is increased.
-    _innerMapLayer.transform = tiledLayer.transform;
-    _innerOverprintLayer.transform = tiledLayer.transform;
     [self setPrimitiveZoom:_zoom*visibleWidth/pointsInWidth];
 }
 
@@ -329,9 +352,6 @@
         overprintLayer.filters = @[[self backgroundMapFilter]];
     }
     
-    _innerMapLayer.transform = tiledLayer.transform;
-    _innerOverprintLayer.transform = tiledLayer.transform;
-
     CABasicAnimation *unhide = [CABasicAnimation animationWithKeyPath:@"opacity"];
     unhide.fromValue = @(0.0);
     unhide.toValue = @(1.0);
@@ -510,7 +530,6 @@
 
 - (void)mouseEntered:(NSEvent *)theEvent {
     if (self.showMagnifyingGlass) {
-        [NSCursor hide];
         [[self magnifyingGlass] setHidden:NO];
     } else {
         if (self.state != kASMapViewDraggingCourseObject) {
@@ -544,7 +563,6 @@
 - (void)mouseExited:(NSEvent *)theEvent {
     if (self.showMagnifyingGlass) {
         [[self magnifyingGlass] setHidden:YES];
-        [NSCursor unhide];
     }
     if (self.state != kASMapViewDraggingCourseObject) {
         self.draggedCourseObject = nil;
@@ -587,7 +605,11 @@
         case kASMapViewNormal:
             if ([self.courseDataSource specificCourseSelected] && self.draggedCourseObject != nil) {
                 // Add to current course.
-                [self.courseDataSource appendOverprintObjectToSelectedCourse:self.draggedCourseObject];
+                if ([theEvent modifierFlags] & NSShiftKeyMask) {
+                    [self.courseDataSource removeLastOccurrenceOfOverprintObjectFromSelectedCourse:self.draggedCourseObject];
+                } else {
+                    [self.courseDataSource appendOverprintObjectToSelectedCourse:self.draggedCourseObject];
+                }
             }
             self.draggedCourseObject = nil;
             return;
@@ -633,6 +655,10 @@
 - (void)frameChanged:(NSNotification *)n {
 	minZoom = [self calculateMinimumZoomForFrame:[[n object] frame]];
 	if (self.zoom < minZoom) [self setZoom:minZoom];
+    if (self.state == kASMapViewLayout) {
+        [self adjustPrintedMapLayerForBounds];
+        [self setPrintingScale:_printingScale];
+    }
 }
 
 - (void)boundsChanged:(NSNotification *)n {
@@ -656,12 +682,10 @@
     
     NSRect r = NSMakeRect(0.0, 0.0, mapBounds.size.width*z2, mapBounds.size.height*z2);
     if (r.size.width == 0.0 || r.size.height == 0.0) r.size = NSMakeSize(1.0, 1.0);
-    
 	[self setFrame:r];
 	f = [self frame];
 	
 	tiledLayer.transform = CATransform3DMakeScale(z2, z2, 1.0);
-    overprintLayer.transform = tiledLayer.transform;
     
 	midpointAfter = [tiledLayer convertPoint:pointInMapCoordinates toLayer:[self layer]];
 	
@@ -673,17 +697,12 @@
     
 	[cv scrollToPoint:NSPointFromCGPoint(tentativeNewOrigin)];
     if (self.state == kASMapViewLayout) {
-        NSLog(@"In primitive zoom");
-        _innerMapLayer.transform = tiledLayer.transform;
-        _innerOverprintLayer.transform = overprintLayer.transform;
         CGRect paper = [tiledLayer convertRect:_printedMapScrollLayer.frame fromLayer:_printedMapLayer];
         [_innerMapLayer scrollPoint:CGPointMake(paper.origin.x, paper.origin.y)];
-        [_innerMapLayer setNeedsDisplayInRect:[_innerMapLayer bounds]];
-
+//        [_innerMapLayer setNeedsDisplayInRect:[_innerMapLayer bounds]];
     }
     
     _zoom = z2;
-
 }
 
 - (void)setZoom:(CGFloat)zoom {
@@ -838,7 +857,8 @@
             bottomMargin = 50.0;
             [self adjustPrintedMapLayerForBounds];
             
-            [self showPrintedMap];
+            [self showPrintedMap];           
+            
             CGRect paper = [tiledLayer convertRect:_printedMapScrollLayer.frame fromLayer:_printedMapLayer];
             [_innerMapLayer scrollPoint:CGPointMake(paper.origin.x, paper.origin.y)];
         }
@@ -850,6 +870,7 @@
     if (oldState == kASMapViewLayout && state != kASMapViewLayout) {
         // Remove the filter from the tiledLayer
         // Go back to the other transforms.
+        
         [self hidePrintedMap];
     }
     

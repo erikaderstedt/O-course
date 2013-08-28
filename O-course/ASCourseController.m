@@ -258,6 +258,15 @@
     return YES;
 }
 
+- (void)removeLastOccurrenceOfOverprintObjectFromSelectedCourse:(id <ASOverprintObject>)object {
+    NSAssert([self specificCourseSelected], @"No specific course selected");
+    Course *selectedCourse = (Course *)[self selectedCourse];
+    if (selectedCourse != nil) {
+        [selectedCourse removeLastOccurrenceOfOverprintObject:(OverprintObject *)object];
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"ASCourseChanged" object:self.managedObjectContext];
+    }
+}
+
 - (BOOL)specificCourseSelected {
     return [[self.courses selectedObjects] count];
 }

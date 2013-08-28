@@ -54,6 +54,8 @@ enum ASMapViewUIState {
     NSPrintingOrientation orientation;
     CGFloat _printingScale;
     CGSize paperSize; // in mm, in portrait orientation
+    BOOL frameVisible;
+    CGColorRef frameColor;
     
     // The margins given are for the portrait orientation.
     CGFloat topMargin;

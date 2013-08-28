@@ -28,6 +28,7 @@
 @property (nonatomic,strong) NSURL *mapURL;
 @property (nonatomic,weak) IBOutlet NSPopover *controlDefinitionsPopover;
 @property (nonatomic,weak) IBOutlet NSToolbarItem *showControlDefinitionsToolbarItem;
+@property (strong) NSURL *loadedURL;
 
 - (IBAction)showControlDefinitionsPopover:(id)sender;
 
