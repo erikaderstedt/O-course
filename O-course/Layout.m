@@ -27,6 +27,9 @@
     [super awakeFromInsert];
     
     self.frameColor = [NSColor colorWithDeviceRed:0.875 green:0.649 blue:0.223 alpha:1.000];
+    self.paperType = @(0);
+    [self setValue:@(NSLandscapeOrientation) forKey:@"orientation"];
+    [self setValue:@(10000) forKey:@"scale"];
 }
 
 + (instancetype)defaultLayoutInContext:(NSManagedObjectContext *)managedObjectContext {

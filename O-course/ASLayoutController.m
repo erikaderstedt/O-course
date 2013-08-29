@@ -14,6 +14,9 @@
 @synthesize landForms, rocksAndCliffs, waterAndMarsh, vegetation, manMade, recognizesSymbols;
 
 - (void)willAppear {
+    if ([[self.layouts arrangedObjects] count] == 0) {
+        [self.layouts fetch:nil];
+    }
     [self.layouts addObserver:self forKeyPath:@"arrangedObjects" options:NSKeyValueObservingOptionInitial context:(__bridge void *)(self)];
     [self.layouts addObserver:self forKeyPath:@"arrangedObjects.scale" options:0 context:(__bridge void *)(self)];
     [self.layouts addObserver:self forKeyPath:@"arrangedObjects.paperSize" options:0 context:(__bridge void *)(self)];
