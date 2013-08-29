@@ -10,6 +10,7 @@
 
 @interface Project : NSManagedObject
 @property(nonatomic,strong) NSData *mapBookmark;
+@property(assign) CGPoint centerPosition;
 
 + (Project *)projectInManagedObjectContext:(NSManagedObjectContext *)moc;
 

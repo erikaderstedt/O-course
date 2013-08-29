@@ -198,10 +198,12 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 
         // Calculate the initial zoom as the minimum zoom.
         NSRect cv = [[[self enclosingScrollView] contentView] frame];
-        minZoom = [self calculateMinimumZoomForFrame:cv];
+        if (cv.size.width > 0) {
+            minZoom = [self calculateMinimumZoomForFrame:cv];
         
-        // This will update the frame.
-        [self setZoom:minZoom*3.0];
+            // This will update the frame.
+            [self setZoom:minZoom*3.0];
+        }
     } else {
         if (tiledLayer != nil) {
             tiledLayer.delegate = nil;
@@ -677,7 +679,11 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 }
 
 - (void)frameChanged:(NSNotification *)n {
+    CGFloat oMinZoom = minZoom;
 	minZoom = [self calculateMinimumZoomForFrame:[[n object] frame]];
+    if (oMinZoom == 0.0) {
+        [self setZoom:minZoom*3.0];
+    }
 	if (self.zoom < minZoom) [self setZoom:minZoom];
     if (self.state == kASMapViewLayout) {
         [self adjustPrintedMapLayerForBounds];
@@ -806,13 +812,14 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         CGContextBeginPath(ctx);
         CGRect r = CGRectInset(_printedMapScrollLayer.frame, -FRAME_INSET,- FRAME_INSET);
         
-        CGPathRef p = CGPathCreateRoundRect(r, 20.0);
+        CGPathRef p = CGPathCreateRoundRect(r, 12.0);
         CGContextAddPath(ctx, p);
         CGPathRelease(p);
         CGContextSetStrokeColorWithColor(ctx, frameColor);
-        CGContextSetLineWidth(ctx, 6.0);
+        CGContextSetLineWidth(ctx, 4.0);
         
         CGContextStrokePath(ctx);
+
     }
 }
 
@@ -903,6 +910,10 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     }
     
     if (oldState == kASMapViewLayout && state != kASMapViewLayout) {
+        CGRect visibleRect = [_innerMapLayer visibleRect];
+        CGPoint newCenterPosition = CGPointMake(CGRectGetMidX(visibleRect), CGRectGetMidY(visibleRect));
+        [self.layoutController setLayoutCenterPosition:newCenterPosition];
+        
         // Remove the filter from the tiledLayer
         // Go back to the other transforms.
         
@@ -978,6 +989,16 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         _printingScale = nuScale;
     }
     [self setPrintingScale:_printingScale];
+    
+    // Convert the layout position to view coordinates.
+    CGPoint desiredCenter = [tiledLayer convertPoint:[self.layoutController layoutCenterPosition] toLayer:[self layer]];
+    NSClipView *cv = [[self enclosingScrollView] contentView];
+    CGRect visibleRect = NSRectToCGRect([cv documentVisibleRect]);
+    [cv scrollToPoint:NSMakePoint(desiredCenter.x-0.5*CGRectGetWidth(visibleRect)+ 0.5*LAYOUT_VIEW_WIDTH, desiredCenter.y-0.5*CGRectGetHeight(visibleRect))];
+    
+    // Sync paper with background.
+    CGRect paper = [tiledLayer convertRect:_printedMapScrollLayer.frame fromLayer:_printedMapLayer];
+    [_innerMapLayer scrollPoint:CGPointMake(paper.origin.x, paper.origin.y)];
     
     if (frameColor != NULL) {
         

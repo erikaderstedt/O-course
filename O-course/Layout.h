@@ -28,6 +28,7 @@ enum ASLayoutPaperType {
 @property (nonatomic, retain) NSNumber * scale;
 @property (nonatomic, retain) NSSet *courses;
 @property (nonatomic, retain) Project *project;
+@property (assign) CGPoint position;
 
 + (instancetype)defaultLayoutInContext:(NSManagedObjectContext *)managedObjectContext;
 - (NSString *)paperName;

@@ -9,7 +9,7 @@
 #import "Layout.h"
 #import "Course.h"
 #import "Project.h"
-
+#import "OverprintObject.h"
 
 @implementation Layout
 
@@ -149,6 +149,40 @@
 //    for (int32_t j = 1; j <= hidden_symbols[0]; j++) printf("%d ", hidden_symbols[j]);
     *count = hidden_symbols[0];
     return hidden_symbols+1;
+}
+
+- (CGPoint)position {
+    NSNumber *px = [self valueForKey:@"position_x"];
+    NSNumber *py = [self valueForKey:@"position_y"];
+    
+    if (px == nil || py == nil) {
+        // Calculate a default position
+        NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"OverprintObject"];
+        [fr setPredicate:[NSPredicate predicateWithFormat:@"type == %@ || type == %@ || type == %@", @(kASOverprintObjectControl), @(kASOverprintObjectFinish), @(kASOverprintObjectStart)]];
+        NSArray *overprintObjects = [self.managedObjectContext executeFetchRequest:fr error:nil];
+        if ([overprintObjects count] == 0) {
+            return [[Project projectInManagedObjectContext:self.managedObjectContext] centerPosition];
+        }
+        CGFloat fx = 0, fy = 0;
+        NSInteger i = 0;
+        CGPoint p;
+        for (OverprintObject *object in overprintObjects) {
+            p = [object position];
+            fx += p.x; fy += p.y; i++;
+        }
+        
+        NSAssert(i > 0, @"What?");
+        fx /= i; fy /= i;
+        
+        return CGPointMake(fx, fy);
+    }
+    
+    return CGPointMake([px doubleValue], [py doubleValue]);
+}
+
+- (void)setPosition:(CGPoint)position {
+    [self setValue:@(position.x) forKey:@"position_x"];
+    [self setValue:@(position.y) forKey:@"position_y"];
 }
 
 @end

@@ -184,6 +184,24 @@
     return [(NSColor *)[selectedLayout frameColor] CGColor];
 }
 
+- (CGPoint)layoutCenterPosition {
+    Layout *selectedLayout = [self selectedLayout];
+    if (selectedLayout == nil) {
+        selectedLayout = [Layout defaultLayoutInContext:self.layouts.managedObjectContext];
+    }
+    
+    return [selectedLayout position];
+}
+
+- (void)setLayoutCenterPosition:(CGPoint)centerPosition {
+    Layout *selectedLayout = [self selectedLayout];
+    if (selectedLayout == nil) {
+        return;
+    }
+    
+    selectedLayout.position = centerPosition;
+}
+
 #pragma mark NSTableViewDataSource
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView {

@@ -34,5 +34,7 @@
 - (NSPrintingOrientation)orientation;
 - (NSSize)paperSize;
 - (CGColorRef)frameColor;
+- (CGPoint)layoutCenterPosition;
+- (void)setLayoutCenterPosition:(CGPoint)centerPosition;
 
 @end

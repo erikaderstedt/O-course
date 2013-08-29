@@ -52,4 +52,13 @@
     return u;
 }
 
+- (CGPoint)centerPosition {
+    return CGPointMake([[self valueForKey:@"position_x"] doubleValue], [[self valueForKey:@"position_y"] doubleValue]);
+}
+
+- (void)setCenterPosition:(CGPoint)p {
+    [self setValue:@(p.x) forKey:@"position_x"];
+    [self setValue:@(p.y) forKey:@"position_y"];
+}
+
 @end
