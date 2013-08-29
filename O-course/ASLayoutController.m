@@ -21,6 +21,8 @@
     [self.layouts addObserver:self forKeyPath:@"arrangedObjects.scale" options:0 context:(__bridge void *)(self)];
     [self.layouts addObserver:self forKeyPath:@"arrangedObjects.paperSize" options:0 context:(__bridge void *)(self)];
     [self.layouts addObserver:self forKeyPath:@"arrangedObjects.orientation" options:0 context:(__bridge void *)(self)];
+    [self.layouts addObserver:self forKeyPath:@"arrangedObjects.frameColor" options:0 context:(__bridge void *)(self)];
+    [self.layouts addObserver:self forKeyPath:@"arrangedObjects.frameVisible" options:0 context:(__bridge void *)(self)];
     
     [self.layouts addObserver:self forKeyPath:@"selection" options:NSKeyValueObservingOptionInitial context:NULL];
     [self.visibleSymbolsTable reloadData];
@@ -33,6 +35,8 @@
         [self.layouts removeObserver:self forKeyPath:@"arrangedObjects.scale"];
         [self.layouts removeObserver:self forKeyPath:@"arrangedObjects.paperSize"];
         [self.layouts removeObserver:self forKeyPath:@"arrangedObjects.orientation"];
+        [self.layouts removeObserver:self forKeyPath:@"arrangedObjects.frameColor"];
+        [self.layouts removeObserver:self forKeyPath:@"arrangedObjects.frameVisible"];
         [self.layouts removeObserver:self forKeyPath:@"selection"];
         self.observing = NO;
     }
@@ -168,6 +172,16 @@
     if (selectedLayout == nil) return NSMakeSize(210, 297);
     
     return [selectedLayout paperSize];
+}
+
+- (CGColorRef)frameColor {
+    Layout *selectedLayout = [self selectedLayout];
+    if (selectedLayout == nil) return NULL;
+    
+    BOOL frameVisible = [[selectedLayout frameVisible] boolValue];
+    if (!frameVisible) return NULL;
+    
+    return [(NSColor *)[selectedLayout frameColor] CGColor];
 }
 
 #pragma mark NSTableViewDataSource

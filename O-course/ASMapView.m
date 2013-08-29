@@ -14,6 +14,26 @@
 #define SIGN_OF(x) ((x > 0.0)?1.0:-1.0)
 #define DEFAULT_PRINTING_SCALE 10000.0
 #define LAYOUT_VIEW_WIDTH 273.0
+#define FRAME_INSET 10.0
+
+CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
+{
+	CGMutablePathRef p = CGPathCreateMutable() ;
+	
+	CGPathMoveToPoint( p, NULL, r.origin.x + cornerRadius, r.origin.y ) ;
+	
+	CGFloat maxX = CGRectGetMaxX( r ) ;
+	CGFloat maxY = CGRectGetMaxY( r ) ;
+	
+	CGPathAddArcToPoint( p, NULL, maxX, r.origin.y, maxX, r.origin.y + cornerRadius, cornerRadius ) ;
+	CGPathAddArcToPoint( p, NULL, maxX, maxY, maxX - cornerRadius, maxY, cornerRadius ) ;
+	
+	CGPathAddArcToPoint( p, NULL, r.origin.x, maxY, r.origin.x, maxY - cornerRadius, cornerRadius ) ;
+	CGPathAddArcToPoint( p, NULL, r.origin.x, r.origin.y, r.origin.x + cornerRadius, r.origin.y, cornerRadius ) ;
+	
+	return p ;
+}
+
 @implementation ASMapView
 
 @synthesize mapProvider, overprintProvider;
@@ -214,6 +234,7 @@
         _printedMapLayer.shadowRadius = 8.0;
         _printedMapLayer.hidden = NO;
         _printedMapLayer.name = @"paper";
+        _printedMapLayer.delegate = self;
         
         _printedMapScrollLayer = [CAScrollLayer layer];
         _printedMapScrollLayer.anchorPoint = CGPointMake(0.5,0.5);
@@ -317,6 +338,9 @@
         r.size.height -= topMargin + bottomMargin;
         r.origin.x += leftMargin;
         r.origin.y += bottomMargin;
+    }
+    if (frameColor != NULL) {
+        r = CGRectInset(r, FRAME_INSET, FRAME_INSET);
     }
     [_printedMapScrollLayer setFrame:r];
 }
@@ -778,7 +802,18 @@
         [overprintProvider drawLayer:layer inContext:ctx];
         CGContextRestoreGState(ctx);
         
-    } 
+    } else if (layer == _printedMapLayer && frameColor != NULL) {
+        CGContextBeginPath(ctx);
+        CGRect r = CGRectInset(_printedMapScrollLayer.frame, -FRAME_INSET,- FRAME_INSET);
+        
+        CGPathRef p = CGPathCreateRoundRect(r, 20.0);
+        CGContextAddPath(ctx, p);
+        CGPathRelease(p);
+        CGContextSetStrokeColorWithColor(ctx, frameColor);
+        CGContextSetLineWidth(ctx, 6.0);
+        
+        CGContextStrokePath(ctx);
+    }
 }
 
 #pragma mark -
@@ -914,11 +949,27 @@
 #pragma mark Miscellaneous
 
 - (void)layoutChanged:(NSNotification *)n {
+    BOOL frameChanged = NO, orientationChanged = NO;
+    
+    CGColorRef nColor = [self.layoutController frameColor];
+    if (nColor != frameColor) {
+        if (frameColor != NULL) CGColorRelease(frameColor);
+        frameColor = nColor;
+        if (frameColor != NULL) CGColorRetain(frameColor);
+        
+        frameChanged = YES;
+    }
+
     NSPrintingOrientation t = [self.layoutController orientation];
     if (t != orientation) {
         orientation = t;
+        orientationChanged = YES;
+    }
+    
+    if (frameChanged || orientationChanged) {
         [self adjustPrintedMapLayerForBounds];
     }
+    
     NSSize pSize = [self.layoutController paperSize];
     paperSize = NSSizeToCGSize(pSize);
     
@@ -927,6 +978,14 @@
         _printingScale = nuScale;
     }
     [self setPrintingScale:_printingScale];
+    
+    if (frameColor != NULL) {
+        
+    } else {
+        
+    }
+
+    [_printedMapLayer setNeedsDisplay];
 }
 
 - (void)visibleSymbolsChanged:(NSNotification *)n {

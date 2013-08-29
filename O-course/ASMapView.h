@@ -52,10 +52,12 @@ enum ASMapViewUIState {
     CALayer *_printedMapLayer;
     CIFilter *_backgroundMapFilter;
     NSPrintingOrientation orientation;
+    
+    CTFrameRef textFrame;
+    CGColorRef frameColor;
+    NSString *eventTitle;
     CGFloat _printingScale;
     CGSize paperSize; // in mm, in portrait orientation
-    BOOL frameVisible;
-    CGColorRef frameColor;
     
     // The margins given are for the portrait orientation.
     CGFloat topMargin;

@@ -33,5 +33,6 @@
 - (NSInteger)scale;
 - (NSPrintingOrientation)orientation;
 - (NSSize)paperSize;
+- (CGColorRef)frameColor;
 
 @end
