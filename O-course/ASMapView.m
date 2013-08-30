@@ -910,9 +910,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     }
     
     if (oldState == kASMapViewLayout && state != kASMapViewLayout) {
-        CGRect visibleRect = [_innerMapLayer visibleRect];
-        CGPoint newCenterPosition = CGPointMake(CGRectGetMidX(visibleRect), CGRectGetMidY(visibleRect));
-        [self.layoutController setLayoutCenterPosition:newCenterPosition];
+        [self recordNewLayoutCenter];
         
         // Remove the filter from the tiledLayer
         // Go back to the other transforms.
@@ -959,14 +957,27 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 #pragma mark -
 #pragma mark Miscellaneous
 
+- (void)recordNewLayoutCenter {
+    CGRect visibleRect = [_innerMapLayer visibleRect];
+    CGPoint newCenterPosition = CGPointMake(CGRectGetMidX(visibleRect), CGRectGetMidY(visibleRect));
+    [self.layoutController setLayoutCenterPosition:newCenterPosition];
+}
+
 - (void)layoutChanged:(NSNotification *)n {
+    [self recordNewLayoutCenter];
+    
     BOOL frameChanged = NO, orientationChanged = NO;
     
     CGColorRef nColor = [self.layoutController frameColor];
     if (nColor != frameColor) {
         if (frameColor != NULL) CGColorRelease(frameColor);
         frameColor = nColor;
-        if (frameColor != NULL) CGColorRetain(frameColor);
+        if (frameColor != NULL) {
+            CGColorRetain(frameColor);
+            _printedMapScrollLayer.cornerRadius = 12.0;
+        } else {
+            _printedMapScrollLayer.cornerRadius = 0.0;
+        }
         
         frameChanged = YES;
     }

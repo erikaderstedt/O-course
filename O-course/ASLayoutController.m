@@ -9,6 +9,13 @@
 #import "ASLayoutController.h"
 #import "Layout.h"
 
+NSString *const ASLayoutChanged = @"_ASLayoutChanged";
+NSString *const ASLayoutVisibleItemsChanged = @"_ASLayoutVisibleItemsChanged";
+NSString *const ASLayoutScaleChanged = @"_ASLayoutScaleChanged";
+NSString *const ASLayoutOrientationChanged = @"_ASLayoutOrientationChanged";
+NSString *const ASLayoutFrameColorChanged = @"_ASLayoutFrameColorChanged";
+NSString *const ASLayoutFrameDetailsChanged = @"_ASLayoutFrameDetailsChanged";
+
 @implementation ASLayoutController
 
 @synthesize landForms, rocksAndCliffs, waterAndMarsh, vegetation, manMade, recognizesSymbols;
@@ -67,9 +74,21 @@
         // Restock the table
             [self.layoutsTable reloadData];
             [self.visibleSymbolsTable reloadData];
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"ASLayoutChanged" object:self.layouts.managedObjectContext];
+        if ([keyPath isEqualToString:@"arrangedObjects"]) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutChanged object:self.layouts.managedObjectContext];
+        } else if ([keyPath isEqualToString:@"arrangedObjects.scale"]) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutScaleChanged object:self.layouts.managedObjectContext];
+        } else if ([keyPath isEqualToString:@"arrangedObjects.paperSize"]) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutOrientationChanged object:self.layouts.managedObjectContext];
+        } else if ([keyPath isEqualToString:@"arrangedObjects.orientation"]) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutOrientationChanged object:self.layouts.managedObjectContext];
+        } else if ([keyPath isEqualToString:@"arrangedObjects.frameColor"]) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutFrameColorChanged object:self.layouts.managedObjectContext];
+        } else if ([keyPath isEqualToString:@"arrangedObjects.frameVisible"]) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutFrameDetailsChanged object:self.layouts.managedObjectContext];
+        }
     } else if (object == self.layouts && [keyPath isEqualToString:@"selection"]) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"ASLayoutChanged" object:self.layouts.managedObjectContext];
+        [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutChanged object:self.layouts.managedObjectContext];
     } else {
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }

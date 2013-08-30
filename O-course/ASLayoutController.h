@@ -10,6 +10,13 @@
 
 @class ASScaleFormatter;
 
+extern NSString *const ASLayoutChanged;
+extern NSString *const ASLayoutVisibleItemsChanged;
+extern NSString *const ASLayoutScaleChanged;
+extern NSString *const ASLayoutOrientationChanged;
+extern NSString *const ASLayoutFrameColorChanged;
+extern NSString *const ASLayoutFrameDetailsChanged;
+
 @interface ASLayoutController : NSObject <NSTableViewDataSource, NSTableViewDelegate>
 
 @property (nonatomic, strong) IBOutlet NSArrayController *layouts;
