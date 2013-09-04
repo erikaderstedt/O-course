@@ -82,15 +82,13 @@ enum ASMapViewUIState {
 - (IBAction)goIntoAddControlsMode:(id)sender;
 - (IBAction)goIntoAddStartMode:(id)sender;
 - (IBAction)goIntoAddFinishMode:(id)sender;
+- (IBAction)enterLayoutMode:(id)sender;
 
 - (void)mapLoaded;
 - (CGFloat)calculateMinimumZoomForFrame:(NSRect)frame;
+- (void)setPrimitiveZoom:(CGFloat)_pzoom;
 
 - (CALayer *)magnifyingGlass;
-
-- (IBAction)enterLayoutMode:(id)sender;
-- (CALayer *)printedMapLayer;
-- (void)adjustPrintedMapLayerForBounds;
 
 + (CATransform3D)transformFromRect:(CGRect)src toRect:(CGRect)dst;
 

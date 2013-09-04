@@ -10,6 +10,7 @@
 #import "ASOCADController.h"
 #import "ASGenericImageController.h"
 #import "ASMapView.h"
+#import "ASMapView+Layout.h"
 #import "Project.h"
 #import "OverprintObject.h"
 
@@ -172,6 +173,9 @@ out_error:
         
         [u stopAccessingSecurityScopedResource];
         self.loadedURL = u;
+        Project *p = [self project];
+        CGRect r = [self.mapView.mapProvider mapBounds];
+        p.centerPosition = CGPointMake(CGRectGetMidX(r), CGRectGetMidY(r));
     } else {
         self.mapView.mapProvider = nil;
         self.loadedURL = nil;

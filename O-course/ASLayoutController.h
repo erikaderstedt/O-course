@@ -15,7 +15,8 @@ extern NSString *const ASLayoutVisibleItemsChanged;
 extern NSString *const ASLayoutScaleChanged;
 extern NSString *const ASLayoutOrientationChanged;
 extern NSString *const ASLayoutFrameColorChanged;
-extern NSString *const ASLayoutFrameDetailsChanged;
+extern NSString *const ASLayoutFrameChanged;
+extern NSString *const ASLayoutEventDetailsChanged;
 
 @interface ASLayoutController : NSObject <NSTableViewDataSource, NSTableViewDelegate>
 
@@ -41,7 +42,8 @@ extern NSString *const ASLayoutFrameDetailsChanged;
 - (NSPrintingOrientation)orientation;
 - (NSSize)paperSize;
 - (CGColorRef)frameColor;
+- (BOOL)frameVisible;
 - (CGPoint)layoutCenterPosition;
-- (void)setLayoutCenterPosition:(CGPoint)centerPosition;
+- (void)writeLayoutCenterPosition:(CGPoint)centerPosition;
 
 @end
