@@ -19,6 +19,7 @@
 
 @property(assign) CGFloat printingScale;
 
+- (void)dragPaperMapBasedOnEvent:(NSEvent *)event;
 - (void)layoutChanged:(NSNotification *)notification;
 - (void)visibleSymbolsChanged:(NSNotification *)notification;
 - (void)printingScaleChanged:(NSNotification *)notification;
@@ -34,5 +35,6 @@
 - (void)centerMapOnCoordinates:(CGPoint)p;
 - (void)synchronizePaperWithBackground;
 - (void)recordNewLayoutCenter;
+- (void)ensureCorrectScale;
 
 @end

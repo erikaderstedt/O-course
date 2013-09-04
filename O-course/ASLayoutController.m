@@ -25,7 +25,7 @@ NSString *const ASLayoutEventDetailsChanged = @"_ASLayoutEventDetailsChanged";
     if ([[self.layouts arrangedObjects] count] == 0) {
         [self.layouts fetch:nil];
     }
-    [self.layouts addObserver:self forKeyPath:@"arrangedObjects" options:0 context:(__bridge void *)(self)];
+//    [self.layouts addObserver:self forKeyPath:@"arrangedObjects" options:0 context:(__bridge void *)(self)];
     [self.layouts addObserver:self forKeyPath:@"selection.scale" options:0 context:(__bridge void *)(self)];
     [self.layouts addObserver:self forKeyPath:@"selection.paperSize" options:0 context:(__bridge void *)(self)];
     [self.layouts addObserver:self forKeyPath:@"selection.orientation" options:0 context:(__bridge void *)(self)];
@@ -34,14 +34,14 @@ NSString *const ASLayoutEventDetailsChanged = @"_ASLayoutEventDetailsChanged";
     [self.layouts addObserver:self forKeyPath:@"selection.showEventName" options:0 context:(__bridge void *)(self)];
     [self.layouts addObserver:self forKeyPath:@"selection.showEventDate" options:0 context:(__bridge void *)(self)];
     
-    [self.layouts addObserver:self forKeyPath:@"selection" options:NSKeyValueObservingOptionInitial context:NULL];
+    [self.layouts addObserver:self forKeyPath:@"selection" options:0 context:NULL];
     [self.visibleSymbolsTable reloadData];
     self.observing = YES;
 }
 
 - (void)willDisappear {
     if (self.observing) {
-        [self.layouts removeObserver:self forKeyPath:@"arrangedObjects"];
+//        [self.layouts removeObserver:self forKeyPath:@"arrangedObjects"];
         [self.layouts removeObserver:self forKeyPath:@"selection.scale"];
         [self.layouts removeObserver:self forKeyPath:@"selection.paperSize"];
         [self.layouts removeObserver:self forKeyPath:@"selection.orientation"];
@@ -79,9 +79,9 @@ NSString *const ASLayoutEventDetailsChanged = @"_ASLayoutEventDetailsChanged";
         // Restock the table
             [self.layoutsTable reloadData];
             [self.visibleSymbolsTable reloadData];
-        if ([keyPath isEqualToString:@"arrangedObjects"]) {
+        /*if ([keyPath isEqualToString:@"arrangedObjects"]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutChanged object:self.layouts.managedObjectContext];
-        } else if ([keyPath isEqualToString:@"selection.scale"]) {
+        } else*/ if ([keyPath isEqualToString:@"selection.scale"]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutScaleChanged object:self.layouts.managedObjectContext];
         } else if ([keyPath isEqualToString:@"selection.paperSize"]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutOrientationChanged object:self.layouts.managedObjectContext];

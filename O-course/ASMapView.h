@@ -58,6 +58,8 @@ enum ASMapViewUIState {
     NSString *eventTitle;
     CGFloat _printingScale;
     CGSize paperSize; // in mm, in portrait orientation
+    BOOL draggingPaperMap;
+    CGSize paperOffset;
     
     // The margins given are for the portrait orientation.
     CGFloat topMargin;

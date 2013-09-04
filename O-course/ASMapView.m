@@ -86,11 +86,21 @@
     [self setupTiledLayer];
 }
 
+- (BOOL)acceptsFirstMouse:(NSEvent *)theEvent {
+    return YES;
+}
+
+- (BOOL)acceptsFirstResponder {
+    return YES;
+}
+
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
     if ([keyPath isEqualToString:@"transform"]) {
-        if (context == (__bridge void *)(_innerMapLayer)) {
+        if (context == (__bridge void *)(_innerMapLayer) && self.state == kASMapViewLayout) {
             _innerOverprintLayer.transform = _innerMapLayer.transform;
+            tiledLayer.transform = _innerMapLayer.transform;
+            overprintLayer.transform = tiledLayer.transform;
         } else if (context == (__bridge void *)(tiledLayer)) {
             overprintLayer.transform = tiledLayer.transform;
             if (self.state == kASMapViewLayout) {
@@ -162,7 +172,6 @@
     if (self.mapProvider != nil) {
         if (tiledLayer == nil) [self setupTiledLayer];
         mapBounds = [self.mapProvider mapBounds];
-//        mapBounds = CGRectInset(mapBounds, -16384.0, -16384.0);
 
         tiledLayer.bounds = mapBounds; overprintLayer.bounds = mapBounds;
         tiledLayer.delegate = self; overprintLayer.delegate = overprintProvider;
@@ -177,8 +186,6 @@
         NSRect cv = [[[self enclosingScrollView] contentView] frame];
         if (cv.size.width > 0) {
             minZoom = [self calculateMinimumZoomForFrame:cv];
-        
-            // This will update the frame.
             [self setZoom:minZoom*3.0];
         }
     } else {
@@ -193,8 +200,6 @@
     
 	[self setNeedsDisplay:YES];
 }
-
-
 
 - (void)showPrintedMap {
     if (tiledLayer.filters == nil || [tiledLayer.filters count] == 0) {
@@ -423,6 +428,17 @@
 #pragma mark -
 #pragma mark Regular mouse events
 
+- (void)mouseDown:(NSEvent *)theEvent {
+    if (self.state == kASMapViewLayout) {
+        NSPoint eventLocationInView = [[[self window] contentView] convertPoint:[theEvent locationInWindow] fromView:nil];
+        if (CGRectContainsPoint([[self printedMapLayer] frame],eventLocationInView)) {
+            draggingPaperMap = YES;
+            return;
+        }
+    }
+    draggingPaperMap = NO;
+}
+
 - (void)mouseDragged:(NSEvent *)theEvent {
     NSPoint eventLocationInView = [self convertPoint:[theEvent locationInWindow] fromView:nil];
     if (self.draggedCourseObject != nil && self.state == kASMapViewNormal) {
@@ -441,6 +457,14 @@
         [CATransaction commit];
         // Invalidate the overprint for this object.
         [self.overprintProvider hideOverprintObject:self.draggedCourseObject informLayer:overprintLayer];
+    }
+    if (self.state == kASMapViewLayout && draggingPaperMap) {
+        // Move the paper map.
+        [CATransaction begin];
+        [CATransaction setDisableActions:YES];
+        [self dragPaperMapBasedOnEvent:theEvent];
+        [self synchronizePaperWithBackground];
+        [CATransaction commit];
     }
 }
 
@@ -503,17 +527,21 @@
 }
 
 - (void)frameChanged:(NSNotification *)n {
-    CGFloat oMinZoom = minZoom;
-	minZoom = [self calculateMinimumZoomForFrame:[[n object] frame]];
-    if (oMinZoom == 0.0) {
-        [self setZoom:minZoom*3.0];
-    }
-	if (self.zoom < minZoom) [self setZoom:minZoom];
+
     if (self.state == kASMapViewLayout) {
-        CGPoint p = [self centerOfMap];
+        // This is the point where we should adjust the scale etc., because now we know the size of the paper.
         [self adjustPrintedMapLayerForBounds];
-//        [self setPrintingScale:[self printingScale]];
-        [self centerMapOnCoordinates:p];
+        [self ensureCorrectScale];
+        //CGPoint p = [self centerOfMap];
+        //[self centerMapOnCoordinates:p];
+    } else {
+        CGFloat oMinZoom = minZoom;
+        minZoom = [self calculateMinimumZoomForFrame:[[n object] frame]];
+        if (oMinZoom == 0.0) {
+            [self setZoom:minZoom*3.0];
+        }
+        if (self.zoom < minZoom) [self setZoom:minZoom]; else [self setZoom:self.zoom];
+        
     }
 }
 
@@ -540,7 +568,7 @@
 	f = [self frame];
 	
 	tiledLayer.transform = CATransform3DMakeScale(z2, z2, 1.0);
-    
+    NSLog(@"%f", _innerMapLayer.transform.m11);
 	midpointAfter = [tiledLayer convertPoint:pointInMapCoordinates toLayer:[self layer]];
 	
 	tentativeNewOrigin = CGPointMake(midpointAfter.x - 0.5*v.size.width, midpointAfter.y - 0.5*v.size.height);

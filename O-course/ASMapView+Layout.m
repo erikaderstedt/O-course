@@ -157,6 +157,8 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     page.origin.x = 0.5*(r.size.width - page.size.width);
     page.origin.y = 0.5*(r.size.height - page.size.height);
     page = CGRectIntegral(page);
+    page.origin.x += paperOffset.width;
+    page.origin.y += paperOffset.height;
     [_printedMapLayer setFrame:page];
     
     r = _printedMapLayer.bounds;
@@ -182,6 +184,8 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     /* First check that we're on screen. */
     CGFloat visibleWidth = _printedMapScrollLayer.visibleRect.size.width;
     if (visibleWidth == 0.0) return;
+    NSLog(@"old visible width: %f", visibleWidth);
+
     /*
      * We want to 1) set the frame of the inner map layers
      * and 2) set the transform of those layers so that just the right
@@ -190,7 +194,11 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
      * The frame has to be set after the transform is calculated.
      */
     _printingScale = printingScale;
-    
+    if (_printingScale == 0.0) {
+        NSLog(@"Yikes! Bad scale!");
+        _printingScale = 5000.0;
+    }
+
     // Calculate the number of map points that fit in the paper width.
     //
     CGFloat pointsInWidth = ((orientation == NSLandscapeOrientation)?paperSize.height:paperSize.width) * 100.0 * printingScale / 15000.0;
@@ -201,11 +209,26 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     // If more are visible than we should have, the zoom is increased.
     NSLog(@"about to set the zoom to %f", _zoom*visibleWidth/pointsInWidth);
     [self setPrimitiveZoom:_zoom*visibleWidth/pointsInWidth];
+    visibleWidth = _printedMapScrollLayer.visibleRect.size.width;
+    NSLog(@"new visible width: %f", visibleWidth);
 }
 
 - (CGFloat)printingScale {
     if (_printingScale == 0.0) return DEFAULT_PRINTING_SCALE;
     return _printingScale;
+}
+
+- (void)dragPaperMapBasedOnEvent:(NSEvent *)event {
+    CGFloat dX, dY;
+    dX = round([event deltaX]);
+    dY = -round([event deltaY]);
+    paperOffset.width += dX;
+    paperOffset.height += dY;
+    
+    CGRect r = _printedMapLayer.frame;
+    r.origin.x += dX;
+    r.origin.y += dY;
+    [_printedMapLayer setFrame:r];
 }
 
 #pragma mark Responding to layout change notifications
@@ -302,6 +325,38 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [_printedMapLayer setNeedsDisplay];
 }
 
+- (void)ensureCorrectScale {
+    // Set the primitive zoom so that the effective width of the paper contains exactly the right number of points.
+    /* First check that we're on screen. */
+    CGFloat visibleWidth = _printedMapScrollLayer.visibleRect.size.width;
+    CGFloat p = [self printingScale];
+    if (visibleWidth == 0.0 || p == 0.0) {
+        NSLog(@"Unable to ensure correct scale at this time.");
+        return;
+    }
+
+    
+    /*
+     * We want to 1) set the frame of the inner map layers
+     * and 2) set the transform of those layers so that just the right
+     * amount of map (and at the correct location) is drawn within the map
+     * layer.
+     * The frame has to be set after the transform is calculated.
+     */
+    
+    // Calculate the number of map points that fit in the paper width.
+    //
+    CGFloat pointsInWidth = ((orientation == NSLandscapeOrientation)?paperSize.height:paperSize.width) * 100.0 * p / 15000.0;
+    // Kastellegården har 38000 pts in x. 380 mm i 15000-del. Låter mycket men kartan har mycket extra så det kan nog stämma.
+    // 297 mm * 100 = 297000 * 10000/15000
+    // visibleWidth is the number of points that are visible with the current transform.
+    // We then adjust the zoom by the quotient visibleWidth/pointsInWidth.
+    // If more are visible than we should have, the zoom is increased.
+	CGFloat z2 = visibleWidth/pointsInWidth;
+    NSLog(@"ensuring correct scale z2 %f",z2);
+	_innerMapLayer.transform = CATransform3DMakeScale(z2, z2, 1.0);
+}
+
 - (CGPoint)centerOfMap {
     CGRect visibleRectOfInnerMapLayer = [_innerMapLayer visibleRect];
     if (visibleRectOfInnerMapLayer.size.width == 0.0) {
@@ -380,23 +435,23 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 }
 
 - (void)setupLayoutNotificationObserving {
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(visibleSymbolsChanged:) name:ASLayoutVisibleItemsChanged object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutChanged:) name:ASLayoutChanged object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(printingScaleChanged:) name:ASLayoutScaleChanged object:nil];
+ // [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutChanged:) name:ASLayoutChanged object:nil];
+/* [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(visibleSymbolsChanged:) name:ASLayoutVisibleItemsChanged object:nil];
+ [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(printingScaleChanged:) name:ASLayoutScaleChanged object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:ASLayoutOrientationChanged object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameColorChanged:) name:ASLayoutFrameColorChanged object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutFrameChanged:) name:ASLayoutFrameChanged object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(eventDetailsChanged:) name:ASLayoutEventDetailsChanged object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(eventDetailsChanged:) name:ASLayoutEventDetailsChanged object:nil];*/
 }
 
 - (void)teardownLayoutNotificationObserving {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutVisibleItemsChanged object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutChanged object:nil];
+//    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutVisibleItemsChanged object:nil];
+/*    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutScaleChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutFrameColorChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutFrameChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutEventDetailsChanged object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutOrientationChanged object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutOrientationChanged object:nil]; */
 }
 
 @end
