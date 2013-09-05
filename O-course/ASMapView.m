@@ -45,7 +45,6 @@
     [_innerMapLayer removeObserver:self forKeyPath:@"transform"];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewFrameDidChangeNotification object:[self enclosingScrollView]];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewBoundsDidChangeNotification object:[[self enclosingScrollView] contentView]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ASOverprintChanged" object:nil];
     [self teardownLayoutNotificationObserving];
     
@@ -72,12 +71,8 @@
     [cv addConstraint:[NSLayoutConstraint constraintWithItem:v2 attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:cv attribute:NSLayoutAttributeTop multiplier:1.0 constant:0.0]];
     
     
-    NSClipView *vc = [[self enclosingScrollView] contentView];
-    
-    [vc setPostsBoundsChangedNotifications:YES];
     
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameChanged:) name:NSViewFrameDidChangeNotification object:[self enclosingScrollView]];
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(boundsChanged:) name:NSViewBoundsDidChangeNotification object:vc];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(overprintChanged:) name:@"ASOverprintChanged" object:nil];
     [self setupLayoutNotificationObserving];
     
@@ -202,14 +197,18 @@
 }
 
 - (void)showPrintedMap {
+    NSClipView *vc = [[self enclosingScrollView] contentView];
+    [vc setPostsBoundsChangedNotifications:YES];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(boundsChanged:) name:NSViewBoundsDidChangeNotification object:vc];
+
     if (tiledLayer.filters == nil || [tiledLayer.filters count] == 0) {
         tiledLayer.filters = @[[self backgroundMapFilter]];
         overprintLayer.filters = @[[self backgroundMapFilter]];
     }
     
-    CABasicAnimation *unhide = [CABasicAnimation animationWithKeyPath:@"opacity"];
-    unhide.fromValue = @(0.0);
-    unhide.toValue = @(1.0);
+    CABasicAnimation *unhide = [CABasicAnimation animationWithKeyPath:@"hidden"];
+    unhide.fromValue = @(YES);
+    unhide.toValue = @(NO);
     unhide.duration = 0.6f;
     [[self printedMapLayer] addAnimation:unhide forKey:nil];
     
@@ -232,6 +231,7 @@
     [overprintLayer setValue:b1.toValue forKeyPath:b1.keyPath];
     [overprintLayer setValue:b2.toValue forKeyPath:b2.keyPath];
     [overprintLayer setValue:b3.toValue forKeyPath:b3.keyPath];
+    [[self printedMapLayer] setHidden:NO];
     [CATransaction commit];
     
     [tiledLayer addAnimation:g1 forKey:nil];
@@ -251,9 +251,14 @@
 }
 
 - (void)hidePrintedMap {
+    NSClipView *vc = [[self enclosingScrollView] contentView];
+    [vc setPostsBoundsChangedNotifications:YES];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewBoundsDidChangeNotification object:vc];
+
     [tiledLayer setFilters:@[]];
     [overprintLayer setFilters:@[]];
     
+//    [[self printedMapLayer] setHidden:YES];
     [[self printedMapLayer] removeFromSuperlayer];
     
     if ([self.mapProvider supportsHiddenSymbolNumbers]) {
@@ -340,6 +345,8 @@
 }
 
 - (void)hideMagnifyingGlass:(NSNotification *)n {
+//    [NSCursor unhide];
+    
 	[CATransaction begin];
 	[CATransaction setDisableActions:YES];
 	[self magnifyingGlass].hidden = YES;
@@ -362,7 +369,7 @@
     // the magnifying glass.
 	if (self.showMagnifyingGlass) {
 		glassTrackingArea = [[NSTrackingArea alloc] initWithRect:[self bounds] 
-														 options:NSTrackingMouseMoved | NSTrackingMouseEnteredAndExited | NSTrackingActiveInKeyWindow
+														 options:NSTrackingMouseMoved/* | NSTrackingCursorUpdate */| NSTrackingActiveInKeyWindow
 														   owner:self 
 														userInfo:nil];		 
 		[self addTrackingArea:glassTrackingArea];
@@ -384,19 +391,15 @@
 }
 
 - (void)mouseEntered:(NSEvent *)theEvent {
-    if (self.showMagnifyingGlass) {
-        [[self magnifyingGlass] setHidden:NO];
-    } else {
-        if (self.state != kASMapViewDraggingCourseObject) {
-            // Move our "selection" rect layer to this location.
-            [CATransaction begin];
-            [CATransaction setDisableActions:YES];
-            dragIndicatorLayer.frame = [tiledLayer convertRect:NSRectToCGRect([[theEvent trackingArea] rect]) fromLayer:[self layer]];
-            dragIndicatorLayer.cornerRadius = dragIndicatorLayer.frame.size.width*0.5;
-            [CATransaction commit];
-            dragIndicatorLayer.hidden = NO;
-            self.draggedCourseObject = [[[theEvent trackingArea] userInfo] objectForKey:@"object"];
-        }
+    if (self.state != kASMapViewDraggingCourseObject) {
+        // Move our "selection" rect layer to this location.
+        [CATransaction begin];
+        [CATransaction setDisableActions:YES];
+        dragIndicatorLayer.frame = [tiledLayer convertRect:NSRectToCGRect([[theEvent trackingArea] rect]) fromLayer:[self layer]];
+        dragIndicatorLayer.cornerRadius = dragIndicatorLayer.frame.size.width*0.5;
+        [CATransaction commit];
+        dragIndicatorLayer.hidden = NO;
+        self.draggedCourseObject = [[[theEvent trackingArea] userInfo] objectForKey:@"object"];
     }
 }
 
@@ -416,15 +419,18 @@
 }
 
 - (void)mouseExited:(NSEvent *)theEvent {
-    if (self.showMagnifyingGlass) {
-        [[self magnifyingGlass] setHidden:YES];
-    }
     if (self.state != kASMapViewDraggingCourseObject) {
         self.draggedCourseObject = nil;
         dragIndicatorLayer.hidden = YES;
     }
 }
-
+/*
+- (void)cursorUpdate:(NSEvent *)event {
+    if (self.showMagnifyingGlass) {
+        [NSCursor hide];
+    }
+}
+*/
 #pragma mark -
 #pragma mark Regular mouse events
 
@@ -489,7 +495,8 @@
             return;
             break;
         case kASMapViewDraggingCourseObject:
-            [self.draggedCourseObject setPosition:[tiledLayer convertPoint:eventLocationInView fromLayer:[self layer]]];
+            NSLog(@"location %@", NSStringFromPoint(p));
+            [self.draggedCourseObject setPosition:p];
             [self.draggedCourseObject setSymbolNumber:[self.mapProvider symbolNumberAtPosition:self.draggedCourseObject.position]];
             [self.overprintProvider showOverprintObject:self.draggedCourseObject informLayer:overprintLayer];
             [self.overprintProvider updateOverprint];
@@ -512,7 +519,7 @@
             break;
     };
     
-
+    NSLog(@"location %@", NSStringFromPoint(p));
     [self.courseDataSource addOverprintObject:addingType atLocation:p symbolNumber:i];
     [overprintLayer setNeedsDisplay];
     [innerMagnifyingGlassLayer setNeedsDisplay];
@@ -529,6 +536,7 @@
 - (void)frameChanged:(NSNotification *)n {
 
     if (self.state == kASMapViewLayout) {
+        NSLog(@"frame width now %f", [self frame].size.width);
         // This is the point where we should adjust the scale etc., because now we know the size of the paper.
         [self adjustPrintedMapLayerForBounds];
         [self ensureCorrectScaleAndLocation];
@@ -546,10 +554,12 @@
 }
 
 - (void)boundsChanged:(NSNotification *)n {
+    NSAssert(self.state == kASMapViewLayout, @"Bounds notification even though we aren't in layout mode");
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
     
-    [self synchronizePaperWithBackground];
+    [self synchronizeBackgroundWithPaper];
+//    [self synchronizePaperWithBackground];
     
     [CATransaction commit];
 }

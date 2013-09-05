@@ -52,7 +52,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         _printedMapLayer.shadowOpacity = 0.6;
         _printedMapLayer.shadowOffset = CGSizeMake(8.0, -8.0);
         _printedMapLayer.shadowRadius = 8.0;
-        _printedMapLayer.hidden = NO;
+        _printedMapLayer.hidden = YES;
         _printedMapLayer.name = @"paper";
         _printedMapLayer.delegate = self;
         
@@ -362,11 +362,14 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     overprintLayer.transform = tiledLayer.transform;
 
     CGPoint desiredCenter = [self.layoutController layoutCenterPosition];
+    desiredCenter = CGPointMake(-3745, -6587);
     CGRect mapRect = [_printedMapScrollLayer convertRect:[_printedMapScrollLayer visibleRect] toLayer:_innerMapLayer];
     [_innerMapLayer scrollRectToVisible:CGRectMake(desiredCenter.x-CGRectGetWidth(mapRect)*0.5, desiredCenter.y-CGRectGetHeight(mapRect)*0.5, mapRect.size.width, mapRect.size.height)];
     [_innerMapLayer setNeedsDisplayInRect:mapRect];
     [_innerOverprintLayer setNeedsDisplayInRect:mapRect];
     NSLog(@"adjusted scroll.");
+//    [self synchronizePaperWithBackground];
+    [self synchronizeBackgroundWithPaper];
 }
 
 - (CGPoint)centerOfMap {
@@ -395,7 +398,15 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 }
 
 - (void)synchronizeBackgroundWithPaper {
-    
+    CGRect paper = [_innerMapLayer convertRect:tiledLayer.bounds fromLayer:tiledLayer];
+    NSLog(@"paper %@", NSStringFromRect(paper));
+    NSLog(@"tv vis 1: %@", NSStringFromRect([tiledLayer visibleRect]));
+    [self scrollRectToVisible:paper];
+//    [tiledLayer scrollRectToVisible:paper];
+/*    paper.origin.x = -20783.25
+    NSLog(@"tv vis 1: %@", NSStringFromRect([tiledLayer visibleRect]));
+    [tiledLayer scrollPoint:CGPointMake(paper.origin.x, paper.origin.y)];*/
+    NSLog(@"tv vis 2: %@", NSStringFromRect([tiledLayer visibleRect]));
 }
 
 - (void)updatePaperMapButMaintainPositionWhileDoing:(void (^)(void))block animate:(BOOL)animate {
@@ -432,7 +443,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 }
 
 - (void)layoutFrameChanged:(NSNotification *)notification {
-    NSLog(@"Frame changed");
+    NSLog(@"Layout Frame changed");
     [self updatePaperMapButMaintainPositionWhileDoing:^{
         if ([self.layoutController frameVisible]) {
             _printedMapScrollLayer.cornerRadius = FRAME_CORNER_RADIUS;
