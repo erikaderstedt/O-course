@@ -98,9 +98,9 @@
 {
     if ([keyPath isEqualToString:@"transform"]) {
         if (context == (__bridge void *)(_innerMapLayer) && self.state == kASMapViewLayout) {
-            _innerOverprintLayer.transform = _innerMapLayer.transform;
+/*            _innerOverprintLayer.transform = _innerMapLayer.transform;
             tiledLayer.transform = _innerMapLayer.transform;
-            overprintLayer.transform = tiledLayer.transform;
+            overprintLayer.transform = tiledLayer.transform;*/
         } else if (context == (__bridge void *)(tiledLayer)) {
             overprintLayer.transform = tiledLayer.transform;
             if (self.state == kASMapViewLayout) {
@@ -531,7 +531,7 @@
     if (self.state == kASMapViewLayout) {
         // This is the point where we should adjust the scale etc., because now we know the size of the paper.
         [self adjustPrintedMapLayerForBounds];
-        [self ensureCorrectScale];
+        [self ensureCorrectScaleAndLocation];
         //CGPoint p = [self centerOfMap];
         //[self centerMapOnCoordinates:p];
     } else {
@@ -555,6 +555,7 @@
 }
 
 - (void)setPrimitiveZoom:(CGFloat)z2 {
+    NSLog(@"Setting primitive zoom %f", z2);
     NSClipView *cv = [[self enclosingScrollView] contentView];
     NSRect v = [cv documentVisibleRect ], f;
     CGPoint midpointBefore, midpointAfter, tentativeNewOrigin, pointInMapCoordinates;
@@ -568,7 +569,6 @@
 	f = [self frame];
 	
 	tiledLayer.transform = CATransform3DMakeScale(z2, z2, 1.0);
-    NSLog(@"%f", _innerMapLayer.transform.m11);
 	midpointAfter = [tiledLayer convertPoint:pointInMapCoordinates toLayer:[self layer]];
 	
 	tentativeNewOrigin = CGPointMake(midpointAfter.x - 0.5*v.size.width, midpointAfter.y - 0.5*v.size.height);

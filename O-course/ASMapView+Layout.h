@@ -35,6 +35,6 @@
 - (void)centerMapOnCoordinates:(CGPoint)p;
 - (void)synchronizePaperWithBackground;
 - (void)recordNewLayoutCenter;
-- (void)ensureCorrectScale;
+- (void)ensureCorrectScaleAndLocation;
 
 @end

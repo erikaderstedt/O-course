@@ -325,7 +325,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [_printedMapLayer setNeedsDisplay];
 }
 
-- (void)ensureCorrectScale {
+- (void)ensureCorrectScaleAndLocation {
     // Set the primitive zoom so that the effective width of the paper contains exactly the right number of points.
     /* First check that we're on screen. */
     CGFloat visibleWidth = _printedMapScrollLayer.visibleRect.size.width;
@@ -353,8 +353,20 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     // We then adjust the zoom by the quotient visibleWidth/pointsInWidth.
     // If more are visible than we should have, the zoom is increased.
 	CGFloat z2 = visibleWidth/pointsInWidth;
-    NSLog(@"ensuring correct scale z2 %f",z2);
+    NSLog(@"Ensuring correct scale z2 %f",z2);
 	_innerMapLayer.transform = CATransform3DMakeScale(z2, z2, 1.0);
+    _innerOverprintLayer.transform = _innerMapLayer.transform;
+    
+    // Now we want to set the same transform for the tiledLayer, but maintain the center.
+    tiledLayer.transform = _innerMapLayer.transform;
+    overprintLayer.transform = tiledLayer.transform;
+
+    CGPoint desiredCenter = [self.layoutController layoutCenterPosition];
+    CGRect mapRect = [_printedMapScrollLayer convertRect:[_printedMapScrollLayer visibleRect] toLayer:_innerMapLayer];
+    [_innerMapLayer scrollRectToVisible:CGRectMake(desiredCenter.x-CGRectGetWidth(mapRect)*0.5, desiredCenter.y-CGRectGetHeight(mapRect)*0.5, mapRect.size.width, mapRect.size.height)];
+    [_innerMapLayer setNeedsDisplayInRect:mapRect];
+    [_innerOverprintLayer setNeedsDisplayInRect:mapRect];
+    NSLog(@"adjusted scroll.");
 }
 
 - (CGPoint)centerOfMap {
@@ -369,6 +381,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 }
 
 - (void)centerMapOnCoordinates:(CGPoint)p {
+    NSLog(@"centering?");
     CGPoint desiredMidpointInViewCoordinates = [tiledLayer convertPoint:p toLayer:[self layer]];
     CGRect visibleRectOfTiledLayerInViewCoordinates = [tiledLayer convertRect:[tiledLayer visibleRect] toLayer:[self layer]];
     CGPoint desiredOrigin = CGPointMake(desiredMidpointInViewCoordinates.x - 0.5*CGRectGetWidth(visibleRectOfTiledLayerInViewCoordinates), desiredMidpointInViewCoordinates.y - 0.5*CGRectGetHeight(visibleRectOfTiledLayerInViewCoordinates));
@@ -376,8 +389,13 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 }
 
 - (void)synchronizePaperWithBackground {
+    NSLog(@"Synchronize!");
     CGRect paper = [tiledLayer convertRect:_printedMapScrollLayer.frame fromLayer:_printedMapLayer];
     [_innerMapLayer scrollPoint:CGPointMake(paper.origin.x, paper.origin.y)];
+}
+
+- (void)synchronizeBackgroundWithPaper {
+    
 }
 
 - (void)updatePaperMapButMaintainPositionWhileDoing:(void (^)(void))block animate:(BOOL)animate {
