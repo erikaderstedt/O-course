@@ -379,7 +379,7 @@ NSString *const ASLayoutEventDetailsChanged = @"_ASLayoutEventDetailsChanged";
             refresh = YES;
         }
         if (refresh) [outlineView reloadItem:item reloadChildren:YES];
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"ASVisibleSymbolsChanged" object:self.layouts.managedObjectContext];
+        [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutVisibleItemsChanged object:self.layouts.managedObjectContext];
 
     }
 

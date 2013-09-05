@@ -478,6 +478,8 @@
     NSPoint eventLocationInView = [self convertPoint:[theEvent locationInWindow] fromView:nil];
     NSPoint p = NSPointFromCGPoint([tiledLayer convertPoint:NSPointToCGPoint(eventLocationInView) fromLayer:[self layer]]);
     NSInteger i = [self.mapProvider symbolNumberAtPosition:p];
+    NSLog(@"location %@", NSStringFromPoint(p));
+
     // Tell the overprint provider that a new control should be added at that position. Supply the symbol number from the map provider.
     //
     enum ASOverprintObjectType addingType;
@@ -495,7 +497,6 @@
             return;
             break;
         case kASMapViewDraggingCourseObject:
-            NSLog(@"location %@", NSStringFromPoint(p));
             [self.draggedCourseObject setPosition:p];
             [self.draggedCourseObject setSymbolNumber:[self.mapProvider symbolNumberAtPosition:self.draggedCourseObject.position]];
             [self.overprintProvider showOverprintObject:self.draggedCourseObject informLayer:overprintLayer];
@@ -519,7 +520,6 @@
             break;
     };
     
-    NSLog(@"location %@", NSStringFromPoint(p));
     [self.courseDataSource addOverprintObject:addingType atLocation:p symbolNumber:i];
     [overprintLayer setNeedsDisplay];
     [innerMagnifyingGlassLayer setNeedsDisplay];
@@ -558,8 +558,8 @@
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
     
-    [self synchronizeBackgroundWithPaper];
-//    [self synchronizePaperWithBackground];
+//    [self synchronizeBackgroundWithPaper];
+    [self synchronizePaperWithBackground];
     
     [CATransaction commit];
 }

@@ -234,7 +234,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 #pragma mark Responding to layout change notifications
 
 - (void)recordNewLayoutCenter {
-    CGRect visibleRect = [tiledLayer visibleRect];
+    CGRect visibleRect = [_innerMapLayer visibleRect];
     CGPoint newCenterPosition = CGPointMake(CGRectGetMidX(visibleRect), CGRectGetMidY(visibleRect));
     NSLog(@"Storing new center: %@", NSStringFromPoint(newCenterPosition));
     [self.layoutController writeLayoutCenterPosition:newCenterPosition];
@@ -242,7 +242,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 
 - (void)layoutChanged:(NSNotification *)n {
     NSLog(@"layout changes");
-    
+    // Perform the same actions as when showing the printed map.
     [self setPrintingScale:(CGFloat)[self.layoutController scale]];
     
     [self centerMapOnCoordinates:[self.layoutController layoutCenterPosition]];
@@ -300,7 +300,6 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 }
 
 - (void)visibleSymbolsChanged:(NSNotification *)n {
-    NSLog(@"Visible symbols changed");
     if (self.state == kASMapViewLayout && [self.mapProvider supportsHiddenSymbolNumbers]) {
         size_t c;
         const int32_t *hidden = [self.layoutController hiddenObjects:&c];
@@ -357,12 +356,15 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 	_innerMapLayer.transform = CATransform3DMakeScale(z2, z2, 1.0);
     _innerOverprintLayer.transform = _innerMapLayer.transform;
     
+    NSRect r = NSMakeRect(0.0, 0.0, mapBounds.size.width*z2, mapBounds.size.height*z2);
+    if (r.size.width == 0.0 || r.size.height == 0.0) r.size = NSMakeSize(1.0, 1.0);
+	[self setFrame:r];
+    
     // Now we want to set the same transform for the tiledLayer, but maintain the center.
     tiledLayer.transform = _innerMapLayer.transform;
     overprintLayer.transform = tiledLayer.transform;
 
     CGPoint desiredCenter = [self.layoutController layoutCenterPosition];
-    desiredCenter = CGPointMake(-3745, -6587);
     CGRect mapRect = [_printedMapScrollLayer convertRect:[_printedMapScrollLayer visibleRect] toLayer:_innerMapLayer];
     [_innerMapLayer scrollRectToVisible:CGRectMake(desiredCenter.x-CGRectGetWidth(mapRect)*0.5, desiredCenter.y-CGRectGetHeight(mapRect)*0.5, mapRect.size.width, mapRect.size.height)];
     [_innerMapLayer setNeedsDisplayInRect:mapRect];
@@ -398,15 +400,31 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 }
 
 - (void)synchronizeBackgroundWithPaper {
-    CGRect paper = [_innerMapLayer convertRect:tiledLayer.bounds fromLayer:tiledLayer];
-    NSLog(@"paper %@", NSStringFromRect(paper));
-    NSLog(@"tv vis 1: %@", NSStringFromRect([tiledLayer visibleRect]));
-    [self scrollRectToVisible:paper];
-//    [tiledLayer scrollRectToVisible:paper];
-/*    paper.origin.x = -20783.25
-    NSLog(@"tv vis 1: %@", NSStringFromRect([tiledLayer visibleRect]));
-    [tiledLayer scrollPoint:CGPointMake(paper.origin.x, paper.origin.y)];*/
-    NSLog(@"tv vis 2: %@", NSStringFromRect([tiledLayer visibleRect]));
+    // This is a lot harder, since we can't scroll tiledLayer. We need to scroll the view itself, which isn't in map coordinates.
+    // [self layer] doesn't know that it's obscured.
+    
+    // Before doing this, the transforms on _innerMapLayer and tiledLayer need to be the same.
+    NSAssert(_innerMapLayer.transform.m11 == tiledLayer.transform.m11, @"Not the same transform");
+    
+    // Calculate the size of the visible rectangle, in map coordinates.
+    CGRect visibleRect = [self visibleRect];
+    CGSize possibleSize = [_innerMapLayer convertRect:visibleRect fromLayer:[self layer]].size;
+    
+    //
+    CGPoint center = [self centerOfMap];
+    CGRect paperFrame = [[self printedMapLayer] frame];
+    CGPoint paperCenterInScrollViewCoordinates = CGPointMake(CGRectGetMidX(paperFrame), CGRectGetMidY(paperFrame));
+    CGPoint originInMapCoordinates = CGPointMake(center.x - paperCenterInScrollViewCoordinates.x*possibleSize.width/visibleRect.size.width,
+                                                 center.y - paperCenterInScrollViewCoordinates.y*possibleSize.height/visibleRect.size.height);
+    CGPoint origin = [tiledLayer convertPoint:originInMapCoordinates toLayer:[self layer]];
+    [self scrollPoint:origin];
+    
+    visibleRect = [self visibleRect];
+    
+    // If these ever get large, we need to move the paper (and then synchronize the paper with the background).
+    NSLog(@"X diff: %f", origin.x-visibleRect.origin.x);
+    NSLog(@"Y diff: %f", origin.y-visibleRect.origin.y);
+
 }
 
 - (void)updatePaperMapButMaintainPositionWhileDoing:(void (^)(void))block animate:(BOOL)animate {
@@ -464,23 +482,25 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 }
 
 - (void)setupLayoutNotificationObserving {
- // [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutChanged:) name:ASLayoutChanged object:nil];
-/* [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(visibleSymbolsChanged:) name:ASLayoutVisibleItemsChanged object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(visibleSymbolsChanged:) name:ASLayoutVisibleItemsChanged object:nil];
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:ASLayoutOrientationChanged object:nil];
+//  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutChanged:) name:ASLayoutChanged object:nil];
+/* 
  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(printingScaleChanged:) name:ASLayoutScaleChanged object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:ASLayoutOrientationChanged object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameColorChanged:) name:ASLayoutFrameColorChanged object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutFrameChanged:) name:ASLayoutFrameChanged object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(eventDetailsChanged:) name:ASLayoutEventDetailsChanged object:nil];*/
 }
 
 - (void)teardownLayoutNotificationObserving {
-//    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutVisibleItemsChanged object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutVisibleItemsChanged object:nil];
+//    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutOrientationChanged object:nil];
 /*    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutScaleChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutFrameColorChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutFrameChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutEventDetailsChanged object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutOrientationChanged object:nil]; */
+ */
 }
 
 @end
