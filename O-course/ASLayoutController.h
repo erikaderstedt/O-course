@@ -10,6 +10,7 @@
 
 @class ASScaleFormatter;
 
+extern NSString *const ASLayoutWillChange;
 extern NSString *const ASLayoutChanged;
 extern NSString *const ASLayoutVisibleItemsChanged;
 extern NSString *const ASLayoutScaleChanged;

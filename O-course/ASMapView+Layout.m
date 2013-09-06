@@ -185,44 +185,6 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [_printedMapScrollLayer setFrame:r];
 }
 
-- (void)setPrintingScale:(CGFloat)printingScale {
-    /* First check that we're on screen. */
-    CGFloat visibleWidth = _printedMapScrollLayer.visibleRect.size.width;
-    if (visibleWidth == 0.0) return;
-    NSLog(@"old visible width: %f", visibleWidth);
-
-    /*
-     * We want to 1) set the frame of the inner map layers
-     * and 2) set the transform of those layers so that just the right
-     * amount of map (and at the correct location) is drawn within the map
-     * layer.
-     * The frame has to be set after the transform is calculated.
-     */
-    _printingScale = printingScale;
-    if (_printingScale == 0.0) {
-        NSLog(@"Yikes! Bad scale!");
-        _printingScale = 5000.0;
-    }
-
-    // Calculate the number of map points that fit in the paper width.
-    //
-    CGFloat pointsInWidth = ((orientation == NSLandscapeOrientation)?paperSize.height:paperSize.width) * 100.0 * printingScale / 15000.0;
-    // Kastellegården har 38000 pts in x. 380 mm i 15000-del. Låter mycket men kartan har mycket extra så det kan nog stämma.
-    // 297 mm * 100 = 297000 * 10000/15000
-    // visibleWidth is the number of points that are visible with the current transform.
-    // We then adjust the zoom by the quotient visibleWidth/pointsInWidth.
-    // If more are visible than we should have, the zoom is increased.
-    NSLog(@"about to set the zoom to %f", _zoom*visibleWidth/pointsInWidth);
-    [self setPrimitiveZoom:_zoom*visibleWidth/pointsInWidth];
-    visibleWidth = _printedMapScrollLayer.visibleRect.size.width;
-    NSLog(@"new visible width: %f", visibleWidth);
-}
-
-- (CGFloat)printingScale {
-    if (_printingScale == 0.0) return DEFAULT_PRINTING_SCALE;
-    return _printingScale;
-}
-
 - (void)dragPaperMapBasedOnEvent:(NSEvent *)event {
     CGFloat dX, dY;
     dX = round([event deltaX]);
@@ -241,7 +203,6 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 - (void)recordNewLayoutCenter {
     CGRect visibleRect = [_innerMapLayer visibleRect];
     CGPoint newCenterPosition = CGPointMake(CGRectGetMidX(visibleRect), CGRectGetMidY(visibleRect));
-    NSLog(@"Storing new center: %@", NSStringFromPoint(newCenterPosition));
     [self.layoutController writeLayoutCenterPosition:newCenterPosition];
 }
 
@@ -250,13 +211,16 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         CGColorRelease(frameColor);
     }
     frameColor = _frameColor;
-if (frameColor != NULL) {
-    CGColorRetain(frameColor);
+    if (frameColor != NULL) {
+        CGColorRetain(frameColor);
+    }
 }
+
+- (void)layoutWillChange:(NSNotification *)n {
+    [self recordNewLayoutCenter];
 }
 
 - (void)layoutChanged:(NSNotification *)n {
-    [self recordNewLayoutCenter];
     
     _printingScale = (CGFloat)[self.layoutController scale];
     orientation = [self.layoutController orientation];
@@ -278,66 +242,9 @@ if (frameColor != NULL) {
         }
     }
 
-    [CATransaction begin];
-    [CATransaction setDisableActions:YES];
     [self adjustPrintedMapLayerForBounds];
     [self handleScaleAndOrientation];
     [self centerMapOnCoordinates:[self.layoutController layoutCenterPosition]];
-    [CATransaction commit];
-    
-/*    // Perform the same actions as when showing the printed map.
-    [self setPrintingScale:(CGFloat)[self.layoutController scale]];
-    
-    [self centerMapOnCoordinates:[self.layoutController layoutCenterPosition]];
-    [self synchronizePaperWithBackground];
-  */
-    /*
-    [self recordNewLayoutCenter];
-    
-    BOOL frameChanged = NO, orientationChanged = NO;
-    
-    CGColorRef nColor = [self.layoutController frameColor];
-    if (nColor != frameColor) {
-        if (frameColor != NULL) CGColorRelease(frameColor);
-        frameColor = nColor;
-        if (frameColor != NULL) {
-            CGColorRetain(frameColor);
-            _printedMapScrollLayer.cornerRadius = 12.0;
-        } else {
-            _printedMapScrollLayer.cornerRadius = 0.0;
-        }
-        
-        frameChanged = YES;
-    }
-    
-    NSPrintingOrientation t = [self.layoutController orientation];
-    if (t != orientation) {
-        orientation = t;
-        orientationChanged = YES;
-    }
-    
-    if (frameChanged || orientationChanged) {
-        [self adjustPrintedMapLayerForBounds];
-    }
-    
-    NSSize pSize = [self.layoutController paperSize];
-    paperSize = NSSizeToCGSize(pSize);
-    
-
-    
-    // Convert the layout position to view coordinates.
-    CGPoint desiredCenter = [tiledLayer convertPoint:[self.layoutController layoutCenterPosition] toLayer:[self layer]];
-    NSClipView *cv = [[self enclosingScrollView] contentView];
-    CGRect visibleRect = NSRectToCGRect([cv documentVisibleRect]);
-    [cv scrollToPoint:NSMakePoint(desiredCenter.x-0.5*CGRectGetWidth(visibleRect)+ 0.5*LAYOUT_VIEW_WIDTH, desiredCenter.y-0.5*CGRectGetHeight(visibleRect))];
-    
-    // Sync paper with background.
-    
-    if (frameColor != NULL) {
-        
-    } else {
-        
-    } */
     
     [_printedMapLayer setNeedsDisplay];
 }
@@ -431,7 +338,7 @@ if (frameColor != NULL) {
 
 - (void)handleScaleAndOrientation {
     CGFloat visibleWidth = _printedMapScrollLayer.frame.size.width;
-    CGFloat p = [self printingScale];
+    CGFloat p = _printingScale;
     if (visibleWidth == 0.0 || p == 0.0) {
         NSLog(@"Unable to ensure correct scale at this time.");
         return;
@@ -503,12 +410,13 @@ if (frameColor != NULL) {
 }
 
 - (void)setupLayoutNotificationObserving {
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(visibleSymbolsChanged:) name:ASLayoutVisibleItemsChanged object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutFrameChanged:) name:ASLayoutFrameChanged object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameColorChanged:) name:ASLayoutFrameColorChanged object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(printingScaleChanged:) name:ASLayoutScaleChanged object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:ASLayoutOrientationChanged object:nil];
-//  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutChanged:) name:ASLayoutChanged object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(visibleSymbolsChanged:) name:ASLayoutVisibleItemsChanged object:self.layoutController];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutFrameChanged:) name:ASLayoutFrameChanged object:self.layoutController];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameColorChanged:) name:ASLayoutFrameColorChanged object:self.layoutController];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(printingScaleChanged:) name:ASLayoutScaleChanged object:self.layoutController];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:ASLayoutOrientationChanged object:self.layoutController];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutChanged:) name:ASLayoutChanged object:self.layoutController];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutWillChange:) name:ASLayoutWillChange object:self.layoutController];
 /* 
  
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(eventDetailsChanged:) name:ASLayoutEventDetailsChanged object:nil];*/
@@ -520,8 +428,10 @@ if (frameColor != NULL) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutFrameColorChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutScaleChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutOrientationChanged object:nil];
-/*    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutChanged object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutChanged object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutWillChange object:nil];
     
+   /*
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutEventDetailsChanged object:nil];
  */
 }

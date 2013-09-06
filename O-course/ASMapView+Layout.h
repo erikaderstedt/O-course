@@ -17,8 +17,6 @@
 - (CIFilter *)backgroundMapFilter;
 - (void)drawPaperFrameInContext:(CGContextRef)ctx;
 
-@property(assign) CGFloat printingScale;
-
 - (void)dragPaperMapBasedOnEvent:(NSEvent *)event;
 - (void)layoutChanged:(NSNotification *)notification;
 - (void)visibleSymbolsChanged:(NSNotification *)notification;

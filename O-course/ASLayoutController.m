@@ -9,6 +9,7 @@
 #import "ASLayoutController.h"
 #import "Layout.h"
 
+NSString *const ASLayoutWillChange = @"_ASLayoutWillChange";
 NSString *const ASLayoutChanged = @"_ASLayoutChanged";
 NSString *const ASLayoutVisibleItemsChanged = @"_ASLayoutVisibleItemsChanged";
 NSString *const ASLayoutScaleChanged = @"_ASLayoutScaleChanged";
@@ -82,20 +83,20 @@ NSString *const ASLayoutEventDetailsChanged = @"_ASLayoutEventDetailsChanged";
         /*if ([keyPath isEqualToString:@"arrangedObjects"]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutChanged object:self.layouts.managedObjectContext];
         } else*/ if ([keyPath isEqualToString:@"selection.scale"]) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutScaleChanged object:self.layouts.managedObjectContext];
+            [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutScaleChanged object:self];
         } else if ([keyPath isEqualToString:@"selection.paperSize"]) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutOrientationChanged object:self.layouts.managedObjectContext];
+            [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutOrientationChanged object:self];
         } else if ([keyPath isEqualToString:@"selection.orientation"]) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutOrientationChanged object:self.layouts.managedObjectContext];
+            [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutOrientationChanged object:self];
         } else if ([keyPath isEqualToString:@"selection.frameColor"]) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutFrameColorChanged object:self.layouts.managedObjectContext];
+            [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutFrameColorChanged object:self];
         } else if ([keyPath isEqualToString:@"selection.frameVisible"]) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutFrameChanged object:self.layouts.managedObjectContext];
+            [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutFrameChanged object:self];
         } else if ([keyPath isEqualToString:@"selection.showEventName"] || [keyPath isEqualToString:@"selection.showEventDate"]) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutEventDetailsChanged object:self.layouts.managedObjectContext];
+            [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutEventDetailsChanged object:self];
         }
     } else if (object == self.layouts && [keyPath isEqualToString:@"selection"]) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutChanged object:self.layouts.managedObjectContext];
+        [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutChanged object:self];
     } else {
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
@@ -274,6 +275,7 @@ NSString *const ASLayoutEventDetailsChanged = @"_ASLayoutEventDetailsChanged";
 #pragma mark NSTableViewDelegate
 
 - (void)tableViewSelectionDidChange:(NSNotification *)aNotification {
+    [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutWillChange object:self];
     NSInteger s = [self.layoutsTable selectedRow];
     if (s == -1) {
         [self.layouts setSelectedObjects:@[]];
