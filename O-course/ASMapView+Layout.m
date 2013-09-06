@@ -357,7 +357,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     // We then adjust the zoom by the quotient visibleWidth/pointsInWidth.
     // If more are visible than we should have, the zoom is increased.
 	CGFloat z2 = visibleWidth/pointsInWidth;
-    NSLog(@"Ensuring correct scale z2 %f",z2);
+    NSLog(@"Ensuring correct scale %f z2 %f",p, z2);
 	_innerMapLayer.transform = CATransform3DMakeScale(z2, z2, 1.0);
     _innerOverprintLayer.transform = _innerMapLayer.transform;
     
@@ -433,11 +433,23 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 }
 
 - (void)printingScaleChanged:(NSNotification *)notification {
-    NSLog(@"Printing scale changed");
     CGFloat s = (CGFloat)[self.layoutController scale];
     
+    NSLog(@"Printing scale changed %f", s);
     [self updatePaperMapButMaintainPositionWhileDoing:^{
-        [self setPrintingScale:s];
+        CGFloat pointsInWidth = ((orientation == NSLandscapeOrientation)?paperSize.height:paperSize.width) * 100.0 * s / 15000.0;
+        CGFloat visibleWidth = _printedMapScrollLayer.frame.size.width;
+        CGFloat z2 = visibleWidth/pointsInWidth;
+        
+        _printingScale = s;
+        _innerMapLayer.transform = CATransform3DMakeScale(z2, z2, 1.0);
+        tiledLayer.transform = _innerMapLayer.transform;
+        overprintLayer.transform = _innerMapLayer.transform;
+        NSRect r = NSMakeRect(0.0, 0.0, mapBounds.size.width*z2, mapBounds.size.height*z2);
+        if (r.size.width == 0.0 || r.size.height == 0.0) r.size = NSMakeSize(1.0, 1.0);
+        [self setFrame:r];
+
+        _innerOverprintLayer.transform = _innerMapLayer.transform;
     } animate:NO];
     
     [_printedMapLayer setNeedsDisplay];
@@ -492,10 +504,11 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(visibleSymbolsChanged:) name:ASLayoutVisibleItemsChanged object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutFrameChanged:) name:ASLayoutFrameChanged object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameColorChanged:) name:ASLayoutFrameColorChanged object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(printingScaleChanged:) name:ASLayoutScaleChanged object:nil];
 //    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:ASLayoutOrientationChanged object:nil];
 //  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutChanged:) name:ASLayoutChanged object:nil];
 /* 
- [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(printingScaleChanged:) name:ASLayoutScaleChanged object:nil];
+ 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(eventDetailsChanged:) name:ASLayoutEventDetailsChanged object:nil];*/
 }
 
@@ -503,9 +516,10 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutVisibleItemsChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutFrameChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutFrameColorChanged object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutScaleChanged object:nil];
 //    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutOrientationChanged object:nil];
 /*    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutChanged object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutScaleChanged object:nil];
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutEventDetailsChanged object:nil];
  */
 }
