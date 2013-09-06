@@ -55,6 +55,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         _printedMapLayer.hidden = YES;
         _printedMapLayer.name = @"paper";
         _printedMapLayer.delegate = self;
+        _printedMapLayer.anchorPoint = CGPointMake(0.5,0.5);
         
         _printedMapScrollLayer = [CAScrollLayer layer];
         _printedMapScrollLayer.anchorPoint = CGPointMake(0.5,0.5);
@@ -160,6 +161,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     page.origin.x += paperOffset.width;
     page.origin.y += paperOffset.height;
     [_printedMapLayer setFrame:page];
+    [_printedMapLayer setPosition:CGPointMake(CGRectGetMidX(r), CGRectGetMidY(r))];
     
     r = _printedMapLayer.bounds;
     if (orientation == NSLandscapeOrientation) {
@@ -422,9 +424,13 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     visibleRect = [self visibleRect];
     
     // If these ever get large, we need to move the paper (and then synchronize the paper with the background).
-    NSLog(@"X diff: %f", origin.x-visibleRect.origin.x);
-    NSLog(@"Y diff: %f", origin.y-visibleRect.origin.y);
-
+    CGFloat dX = round(origin.x - visibleRect.origin.x);
+    CGFloat dY = round(origin.y - visibleRect.origin.y);
+    CGPoint mapPos = [self printedMapLayer].position;
+    mapPos.x += dX;
+    mapPos.y += dY;
+    [self printedMapLayer].position = mapPos;
+    if (dX > 0 || dY > 0) [self synchronizePaperWithBackground];
 }
 
 - (void)updatePaperMapButMaintainPositionWhileDoing:(void (^)(void))block animate:(BOOL)animate {
