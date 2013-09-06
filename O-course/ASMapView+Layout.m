@@ -329,49 +329,6 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [_printedMapLayer setNeedsDisplay];
 }
 
-- (void)ensureCorrectScaleAndLocation {
-    // Set the primitive zoom so that the effective width of the paper contains exactly the right number of points.
-    /* First check that we're on screen. */
-    CGFloat visibleWidth = _printedMapScrollLayer.visibleRect.size.width;
-    CGFloat p = [self printingScale];
-    if (visibleWidth == 0.0 || p == 0.0) {
-        NSLog(@"Unable to ensure correct scale at this time.");
-        return;
-    }
-
-    
-    /*
-     * We want to 1) set the frame of the inner map layers
-     * and 2) set the transform of those layers so that just the right
-     * amount of map (and at the correct location) is drawn within the map
-     * layer.
-     * The frame has to be set after the transform is calculated.
-     */
-    
-    // Calculate the number of map points that fit in the paper width.
-    //
-    CGFloat pointsInWidth = ((orientation == NSLandscapeOrientation)?paperSize.height:paperSize.width) * 100.0 * p / 15000.0;
-    // Kastellegården har 38000 pts in x. 380 mm i 15000-del. Låter mycket men kartan har mycket extra så det kan nog stämma.
-    // 297 mm * 100 = 297000 * 10000/15000
-    // visibleWidth is the number of points that are visible with the current transform.
-    // We then adjust the zoom by the quotient visibleWidth/pointsInWidth.
-    // If more are visible than we should have, the zoom is increased.
-	CGFloat z2 = visibleWidth/pointsInWidth;
-    NSLog(@"Ensuring correct scale %f z2 %f",p, z2);
-	_innerMapLayer.transform = CATransform3DMakeScale(z2, z2, 1.0);
-    _innerOverprintLayer.transform = _innerMapLayer.transform;
-    
-    NSRect r = NSMakeRect(0.0, 0.0, mapBounds.size.width*z2, mapBounds.size.height*z2);
-    if (r.size.width == 0.0 || r.size.height == 0.0) r.size = NSMakeSize(1.0, 1.0);
-	[self setFrame:r];
-    
-    // Now we want to set the same transform for the tiledLayer, but maintain the center.
-    tiledLayer.transform = _innerMapLayer.transform;
-    overprintLayer.transform = tiledLayer.transform;
-
-    [self centerMapOnCoordinates:[self.layoutController layoutCenterPosition]];
-}
-
 - (CGPoint)centerOfMap {
     CGRect visibleRectOfInnerMapLayer = [_innerMapLayer visibleRect];
     if (visibleRectOfInnerMapLayer.size.width == 0.0) {
@@ -409,7 +366,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     mapPos.x += dX;
     mapPos.y += dY;
     [self printedMapLayer].position = mapPos;
-    if (dX > 0 || dY > 0) [self synchronizePaperWithBackground];
+    if (fabs(dX) > 0 || fabs(dY) > 0) [self synchronizePaperWithBackground];
     
     [_innerMapLayer setNeedsDisplayInRect:[_innerMapLayer visibleRect]];
     [_innerOverprintLayer setNeedsDisplayInRect:[_innerOverprintLayer visibleRect]];
@@ -429,38 +386,47 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [self centerMapOnCoordinates:p];
     
     [CATransaction commit];
+}
+
+- (void)handleScaleAndOrientation {
+    CGFloat visibleWidth = _printedMapScrollLayer.frame.size.width;
+    CGFloat p = [self printingScale];
+    if (visibleWidth == 0.0 || p == 0.0) {
+        NSLog(@"Unable to ensure correct scale at this time.");
+        return;
+    }
+    CGFloat pointsInWidth = ((orientation == NSLandscapeOrientation)?paperSize.height:paperSize.width) * 100.0 * p / 15000.0;
+
+    CGFloat z2 = visibleWidth/pointsInWidth;
+    
+    _innerMapLayer.transform = CATransform3DMakeScale(z2, z2, 1.0);
+    tiledLayer.transform = _innerMapLayer.transform;
+    overprintLayer.transform = _innerMapLayer.transform;
+    NSRect r = NSMakeRect(0.0, 0.0, mapBounds.size.width*z2, mapBounds.size.height*z2);
+    if (r.size.width == 0.0 || r.size.height == 0.0) r.size = NSMakeSize(1.0, 1.0);
+    [self setFrame:r];
+    
+    _innerOverprintLayer.transform = _innerMapLayer.transform;
     
 }
 
 - (void)printingScaleChanged:(NSNotification *)notification {
     CGFloat s = (CGFloat)[self.layoutController scale];
-    
-    NSLog(@"Printing scale changed %f", s);
-    [self updatePaperMapButMaintainPositionWhileDoing:^{
-        CGFloat pointsInWidth = ((orientation == NSLandscapeOrientation)?paperSize.height:paperSize.width) * 100.0 * s / 15000.0;
-        CGFloat visibleWidth = _printedMapScrollLayer.frame.size.width;
-        CGFloat z2 = visibleWidth/pointsInWidth;
-        
-        _printingScale = s;
-        _innerMapLayer.transform = CATransform3DMakeScale(z2, z2, 1.0);
-        tiledLayer.transform = _innerMapLayer.transform;
-        overprintLayer.transform = _innerMapLayer.transform;
-        NSRect r = NSMakeRect(0.0, 0.0, mapBounds.size.width*z2, mapBounds.size.height*z2);
-        if (r.size.width == 0.0 || r.size.height == 0.0) r.size = NSMakeSize(1.0, 1.0);
-        [self setFrame:r];
+    _printingScale = s;
 
-        _innerOverprintLayer.transform = _innerMapLayer.transform;
+    [self updatePaperMapButMaintainPositionWhileDoing:^{
+        [self handleScaleAndOrientation];
     } animate:NO];
     
     [_printedMapLayer setNeedsDisplay];
 }
 
 - (void)orientationChanged:(NSNotification *)notification {
-    NSLog(@"Orientation or paper size changed");
     orientation = [self.layoutController orientation];
     paperSize = [self.layoutController paperSize];
     [self updatePaperMapButMaintainPositionWhileDoing:^{
         [self adjustPrintedMapLayerForBounds];
+        [self handleScaleAndOrientation];
     } animate:NO];
     [_printedMapLayer setNeedsDisplay];
 }
@@ -505,7 +471,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutFrameChanged:) name:ASLayoutFrameChanged object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameColorChanged:) name:ASLayoutFrameColorChanged object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(printingScaleChanged:) name:ASLayoutScaleChanged object:nil];
-//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:ASLayoutOrientationChanged object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:ASLayoutOrientationChanged object:nil];
 //  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutChanged:) name:ASLayoutChanged object:nil];
 /* 
  
@@ -517,7 +483,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutFrameChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutFrameColorChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutScaleChanged object:nil];
-//    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutOrientationChanged object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutOrientationChanged object:nil];
 /*    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutChanged object:nil];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutEventDetailsChanged object:nil];

@@ -536,12 +536,13 @@
 - (void)frameChanged:(NSNotification *)n {
 
     if (self.state == kASMapViewLayout) {
-        NSLog(@"frame width now %f", [self frame].size.width);
-        // This is the point where we should adjust the scale etc., because now we know the size of the paper.
+
+        [CATransaction begin];
+        [CATransaction setDisableActions:YES];
         [self adjustPrintedMapLayerForBounds];
-        [self ensureCorrectScaleAndLocation];
-        //CGPoint p = [self centerOfMap];
-        //[self centerMapOnCoordinates:p];
+        [self handleScaleAndOrientation];
+        [self centerMapOnCoordinates:[self.layoutController layoutCenterPosition]];
+        [CATransaction commit];
     } else {
         CGFloat oMinZoom = minZoom;
         minZoom = [self calculateMinimumZoomForFrame:[[n object] frame]];
