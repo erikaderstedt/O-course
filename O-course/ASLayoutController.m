@@ -261,7 +261,7 @@ NSString *const ASLayoutEventDetailsChanged = @"_ASLayoutEventDetailsChanged";
 - (void)tableView:(NSTableView *)aTableView setObjectValue:(id)anObject forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
     if ([[aTableColumn identifier] isEqualToString:@"name"]) {
         if (rowIndex < [[self.layouts arrangedObjects] count]) {
-            [[self.layouts arrangedObjects][rowIndex - 1] setValue:anObject forKey:@"name"];
+            [[self.layouts arrangedObjects][rowIndex] setValue:anObject forKey:@"name"];
         }
     }
 }
