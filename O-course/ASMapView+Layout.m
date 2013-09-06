@@ -312,14 +312,17 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 }
 
 - (void)frameColorChanged:(NSNotification *)notification {
-    NSLog(@"Frame color changed");
     // Received when the color changes.
     CGColorRef nColor = [self.layoutController frameColor];
     if (nColor != frameColor) {
         if (frameColor != NULL) CGColorRelease(frameColor);
-        frameColor = nColor;
-        if (frameColor != NULL) {
-            CGColorRetain(frameColor);
+        if ([self.layoutController frameVisible]) {
+            frameColor = nColor;
+            if (frameColor != NULL) {
+                CGColorRetain(frameColor);
+            }
+        } else {
+            frameColor = NULL;
         }
     }
 
@@ -366,14 +369,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     tiledLayer.transform = _innerMapLayer.transform;
     overprintLayer.transform = tiledLayer.transform;
 
-    CGPoint desiredCenter = [self.layoutController layoutCenterPosition];
-    CGRect mapRect = [_printedMapScrollLayer convertRect:[_printedMapScrollLayer visibleRect] toLayer:_innerMapLayer];
-    [_innerMapLayer scrollRectToVisible:CGRectMake(desiredCenter.x-CGRectGetWidth(mapRect)*0.5, desiredCenter.y-CGRectGetHeight(mapRect)*0.5, mapRect.size.width, mapRect.size.height)];
-    [_innerMapLayer setNeedsDisplayInRect:mapRect];
-    [_innerOverprintLayer setNeedsDisplayInRect:mapRect];
-    NSLog(@"adjusted scroll.");
-//    [self synchronizePaperWithBackground];
-    [self synchronizeBackgroundWithPaper];
+    [self centerMapOnCoordinates:[self.layoutController layoutCenterPosition]];
 }
 
 - (CGPoint)centerOfMap {
@@ -387,26 +383,9 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     return currentMidpointInMapCoordinates;
 }
 
-- (void)centerMapOnCoordinates:(CGPoint)p {
-    NSLog(@"centering?");
-    CGPoint desiredMidpointInViewCoordinates = [tiledLayer convertPoint:p toLayer:[self layer]];
-    CGRect visibleRectOfTiledLayerInViewCoordinates = [tiledLayer convertRect:[tiledLayer visibleRect] toLayer:[self layer]];
-    CGPoint desiredOrigin = CGPointMake(desiredMidpointInViewCoordinates.x - 0.5*CGRectGetWidth(visibleRectOfTiledLayerInViewCoordinates), desiredMidpointInViewCoordinates.y - 0.5*CGRectGetHeight(visibleRectOfTiledLayerInViewCoordinates));
-    [[[self enclosingScrollView] contentView] scrollToPoint:desiredOrigin];
-}
-
-- (void)synchronizePaperWithBackground {
-    NSLog(@"Synchronize!");
-    CGRect paper = [tiledLayer convertRect:_printedMapScrollLayer.frame fromLayer:_printedMapLayer];
-    [_innerMapLayer scrollPoint:CGPointMake(paper.origin.x, paper.origin.y)];
-}
-
-- (void)synchronizeBackgroundWithPaper {
-    // This is a lot harder, since we can't scroll tiledLayer. We need to scroll the view itself, which isn't in map coordinates.
-    // [self layer] doesn't know that it's obscured.
-    
-    // Before doing this, the transforms on _innerMapLayer and tiledLayer need to be the same.
-    NSAssert(_innerMapLayer.transform.m11 == tiledLayer.transform.m11, @"Not the same transform");
+- (void)centerMapOnCoordinates:(CGPoint)desiredCenter {
+    CGRect mapRect = [_printedMapScrollLayer convertRect:[_printedMapScrollLayer visibleRect] toLayer:_innerMapLayer];
+    [_innerMapLayer scrollRectToVisible:CGRectMake(desiredCenter.x-CGRectGetWidth(mapRect)*0.5, desiredCenter.y-CGRectGetHeight(mapRect)*0.5, mapRect.size.width, mapRect.size.height)];
     
     // Calculate the size of the visible rectangle, in map coordinates.
     CGRect visibleRect = [self visibleRect];
@@ -431,6 +410,14 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     mapPos.y += dY;
     [self printedMapLayer].position = mapPos;
     if (dX > 0 || dY > 0) [self synchronizePaperWithBackground];
+    
+    [_innerMapLayer setNeedsDisplayInRect:[_innerMapLayer visibleRect]];
+    [_innerOverprintLayer setNeedsDisplayInRect:[_innerOverprintLayer visibleRect]];
+}
+
+- (void)synchronizePaperWithBackground {
+    CGRect paper = [tiledLayer convertRect:_printedMapScrollLayer.frame fromLayer:_printedMapLayer];
+    [_innerMapLayer scrollPoint:CGPointMake(paper.origin.x, paper.origin.y)];
 }
 
 - (void)updatePaperMapButMaintainPositionWhileDoing:(void (^)(void))block animate:(BOOL)animate {
@@ -467,11 +454,25 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 }
 
 - (void)layoutFrameChanged:(NSNotification *)notification {
-    NSLog(@"Layout Frame changed");
     [self updatePaperMapButMaintainPositionWhileDoing:^{
         if ([self.layoutController frameVisible]) {
+            if (frameColor == NULL) {
+                // No previous frame.
+                _printedMapScrollLayer.frame = CGRectInset(_printedMapScrollLayer.frame, FRAME_INSET,FRAME_INSET);
+            } else {
+                CGColorRelease(frameColor);
+            }
+            frameColor = [self.layoutController frameColor];
+            NSAssert(frameColor != NULL, @"No frame color!");
+            CGColorRetain(frameColor);
+            
             _printedMapScrollLayer.cornerRadius = FRAME_CORNER_RADIUS;
         } else {
+            if (frameColor != NULL) {
+                CGColorRelease(frameColor);
+                frameColor = NULL;
+                _printedMapScrollLayer.frame = CGRectInset(_printedMapScrollLayer.frame, -FRAME_INSET,-FRAME_INSET);
+            }
             _printedMapScrollLayer.cornerRadius = 0.0;
         }
     } animate:NO];
@@ -489,22 +490,22 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 
 - (void)setupLayoutNotificationObserving {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(visibleSymbolsChanged:) name:ASLayoutVisibleItemsChanged object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutFrameChanged:) name:ASLayoutFrameChanged object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameColorChanged:) name:ASLayoutFrameColorChanged object:nil];
 //    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:ASLayoutOrientationChanged object:nil];
 //  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutChanged:) name:ASLayoutChanged object:nil];
 /* 
  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(printingScaleChanged:) name:ASLayoutScaleChanged object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameColorChanged:) name:ASLayoutFrameColorChanged object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutFrameChanged:) name:ASLayoutFrameChanged object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(eventDetailsChanged:) name:ASLayoutEventDetailsChanged object:nil];*/
 }
 
 - (void)teardownLayoutNotificationObserving {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutVisibleItemsChanged object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutFrameChanged object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutFrameColorChanged object:nil];
 //    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutOrientationChanged object:nil];
 /*    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutScaleChanged object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutFrameColorChanged object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutFrameChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutEventDetailsChanged object:nil];
  */
 }

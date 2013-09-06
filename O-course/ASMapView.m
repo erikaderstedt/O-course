@@ -558,7 +558,6 @@
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
     
-//    [self synchronizeBackgroundWithPaper];
     [self synchronizePaperWithBackground];
     
     [CATransaction commit];

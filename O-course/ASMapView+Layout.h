@@ -34,7 +34,6 @@
 - (CGPoint)centerOfMap;
 - (void)centerMapOnCoordinates:(CGPoint)p;
 - (void)synchronizePaperWithBackground;
-- (void)synchronizeBackgroundWithPaper;
 - (void)recordNewLayoutCenter;
 - (void)ensureCorrectScaleAndLocation;
 
