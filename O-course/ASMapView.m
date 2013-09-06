@@ -772,7 +772,6 @@
 
 - (void)cancelOperation:(id)sender {
     [self revertToStandardMode:sender];
-    
 }
 
 - (IBAction)revertToStandardMode:(id)sender {

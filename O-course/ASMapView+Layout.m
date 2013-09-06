@@ -178,6 +178,9 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     }
     if (frameColor != NULL) {
         r = CGRectInset(r, FRAME_INSET, FRAME_INSET);
+        frameVisible = YES;
+    } else {
+        frameVisible = NO;
     }
     [_printedMapScrollLayer setFrame:r];
 }
@@ -242,14 +245,52 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [self.layoutController writeLayoutCenterPosition:newCenterPosition];
 }
 
+- (void)setFrameColor:(CGColorRef)_frameColor {
+    if (frameColor != NULL) {
+        CGColorRelease(frameColor);
+    }
+    frameColor = _frameColor;
+if (frameColor != NULL) {
+    CGColorRetain(frameColor);
+}
+}
+
 - (void)layoutChanged:(NSNotification *)n {
-    NSLog(@"layout changes");
-    // Perform the same actions as when showing the printed map.
+    [self recordNewLayoutCenter];
+    
+    _printingScale = (CGFloat)[self.layoutController scale];
+    orientation = [self.layoutController orientation];
+    paperSize = [self.layoutController paperSize];
+    BOOL showFrame = [self.layoutController frameVisible];
+    if (showFrame) {
+        [self setFrameColor:[self.layoutController frameColor]];
+        if (!frameVisible) {
+            [[self printedMapLayer] setFrame:CGRectInset([[self printedMapLayer] frame], FRAME_INSET, FRAME_INSET)];
+            _printedMapScrollLayer.cornerRadius = FRAME_CORNER_RADIUS;
+            frameVisible = YES;
+        }
+    } else {
+        [self setFrameColor:NULL];
+        if (frameVisible) {
+            [[self printedMapLayer] setFrame:CGRectInset([[self printedMapLayer] frame], -FRAME_INSET, -FRAME_INSET)];
+            _printedMapScrollLayer.cornerRadius = 0.0;
+            frameVisible = NO;
+        }
+    }
+
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+    [self adjustPrintedMapLayerForBounds];
+    [self handleScaleAndOrientation];
+    [self centerMapOnCoordinates:[self.layoutController layoutCenterPosition]];
+    [CATransaction commit];
+    
+/*    // Perform the same actions as when showing the printed map.
     [self setPrintingScale:(CGFloat)[self.layoutController scale]];
     
     [self centerMapOnCoordinates:[self.layoutController layoutCenterPosition]];
     [self synchronizePaperWithBackground];
-    
+  */
     /*
     [self recordNewLayoutCenter];
     
@@ -434,24 +475,19 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 - (void)layoutFrameChanged:(NSNotification *)notification {
     [self updatePaperMapButMaintainPositionWhileDoing:^{
         if ([self.layoutController frameVisible]) {
-            if (frameColor == NULL) {
-                // No previous frame.
+            if (!frameVisible) {
                 _printedMapScrollLayer.frame = CGRectInset(_printedMapScrollLayer.frame, FRAME_INSET,FRAME_INSET);
-            } else {
-                CGColorRelease(frameColor);
+                _printedMapScrollLayer.cornerRadius = FRAME_CORNER_RADIUS;
+                frameVisible = YES;
             }
-            frameColor = [self.layoutController frameColor];
-            NSAssert(frameColor != NULL, @"No frame color!");
-            CGColorRetain(frameColor);
-            
-            _printedMapScrollLayer.cornerRadius = FRAME_CORNER_RADIUS;
+            [self setFrameColor:[self.layoutController frameColor]];
         } else {
-            if (frameColor != NULL) {
-                CGColorRelease(frameColor);
-                frameColor = NULL;
+            [self setFrameColor:NULL];
+            if (frameVisible) {
                 _printedMapScrollLayer.frame = CGRectInset(_printedMapScrollLayer.frame, -FRAME_INSET,-FRAME_INSET);
+                _printedMapScrollLayer.cornerRadius = 0.0;
+                frameVisible = NO;
             }
-            _printedMapScrollLayer.cornerRadius = 0.0;
         }
     } animate:NO];
 

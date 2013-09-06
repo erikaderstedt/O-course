@@ -55,6 +55,7 @@ enum ASMapViewUIState {
     
     CTFrameRef textFrame;
     CGColorRef frameColor;
+    BOOL frameVisible;
     NSString *eventTitle;
     CGFloat _printingScale;
     CGSize paperSize; // in mm, in portrait orientation
