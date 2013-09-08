@@ -46,5 +46,6 @@ extern NSString *const ASLayoutEventDetailsChanged;
 - (BOOL)frameVisible;
 - (CGPoint)layoutCenterPosition;
 - (void)writeLayoutCenterPosition:(CGPoint)centerPosition;
+- (NSString *)eventDescription;
 
 @end

@@ -88,12 +88,11 @@ NSString *const ASLayoutEventDetailsChanged = @"_ASLayoutEventDetailsChanged";
             [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutOrientationChanged object:self];
         } else if ([keyPath isEqualToString:@"selection.orientation"]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutOrientationChanged object:self];
-        } else if ([keyPath isEqualToString:@"selection.frameColor"]) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutFrameColorChanged object:self];
-        } else if ([keyPath isEqualToString:@"selection.frameVisible"]) {
+        } else if ([keyPath isEqualToString:@"selection.frameVisible"] ||
+                   [keyPath isEqualToString:@"selection.showEventName"] ||
+                   [keyPath isEqualToString:@"selection.showEventDate"] ||
+                   [keyPath isEqualToString:@"selection.frameColor"]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutFrameChanged object:self];
-        } else if ([keyPath isEqualToString:@"selection.showEventName"] || [keyPath isEqualToString:@"selection.showEventDate"]) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutEventDetailsChanged object:self];
         }
     } else if (object == self.layouts && [keyPath isEqualToString:@"selection"]) {
         [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutChanged object:self];
@@ -234,6 +233,15 @@ NSString *const ASLayoutEventDetailsChanged = @"_ASLayoutEventDetailsChanged";
     }
     
     selectedLayout.position = centerPosition;
+}
+
+- (NSString *)eventDescription {
+    Layout *selectedLayout = [self selectedLayout];
+    if (selectedLayout == nil) {
+        return @"";
+    }
+
+    return [selectedLayout eventDescription];
 }
 
 #pragma mark NSTableViewDataSource

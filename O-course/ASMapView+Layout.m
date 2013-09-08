@@ -85,6 +85,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         _innerOverprintLayer.anchorPoint = _innerMapLayer.anchorPoint;
         _innerOverprintLayer.position = _innerMapLayer.position;
         _innerOverprintLayer.delegate = self.overprintProvider;
+
         /*
          CIFilter *mulBlend = [CIFilter filterWithName:@"CIMultiplyCompositing"];
          _innerOverprintLayer.compositingFilter = mulBlend;
@@ -102,16 +103,43 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 }
 
 - (void)drawPaperFrameInContext:(CGContextRef)ctx {
-    CGContextBeginPath(ctx);
+    NSAssert(frameVisible, @"Shouldn't be drawing the frame");
     CGRect r = CGRectInset(_printedMapScrollLayer.frame, -FRAME_INSET,- FRAME_INSET);
-    
-    CGPathRef p = CGPathCreateRoundRect(r, 12.0);
+    CGMutablePathRef p;
+
+    CGContextBeginPath(ctx);
+    if (eventDetails != NULL) {
+        p = CGPathCreateMutable();
+
+        CGPathMoveToPoint(p, NULL, r.origin.x + FRAME_CORNER_RADIUS, r.origin.y);
+        
+        CGFloat maxX = CGRectGetMaxX(r);
+        CGFloat maxY = CGRectGetMaxY(r);
+        
+        CGRect textBounds = CTLineGetBoundsWithOptions(eventDetails, kCTLineBoundsUseGlyphPathBounds);
+        NSLog(@"R = %@", NSStringFromRect(r));
+        CGContextSetTextPosition(ctx, r.origin.x + 2.5*FRAME_INSET, maxY - 0.25*textBounds.size.height);
+        CTLineDraw(eventDetails, ctx);
+        
+        CGPathAddArcToPoint(p, NULL, maxX, r.origin.y, maxX, r.origin.y + FRAME_CORNER_RADIUS, FRAME_CORNER_RADIUS);
+        CGPathAddArcToPoint(p, NULL, maxX, maxY, maxX - FRAME_CORNER_RADIUS, maxY, FRAME_CORNER_RADIUS);
+        
+        CGPathAddLineToPoint(p, NULL, r.origin.x + 3.0*FRAME_INSET + textBounds.size.width, maxY);
+        CGPathMoveToPoint(p, NULL, r.origin.x + 2.0*FRAME_INSET, maxY);
+        CGPathAddArcToPoint(p, NULL, r.origin.x, maxY, r.origin.x, maxY - FRAME_CORNER_RADIUS, FRAME_CORNER_RADIUS);
+        CGPathAddArcToPoint(p, NULL, r.origin.x, r.origin.y, r.origin.x + FRAME_CORNER_RADIUS, r.origin.y, FRAME_CORNER_RADIUS);
+
+    } else {
+        p = (CGPathRef)CGPathCreateRoundRect(r, FRAME_CORNER_RADIUS);
+    }
     CGContextAddPath(ctx, p);
     CGPathRelease(p);
     CGContextSetStrokeColorWithColor(ctx, frameColor);
     CGContextSetLineWidth(ctx, 4.0);
     
     CGContextStrokePath(ctx);
+    
+    
 }
 
 - (CIFilter *)backgroundMapFilter {
@@ -259,32 +287,18 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     }
 }
 
-- (void)frameColorChanged:(NSNotification *)notification {
-    // Received when the color changes.
-    CGColorRef nColor = [self.layoutController frameColor];
-    if (nColor != frameColor) {
-        if (frameColor != NULL) CGColorRelease(frameColor);
-        if ([self.layoutController frameVisible]) {
-            frameColor = nColor;
-            if (frameColor != NULL) {
-                CGColorRetain(frameColor);
-            }
-        } else {
-            frameColor = NULL;
-        }
-    }
-
-    [_printedMapLayer setNeedsDisplay];
-}
-
 - (CGPoint)centerOfMap {
     CGRect visibleRectOfInnerMapLayer = [_innerMapLayer visibleRect];
     if (visibleRectOfInnerMapLayer.size.width == 0.0) {
         // Not yet displayed.
-        return [self.layoutController layoutCenterPosition];
+        CGPoint p = [self.layoutController layoutCenterPosition];
+        if (p.x > 1.e6) return CGPointMake(0.0, 0.0);
+        NSAssert(p.x < 1e6, @"NO?");
+        return p;
     }
     CGPoint currentMidpointInMapCoordinates = CGPointMake(CGRectGetMidX(visibleRectOfInnerMapLayer), CGRectGetMidY(visibleRectOfInnerMapLayer));
 
+    NSAssert(currentMidpointInMapCoordinates.x < 1e6, @"NO?");
     return currentMidpointInMapCoordinates;
 }
 
@@ -380,8 +394,10 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 }
 
 - (void)layoutFrameChanged:(NSNotification *)notification {
+    BOOL after = [self.layoutController frameVisible];
+    if (frameVisible != after) {
     [self updatePaperMapButMaintainPositionWhileDoing:^{
-        if ([self.layoutController frameVisible]) {
+        if (after) {
             if (!frameVisible) {
                 _printedMapScrollLayer.frame = CGRectInset(_printedMapScrollLayer.frame, FRAME_INSET,FRAME_INSET);
                 _printedMapScrollLayer.cornerRadius = FRAME_CORNER_RADIUS;
@@ -397,22 +413,39 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
             }
         }
     } animate:NO];
+    }
 
-    [_printedMapLayer setNeedsDisplay];
-}
+    CGColorRef nColor = [self.layoutController frameColor];
+    if (nColor != frameColor) {
+        if (frameColor != NULL) CGColorRelease(frameColor);
+        if ([self.layoutController frameVisible]) {
+            frameColor = nColor;
+            if (frameColor != NULL) {
+                CGColorRetain(frameColor);
+            }
+        } else {
+            frameColor = NULL;
+        }
+    }
+    
+    if (eventDetails != NULL) {
+        CFRelease(eventDetails);
+        eventDetails = NULL;
+    }
+    NSString *ed = [self.layoutController eventDescription];
+    if (ed != nil && frameColor != NULL) {
 
-- (void)eventDetailsChanged:(NSNotification *)notification {
-    NSLog(@"Event details changed");
-    
-    // Received when the event or date changes. Rebuild the string and setup a new frame.
-    
+        NSFont *font = [NSFont fontWithName:@"Helvetica Neue" size:[self.layoutController paperSize].width/10.0];
+        NSAttributedString *as = [[NSAttributedString alloc] initWithString:[self.layoutController eventDescription]
+                                                                 attributes:@{ NSFontAttributeName:font, NSForegroundColorAttributeName:(__bridge id)frameColor}];
+        eventDetails = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef)as);
+    }
     [_printedMapLayer setNeedsDisplay];
 }
 
 - (void)setupLayoutNotificationObserving {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(visibleSymbolsChanged:) name:ASLayoutVisibleItemsChanged object:self.layoutController];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutFrameChanged:) name:ASLayoutFrameChanged object:self.layoutController];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameColorChanged:) name:ASLayoutFrameColorChanged object:self.layoutController];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(printingScaleChanged:) name:ASLayoutScaleChanged object:self.layoutController];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:ASLayoutOrientationChanged object:self.layoutController];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutChanged:) name:ASLayoutChanged object:self.layoutController];
@@ -425,7 +458,6 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 - (void)teardownLayoutNotificationObserving {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutVisibleItemsChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutFrameChanged object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutFrameColorChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutScaleChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutOrientationChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutChanged object:nil];

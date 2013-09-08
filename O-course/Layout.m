@@ -185,4 +185,21 @@
     [self setValue:@(position.y) forKey:@"position_y"];
 }
 
+- (NSString *)eventDescription {
+    NSString *n = @"", *d = @"";
+    BOOL aDesc = NO;
+    if ([[self valueForKey:@"showEventName"] boolValue]) {
+        n = [self valueForKeyPath:@"project.event"];
+        aDesc = YES;
+    }
+    if ([[self valueForKey:@"showEventDate"] boolValue]) {
+        NSDateFormatter *df = [[NSDateFormatter alloc] init];
+        [df setDateStyle:NSDateFormatterShortStyle];
+        d = [df stringFromDate:[self valueForKeyPath:@"project.date"]];
+        aDesc = YES;
+    }
+    if (!aDesc) return nil;
+    return [NSString stringWithFormat:@"%@ %@", n, d];
+}
+
 @end

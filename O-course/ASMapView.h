@@ -55,6 +55,7 @@ enum ASMapViewUIState {
     
     CTFrameRef textFrame;
     CGColorRef frameColor;
+    CTLineRef eventDetails;
     BOOL frameVisible;
     NSString *eventTitle;
     CGFloat _printingScale;
