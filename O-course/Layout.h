@@ -39,6 +39,7 @@ enum ASLayoutPaperType {
 - (void)modifySymbolNumber:(NSInteger)number toBeVisible:(BOOL)visible;
 - (void)modifySymbolList:(NSArray *)list toBeVisible:(BOOL)visible;
 - (const int32_t *)hiddenObjects:(size_t *)count;
+- (NSString *)eventDescription;
 
 @end
 

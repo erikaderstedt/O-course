@@ -480,7 +480,6 @@
     NSPoint eventLocationInView = [self convertPoint:[theEvent locationInWindow] fromView:nil];
     NSPoint p = NSPointFromCGPoint([tiledLayer convertPoint:NSPointToCGPoint(eventLocationInView) fromLayer:[self layer]]);
     NSInteger i = [self.mapProvider symbolNumberAtPosition:p];
-    NSLog(@"location %@", NSStringFromPoint(p));
 
     // Tell the overprint provider that a new control should be added at that position. Supply the symbol number from the map provider.
     //
@@ -567,7 +566,7 @@
 }
 
 - (void)setPrimitiveZoom:(CGFloat)z2 {
-    NSLog(@"Setting primitive zoom %f", z2);
+
     NSClipView *cv = [[self enclosingScrollView] contentView];
     NSRect v = [cv documentVisibleRect ], f;
     CGPoint midpointBefore, midpointAfter, tentativeNewOrigin, pointInMapCoordinates;

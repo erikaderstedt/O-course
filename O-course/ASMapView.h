@@ -54,6 +54,7 @@ enum ASMapViewUIState {
     
     CGColorRef _frameColor;
     NSString *eventTitle;
+    CTLineRef eventDetails;
     CGFloat _printingScale;
     BOOL draggingPaperMap;
     CGSize paperOffset;
