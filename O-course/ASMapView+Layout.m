@@ -104,11 +104,11 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 - (void)drawPaperFrameInContext:(CGContextRef)ctx {
     CGContextBeginPath(ctx);
     CGRect r = CGRectInset(_printedMapScrollLayer.frame, -FRAME_INSET,- FRAME_INSET);
-    
+    NSLog(@"paper frame %@", NSStringFromRect(r));
     CGPathRef p = CGPathCreateRoundRect(r, 12.0);
     CGContextAddPath(ctx, p);
     CGPathRelease(p);
-    CGContextSetStrokeColorWithColor(ctx, frameColor);
+    CGContextSetStrokeColorWithColor(ctx, self.frameColor);
     CGContextSetLineWidth(ctx, 4.0);
     
     CGContextStrokePath(ctx);
@@ -132,9 +132,9 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     // Set the outer bounds. These are determined
     CGRect r = [[[self enclosingScrollView] superview] bounds], page;
     r.size.width -= LAYOUT_VIEW_WIDTH;
-    CGFloat a4ratio = paperSize.height/paperSize.width;
+    CGFloat a4ratio = self.paperSize.height/self.paperSize.width;
     CGFloat fraction = 0.8;
-    if (orientation == NSLandscapeOrientation) {
+    if (self.orientation == NSLandscapeOrientation) {
         if (r.size.width / r.size.height > a4ratio) {
             // There will be extra space to the left and right.
             page.size.height = fraction*r.size.height;
@@ -164,7 +164,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [_printedMapLayer setPosition:CGPointMake(CGRectGetMidX(r), CGRectGetMidY(r))];
     
     r = _printedMapLayer.bounds;
-    if (orientation == NSLandscapeOrientation) {
+    if (self.orientation == NSLandscapeOrientation) {
         // The landscape version is rotated counter-clockwise.
         r.size.height -= leftMargin + rightMargin;
         r.size.width -= topMargin + bottomMargin;
@@ -176,11 +176,11 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         r.origin.x += leftMargin;
         r.origin.y += bottomMargin;
     }
-    if (frameColor != NULL) {
+    if (self.frameColor != NULL) {
         r = CGRectInset(r, FRAME_INSET, FRAME_INSET);
-        frameVisible = YES;
+        self.frameVisible = YES;
     } else {
-        frameVisible = NO;
+        self.frameVisible = NO;
     }
     [_printedMapScrollLayer setFrame:r];
 }
@@ -206,14 +206,18 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [self.layoutController writeLayoutCenterPosition:newCenterPosition];
 }
 
-- (void)setFrameColor:(CGColorRef)_frameColor {
-    if (frameColor != NULL) {
-        CGColorRelease(frameColor);
+- (void)setFrameColor:(CGColorRef)fColor {
+    if (_frameColor != NULL) {
+        CGColorRelease(_frameColor);
     }
-    frameColor = _frameColor;
-    if (frameColor != NULL) {
-        CGColorRetain(frameColor);
+    _frameColor = fColor;
+    if (_frameColor != NULL) {
+        CGColorRetain(_frameColor);
     }
+}
+
+- (CGColorRef)frameColor {
+    return _frameColor;
 }
 
 - (void)layoutWillChange:(NSNotification *)n {
@@ -223,22 +227,22 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 - (void)layoutChanged:(NSNotification *)n {
     
     _printingScale = (CGFloat)[self.layoutController scale];
-    orientation = [self.layoutController orientation];
-    paperSize = [self.layoutController paperSize];
+    self.orientation = [self.layoutController orientation];
+    self.paperSize = [self.layoutController paperSize];
     BOOL showFrame = [self.layoutController frameVisible];
     if (showFrame) {
         [self setFrameColor:[self.layoutController frameColor]];
-        if (!frameVisible) {
+        if (!self.frameVisible) {
             [[self printedMapLayer] setFrame:CGRectInset([[self printedMapLayer] frame], FRAME_INSET, FRAME_INSET)];
             _printedMapScrollLayer.cornerRadius = FRAME_CORNER_RADIUS;
-            frameVisible = YES;
+            self.frameVisible = YES;
         }
     } else {
         [self setFrameColor:NULL];
-        if (frameVisible) {
+        if (self.frameVisible) {
             [[self printedMapLayer] setFrame:CGRectInset([[self printedMapLayer] frame], -FRAME_INSET, -FRAME_INSET)];
             _printedMapScrollLayer.cornerRadius = 0.0;
-            frameVisible = NO;
+            self.frameVisible = NO;
         }
     }
 
@@ -262,15 +266,11 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 - (void)frameColorChanged:(NSNotification *)notification {
     // Received when the color changes.
     CGColorRef nColor = [self.layoutController frameColor];
-    if (nColor != frameColor) {
-        if (frameColor != NULL) CGColorRelease(frameColor);
+    if (nColor != self.frameColor) {
         if ([self.layoutController frameVisible]) {
-            frameColor = nColor;
-            if (frameColor != NULL) {
-                CGColorRetain(frameColor);
-            }
+            self.frameColor = nColor;
         } else {
-            frameColor = NULL;
+            self.frameColor = NULL;
         }
     }
 
@@ -343,7 +343,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         NSLog(@"Unable to ensure correct scale at this time.");
         return;
     }
-    CGFloat pointsInWidth = ((orientation == NSLandscapeOrientation)?paperSize.height:paperSize.width) * 100.0 * p / 15000.0;
+    CGFloat pointsInWidth = ((self.orientation == NSLandscapeOrientation)?self.paperSize.height:self.paperSize.width) * 100.0 * p / 15000.0;
 
     CGFloat z2 = visibleWidth/pointsInWidth;
     
@@ -358,6 +358,10 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     
 }
 
+- (CGFloat)printingScale {
+    return _printingScale;
+}
+
 - (void)printingScaleChanged:(NSNotification *)notification {
     CGFloat s = (CGFloat)[self.layoutController scale];
     _printingScale = s;
@@ -370,8 +374,8 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 }
 
 - (void)orientationChanged:(NSNotification *)notification {
-    orientation = [self.layoutController orientation];
-    paperSize = [self.layoutController paperSize];
+    self.orientation = [self.layoutController orientation];
+    self.paperSize = [self.layoutController paperSize];
     [self updatePaperMapButMaintainPositionWhileDoing:^{
         [self adjustPrintedMapLayerForBounds];
         [self handleScaleAndOrientation];
@@ -382,18 +386,18 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 - (void)layoutFrameChanged:(NSNotification *)notification {
     [self updatePaperMapButMaintainPositionWhileDoing:^{
         if ([self.layoutController frameVisible]) {
-            if (!frameVisible) {
+            if (!self.frameVisible) {
                 _printedMapScrollLayer.frame = CGRectInset(_printedMapScrollLayer.frame, FRAME_INSET,FRAME_INSET);
                 _printedMapScrollLayer.cornerRadius = FRAME_CORNER_RADIUS;
-                frameVisible = YES;
+                self.frameVisible = YES;
             }
             [self setFrameColor:[self.layoutController frameColor]];
         } else {
             [self setFrameColor:NULL];
-            if (frameVisible) {
+            if (self.frameVisible) {
                 _printedMapScrollLayer.frame = CGRectInset(_printedMapScrollLayer.frame, -FRAME_INSET,-FRAME_INSET);
                 _printedMapScrollLayer.cornerRadius = 0.0;
-                frameVisible = NO;
+                self.frameVisible = NO;
             }
         }
     } animate:NO];

@@ -13,6 +13,7 @@
 #import "ASMapView+Layout.h"
 #import "Project.h"
 #import "OverprintObject.h"
+#import "ASMapPrintingView.h"
 
 #import "ASOverprintController.h"
 #import "ASCourseController.h"
@@ -415,6 +416,16 @@ out_error:
 - (IBAction)printDocument:(id)sender {
     if (self.mapView.state != kASMapViewLayout) {
         [self.mapView enterLayoutMode:sender];
+    } else {
+        // Start a printing operation based on the orientation in the base view.
+        // Prevent the user from changing the orientation.
+        NSPrintInfo *pi = [[NSPrintInfo alloc] initWithDictionary:[[NSPrintInfo sharedPrintInfo] dictionary]];
+        
+        [pi setOrientation:self.mapView.orientation];
+        [pi setPaperSize:self.mapView.paperSize];
+        ASMapPrintingView *pv = [[ASMapPrintingView alloc] initWithBaseView:self.mapView];
+        NSPrintOperation *po = [NSPrintOperation printOperationWithView:pv printInfo:pi];
+        [po runOperation];
     }
 }
 

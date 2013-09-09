@@ -34,4 +34,7 @@
 - (void)synchronizePaperWithBackground;
 - (void)recordNewLayoutCenter;
 - (void)handleScaleAndOrientation;
+
+- (CGFloat)printingScale;
+
 @end

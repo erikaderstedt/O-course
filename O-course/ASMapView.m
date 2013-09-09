@@ -20,13 +20,15 @@
 @synthesize showMagnifyingGlass;
 @synthesize courseDataSource;
 @synthesize state=state;
+@synthesize frameVisible, paperSize, orientation;
+@dynamic frameColor;
 
 - (id)initWithFrame:(NSRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
 		_zoom = 1.0;
-        orientation = NSLandscapeOrientation;
-        paperSize = CGSizeMake(210.0, 297.0);
+        self.orientation = NSLandscapeOrientation;
+        self.paperSize = CGSizeMake(210.0, 297.0);
     }
     return self;
 }
@@ -34,8 +36,8 @@
 	self = [super initWithCoder:aDecoder];
 	if (self) {
 		_zoom = 1.0;
-        orientation = NSLandscapeOrientation;
-        paperSize = CGSizeMake(210.0, 297.0);
+        self.orientation = NSLandscapeOrientation;
+        self.paperSize = CGSizeMake(210.0, 297.0);
 	}
 	return self;
 }
@@ -669,7 +671,7 @@
         [overprintProvider drawLayer:layer inContext:ctx];
         CGContextRestoreGState(ctx);
         
-    } else if (layer == _printedMapLayer && frameColor != NULL) {
+    } else if (layer == _printedMapLayer && self.frameColor != NULL) {
         [self drawPaperFrameInContext:ctx];
     }
 }

@@ -51,14 +51,10 @@ enum ASMapViewUIState {
     CATiledLayer *_innerOverprintLayer;
     CALayer *_printedMapLayer;
     CIFilter *_backgroundMapFilter;
-    NSPrintingOrientation orientation;
     
-    CTFrameRef textFrame;
-    CGColorRef frameColor;
-    BOOL frameVisible;
+    CGColorRef _frameColor;
     NSString *eventTitle;
     CGFloat _printingScale;
-    CGSize paperSize; // in mm, in portrait orientation
     BOOL draggingPaperMap;
     CGSize paperOffset;
     
@@ -80,6 +76,11 @@ enum ASMapViewUIState {
 @property(nonatomic,weak) IBOutlet NSView *layoutConfigurationView;
 @property(weak) IBOutlet ASLayoutController *layoutController;
 @property(weak) NSLayoutConstraint *theConstraint;
+
+@property(assign) BOOL frameVisible;
+@property(assign) CGSize paperSize; // in mm, in portrait orientation
+@property(assign) NSPrintingOrientation orientation;
+@property CGColorRef frameColor;
 
 - (IBAction)revertToStandardMode:(id)sender;
 - (IBAction)goIntoAddControlsMode:(id)sender;
