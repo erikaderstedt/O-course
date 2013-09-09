@@ -16,7 +16,6 @@
     
 }
 @property (strong) id <ASMapProvider> mapProvider;
-@property (strong) id <ASOverprintProvider> overprintProvider;
 
 - (id)initWithBaseView:(ASMapView *)_baseView;
 - (CGAffineTransform)patternTransform;

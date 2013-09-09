@@ -425,13 +425,11 @@ out_error:
         [self.mapView enterLayoutMode:sender];
     } else {
         // Start a printing operation based on the orientation in the base view.
-        // Prevent the user from changing the orientation.
+
         NSPrintInfo *pi = [[NSPrintInfo alloc] initWithDictionary:[[NSPrintInfo sharedPrintInfo] dictionary]];
         ASMapPrintingView *pv = [[ASMapPrintingView alloc] initWithBaseView:self.mapView];
-        
-        // Calculate the necessary transform for patterns.
-        
         pv.mapProvider = [self mapProviderForURL:self.loadedURL primaryTransform:CGAffineTransformIdentity secondaryTransform:[pv patternTransform]];
+        
         [pi setTopMargin:0.0];
         [pi setBottomMargin:0.0];
         [pi setLeftMargin:0.0];
@@ -442,6 +440,24 @@ out_error:
         [pi setVerticalPagination:NSClipPagination];
         [pi setHorizontallyCentered:YES];
         [pi setVerticallyCentered:YES];
+        
+        // Use PMPrintSettings to attempt to force high quality from the printer.
+        // Prevent the user from changing the orientation.
+        /* CFNumber - kCFNumberSInt32Type, Enum, B/W, Grayscale, Color, HiFi Color. */
+        //#define kPMColorModeStr                 "com.apple.print.PrintSettings.PMColorMode"
+        //#define kPMColorModeKey                 CFSTR("com.apple.print.PrintSettings.PMColorMode")
+        /* CFNumber - kCFNumberSInt32Type, Enum, draft, normal, best */
+        //#define kPMQualityStr                   "com.apple.print.PrintSettings.PMQuality"
+        //#define kPMQualityKey                   CFSTR("com.apple.print.PrintSettings.PMQuality")
+        PMPrintSettings ps = [pi PMPrintSettings];
+        NSNumber *colorMode = @(3);
+        NSNumber *quality = @(2);
+        NSNumber *pmOrientation = @(1+((int)self.mapView.orientation));
+        PMPrintSettingsSetValue(ps, (CFStringRef)(@"com.apple.print.PrintSettings.PMColorMode"), (__bridge CFNumberRef)colorMode, YES);
+        PMPrintSettingsSetValue(ps, (CFStringRef)(@"com.apple.print.PrintSettings.PMQuality"), (__bridge CFNumberRef)quality, YES);
+        PMPrintSettingsSetValue(ps, (CFStringRef)(@"com.apple.print.PageFormat.PMOrientation"), (__bridge CFNumberRef)pmOrientation, YES);
+        [pi updateFromPMPrintSettings];
+
         NSPrintOperation *po = [NSPrintOperation printOperationWithView:pv printInfo:pi];
         [po setCanSpawnSeparateThread:YES];
         [po runOperation];
