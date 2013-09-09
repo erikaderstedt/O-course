@@ -48,13 +48,9 @@
     return @"Test";
 }
 
-- (void)drawRect:(NSRect)dirtyRect {
+- (CGAffineTransform)patternTransform {
 
-    [NSBezierPath strokeLineFromPoint:NSMakePoint(0.0,0.0) toPoint:NSMakePoint(842.0, 595.0)];
-
-    CGContextRef ctx = [[NSGraphicsContext currentContext] graphicsPort];
-    // Set up an appropriate transform
-
+    
     CGPoint p = [baseView centerOfMap];
     CGFloat scale = [baseView printingScale];
     CGFloat mapPointsPerMm = 100.0; // At 15000
@@ -62,7 +58,7 @@
     CGFloat mmAcross = pointsAcross/RESOLUTION;
     CGFloat desiredMapPointsAcross = scale/15000.0 * mmAcross * mapPointsPerMm;
     CGFloat f = pointsAcross/desiredMapPointsAcross;
-    
+
     CGAffineTransform at;
     at.a = f;
     at.b = 0.0;
@@ -70,11 +66,39 @@
     at.d = f;
     at.tx = NSMidX([self frame]) - p.x*f;
     at.ty = NSMidY([self frame]) - p.y*f;
+    
+    return at;
+}
+
+- (void)drawRect:(NSRect)dirtyRect {
+
+    CGContextRef ctx = [[NSGraphicsContext currentContext] graphicsPort];
+    
+    CGRect f1 = [baseView mapFrame];
+    CGRect f2 = [baseView paperFrame];
+    CGAffineTransform at = [self patternTransform];
 
     CGContextSaveGState(ctx);
     CGContextConcatCTM(ctx, at);
-    [baseView.mapProvider drawLayer:nil inContext:ctx];
-//    [baseView.overprintProvider drawLayer:nil inContext:ctx];
+    CGContextSaveGState(ctx);
+
+    CGContextBeginPath(ctx);
+    CGRect n1 = CGRectApplyAffineTransform([self frame],CGAffineTransformInvert(at));
+    n1.origin.x = CGRectGetMinX(n1) + CGRectGetWidth(n1)*CGRectGetMinX(f1)/CGRectGetWidth(f2);
+    n1.origin.y = CGRectGetMinY(n1) + CGRectGetHeight(n1)*CGRectGetMinY(f1)/CGRectGetHeight(f2);
+    n1.size.width = CGRectGetWidth(n1)*CGRectGetWidth(f1)/CGRectGetWidth(f2);
+    n1.size.height = CGRectGetHeight(n1)*CGRectGetHeight(f1)/CGRectGetHeight(f2);
+    
+    n1 = CGRectIntegral(n1);
+    CGFloat cRad = [baseView cornerRadius] * CGRectGetWidth(n1)/CGRectGetWidth(f2);
+    CGPathRef roundClipRect = CGPathCreateRoundRect(n1 , cRad);
+    CGContextAddPath(ctx, roundClipRect);
+    CGContextClip(ctx);
+
+    [self.mapProvider drawLayer:nil inContext:ctx useSecondaryTransform:YES];
+    [baseView.overprintProvider drawLayer:nil inContext:ctx];
+    CGContextRestoreGState(ctx); // Cancel clipping path.
+    
     /*
     if ([baseView frameVisible]) {
         [baseView drawPaperFrameInContext:ctx];

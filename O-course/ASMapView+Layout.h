@@ -36,4 +36,10 @@
 
 - (CGFloat)printingScale;
 
+- (CGRect)mapFrame;
+- (CGRect)paperFrame;
+- (CGFloat)cornerRadius;
+
 @end
+
+CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius);

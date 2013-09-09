@@ -11,7 +11,6 @@
 #import "ASLayoutController.h"
 #import "ASMapView+Layout.h"
 
-#define GLASS_SIZE 180.0
 #define SIGN_OF(x) ((x > 0.0)?1.0:-1.0)
 
 @implementation ASMapView
@@ -657,12 +656,11 @@
         // The zoom of the glass is fixed, so that it covers 15 mm of map, diagonally. Since map units are 0.01 mm, this means
         // 1500 map points across.
         
-        float across=1200.0;
         // Set up a transform to a 1500x1500 rect centered on p, from a rect {0,0,GLASS_SIZE,GLASS_SIZE}.
         // (assume they are both square)
-        float a = GLASS_SIZE/across;
-        float tx = - a * (p.x - across*0.5);
-        float ty = - a * (p.y - across*0.5);
+        float a = GLASS_SIZE/ACROSS_GLASS;
+        float tx = - a * (p.x - ACROSS_GLASS*0.5);
+        float ty = - a * (p.y - ACROSS_GLASS*0.5);
         CGAffineTransform t = CGAffineTransformMake(a, 0, 0, a, tx, ty);
         CGContextConcatCTM(ctx, t);
         CGContextSetPatternPhase(ctx, CGSizeMake(t.tx, t.ty));

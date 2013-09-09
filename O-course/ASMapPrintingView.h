@@ -7,13 +7,18 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "ASMapProvider.h"
 
 @class ASMapView;
 
 @interface ASMapPrintingView : NSView {
     ASMapView *baseView;
+    
 }
+@property (strong) id <ASMapProvider> mapProvider;
+@property (strong) id <ASOverprintProvider> overprintProvider;
 
 - (id)initWithBaseView:(ASMapView *)_baseView;
+- (CGAffineTransform)patternTransform;
 
 @end

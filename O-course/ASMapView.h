@@ -12,6 +12,8 @@
 #import <QuartzCore/QuartzCore.h>
 
 #define MAX_ZOOM 1.5
+#define GLASS_SIZE 180.0
+#define ACROSS_GLASS 1200.0
 
 // The map view has several heavy tasks.
 // 1. Show the background map.

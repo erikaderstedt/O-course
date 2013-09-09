@@ -155,9 +155,8 @@ out_error:
     [self updateMap:nil];
 }
 
-- (void)updateMap:(NSNotification *)n {
-    NSURL *u = [[self project] mapURL];
-    if ([u isEqual:self.loadedURL]) return;
+- (id <ASMapProvider>)mapProviderForURL:(NSURL *)u primaryTransform:(CGAffineTransform)primary secondaryTransform:(CGAffineTransform)secondary {
+    id <ASMapProvider> provider = nil;
     
     if (u != nil) {
         [u startAccessingSecurityScopedResource];
@@ -165,21 +164,30 @@ out_error:
         NSString *s = [u path];
         if ([[s pathExtension] isEqualToString:@"ocd"]) {
             ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:s];
-            [o prepareCacheWithAreaTransform:CGAffineTransformIdentity secondaryTransform:CGAffineTransformMakeScale(0.15, 0.15)];
-            self.mapView.mapProvider = o;
+            [o prepareCacheWithAreaTransform:primary secondaryTransform:secondary];
+            provider = o;
         } else {
             ASGenericImageController *i = [[ASGenericImageController alloc] initWithContentsOfFile:s];
-            self.mapView.mapProvider = i;
+            provider = i;
         }
         
         [u stopAccessingSecurityScopedResource];
-        self.loadedURL = u;
+    }
+    return provider;
+}
+
+- (void)updateMap:(NSNotification *)n {
+    NSURL *u = [[self project] mapURL];
+    if ([u isEqual:self.loadedURL]) return;
+    
+    self.mapView.mapProvider = [self mapProviderForURL:u primaryTransform:CGAffineTransformIdentity secondaryTransform:CGAffineTransformMakeScale(GLASS_SIZE/ACROSS_GLASS, GLASS_SIZE/ACROSS_GLASS)];
+    self.loadedURL = u;
+    
+    if (self.mapView.mapProvider != nil) {
         Project *p = [self project];
         CGRect r = [self.mapView.mapProvider mapBounds];
+        // TODO: Don't update the center position needlessly.
         p.centerPosition = CGPointMake(CGRectGetMidX(r), CGRectGetMidY(r));
-    } else {
-        self.mapView.mapProvider = nil;
-        self.loadedURL = nil;
     }
     [self.mapView mapLoaded];
 }
@@ -188,7 +196,6 @@ out_error:
     [self.courseController setManagedObjectContext:[self managedObjectContext]];
     [self.courseController willAppear];
     
-//    [self.overprintController updateOverprint];
     mapView.overprintProvider = self.overprintController;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(undoOrRedo:) name:NSUndoManagerDidUndoChangeNotification object:[[self managedObjectContext] undoManager]];
@@ -422,6 +429,9 @@ out_error:
         NSPrintInfo *pi = [[NSPrintInfo alloc] initWithDictionary:[[NSPrintInfo sharedPrintInfo] dictionary]];
         ASMapPrintingView *pv = [[ASMapPrintingView alloc] initWithBaseView:self.mapView];
         
+        // Calculate the necessary transform for patterns.
+        
+        pv.mapProvider = [self mapProviderForURL:self.loadedURL primaryTransform:CGAffineTransformIdentity secondaryTransform:[pv patternTransform]];
         [pi setTopMargin:0.0];
         [pi setBottomMargin:0.0];
         [pi setLeftMargin:0.0];

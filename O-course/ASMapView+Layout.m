@@ -105,10 +105,10 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 - (void)drawPaperFrameInContext:(CGContextRef)ctx {
     NSAssert(self.frameVisible, @"Shouldn't be drawing the frame");
     CGRect r = CGRectInset(_printedMapScrollLayer.frame, -FRAME_INSET,- FRAME_INSET);
-    CGMutablePathRef p;
 
     CGContextBeginPath(ctx);
     if (eventDetails != NULL) {
+        CGMutablePathRef p;
         p = CGPathCreateMutable();
 
         CGPathMoveToPoint(p, NULL, r.origin.x + FRAME_CORNER_RADIUS, r.origin.y);
@@ -117,7 +117,6 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         CGFloat maxY = CGRectGetMaxY(r);
         
         CGRect textBounds = CTLineGetBoundsWithOptions(eventDetails, kCTLineBoundsUseGlyphPathBounds);
-        NSLog(@"R = %@", NSStringFromRect(r));
         CGContextSetTextPosition(ctx, r.origin.x + 2.5*FRAME_INSET, maxY - 0.25*textBounds.size.height);
         CTLineDraw(eventDetails, ctx);
         
@@ -128,12 +127,14 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         CGPathMoveToPoint(p, NULL, r.origin.x + 2.0*FRAME_INSET, maxY);
         CGPathAddArcToPoint(p, NULL, r.origin.x, maxY, r.origin.x, maxY - FRAME_CORNER_RADIUS, FRAME_CORNER_RADIUS);
         CGPathAddArcToPoint(p, NULL, r.origin.x, r.origin.y, r.origin.x + FRAME_CORNER_RADIUS, r.origin.y, FRAME_CORNER_RADIUS);
+        CGContextAddPath(ctx, p);
+        CGPathRelease(p);
 
     } else {
-        p = (CGPathRef)CGPathCreateRoundRect(r, FRAME_CORNER_RADIUS);
+        CGPathRef p2 = CGPathCreateRoundRect(r, FRAME_CORNER_RADIUS);
+        CGContextAddPath(ctx, p2);
+        CGPathRelease(p2);
     }
-    CGContextAddPath(ctx, p);
-    CGPathRelease(p);
     CGContextSetStrokeColorWithColor(ctx, self.frameColor);
     CGContextSetLineWidth(ctx, 4.0);
     
@@ -369,7 +370,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 }
 
 - (void)handleScaleAndOrientation {
-    CGFloat visibleWidth = _printedMapScrollLayer.frame.size.width;
+    CGFloat visibleWidth = _printedMapLayer.frame.size.width;
     CGFloat p = _printingScale;
     if (visibleWidth == 0.0 || p == 0.0) {
         NSLog(@"Unable to ensure correct scale at this time.");
@@ -484,6 +485,18 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
    /*
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutEventDetailsChanged object:nil];
  */
+}
+
+- (CGRect)mapFrame {
+    return [_printedMapScrollLayer frame];
+}
+
+- (CGRect)paperFrame {
+    return [[self printedMapLayer] bounds];
+}
+
+- (CGFloat)cornerRadius {
+    return [_printedMapScrollLayer cornerRadius];    
 }
 
 @end
