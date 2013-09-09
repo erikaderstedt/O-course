@@ -24,7 +24,8 @@
     } else {
         r = NSMakeRect(0.0, 0.0, psz.height*RESOLUTION, psz.width * RESOLUTION);
     }
-    r = NSIntegralRect(r);
+    r.size.width = round(r.size.width);
+    r.size.height = round(r.size.height);
     self = [super initWithFrame:r];
     if (self) {
         baseView = _baseView;
@@ -43,42 +44,44 @@
     return [self frame];
 }
 
+- (NSString *)printJobTitle {
+    return @"Test";
+}
+
 - (void)drawRect:(NSRect)dirtyRect {
-    
+
+    [NSBezierPath strokeLineFromPoint:NSMakePoint(0.0,0.0) toPoint:NSMakePoint(842.0, 595.0)];
+
     CGContextRef ctx = [[NSGraphicsContext currentContext] graphicsPort];
-    
     // Set up an appropriate transform
-    CGContextSaveGState(ctx);
-    
+
     CGPoint p = [baseView centerOfMap];
-    NSLog(@"Center of map %@", NSStringFromPoint(p));
-    NSLog(@"This frame %@", NSStringFromRect([self frame]));
-    CGAffineTransform at;
     CGFloat scale = [baseView printingScale];
-    CGFloat mmAcross = [self frame].size.width/RESOLUTION;
     CGFloat mapPointsPerMm = 100.0; // At 15000
-    CGFloat f = 1.0/(mmAcross * mapPointsPerMm * scale / 15000.0);
-    f *= 100;
+    CGFloat pointsAcross = [self frame].size.width;
+    CGFloat mmAcross = pointsAcross/RESOLUTION;
+    CGFloat desiredMapPointsAcross = scale/15000.0 * mmAcross * mapPointsPerMm;
+    CGFloat f = pointsAcross/desiredMapPointsAcross;
+    
+    CGAffineTransform at;
     at.a = f;
     at.b = 0.0;
     at.c = 0.0;
     at.d = f;
     at.tx = NSMidX([self frame]) - p.x*f;
     at.ty = NSMidY([self frame]) - p.y*f;
-    
-    p = CGPointApplyAffineTransform(p, at);
-    NSLog(@"new point %@", NSStringFromPoint(p));
-    
+
+    CGContextSaveGState(ctx);
     CGContextConcatCTM(ctx, at);
-    
     [baseView.mapProvider drawLayer:nil inContext:ctx];
-    [baseView.overprintProvider drawLayer:nil inContext:ctx];
+//    [baseView.overprintProvider drawLayer:nil inContext:ctx];
     /*
     if ([baseView frameVisible]) {
         [baseView drawPaperFrameInContext:ctx];
     }
     */
     CGContextRestoreGState(ctx);
+    
 }
 
 @end

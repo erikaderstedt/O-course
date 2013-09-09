@@ -420,11 +420,20 @@ out_error:
         // Start a printing operation based on the orientation in the base view.
         // Prevent the user from changing the orientation.
         NSPrintInfo *pi = [[NSPrintInfo alloc] initWithDictionary:[[NSPrintInfo sharedPrintInfo] dictionary]];
-        
-        [pi setOrientation:self.mapView.orientation];
-        [pi setPaperSize:self.mapView.paperSize];
         ASMapPrintingView *pv = [[ASMapPrintingView alloc] initWithBaseView:self.mapView];
+        
+        [pi setTopMargin:0.0];
+        [pi setBottomMargin:0.0];
+        [pi setLeftMargin:0.0];
+        [pi setRightMargin:0.0];
+        [pi setOrientation:self.mapView.orientation];
+        [pi setPaperSize:pv.frame.size];
+        [pi setHorizontalPagination:NSClipPagination];
+        [pi setVerticalPagination:NSClipPagination];
+        [pi setHorizontallyCentered:YES];
+        [pi setVerticallyCentered:YES];
         NSPrintOperation *po = [NSPrintOperation printOperationWithView:pv printInfo:pi];
+        [po setCanSpawnSeparateThread:YES];
         [po runOperation];
     }
 }
