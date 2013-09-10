@@ -99,12 +99,24 @@
     [baseView.overprintProvider drawLayer:nil inContext:ctx];
     CGContextRestoreGState(ctx); // Cancel clipping path.
     
-    /*
-    if ([baseView frameVisible]) {
-        [baseView drawPaperFrameInContext:ctx];
-    }
-    */
+    // The paper frame is drawn in the paperFrame coordinate space.
     CGContextRestoreGState(ctx);
+    
+    if ([baseView frameVisible]) {
+        CGContextSaveGState(ctx);
+        n1 = [self bounds];
+        CGFloat scale = CGRectGetWidth(n1)/CGRectGetWidth(f2);
+        at.a = scale;
+        at.b = 0.0; at.c = 0.0;
+        at.d = scale;
+        at.tx = NSMidX(n1) - NSMidX(f2)*scale;
+        at.ty = NSMidY(n1) - NSMidY(f2)*scale;
+        
+        CGContextConcatCTM(ctx, at);
+        [baseView drawPaperFrameInContext:ctx];
+        
+        CGContextRestoreGState(ctx);
+    }
     
 }
 
