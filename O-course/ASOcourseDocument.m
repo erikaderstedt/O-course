@@ -429,7 +429,9 @@ out_error:
         NSPrintInfo *pi = [[NSPrintInfo alloc] initWithDictionary:[[NSPrintInfo sharedPrintInfo] dictionary]];
         ASMapPrintingView *pv = [[ASMapPrintingView alloc] initWithBaseView:self.mapView];
         pv.mapProvider = [self mapProviderForURL:self.loadedURL primaryTransform:CGAffineTransformIdentity secondaryTransform:[pv patternTransform]];
-        
+        size_t numberOfHiddenSymbols;
+        const int32_t *hiddenSymbols = [self.mapView.mapProvider hiddenSymbolNumbers:&numberOfHiddenSymbols];
+        [pv.mapProvider setHiddenSymbolNumbers:hiddenSymbols count:numberOfHiddenSymbols];
         [pi setTopMargin:0.0];
         [pi setBottomMargin:0.0];
         [pi setLeftMargin:0.0];
