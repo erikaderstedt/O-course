@@ -80,7 +80,6 @@
 
     CGContextSaveGState(ctx);
     CGContextConcatCTM(ctx, at);
-    CGContextSaveGState(ctx);
 
     CGContextBeginPath(ctx);
     CGRect n1 = CGRectApplyAffineTransform([self frame],CGAffineTransformInvert(at));
@@ -96,8 +95,10 @@
     CGContextClip(ctx);
 
     [self.mapProvider drawLayer:nil inContext:ctx useSecondaryTransform:YES];
+    
+    // Simulated overprint
+    CGContextSetBlendMode(ctx, kCGBlendModeMultiply);
     [baseView.overprintProvider drawLayer:nil inContext:ctx];
-    CGContextRestoreGState(ctx); // Cancel clipping path.
     
     // The paper frame is drawn in the paperFrame coordinate space.
     CGContextRestoreGState(ctx);
