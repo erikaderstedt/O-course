@@ -18,6 +18,7 @@ extern NSString *const ASLayoutOrientationChanged;
 extern NSString *const ASLayoutFrameColorChanged;
 extern NSString *const ASLayoutFrameChanged;
 extern NSString *const ASLayoutEventDetailsChanged;
+extern NSString *const ASLayoutDecorChanged;
 
 @interface ASLayoutController : NSObject <NSTableViewDataSource, NSTableViewDelegate>
 

@@ -51,7 +51,8 @@
     
     NSManagedObjectContext *moc = [doc managedObjectContext];
     NSManagedObject *project = [NSEntityDescription insertNewObjectForEntityForName:@"Project" inManagedObjectContext:moc];
-    [project setValue:@"Skinklopp" forKey:@"event"];
+    [project setValue:@"Vargarna" forKey:@"event"];
+    [project setValue:[NSDate date] forKey:@"date"];
     NSManagedObject *layout = [NSEntityDescription insertNewObjectForEntityForName:@"Layout" inManagedObjectContext:moc];
     [layout setValue:project forKey:@"project"];
     [layout setValue:NSLocalizedString(@"layout.name.default", nil) forKey:@"name"];

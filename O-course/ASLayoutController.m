@@ -8,6 +8,7 @@
 
 #import "ASLayoutController.h"
 #import "Layout.h"
+#import "Project.h"
 
 NSString *const ASLayoutWillChange = @"_ASLayoutWillChange";
 NSString *const ASLayoutChanged = @"_ASLayoutChanged";
@@ -17,6 +18,7 @@ NSString *const ASLayoutOrientationChanged = @"_ASLayoutOrientationChanged";
 NSString *const ASLayoutFrameColorChanged = @"_ASLayoutFrameColorChanged";
 NSString *const ASLayoutFrameChanged = @"_ASLayoutFrameDetailsChanged";
 NSString *const ASLayoutEventDetailsChanged = @"_ASLayoutEventDetailsChanged";
+NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
 
 @implementation ASLayoutController
 
@@ -34,6 +36,7 @@ NSString *const ASLayoutEventDetailsChanged = @"_ASLayoutEventDetailsChanged";
     [self.layouts addObserver:self forKeyPath:@"selection.frameVisible" options:0 context:(__bridge void *)(self)];
     [self.layouts addObserver:self forKeyPath:@"selection.showEventName" options:0 context:(__bridge void *)(self)];
     [self.layouts addObserver:self forKeyPath:@"selection.showEventDate" options:0 context:(__bridge void *)(self)];
+    [self.layouts addObserver:self forKeyPath:@"selection.controlDescriptionPlacement" options:0 context:(__bridge void *)(self)];
     
     [self.layouts addObserver:self forKeyPath:@"selection" options:0 context:NULL];
     [self.visibleSymbolsTable reloadData];
@@ -50,6 +53,7 @@ NSString *const ASLayoutEventDetailsChanged = @"_ASLayoutEventDetailsChanged";
         [self.layouts removeObserver:self forKeyPath:@"selection.frameVisible"];
         [self.layouts removeObserver:self forKeyPath:@"selection.showEventName"];
         [self.layouts removeObserver:self forKeyPath:@"selection.showEventDate"];
+        [self.layouts removeObserver:self forKeyPath:@"selection.controlDescriptionPlacement"];
         [self.layouts removeObserver:self forKeyPath:@"selection"];
         self.observing = NO;
     }
@@ -93,6 +97,8 @@ NSString *const ASLayoutEventDetailsChanged = @"_ASLayoutEventDetailsChanged";
                    [keyPath isEqualToString:@"selection.showEventDate"] ||
                    [keyPath isEqualToString:@"selection.frameColor"]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutFrameChanged object:self];
+        } else if ([keyPath isEqualToString:@"selection.controlDescriptionPlacement"]) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutDecorChanged object:self];
         }
     } else if (object == self.layouts && [keyPath isEqualToString:@"selection"]) {
         [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutChanged object:self];
@@ -230,6 +236,9 @@ NSString *const ASLayoutEventDetailsChanged = @"_ASLayoutEventDetailsChanged";
     Layout *selectedLayout = [self selectedLayout];
     if (selectedLayout == nil) {
         return;
+    }
+    if (selectedLayout.project == nil) {
+        selectedLayout.project = [Project projectInManagedObjectContext:selectedLayout.managedObjectContext];
     }
     
     selectedLayout.position = centerPosition;
@@ -389,7 +398,7 @@ NSString *const ASLayoutEventDetailsChanged = @"_ASLayoutEventDetailsChanged";
             refresh = YES;
         }
         if (refresh) [outlineView reloadItem:item reloadChildren:YES];
-        [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutVisibleItemsChanged object:self.layouts.managedObjectContext];
+        [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutVisibleItemsChanged object:self];
 
     }
 

@@ -24,6 +24,7 @@
 - (void)orientationChanged:(NSNotification *)notification;
 - (void)frameColorChanged:(NSNotification *)notification;
 - (void)layoutFrameChanged:(NSNotification *)notification;
+- (void)decorChanged:(NSNotification *)notification;
 
 - (void)setupLayoutNotificationObserving;
 - (void)teardownLayoutNotificationObserving;

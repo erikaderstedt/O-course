@@ -137,6 +137,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     }
     CGContextSetStrokeColorWithColor(ctx, self.frameColor);
     CGContextSetLineWidth(ctx, 4.0);
+    CGContextSetLineCap(ctx, kCGLineCapRound);
     
     CGContextStrokePath(ctx);
     
@@ -275,6 +276,8 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         }
     }
 
+    [self visibleSymbolsChanged:n];
+    
     [self adjustPrintedMapLayerForBounds];
     [self handleScaleAndOrientation];
     [self centerMapOnCoordinates:[self.layoutController layoutCenterPosition]];
@@ -462,6 +465,10 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [_printedMapLayer setNeedsDisplay];
 }
 
+- (void)decorChanged:(NSNotification *)notification {
+    NSLog(@"decor");
+}
+
 - (void)setupLayoutNotificationObserving {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(visibleSymbolsChanged:) name:ASLayoutVisibleItemsChanged object:self.layoutController];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutFrameChanged:) name:ASLayoutFrameChanged object:self.layoutController];
@@ -469,9 +476,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:ASLayoutOrientationChanged object:self.layoutController];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutChanged:) name:ASLayoutChanged object:self.layoutController];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutWillChange:) name:ASLayoutWillChange object:self.layoutController];
-/* 
- 
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(eventDetailsChanged:) name:ASLayoutEventDetailsChanged object:nil];*/
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(decorChanged:) name:ASLayoutDecorChanged object:self.layoutController];
 }
 
 - (void)teardownLayoutNotificationObserving {
@@ -481,10 +486,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutOrientationChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutWillChange object:nil];
-    
-   /*
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutEventDetailsChanged object:nil];
- */
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutDecorChanged object:nil];
 }
 
 - (CGRect)mapFrame {
