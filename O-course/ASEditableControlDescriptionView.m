@@ -55,8 +55,8 @@
                                                                  userInfo:@{@"object":item, @"column":@(column)}];
                 [self addTrackingArea:ta];
             }
-            topItem ++;
         }
+        topItem ++;
     }];
 }
 
