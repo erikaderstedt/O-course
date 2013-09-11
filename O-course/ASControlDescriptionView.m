@@ -96,6 +96,10 @@
     paperBounds = CGRectInset([self bounds], INSET_DIST, INSET_DIST);
 
     CGFloat descWidth = paperBounds.size.width - 2.0*INSET_DIST;
+    
+    blockSize = round(descWidth / 8.0);
+    descWidth = 8.0*blockSize;
+
     CGFloat height = [self heightForWidth:descWidth];
     if (height == 0.0) {
         blockSize = 0.0;
@@ -103,12 +107,11 @@
         return;
     }
     
-    blockSize = descWidth / 8.0;
-    
     CGFloat paperHeight = height + 2.0 * INSET_DIST;
     paperBounds.origin.y = NSMidY(paperBounds) - 0.5*paperHeight;
     paperBounds.size.height = paperHeight;
     
+    paperBounds = NSIntegralRect(paperBounds);
     controlDescriptionBounds = CGRectMake(NSMinX(paperBounds) + INSET_DIST, NSMinY(paperBounds)+INSET_DIST, descWidth, height);
     [self updateTrackingAreas];
     layoutNeedsUpdate = NO;
