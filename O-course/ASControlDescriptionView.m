@@ -16,7 +16,7 @@
 #define START_FRACTION (0.7)
 #define CIRCLE_FRACTION (0.7)
 #define ARROW_FRACTION (0.8)
-#define INSET_DIST (6.0)
+#define INSET_DIST (8.0)
 @implementation ASControlDescriptionView
 
 @synthesize provider;
@@ -53,7 +53,11 @@
     
     // 
     distanceFormatter = [[ASDistanceFormatter alloc] init];
-    
+    self.linenColor = [NSColor colorWithPatternImage:[NSImage imageNamed:@"linen_texture"]];
+    self.shadow = [[NSShadow alloc] init];
+    self.shadow.shadowBlurRadius = 5.0;
+    self.shadow.shadowColor = [NSColor darkGrayColor];
+    self.shadow.shadowOffset = NSMakeSize(5.0, -5.0);
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(courseChanged:) name:@"ASOverprintChanged" object:nil];
 }
@@ -89,24 +93,23 @@
 } */
 
 - (void)recalculateLayout {
-    CGRect  bounds = CGRectInset([self bounds], INSET_DIST, INSET_DIST);
+    paperBounds = CGRectInset([self bounds], INSET_DIST, INSET_DIST);
 
-    CGFloat height = [self heightForWidth:(bounds.size.width - 3.0*INSET_DIST)];
+    CGFloat descWidth = paperBounds.size.width - 2.0*INSET_DIST;
+    CGFloat height = [self heightForWidth:descWidth];
     if (height == 0.0) {
         blockSize = 0.0;
         paperBounds = CGRectZero;
         return;
     }
     
-    CGFloat y, x;
+    blockSize = descWidth / 8.0;
     
-    blockSize = (bounds.size.width - 2.0*INSET_DIST) / 8.0;
+    CGFloat paperHeight = height + 2.0 * INSET_DIST;
+    paperBounds.origin.y = NSMidY(paperBounds) - 0.5*paperHeight;
+    paperBounds.size.height = paperHeight;
     
-    x = bounds.origin.x;
-    y = height + (0.5 * (bounds.size.height - height));
-    controlDescriptionBounds = CGRectMake(x, y - height, bounds.size.width, height);
-    paperBounds = CGRectInset(controlDescriptionBounds, -INSET_DIST, -INSET_DIST);
-    
+    controlDescriptionBounds = CGRectMake(NSMinX(paperBounds) + INSET_DIST, NSMinY(paperBounds)+INSET_DIST, descWidth, height);
     [self updateTrackingAreas];
     layoutNeedsUpdate = NO;
     [self setNeedsDisplay:YES];
@@ -190,8 +193,14 @@
         [self recalculateLayout];
     }
     
-    [[NSColor whiteColor] set];
+    [self.linenColor set];
     [NSBezierPath fillRect:[self bounds]];
+    
+    [[NSGraphicsContext currentContext] saveGraphicsState];
+    [self.shadow set];
+    [[NSColor whiteColor] set];
+    [NSBezierPath fillRect:paperBounds];
+    [[NSGraphicsContext currentContext] restoreGraphicsState];
         
     [overprintColor set];
 

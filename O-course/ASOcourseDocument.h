@@ -30,8 +30,6 @@
 @property (nonatomic,weak) IBOutlet NSToolbarItem *showControlDefinitionsToolbarItem;
 @property (strong) NSURL *loadedURL;
 
-- (IBAction)showControlDefinitionsPopover:(id)sender;
-
 - (NSManagedObjectContext *)managedObjectContext;
 
 - (Project *)project;

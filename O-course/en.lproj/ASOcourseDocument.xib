@@ -142,15 +142,6 @@
 				<bool key="NS.localized">NO</bool>
 				<bool key="NS.allowsfloats">YES</bool>
 			</object>
-			<object class="NSViewController" id="241677119"/>
-			<object class="NSPopover" id="60470943">
-				<nil key="NSNextResponder"/>
-				<int key="NSAppearance">0</int>
-				<int key="NSBehavior">2</int>
-				<double key="NSContentWidth">0.0</double>
-				<double key="NSContentHeight">0.0</double>
-				<bool key="NSAnimates">NO</bool>
-			</object>
 			<object class="NSViewController" id="603562653"/>
 			<object class="NSCustomView" id="129236480">
 				<reference key="NSNextResponder"/>
@@ -276,11 +267,9 @@
 							<string key="NSToolbarItemPaletteLabel">Bana</string>
 							<nil key="NSToolbarItemToolTip"/>
 							<object class="NSPopUpButton" key="NSToolbarItemView" id="250668471">
-								<reference key="NSNextResponder"/>
+								<nil key="NSNextResponder"/>
 								<int key="NSvFlags">268</int>
 								<string key="NSFrame">{{0, 14}, {100, 28}}</string>
-								<reference key="NSSuperview"/>
-								<reference key="NSNextKeyView"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSPopUpButtonCell" key="NSCell" id="277692951">
@@ -472,7 +461,7 @@
 						<reference ref="826032405"/>
 						<reference ref="588125855"/>
 					</array>
-					<array class="NSMutableArray" key="NSToolbarIBDefaultItems">
+					<array key="NSToolbarIBDefaultItems">
 						<reference ref="33856050"/>
 						<reference ref="13158074"/>
 						<reference ref="90853670"/>
@@ -742,6 +731,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 									<string key="NSFrame">{{90, 297}, {120, 18}}</string>
 									<reference key="NSSuperview" ref="768554140"/>
 									<reference key="NSWindow"/>
+									<reference key="NSNextKeyView"/>
 									<string key="NSReuseIdentifierKey">_NS:9</string>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSButtonCell" key="NSCell" id="780848595">
@@ -1003,6 +993,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 									<string key="NSFrame">{{127, 14}, {77, 28}}</string>
 									<reference key="NSSuperview" ref="768554140"/>
 									<reference key="NSWindow"/>
+									<reference key="NSNextKeyView"/>
 									<string key="NSReuseIdentifierKey">_NS:9</string>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSButtonCell" key="NSCell" id="112670880">
@@ -1028,6 +1019,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 									<string key="NSFrame">{{61, 14}, {68, 28}}</string>
 									<reference key="NSSuperview" ref="768554140"/>
 									<reference key="NSWindow"/>
+									<reference key="NSNextKeyView"/>
 									<string key="NSReuseIdentifierKey">_NS:9</string>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSButtonCell" key="NSCell" id="847412295">
@@ -1053,6 +1045,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 									<string key="NSFrame">{{15, 14}, {48, 28}}</string>
 									<reference key="NSSuperview" ref="768554140"/>
 									<reference key="NSWindow"/>
+									<reference key="NSNextKeyView"/>
 									<string key="NSReuseIdentifierKey">_NS:9</string>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSButtonCell" key="NSCell" id="98416200">
@@ -1297,6 +1290,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 									<string key="NSFrame">{{90, 320}, {126, 18}}</string>
 									<reference key="NSSuperview" ref="768554140"/>
 									<reference key="NSWindow"/>
+									<reference key="NSNextKeyView"/>
 									<string key="NSReuseIdentifierKey">_NS:9</string>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSButtonCell" key="NSCell" id="451120425">
@@ -1324,6 +1318,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 									<string key="NSFrame">{{90, 345}, {61, 18}}</string>
 									<reference key="NSSuperview" ref="768554140"/>
 									<reference key="NSWindow"/>
+									<reference key="NSNextKeyView"/>
 									<string key="NSReuseIdentifierKey">_NS:9</string>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSButtonCell" key="NSCell" id="195027608">
@@ -2273,14 +2268,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
-						<string key="label">controlDefinitionsPopover</string>
-						<reference key="source" ref="512844837"/>
-						<reference key="destination" ref="60470943"/>
-					</object>
-					<int key="connectionID">101031</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
 						<string key="label">window</string>
 						<reference key="source" ref="512844837"/>
 						<reference key="destination" ref="421621177"/>
@@ -2566,14 +2553,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 						<reference key="destination" ref="1069056957"/>
 					</object>
 					<int key="connectionID">101719</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">contentViewController</string>
-						<reference key="source" ref="60470943"/>
-						<reference key="destination" ref="241677119"/>
-					</object>
-					<int key="connectionID">101017</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -2985,19 +2964,19 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
-						<string key="label">popoverForCDEGH</string>
-						<reference key="source" ref="1069056957"/>
-						<reference key="destination" ref="60470943"/>
-					</object>
-					<int key="connectionID">101716</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
 						<string key="label">selectionView</string>
 						<reference key="source" ref="1069056957"/>
 						<reference key="destination" ref="129236480"/>
 					</object>
 					<int key="connectionID">101717</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">popoverForCDEGH</string>
+						<reference key="source" ref="1069056957"/>
+						<reference key="destination" ref="295013323"/>
+					</object>
+					<int key="connectionID">101724</int>
 				</object>
 			</array>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -3094,18 +3073,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 						<int key="objectID">100923</int>
 						<reference key="object" ref="129236480"/>
 						<reference key="parent" ref="0"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">101015</int>
-						<reference key="object" ref="241677119"/>
-						<reference key="parent" ref="0"/>
-						<string key="objectName">Popover View Controller</string>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">101016</int>
-						<reference key="object" ref="60470943"/>
-						<reference key="parent" ref="0"/>
-						<string key="objectName">Control definitions popover</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">101072</int>
@@ -5546,8 +5513,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 				<string key="100968.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="101009.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="101013.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="101015.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="101016.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="101054.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="101055.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="101056.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -5857,7 +5822,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">101721</int>
+			<int key="maxID">101724</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -6096,35 +6061,17 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 				<object class="IBPartialClassDescription">
 					<string key="className">ASOcourseDocument</string>
 					<string key="superclassName">NSDocument</string>
-					<dictionary class="NSMutableDictionary" key="actions">
-						<string key="chooseBackgroundMap:">id</string>
-						<string key="printDocument:">id</string>
-						<string key="showControlDefinitionsPopover:">id</string>
-						<string key="zoomIn:">id</string>
-						<string key="zoomOut:">id</string>
-					</dictionary>
-					<dictionary class="NSMutableDictionary" key="actionInfosByName">
-						<object class="IBActionInfo" key="chooseBackgroundMap:">
+					<object class="NSMutableDictionary" key="actions">
+						<string key="NS.key.0">chooseBackgroundMap:</string>
+						<string key="NS.object.0">id</string>
+					</object>
+					<object class="NSMutableDictionary" key="actionInfosByName">
+						<string key="NS.key.0">chooseBackgroundMap:</string>
+						<object class="IBActionInfo" key="NS.object.0">
 							<string key="name">chooseBackgroundMap:</string>
 							<string key="candidateClassName">id</string>
 						</object>
-						<object class="IBActionInfo" key="printDocument:">
-							<string key="name">printDocument:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="showControlDefinitionsPopover:">
-							<string key="name">showControlDefinitionsPopover:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="zoomIn:">
-							<string key="name">zoomIn:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="zoomOut:">
-							<string key="name">zoomOut:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-					</dictionary>
+					</object>
 					<dictionary class="NSMutableDictionary" key="outlets">
 						<string key="controlDefinitionsPopover">NSPopover</string>
 						<string key="courseController">ASCourseController</string>

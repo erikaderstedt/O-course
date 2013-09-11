@@ -30,6 +30,8 @@
     BOOL layoutNeedsUpdate;
 }
 @property (nonatomic,weak) IBOutlet id <ASControlDescriptionDataSource> provider;
+@property (strong) NSColor *linenColor;
+@property (strong) NSShadow *shadow;
 
 - (void)setup;
 
