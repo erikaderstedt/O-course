@@ -15,6 +15,15 @@ enum ASLayoutPaperType {
     kASLayoutPaperTypeA3
 };
 
+enum ASLayoutControlDescriptionLocation {
+    kASControlDescriptionTopLeft,
+    kASControlDescriptionTopRight,
+    kASControlDescriptionBottomLeft,
+    kASControlDescriptionBottomRight,
+    kASControlDescriptionNone,
+    kASControlDescriptionCustom // Not yet implemented.
+};
+
 @class Course, Project;
 
 @interface Layout : NSManagedObject
@@ -29,6 +38,7 @@ enum ASLayoutPaperType {
 @property (nonatomic, retain) NSSet *courses;
 @property (nonatomic, retain) Project *project;
 @property (assign) CGPoint position;
+@property (assign) enum ASLayoutControlDescriptionLocation controlDescriptionLocation;
 
 + (instancetype)defaultLayoutInContext:(NSManagedObjectContext *)managedObjectContext;
 - (NSString *)paperName;

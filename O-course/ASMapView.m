@@ -59,19 +59,27 @@
 
     NSView *v1 = [self enclosingScrollView];
     NSView *v2 = self.layoutConfigurationView;
+    NSView *lv = self.controlDescriptionContainerView;
+    
     NSView *cv = [self.layoutConfigurationView superview];
-    [cv addConstraint:[NSLayoutConstraint constraintWithItem:v1 attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:cv attribute:NSLayoutAttributeLeft multiplier:1.0 constant:-1.0]];
-    [cv addConstraint:[NSLayoutConstraint constraintWithItem:v1 attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:cv attribute:NSLayoutAttributeBottom multiplier:1.0 constant:1.0]];
-    [cv addConstraint:[NSLayoutConstraint constraintWithItem:v1 attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:cv attribute:NSLayoutAttributeTop multiplier:1.0 constant:-1.0]];
+    [cv addConstraint:[NSLayoutConstraint constraintWithItem:v1 attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:lv attribute:NSLayoutAttributeRight multiplier:1.0 constant:0.0]];
     [cv addConstraint:[NSLayoutConstraint constraintWithItem:v1 attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:v2 attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0.0]];
+    
+    [cv addConstraint:[NSLayoutConstraint constraintWithItem:v1 attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:cv attribute:NSLayoutAttributeWidth multiplier:1.0 constant:-LAYOUT_VIEW_WIDTH]];
+
     [cv addConstraint:[NSLayoutConstraint constraintWithItem:v2 attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:LAYOUT_VIEW_WIDTH]];
-    self.theConstraint = [NSLayoutConstraint constraintWithItem:v1 attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:cv attribute:NSLayoutAttributeRight multiplier:1.0 constant:0.0];
+    [cv addConstraint:[NSLayoutConstraint constraintWithItem:lv attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:LAYOUT_VIEW_WIDTH]];
+
+    self.theConstraint = [NSLayoutConstraint constraintWithItem:v1 attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:cv attribute:NSLayoutAttributeLeft multiplier:1.0 constant:LAYOUT_VIEW_WIDTH];
     [cv addConstraint:self.theConstraint];
     
+    // Vertical constraints.
+    [cv addConstraint:[NSLayoutConstraint constraintWithItem:v1 attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:cv attribute:NSLayoutAttributeBottom multiplier:1.0 constant:1.0]];
+    [cv addConstraint:[NSLayoutConstraint constraintWithItem:v1 attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:cv attribute:NSLayoutAttributeTop multiplier:1.0 constant:-1.0]];
+    [cv addConstraint:[NSLayoutConstraint constraintWithItem:lv attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:cv attribute:NSLayoutAttributeBottom multiplier:1.0 constant:1.0]];
+    [cv addConstraint:[NSLayoutConstraint constraintWithItem:lv attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:cv attribute:NSLayoutAttributeTop multiplier:1.0 constant:-1.0]];
     [cv addConstraint:[NSLayoutConstraint constraintWithItem:v2 attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:cv attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0.0]];
     [cv addConstraint:[NSLayoutConstraint constraintWithItem:v2 attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:cv attribute:NSLayoutAttributeTop multiplier:1.0 constant:0.0]];
-    
-    
     
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameChanged:) name:NSViewFrameDidChangeNotification object:[self enclosingScrollView]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(overprintChanged:) name:@"ASOverprintChanged" object:nil];
@@ -239,16 +247,7 @@
     [overprintLayer addAnimation:g1 forKey:nil];
     
     [self.layoutController willAppear];
-    
-    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
-        if ([context respondsToSelector:@selector(setAllowsImplicitAnimation:)]) {
-            [context setAllowsImplicitAnimation:YES];
-        }
-        [self.theConstraint setConstant:-LAYOUT_VIEW_WIDTH];
-        [self layoutSubtreeIfNeeded];
-    } completionHandler:^{
-    }];
-    
+    [self.theConstraint.animator setConstant:0.0];
 }
 
 - (void)hidePrintedMap {
@@ -259,22 +258,15 @@
     [tiledLayer setFilters:@[]];
     [overprintLayer setFilters:@[]];
     
-//    [[self printedMapLayer] setHidden:YES];
-    [[self printedMapLayer] removeFromSuperlayer];
+    [[self printedMapLayer] setHidden:YES];
+//    [[self printedMapLayer] removeFromSuperlayer];
     
     if ([self.mapProvider supportsHiddenSymbolNumbers]) {
         [self.mapProvider setHiddenSymbolNumbers:NULL count:0];
         [tiledLayer setNeedsDisplayInRect:[tiledLayer bounds]];
     }
     
-    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
-        if ([context respondsToSelector:@selector(setAllowsImplicitAnimation:)]) {
-            [context setAllowsImplicitAnimation:YES];
-        }
-        [self.theConstraint setConstant:0.0];
-        [self layoutSubtreeIfNeeded];
-    } completionHandler:^{
-    }];
+    [self.theConstraint.animator setConstant:LAYOUT_VIEW_WIDTH];
 }
 
 #pragma mark -

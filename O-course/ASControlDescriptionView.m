@@ -16,7 +16,7 @@
 #define START_FRACTION (0.7)
 #define CIRCLE_FRACTION (0.7)
 #define ARROW_FRACTION (0.8)
-#define INSET_DIST (5.0)
+#define INSET_DIST (6.0)
 @implementation ASControlDescriptionView
 
 @synthesize provider;
@@ -79,22 +79,22 @@
                                   count:5];
 
 }
-
+/*
 - (void)adjustFrameSizeForLayout {
     [self recalculateLayout];
     CGRect bounds = [self bounds];
-    NSSize sz = actualDescriptionBounds.size;
+    NSSize sz = paperBounds.size;
     if (sz.height < bounds.size.width / 8.0 + 1) sz.height = ceil(bounds.size.width/8.0 + 1);
     [self setFrameSize:sz];
-}
+} */
 
 - (void)recalculateLayout {
-    CGRect  bounds = [self bounds];
+    CGRect  bounds = CGRectInset([self bounds], INSET_DIST, INSET_DIST);
 
-    CGFloat height = [self heightForWidth:(bounds.size.width - 2.0*INSET_DIST)];
+    CGFloat height = [self heightForWidth:(bounds.size.width - 3.0*INSET_DIST)];
     if (height == 0.0) {
         blockSize = 0.0;
-        actualDescriptionBounds = CGRectZero;
+        paperBounds = CGRectZero;
         return;
     }
     
@@ -104,8 +104,8 @@
     
     x = bounds.origin.x;
     y = height + (0.5 * (bounds.size.height - height));
-    paperBounds = CGRectMake(x, y - height, bounds.size.width, height);
-    actualDescriptionBounds = CGRectInset(paperBounds, -INSET_DIST, -INSET_DIST);
+    controlDescriptionBounds = CGRectMake(x, y - height, bounds.size.width, height);
+    paperBounds = CGRectInset(controlDescriptionBounds, -INSET_DIST, -INSET_DIST);
     
     [self updateTrackingAreas];
     layoutNeedsUpdate = NO;
@@ -115,7 +115,7 @@
 - (void)setFrameSize:(NSSize)newSize {
     layoutNeedsUpdate = YES;
     [super setFrameSize:newSize];
-}
+} 
 
 - (NSInteger)numberOfItems {
     NSInteger numberOfItems;
@@ -157,12 +157,12 @@
 }
 
 - (CGRect)boundsForRow:(NSInteger)rowIndex column:(enum ASControlDescriptionColumn)column {
-    CGFloat minY = NSMaxY(paperBounds) - blockSize * (rowIndex + 1);
-    CGFloat minX = NSMinX(paperBounds) + blockSize * ((int)column);
+    CGFloat minY = NSMaxY(controlDescriptionBounds) - blockSize * (rowIndex + 1);
+    CGFloat minX = NSMinX(controlDescriptionBounds) + blockSize * ((int)column);
     
     return CGRectMake(minX, minY, blockSize, blockSize);
 }
-
+/*
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
     NSGraphicsContext *nsGraphicsContext;
     nsGraphicsContext = [NSGraphicsContext graphicsContextWithGraphicsPort:ctx
@@ -177,7 +177,7 @@
     [thePath fill];
     
     [NSGraphicsContext restoreGraphicsState];
-}
+}*/
 
 - (void)drawRect:(NSRect)dirtyRect {
     /*
@@ -197,19 +197,19 @@
 
     // Frame all of it.
     [NSBezierPath setDefaultLineWidth:THICK_LINE];
-    [NSBezierPath strokeRect:NSRectFromCGRect(paperBounds)];
+    [NSBezierPath strokeRect:NSRectFromCGRect(controlDescriptionBounds)];
     
     __block CGFloat x, y;
     __block NSSize sz, block;
-    x = CGRectGetMinX(paperBounds);
-    y = CGRectGetMaxY(paperBounds);
+    x = CGRectGetMinX(controlDescriptionBounds);
+    y = CGRectGetMaxY(controlDescriptionBounds);
     block = NSMakeSize(blockSize, blockSize);
     
     // Draw the name.
     y -= blockSize;
     if ([self.provider eventName] != nil) {
-        eventBounds = CGRectMake(CGRectGetMinX(paperBounds), CGRectGetMaxY(paperBounds) - blockSize,
-                                 paperBounds.size.width, blockSize);
+        eventBounds = CGRectMake(CGRectGetMinX(controlDescriptionBounds), CGRectGetMaxY(controlDescriptionBounds) - blockSize,
+                                 controlDescriptionBounds.size.width, blockSize);
         sz = [[self.provider eventName] boundingRectWithSize:NSSizeFromCGSize(eventBounds.size) 
                                                      options:NSStringDrawingUsesFontLeading 
                                                   attributes:boldAttributes].size;
@@ -217,15 +217,15 @@
         r.origin.y = r.origin.y - 0.5*(blockSize - sz.height);
         [[self.provider eventName] drawInRect:NSIntegralRect(r)
                                withAttributes:boldAttributes];
-        [NSBezierPath strokeLineFromPoint:NSMakePoint(x, y) toPoint:NSMakePoint(x + paperBounds.size.width, y)];
+        [NSBezierPath strokeLineFromPoint:NSMakePoint(x, y) toPoint:NSMakePoint(x + controlDescriptionBounds.size.width, y)];
         y -= blockSize;
     }
     
     // The class names.
     if ([self.provider classNames]) {
-        [[self.provider classNames] drawInRect:NSMakeRect(paperBounds.origin.x, y, paperBounds.size.width, blockSize) 
+        [[self.provider classNames] drawInRect:NSMakeRect(controlDescriptionBounds.origin.x, y, controlDescriptionBounds.size.width, blockSize) 
                                                      withAttributes:boldAttributes];
-        [NSBezierPath strokeLineFromPoint:NSMakePoint(x, y) toPoint:NSMakePoint(x + paperBounds.size.width, y)];
+        [NSBezierPath strokeLineFromPoint:NSMakePoint(x, y) toPoint:NSMakePoint(x + controlDescriptionBounds.size.width, y)];
         y -= blockSize;       
     }
     
@@ -240,10 +240,10 @@
         [[self.provider heightClimb] drawInRect:NSMakeRect(x, y, 2.0*blockSize, blockSize) 
                                                 withAttributes:boldAttributes];
 
-        x = paperBounds.origin.x;
+        x = controlDescriptionBounds.origin.x;
         [self drawThickGridAtOrigin:NSMakePoint(x, y)];
         [NSBezierPath strokeLineFromPoint:NSMakePoint(x, y) 
-                                  toPoint:NSMakePoint(x + paperBounds.size.width, y)];
+                                  toPoint:NSMakePoint(x + controlDescriptionBounds.size.width, y)];
         y -= blockSize;
     }
     
@@ -252,9 +252,9 @@
     [self.provider enumerateControlDescriptionItemsUsingBlock:^(id<ASControlDescriptionItem> item) {
         enum ASOverprintObjectType type = [item objectType];
         [NSBezierPath setDefaultLineWidth:((++consecutiveRegularControls == 3) || (type == kASOverprintObjectStart))?THICK_LINE:THIN_LINE];
-        x = paperBounds.origin.x;
+        x = controlDescriptionBounds.origin.x;
         [NSBezierPath strokeLineFromPoint:NSMakePoint(x, y)
-                                  toPoint:NSMakePoint(x + paperBounds.size.width, y)];
+                                  toPoint:NSMakePoint(x + controlDescriptionBounds.size.width, y)];
         
         if (type == kASOverprintObjectStart || type == kASOverprintObjectControl) {
             
@@ -302,10 +302,10 @@
         } else {
             // Draw any of the different variations of taped routes.
             // If the previous horizontal divider was drawn with a thin line, we redraw it with a thick line. Always.
-            x = paperBounds.origin.x;
+            x = controlDescriptionBounds.origin.x;
             [NSBezierPath setDefaultLineWidth:THICK_LINE];
             [NSBezierPath strokeLineFromPoint:NSMakePoint(x, y + blockSize)
-                                      toPoint:NSMakePoint(x + paperBounds.size.width, y + blockSize)];
+                                      toPoint:NSMakePoint(x + controlDescriptionBounds.size.width, y + blockSize)];
             CGFloat blankSegment = 0.0;
             if ([item distance] != nil) {
                 NSString *s = [distanceFormatter stringFromNumber:[item distance]];

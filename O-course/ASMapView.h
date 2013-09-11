@@ -61,6 +61,7 @@ enum ASMapViewUIState {
     BOOL draggingPaperMap;
     CGSize paperOffset;
     
+    
     // The margins given are for the portrait orientation.
     CGFloat topMargin;
     CGFloat leftMargin;
@@ -79,6 +80,7 @@ enum ASMapViewUIState {
 @property(nonatomic,weak) IBOutlet NSView *layoutConfigurationView;
 @property(weak) IBOutlet ASLayoutController *layoutController;
 @property(weak) NSLayoutConstraint *theConstraint;
+@property(nonatomic,weak) IBOutlet NSView *controlDescriptionContainerView;
 
 @property(assign) BOOL frameVisible;
 @property(assign) CGSize paperSize; // in mm, in portrait orientation

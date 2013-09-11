@@ -253,6 +253,15 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
     return [selectedLayout eventDescription];
 }
 
+- (enum ASLayoutControlDescriptionLocation)controlDescriptionLocation {
+    Layout *selectedLayout = [self selectedLayout];
+    if (selectedLayout == nil) {
+        return kASControlDescriptionNone;
+    }
+
+    return selectedLayout.controlDescriptionLocation;
+}
+
 #pragma mark NSTableViewDataSource
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView {

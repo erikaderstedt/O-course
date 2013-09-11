@@ -24,7 +24,7 @@
 @protected
     CGFloat  blockSize;
     CGRect  paperBounds;
-    CGRect  actualDescriptionBounds;
+    CGRect  controlDescriptionBounds;
     CGRect  eventBounds;
     
     BOOL layoutNeedsUpdate;
@@ -33,7 +33,7 @@
 
 - (void)setup;
 
-- (void)adjustFrameSizeForLayout;
+//- (void)adjustFrameSizeForLayout;
 - (void)recalculateLayout;
 
 - (NSInteger)numberOfItems;

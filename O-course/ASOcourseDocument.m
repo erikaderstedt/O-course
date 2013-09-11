@@ -200,15 +200,11 @@ out_error:
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(undoOrRedo:) name:NSUndoManagerDidUndoChangeNotification object:[[self managedObjectContext] undoManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(undoOrRedo:) name:NSUndoManagerDidRedoChangeNotification object:[[self managedObjectContext] undoManager]];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(courseChanged:) name:@"ASCourseChanged" object:[self managedObjectContext]];
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"ASCourseChanged" object:[self managedObjectContext]];
 
     if (self.mapView.mapProvider == nil) [self updateMap:nil];
 }
 
 - (void)undoOrRedo:(NSNotification *)n {
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"ASCourseChanged" object:[self managedObjectContext]];
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
@@ -216,7 +212,6 @@ out_error:
     
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSUndoManagerDidRedoChangeNotification object:[[self managedObjectContext] undoManager]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSUndoManagerDidUndoChangeNotification object:[[self managedObjectContext] undoManager]];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ASCourseChanged" object:[[self managedObjectContext] undoManager]];
     
     [self.courseController setManagedObjectContext:nil];
     [self.courseController willDisappear];
@@ -401,23 +396,6 @@ out_error:
         }
 	}
 	return success;
-}
-
-- (IBAction)showControlDefinitionsPopover:(id)sender {
-    if ([self.controlDefinitionsPopover isShown]) {
-        [self.controlDefinitionsPopover performClose:sender];
-        return;
-    }
-    
-    // Update the definition size.
-    [self courseChanged:nil];
-    [self.controlDefinitionsPopover showRelativeToRect:[[self.showControlDefinitionsToolbarItem view] bounds] ofView:[self.showControlDefinitionsToolbarItem view] preferredEdge:NSMinYEdge];
-}
-
-- (void)courseChanged:(NSNotification *)n {
-    [(ASControlDescriptionView *)[[self.controlDefinitionsPopover contentViewController] view] adjustFrameSizeForLayout];
-    [self.controlDefinitionsPopover setContentSize:[[[self.controlDefinitionsPopover contentViewController] view] bounds].size];
-    
 }
 
 - (IBAction)printDocument:(id)sender {

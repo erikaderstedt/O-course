@@ -8,6 +8,7 @@
 
 #import "ASMapView+Layout.h"
 #import "ASLayoutController.h"
+#import "Layout.h"
 
 #define DEFAULT_PRINTING_SCALE 10000.0
 #define FRAME_INSET 10.0
@@ -140,8 +141,12 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     CGContextSetLineCap(ctx, kCGLineCapRound);
     
     CGContextStrokePath(ctx);
+}
+
+- (void)drawControlDescriptionInContext:(CGContextRef)ctx {
+    enum ASLayoutControlDescriptionLocation location = [self.layoutController controlDescriptionLocation];
     
-    
+    // Calculate how wide the control description needs to be.
 }
 
 - (CIFilter *)backgroundMapFilter {

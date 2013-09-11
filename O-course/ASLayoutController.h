@@ -48,5 +48,6 @@ extern NSString *const ASLayoutDecorChanged;
 - (CGPoint)layoutCenterPosition;
 - (void)writeLayoutCenterPosition:(CGPoint)centerPosition;
 - (NSString *)eventDescription;
+- (enum ASLayoutControlDescriptionLocation)controlDescriptionLocation;
 
 @end

@@ -204,4 +204,12 @@
     return [NSString stringWithFormat:@"%@ %@", n, d];
 }
 
+- (enum ASLayoutControlDescriptionLocation)controlDescriptionLocation {
+    return (enum ASLayoutControlDescriptionLocation)[[self valueForKey:@"controlDescriptionPlacement"] int32Value];
+}
+
+- (void)setControlDescriptionLocation:(enum ASLayoutControlDescriptionLocation)controlDescriptionLocation {
+    [self setValue:@(controlDescriptionLocation) forKey:@"controlDescriptionPlacement"];
+}
+
 @end
