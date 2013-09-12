@@ -30,6 +30,7 @@
     self.paperType = @(0);
     [self setValue:@(NSLandscapeOrientation) forKey:@"orientation"];
     [self setValue:@(10000) forKey:@"scale"];
+    [self setValue:@(3) forKey:@"controlDescriptionPlacement"];
     
     self.project = [Project projectInManagedObjectContext:self.managedObjectContext];
 }
@@ -205,7 +206,7 @@
 }
 
 - (enum ASLayoutControlDescriptionLocation)controlDescriptionLocation {
-    return (enum ASLayoutControlDescriptionLocation)[[self valueForKey:@"controlDescriptionPlacement"] int32Value];
+    return (enum ASLayoutControlDescriptionLocation)[[self valueForKey:@"controlDescriptionPlacement"] integerValue];
 }
 
 - (void)setControlDescriptionLocation:(enum ASLayoutControlDescriptionLocation)controlDescriptionLocation {

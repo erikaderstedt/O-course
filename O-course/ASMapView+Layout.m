@@ -9,6 +9,7 @@
 #import "ASMapView+Layout.h"
 #import "ASLayoutController.h"
 #import "Layout.h"
+#import "ASControlDescriptionView.h"
 
 #define DEFAULT_PRINTING_SCALE 10000.0
 #define FRAME_INSET 10.0
@@ -101,6 +102,17 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         
     }
     return _printedMapLayer;
+}
+
+- (CALayer *)controlDescriptionLayer {
+    if (_controlDescriptionLayer == nil) {
+        _controlDescriptionLayer = [CALayer layer];
+        _controlDescriptionLayer.backgroundColor = [[self printedMapLayer] backgroundColor];
+        _controlDescriptionLayer.hidden = YES;
+        _controlDescriptionLayer.delegate = self;
+        [[self printedMapLayer] addSublayer:_controlDescriptionLayer];
+    }
+    return _controlDescriptionLayer;
 }
 
 - (void)drawPaperFrameInContext:(CGContextRef)ctx {
@@ -397,6 +409,46 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     
     _innerOverprintLayer.transform = _innerMapLayer.transform;
     
+    [self adjustControlDescription];    
+}
+
+- (void)adjustControlDescription {
+    enum ASLayoutControlDescriptionLocation location = [self.layoutController controlDescriptionLocation];
+    CGRect psmf = [_printedMapScrollLayer frame];
+    CGRect frame = [[self printedMapLayer] frame];
+    CGSize pSize = [self.layoutController paperSize];
+    CGFloat width = MIN(frame.size.width,frame.size.height)/MIN(pSize.width, pSize.height) * 5.0 * 8.0;
+    
+    CALayer *cd = [self controlDescriptionLayer];
+    cd.bounds = CGRectMake(0.0, 0.0, width, [self.controlDescriptionView heightForWidth:width]);
+    switch (location) {
+        case kASControlDescriptionBottomLeft:
+            cd.anchorPoint = CGPointMake(0.0, 0.0);
+            cd.position = CGPointMake(CGRectGetMinX(psmf), CGRectGetMinY(psmf));
+            break;
+        case kASControlDescriptionBottomRight:
+            cd.anchorPoint = CGPointMake(1.0, 0.0);
+            cd.position = CGPointMake(CGRectGetMaxX(psmf), CGRectGetMinY(psmf));
+            break;
+        case kASControlDescriptionTopLeft:
+            cd.anchorPoint = CGPointMake(0.0, 1.0);
+            cd.position = CGPointMake(CGRectGetMinX(psmf), CGRectGetMaxY(psmf));
+            break;
+        case kASControlDescriptionTopRight:
+            cd.anchorPoint = CGPointMake(1.0, 1.0);
+            cd.position = CGPointMake(CGRectGetMaxX(psmf), CGRectGetMaxY(psmf));
+            break;
+        default:
+            break;
+    }
+    
+    if (location == kASControlDescriptionNone || location == kASControlDescriptionCustom) {
+        cd.hidden = YES;
+    } else {
+        cd.hidden = NO;
+        [cd setNeedsDisplay];
+    }
+
 }
 
 - (CGFloat)printingScale {
@@ -467,6 +519,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
                                                                  attributes:@{ NSFontAttributeName:font, NSForegroundColorAttributeName:(__bridge id)self.frameColor}];
         eventDetails = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef)as);
     }
+    [self adjustControlDescription];
     [_printedMapLayer setNeedsDisplay];
 }
 

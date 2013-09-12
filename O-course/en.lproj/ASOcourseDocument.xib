@@ -149,7 +149,6 @@
 				<string key="NSFrameSize">{285, 79}</string>
 				<reference key="NSSuperview"/>
 				<reference key="NSWindow"/>
-				<reference key="NSNextKeyView"/>
 				<string key="NSReuseIdentifierKey">_NS:9</string>
 				<string key="NSClassName">ASCourseObjectSelectionView</string>
 			</object>
@@ -731,7 +730,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 									<string key="NSFrame">{{90, 297}, {120, 18}}</string>
 									<reference key="NSSuperview" ref="768554140"/>
 									<reference key="NSWindow"/>
-									<reference key="NSNextKeyView"/>
 									<string key="NSReuseIdentifierKey">_NS:9</string>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSButtonCell" key="NSCell" id="780848595">
@@ -993,7 +991,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 									<string key="NSFrame">{{127, 14}, {77, 28}}</string>
 									<reference key="NSSuperview" ref="768554140"/>
 									<reference key="NSWindow"/>
-									<reference key="NSNextKeyView"/>
 									<string key="NSReuseIdentifierKey">_NS:9</string>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSButtonCell" key="NSCell" id="112670880">
@@ -1019,7 +1016,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 									<string key="NSFrame">{{61, 14}, {68, 28}}</string>
 									<reference key="NSSuperview" ref="768554140"/>
 									<reference key="NSWindow"/>
-									<reference key="NSNextKeyView"/>
 									<string key="NSReuseIdentifierKey">_NS:9</string>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSButtonCell" key="NSCell" id="847412295">
@@ -1045,7 +1041,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 									<string key="NSFrame">{{15, 14}, {48, 28}}</string>
 									<reference key="NSSuperview" ref="768554140"/>
 									<reference key="NSWindow"/>
-									<reference key="NSNextKeyView"/>
 									<string key="NSReuseIdentifierKey">_NS:9</string>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSButtonCell" key="NSCell" id="98416200">
@@ -1290,7 +1285,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 									<string key="NSFrame">{{90, 320}, {126, 18}}</string>
 									<reference key="NSSuperview" ref="768554140"/>
 									<reference key="NSWindow"/>
-									<reference key="NSNextKeyView"/>
 									<string key="NSReuseIdentifierKey">_NS:9</string>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSButtonCell" key="NSCell" id="451120425">
@@ -1318,7 +1312,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 									<string key="NSFrame">{{90, 345}, {61, 18}}</string>
 									<reference key="NSSuperview" ref="768554140"/>
 									<reference key="NSWindow"/>
-									<reference key="NSNextKeyView"/>
 									<string key="NSReuseIdentifierKey">_NS:9</string>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSButtonCell" key="NSCell" id="195027608">
@@ -1799,6 +1792,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 									<reference key="NSSuperview" ref="938292971"/>
 									<reference key="NSWindow"/>
 									<reference key="NSNextKeyView" ref="767478366"/>
+									<bool key="NSViewIsLayerTreeHost">YES</bool>
 									<string key="NSReuseIdentifierKey">_NS:9</string>
 									<string key="NSClassName">ASEditableControlDescriptionView</string>
 								</object>
@@ -2380,6 +2374,14 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
+						<string key="label">controlDescriptionView</string>
+						<reference key="source" ref="627403326"/>
+						<reference key="destination" ref="1069056957"/>
+					</object>
+					<int key="connectionID">101728</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
 						<string key="label">document</string>
 						<reference key="source" ref="960323290"/>
 						<reference key="destination" ref="512844837"/>
@@ -2637,10 +2639,14 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<string key="NSLabel">selectedTag: selection.paperType</string>
 							<string key="NSBinding">selectedTag</string>
 							<string key="NSKeyPath">selection.paperType</string>
+							<object class="NSDictionary" key="NSOptions">
+								<string key="NS.key.0">NSConditionallySetsEnabled</string>
+								<boolean value="NO" key="NS.object.0"/>
+							</object>
 							<int key="NSNibBindingConnectorVersion">2</int>
 						</object>
 					</object>
-					<int key="connectionID">101592</int>
+					<int key="connectionID">101726</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
@@ -2653,10 +2659,14 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<string key="NSLabel">selectedTag: selection.orientation</string>
 							<string key="NSBinding">selectedTag</string>
 							<string key="NSKeyPath">selection.orientation</string>
+							<object class="NSDictionary" key="NSOptions">
+								<string key="NS.key.0">NSConditionallySetsEnabled</string>
+								<boolean value="NO" key="NS.object.0"/>
+							</object>
 							<int key="NSNibBindingConnectorVersion">2</int>
 						</object>
 					</object>
-					<int key="connectionID">101496</int>
+					<int key="connectionID">101727</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
@@ -2949,10 +2959,14 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<string key="NSLabel">selectedTag: selection.controlDescriptionPlacement</string>
 							<string key="NSBinding">selectedTag</string>
 							<string key="NSKeyPath">selection.controlDescriptionPlacement</string>
+							<object class="NSDictionary" key="NSOptions">
+								<string key="NS.key.0">NSConditionallySetsEnabled</string>
+								<boolean value="NO" key="NS.object.0"/>
+							</object>
 							<int key="NSNibBindingConnectorVersion">2</int>
 						</object>
 					</object>
-					<int key="connectionID">101659</int>
+					<int key="connectionID">101725</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -5822,7 +5836,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">101724</int>
+			<int key="maxID">101728</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -6031,6 +6045,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="outlets">
 						<string key="controlDescriptionContainerView">NSView</string>
+						<string key="controlDescriptionView">ASControlDescriptionView</string>
 						<string key="courseDataSource">id</string>
 						<string key="layoutConfigurationView">NSView</string>
 						<string key="layoutController">ASLayoutController</string>
@@ -6039,6 +6054,10 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 						<object class="IBToOneOutletInfo" key="controlDescriptionContainerView">
 							<string key="name">controlDescriptionContainerView</string>
 							<string key="candidateClassName">NSView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="controlDescriptionView">
+							<string key="name">controlDescriptionView</string>
+							<string key="candidateClassName">ASControlDescriptionView</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="courseDataSource">
 							<string key="name">courseDataSource</string>
@@ -6061,17 +6080,30 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 				<object class="IBPartialClassDescription">
 					<string key="className">ASOcourseDocument</string>
 					<string key="superclassName">NSDocument</string>
-					<object class="NSMutableDictionary" key="actions">
-						<string key="NS.key.0">chooseBackgroundMap:</string>
-						<string key="NS.object.0">id</string>
-					</object>
-					<object class="NSMutableDictionary" key="actionInfosByName">
-						<string key="NS.key.0">chooseBackgroundMap:</string>
-						<object class="IBActionInfo" key="NS.object.0">
+					<dictionary class="NSMutableDictionary" key="actions">
+						<string key="chooseBackgroundMap:">id</string>
+						<string key="printDocument:">id</string>
+						<string key="zoomIn:">id</string>
+						<string key="zoomOut:">id</string>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="actionInfosByName">
+						<object class="IBActionInfo" key="chooseBackgroundMap:">
 							<string key="name">chooseBackgroundMap:</string>
 							<string key="candidateClassName">id</string>
 						</object>
-					</object>
+						<object class="IBActionInfo" key="printDocument:">
+							<string key="name">printDocument:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="zoomIn:">
+							<string key="name">zoomIn:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="zoomOut:">
+							<string key="name">zoomOut:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+					</dictionary>
 					<dictionary class="NSMutableDictionary" key="outlets">
 						<string key="controlDefinitionsPopover">NSPopover</string>
 						<string key="courseController">ASCourseController</string>

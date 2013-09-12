@@ -16,7 +16,7 @@ enum ASLayoutPaperType {
 };
 
 enum ASLayoutControlDescriptionLocation {
-    kASControlDescriptionTopLeft,
+    kASControlDescriptionTopLeft = 1,
     kASControlDescriptionTopRight,
     kASControlDescriptionBottomLeft,
     kASControlDescriptionBottomRight,

@@ -95,9 +95,10 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
         } else if ([keyPath isEqualToString:@"selection.frameVisible"] ||
                    [keyPath isEqualToString:@"selection.showEventName"] ||
                    [keyPath isEqualToString:@"selection.showEventDate"] ||
-                   [keyPath isEqualToString:@"selection.frameColor"]) {
+                   [keyPath isEqualToString:@"selection.frameColor"] ||
+                   [keyPath isEqualToString:@"selection.controlDescriptionPlacement"]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutFrameChanged object:self];
-        } else if ([keyPath isEqualToString:@"selection.controlDescriptionPlacement"]) {
+        } else if (0) {
             [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutDecorChanged object:self];
         }
     } else if (object == self.layouts && [keyPath isEqualToString:@"selection"]) {

@@ -30,6 +30,7 @@ enum ASMapViewUIState {
 };
 
 @class ASLayoutController;
+@class ASControlDescriptionView;
 
 @interface ASMapView : NSView {
     
@@ -53,6 +54,7 @@ enum ASMapViewUIState {
     CATiledLayer *_innerOverprintLayer;
     CALayer *_printedMapLayer;
     CIFilter *_backgroundMapFilter;
+    CALayer *_controlDescriptionLayer;
     
     CGColorRef _frameColor;
     NSString *eventTitle;
@@ -81,6 +83,7 @@ enum ASMapViewUIState {
 @property(weak) IBOutlet ASLayoutController *layoutController;
 @property(weak) NSLayoutConstraint *theConstraint;
 @property(nonatomic,weak) IBOutlet NSView *controlDescriptionContainerView;
+@property(nonatomic,weak) IBOutlet ASControlDescriptionView *controlDescriptionView;
 
 @property(assign) BOOL frameVisible;
 @property(assign) CGSize paperSize; // in mm, in portrait orientation

@@ -10,6 +10,7 @@
 #import "ASDistanceFormatter.h"
 #import "OverprintObject.h"
 #import "ASControlDescriptionView+CourseObjects.h"
+#import "Layout.h"
 
 #define THICK_LINE  (2.0)
 #define THIN_LINE   (1.0)
@@ -54,10 +55,10 @@
     // 
     distanceFormatter = [[ASDistanceFormatter alloc] init];
     self.linenColor = [NSColor colorWithPatternImage:[NSImage imageNamed:@"linen_texture"]];
-    self.shadow = [[NSShadow alloc] init];
-    self.shadow.shadowBlurRadius = 5.0;
-    self.shadow.shadowColor = [NSColor darkGrayColor];
-    self.shadow.shadowOffset = NSMakeSize(5.0, -5.0);
+    self.paperShadow = [[NSShadow alloc] init];
+    self.paperShadow.shadowBlurRadius = 5.0;
+    self.paperShadow.shadowColor = [NSColor darkGrayColor];
+    self.paperShadow.shadowOffset = NSMakeSize(5.0, -5.0);
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(courseChanged:) name:@"ASOverprintChanged" object:nil];
 }
@@ -168,45 +169,53 @@
     
     return CGRectMake(minX, minY, blockSize, blockSize);
 }
-/*
-- (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
+
+- (void)drawControlDescriptionInLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
+    
     NSGraphicsContext *nsGraphicsContext;
     nsGraphicsContext = [NSGraphicsContext graphicsContextWithGraphicsPort:ctx
                                                                    flipped:NO];
     [NSGraphicsContext saveGraphicsState];
     [NSGraphicsContext setCurrentContext:nsGraphicsContext];
     
+    // Set up the appropriate transform.
+    CGFloat scale = layer.bounds.size.width/paperBounds.size.width;
+    NSAffineTransformStruct at;
+    
+    at.m11 = scale;
+    at.m21 = 0.0;
+    at.m12 = 0.0;
+    at.m22 = scale;
+    
+    CGPoint p, p2;
+    p = CGPointMake(CGRectGetMinX(layer.bounds), CGRectGetMinY(layer.bounds));
+    p2 = CGPointMake(CGRectGetMinX(paperBounds), CGRectGetMinY(paperBounds));
+    
+    at.tX = p.x - scale*p2.x;
+    at.tY = p.y - scale*p2.y;
+    
+    NSAffineTransform *at2 = [[NSAffineTransform alloc] init];
+    [at2 setTransformStruct:at];
+    [at2 concat];
+    
+    // Draw white background.
+    // Draw extra rounded paths adjacent to our rect.
+    
     // ...Draw content using NS APIs...
-    NSRect aRect=NSMakeRect(10.0,10.0,30.0,30.0);
-    NSBezierPath *thePath=[NSBezierPath bezierPathWithRect:aRect];
-    [[NSColor redColor] set];
-    [thePath fill];
+    [self drawActualControlDescription];
     
     [NSGraphicsContext restoreGraphicsState];
-}*/
+    
+}
 
-- (void)drawRect:(NSRect)dirtyRect {
-    /*
-                    Competition name (date)
-                         Class names
-                    Course  | Length | Height climb
-     */
+- (CGRect)controlDescriptionBounds {
+    return controlDescriptionBounds;
+}
+
+- (void)drawActualControlDescription {
     
-    if (layoutNeedsUpdate) {
-        [self recalculateLayout];
-    }
-    
-    [self.linenColor set];
-    [NSBezierPath fillRect:[self bounds]];
-    
-    [[NSGraphicsContext currentContext] saveGraphicsState];
-    [self.shadow set];
-    [[NSColor whiteColor] set];
-    [NSBezierPath fillRect:paperBounds];
-    [[NSGraphicsContext currentContext] restoreGraphicsState];
-        
     [overprintColor set];
-
+    
     // Frame all of it.
     [NSBezierPath setDefaultLineWidth:THICK_LINE];
     [NSBezierPath strokeRect:NSRectFromCGRect(controlDescriptionBounds)];
@@ -222,10 +231,10 @@
     if ([self.provider eventName] != nil) {
         eventBounds = CGRectMake(CGRectGetMinX(controlDescriptionBounds), CGRectGetMaxY(controlDescriptionBounds) - blockSize,
                                  controlDescriptionBounds.size.width, blockSize);
-        sz = [[self.provider eventName] boundingRectWithSize:NSSizeFromCGSize(eventBounds.size) 
-                                                     options:NSStringDrawingUsesFontLeading 
+        sz = [[self.provider eventName] boundingRectWithSize:NSSizeFromCGSize(eventBounds.size)
+                                                     options:NSStringDrawingUsesFontLeading
                                                   attributes:boldAttributes].size;
-        NSRect r =  NSRectFromCGRect(eventBounds); 
+        NSRect r =  NSRectFromCGRect(eventBounds);
         r.origin.y = r.origin.y - 0.5*(blockSize - sz.height);
         [[self.provider eventName] drawInRect:NSIntegralRect(r)
                                withAttributes:boldAttributes];
@@ -235,26 +244,26 @@
     
     // The class names.
     if ([self.provider classNames]) {
-        [[self.provider classNames] drawInRect:NSMakeRect(controlDescriptionBounds.origin.x, y, controlDescriptionBounds.size.width, blockSize) 
-                                                     withAttributes:boldAttributes];
+        [[self.provider classNames] drawInRect:NSMakeRect(controlDescriptionBounds.origin.x, y, controlDescriptionBounds.size.width, blockSize)
+                                withAttributes:boldAttributes];
         [NSBezierPath strokeLineFromPoint:NSMakePoint(x, y) toPoint:NSMakePoint(x + controlDescriptionBounds.size.width, y)];
-        y -= blockSize;       
+        y -= blockSize;
     }
     
     // Draw the course and the distance..
     if ([self.provider number] || [self.provider length]) {
-        [[self.provider number] drawInRect:NSMakeRect(x, y, 3.0*blockSize, blockSize) 
-                                                 withAttributes:boldAttributes];
+        [[self.provider number] drawInRect:NSMakeRect(x, y, 3.0*blockSize, blockSize)
+                            withAttributes:boldAttributes];
         x += 3.0*blockSize;
-        [[self.provider length] drawInRect:NSMakeRect(x, y, 3.0*blockSize, blockSize) 
-                                                 withAttributes:boldAttributes];
+        [[self.provider length] drawInRect:NSMakeRect(x, y, 3.0*blockSize, blockSize)
+                            withAttributes:boldAttributes];
         x += 3.0*blockSize;
-        [[self.provider heightClimb] drawInRect:NSMakeRect(x, y, 2.0*blockSize, blockSize) 
-                                                withAttributes:boldAttributes];
-
+        [[self.provider heightClimb] drawInRect:NSMakeRect(x, y, 2.0*blockSize, blockSize)
+                                 withAttributes:boldAttributes];
+        
         x = controlDescriptionBounds.origin.x;
         [self drawThickGridAtOrigin:NSMakePoint(x, y)];
-        [NSBezierPath strokeLineFromPoint:NSMakePoint(x, y) 
+        [NSBezierPath strokeLineFromPoint:NSMakePoint(x, y)
                                   toPoint:NSMakePoint(x + controlDescriptionBounds.size.width, y)];
         y -= blockSize;
     }
@@ -331,6 +340,34 @@
         }
         y -= blockSize;
     }];
+
+}
+
+- (void)drawRect:(NSRect)dirtyRect {
+    /*
+                    Competition name (date)
+                         Class names
+                    Course  | Length | Height climb
+     */
+    
+    if (layoutNeedsUpdate) {
+        [self recalculateLayout];
+    }
+    
+    [self.linenColor set];
+    NSRect bounds = [self bounds];
+    [NSBezierPath fillRect:bounds];
+    
+    [[NSGraphicsContext currentContext] saveGraphicsState];
+    [self.paperShadow set];
+    [[NSColor whiteColor] set];
+    [NSBezierPath fillRect:paperBounds];
+    [[NSGraphicsContext currentContext] restoreGraphicsState];
+    
+    [[NSColor blackColor] set];
+    [NSBezierPath strokeLineFromPoint:NSMakePoint(NSMaxX(bounds), NSMinY(bounds)) toPoint:NSMakePoint(NSMaxX(bounds), NSMaxY(bounds))];
+    
+    [self drawActualControlDescription];
 }
 
 - (NSBezierPath *)bezierPathForTapedRoute:(enum ASOverprintObjectType)routeType atPosition:(NSPoint)p blankSegment:(CGFloat)leaveThisBlank {

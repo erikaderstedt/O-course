@@ -31,7 +31,7 @@
 }
 @property (nonatomic,weak) IBOutlet id <ASControlDescriptionDataSource> provider;
 @property (strong) NSColor *linenColor;
-@property (strong) NSShadow *shadow;
+@property (strong) NSShadow *paperShadow;
 
 - (void)setup;
 
@@ -48,6 +48,9 @@
 - (void)drawThinGridAtOrigin:(NSPoint)origin;
 
 - (CGRect)boundsForRow:(NSInteger)rowIndex column:(enum ASControlDescriptionColumn)column;
+
+- (void)drawControlDescriptionInLayer:(CALayer *)layer inContext:(CGContextRef)ctx;
+- (void)drawActualControlDescription;
 
 @end
 

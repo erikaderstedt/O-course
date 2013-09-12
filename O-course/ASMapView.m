@@ -10,6 +10,7 @@
 #import "ASControlDescriptionView.h"
 #import "ASLayoutController.h"
 #import "ASMapView+Layout.h"
+#import "Layout.h"
 
 #define SIGN_OF(x) ((x > 0.0)?1.0:-1.0)
 
@@ -660,8 +661,12 @@
         [overprintProvider drawLayer:layer inContext:ctx];
         CGContextRestoreGState(ctx);
         
-    } else if (layer == _printedMapLayer && self.frameColor != NULL) {
-        [self drawPaperFrameInContext:ctx];
+    } else if (layer == _printedMapLayer) {
+        if (self.frameVisible) {
+            [self drawPaperFrameInContext:ctx];
+        }
+    } else if (layer == _controlDescriptionLayer) {
+        [self.controlDescriptionView drawControlDescriptionInLayer:_controlDescriptionLayer inContext:ctx];
     }
 }
 
@@ -795,6 +800,7 @@
 
 - (void)overprintChanged:(NSNotification *)n {
     [overprintLayer setNeedsDisplay];
+    [self adjustControlDescription];
     [self setNeedsDisplay:YES];
     
     // Update tracking areas.

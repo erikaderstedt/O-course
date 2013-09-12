@@ -16,6 +16,7 @@
 - (void)adjustPrintedMapLayerForBounds;
 - (CIFilter *)backgroundMapFilter;
 - (void)drawPaperFrameInContext:(CGContextRef)ctx;
+- (CALayer *)controlDescriptionLayer;
 
 - (void)dragPaperMapBasedOnEvent:(NSEvent *)event;
 - (void)layoutChanged:(NSNotification *)notification;
@@ -34,6 +35,7 @@
 - (void)synchronizePaperWithBackground;
 - (void)recordNewLayoutCenter;
 - (void)handleScaleAndOrientation;
+- (void)adjustControlDescription;
 
 - (CGFloat)printingScale;
 
