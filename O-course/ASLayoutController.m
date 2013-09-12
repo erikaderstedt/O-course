@@ -37,6 +37,7 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
     [self.layouts addObserver:self forKeyPath:@"selection.showEventName" options:0 context:(__bridge void *)(self)];
     [self.layouts addObserver:self forKeyPath:@"selection.showEventDate" options:0 context:(__bridge void *)(self)];
     [self.layouts addObserver:self forKeyPath:@"selection.controlDescriptionPlacement" options:0 context:(__bridge void *)(self)];
+    [self.layouts addObserver:self forKeyPath:@"selection.showControlDescription" options:0 context:(__bridge void *)(self)];
     
     [self.layouts addObserver:self forKeyPath:@"selection" options:0 context:NULL];
     [self.visibleSymbolsTable reloadData];
@@ -54,6 +55,7 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
         [self.layouts removeObserver:self forKeyPath:@"selection.showEventName"];
         [self.layouts removeObserver:self forKeyPath:@"selection.showEventDate"];
         [self.layouts removeObserver:self forKeyPath:@"selection.controlDescriptionPlacement"];
+        [self.layouts removeObserver:self forKeyPath:@"selection.showControlDescription"];
         [self.layouts removeObserver:self forKeyPath:@"selection"];
         self.observing = NO;
     }
@@ -96,7 +98,8 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
                    [keyPath isEqualToString:@"selection.showEventName"] ||
                    [keyPath isEqualToString:@"selection.showEventDate"] ||
                    [keyPath isEqualToString:@"selection.frameColor"] ||
-                   [keyPath isEqualToString:@"selection.controlDescriptionPlacement"]) {
+                   [keyPath isEqualToString:@"selection.controlDescriptionPlacement"] ||
+                   [keyPath isEqualToString:@"selection.showControlDescription"]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutFrameChanged object:self];
         } else if (0) {
             [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutDecorChanged object:self];
@@ -257,10 +260,19 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
 - (enum ASLayoutControlDescriptionLocation)controlDescriptionLocation {
     Layout *selectedLayout = [self selectedLayout];
     if (selectedLayout == nil) {
-        return kASControlDescriptionNone;
+        return kASControlDescriptionTopLeft;
     }
 
     return selectedLayout.controlDescriptionLocation;
+}
+
+- (BOOL)showControlDescription {
+    Layout *selectedLayout = [self selectedLayout];
+    if (selectedLayout == nil) {
+        return NO;
+    }
+    
+    return [[selectedLayout showControlDescription] boolValue];
 }
 
 #pragma mark NSTableViewDataSource

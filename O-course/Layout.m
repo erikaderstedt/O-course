@@ -22,6 +22,7 @@
 @dynamic scale;
 @dynamic courses;
 @dynamic project;
+@dynamic showControlDescription;
 
 - (void)awakeFromInsert {
     [super awakeFromInsert];

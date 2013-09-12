@@ -20,7 +20,6 @@ enum ASLayoutControlDescriptionLocation {
     kASControlDescriptionTopRight,
     kASControlDescriptionBottomLeft,
     kASControlDescriptionBottomRight,
-    kASControlDescriptionNone,
     kASControlDescriptionCustom // Not yet implemented.
 };
 
@@ -35,6 +34,7 @@ enum ASLayoutControlDescriptionLocation {
 @property (nonatomic, retain) NSString * name;
 @property (nonatomic, retain) NSNumber * paperType;
 @property (nonatomic, retain) NSNumber * scale;
+@property (nonatomic, retain) NSNumber *showControlDescription;
 @property (nonatomic, retain) NSSet *courses;
 @property (nonatomic, retain) Project *project;
 @property (assign) CGPoint position;

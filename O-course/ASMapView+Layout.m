@@ -443,7 +443,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
             break;
     }
     
-    if (location == kASControlDescriptionNone || location == kASControlDescriptionCustom) {
+    if (![self.layoutController showControlDescription]) {
         cd.hidden = YES;
     } else {
         cd.hidden = NO;
