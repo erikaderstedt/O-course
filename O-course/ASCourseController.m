@@ -43,6 +43,8 @@
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if (context == (__bridge void *)(self)) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"ASCourseChanged" object:self.managedObjectContext userInfo:nil];;
+
         // Restock the table
         [self updateCoursePopup];
         [self.courseTable reloadData];

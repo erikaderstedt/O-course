@@ -438,7 +438,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     CGRect psmf = [_printedMapScrollLayer frame];
     CGRect frame = [[self printedMapLayer] frame];
     CGSize pSize = [self.layoutController paperSize];
-    CGFloat width = MIN(frame.size.width,frame.size.height)/MIN(pSize.width, pSize.height) * 5.0 * 8.0;
+    CGFloat width = MIN(frame.size.width,frame.size.height)/MIN(pSize.width, pSize.height) * 7.0 * 8.0;
     
     CALayer *cd = [self controlDescriptionLayer];
     cd.bounds = CGRectMake(0.0, 0.0, width, [self.controlDescriptionView heightForWidth:width]);

@@ -179,12 +179,12 @@
         mapBounds = [self.mapProvider mapBounds];
 
         tiledLayer.bounds = mapBounds; overprintLayer.bounds = mapBounds;
-        tiledLayer.delegate = self; overprintLayer.delegate = overprintProvider;
+        tiledLayer.delegate = self; overprintLayer.delegate = self.overprintProvider;
         tiledLayer.contents = nil;
         [tiledLayer setNeedsDisplay];
         overprintLayer.contents = nil;
         [overprintLayer setNeedsDisplay];
-        
+                
         [self.layoutController setSymbolList:[self.mapProvider symbolList]];
 
         // Calculate the initial zoom as the minimum zoom.
@@ -800,7 +800,10 @@
 
 - (void)overprintChanged:(NSNotification *)n {
     [overprintLayer setNeedsDisplay];
-    [self adjustControlDescription];
+    [_innerOverprintLayer setNeedsDisplay];
+    if (self.state == kASMapViewLayout) {
+        [self adjustControlDescription];
+    }
     [self setNeedsDisplay:YES];
     
     // Update tracking areas.
