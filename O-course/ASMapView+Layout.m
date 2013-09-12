@@ -210,6 +210,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [_printedMapLayer setFrame:page];
     [_printedMapLayer setPosition:CGPointMake(CGRectGetMidX(r), CGRectGetMidY(r))];
     
+    [self determineMargins];
     r = _printedMapLayer.bounds;
     if (self.orientation == NSLandscapeOrientation) {
         // The landscape version is rotated counter-clockwise.
@@ -389,6 +390,26 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [CATransaction commit];
 }
 
+- (void)determineMargins {
+    NSPrintInfo *pi = [NSPrintInfo sharedPrintInfo];
+    NSSize sz = self.paperSize,sz2;
+    CGFloat scale;
+    if (self.orientation == NSLandscapeOrientation) {
+        sz2 = NSMakeSize(sz.height,sz.width);
+        scale = sz.height/_printedMapLayer.bounds.size.width;
+    } else {
+        sz2 = sz;
+        scale = sz.height/_printedMapLayer.bounds.size.height;
+    }
+    [pi setOrientation:self.orientation];
+    [pi setPaperSize:sz2];
+    
+    leftMargin = [pi leftMargin]*scale;
+    rightMargin = [pi rightMargin]*scale;
+    topMargin = [pi topMargin]*scale;
+    bottomMargin = [pi bottomMargin]*scale;
+}
+
 - (void)handleScaleAndOrientation {
     CGFloat visibleWidth = _printedMapLayer.frame.size.width;
     CGFloat p = _printingScale;
@@ -467,7 +488,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [_printedMapLayer setNeedsDisplay];
 }
 
-- (void)orientationChanged:(NSNotification *)notification {
+- (void)orientationChanged:(NSNotification *)notification {    
     self.orientation = [self.layoutController orientation];
     self.paperSize = [self.layoutController paperSize];
     [self updatePaperMapButMaintainPositionWhileDoing:^{
