@@ -177,6 +177,10 @@ out_error:
 }
 
 - (void)updateMap:(NSNotification *)n {
+    if (self.mapView == nil) {
+        return;
+    }
+
     NSURL *u = [[self project] mapURL];
     if ([u isEqual:self.loadedURL]) return;
     
