@@ -101,7 +101,7 @@
             NSMenu *theMenu = [(NSPopUpButtonCell *)[aTableColumn dataCell] menu];
             
             for (NSInteger index = 0; index < [[theMenu itemArray] count]; index++) {
-                if ([[[theMenu itemAtIndex:index] representedObject] isEqual:[thisCourse valueForKey:@"layout"]]) {
+                if ([[[theMenu itemAtIndex:index] representedObject] isEqual:[[thisCourse valueForKey:@"layout"] objectID]]) {
                     return @(index);
                 }
             }
@@ -125,7 +125,7 @@
                 NSMenu *theMenu = [(NSPopUpButtonCell *)[aTableColumn dataCell] menu];
                 NSMenuItem *theMenuItem = [theMenu itemAtIndex:[anObject intValue]];
             
-                [thisCourse setValue:[theMenuItem representedObject] forKey:@"layout"];
+                [thisCourse setValue:[[self managedObjectContext] objectWithID:[theMenuItem representedObject]] forKey:@"layout"];
             } else {
                 [thisCourse setValue:nil forKey:@"layout"];
             }
@@ -138,13 +138,29 @@
         // Make sure that the cell menu is correct.
         NSMenu *menu = [(NSPopUpButtonCell *)cell menu];
         NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Layout"];
-        [request setSortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
+        [request setSortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"default" ascending:NO], [NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
         NSArray *layouts = [[self managedObjectContext] executeFetchRequest:request error:nil];
-        [menu removeAllItems];
+        NSMutableArray *itemsToKeep = [NSMutableArray arrayWithCapacity:10];
         for (NSManagedObject *layout in layouts) {
-            NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:[layout valueForKey:@"name"] action:nil keyEquivalent:@""];
-            [item setRepresentedObject:layout];
-            [menu addItem:item];
+            BOOL inMenu = NO;
+            for (NSMenuItem *item in [menu itemArray]) {
+                if ([item representedObject] == [layout objectID]) {
+                    [itemsToKeep addObject:item];
+                    inMenu = YES;
+                    break;
+                }
+            }
+            if (!inMenu) {
+                NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:[layout valueForKey:@"name"] action:nil keyEquivalent:@""];
+                [item setRepresentedObject:[layout objectID]];
+                [menu addItem:item];
+                [itemsToKeep addObject:item];
+            }
+        }
+        NSMutableSet *removeThese = [NSMutableSet setWithArray:[menu itemArray]];
+        [removeThese minusSet:[NSSet setWithArray:itemsToKeep]];
+        for (NSMenuItem *item in removeThese) {
+            [menu removeItem:item];
         }
     }
 }
