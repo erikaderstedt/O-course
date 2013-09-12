@@ -421,22 +421,23 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     
     CALayer *cd = [self controlDescriptionLayer];
     cd.bounds = CGRectMake(0.0, 0.0, width, [self.controlDescriptionView heightForWidth:width]);
+    CGFloat inset = round([self.controlDescriptionView insetDistanceForLayer:cd]);
     switch (location) {
         case kASControlDescriptionBottomLeft:
             cd.anchorPoint = CGPointMake(0.0, 0.0);
-            cd.position = CGPointMake(CGRectGetMinX(psmf), CGRectGetMinY(psmf));
+            cd.position = CGPointMake(CGRectGetMinX(psmf) - inset, CGRectGetMinY(psmf) - inset);
             break;
         case kASControlDescriptionBottomRight:
             cd.anchorPoint = CGPointMake(1.0, 0.0);
-            cd.position = CGPointMake(CGRectGetMaxX(psmf), CGRectGetMinY(psmf));
+            cd.position = CGPointMake(CGRectGetMaxX(psmf) + inset, CGRectGetMinY(psmf) - inset);
             break;
         case kASControlDescriptionTopLeft:
             cd.anchorPoint = CGPointMake(0.0, 1.0);
-            cd.position = CGPointMake(CGRectGetMinX(psmf), CGRectGetMaxY(psmf));
+            cd.position = CGPointMake(CGRectGetMinX(psmf) - inset, CGRectGetMaxY(psmf) + inset);
             break;
         case kASControlDescriptionTopRight:
             cd.anchorPoint = CGPointMake(1.0, 1.0);
-            cd.position = CGPointMake(CGRectGetMaxX(psmf), CGRectGetMaxY(psmf));
+            cd.position = CGPointMake(CGRectGetMaxX(psmf) + inset, CGRectGetMaxY(psmf) + inset);
             break;
         default:
             break;

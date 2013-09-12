@@ -49,6 +49,7 @@
 
 - (CGRect)boundsForRow:(NSInteger)rowIndex column:(enum ASControlDescriptionColumn)column;
 
+- (CGFloat)insetDistanceForLayer:(CALayer *)layer;
 - (void)drawControlDescriptionInLayer:(CALayer *)layer inContext:(CGContextRef)ctx;
 - (void)drawActualControlDescription;
 

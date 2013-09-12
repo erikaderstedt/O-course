@@ -170,6 +170,11 @@
     return CGRectMake(minX, minY, blockSize, blockSize);
 }
 
+- (CGFloat)insetDistanceForLayer:(CALayer *)layer {
+    CGFloat scale = layer.bounds.size.width/paperBounds.size.width;
+    return scale*INSET_DIST;
+}
+
 - (void)drawControlDescriptionInLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
     
     NSGraphicsContext *nsGraphicsContext;
