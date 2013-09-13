@@ -37,6 +37,9 @@
         case kASDimensionsOrCombinations:
             return [self createPathsForDimensionsOrCombination:value transform:&at];
             break;
+        case kASOtherInformation:
+            return [self createPathsForOtherInformation:value transform:&at];
+            break;
         default:
             break;
     }
@@ -55,6 +58,7 @@
                         @(kASFeatureUpper),@(kASFeatureMiddle)];
             break;
         case kASFeature:
+        case kASAppearanceOrSecondaryFeature:
             values = (@[@(kASFeatureNone),
                         @(kASFeatureTerrace),
                         @(kASFeatureSpur),
@@ -127,6 +131,9 @@
         case kASDimensionsOrCombinations:
             values = @[@(kASCombinationNone), @(kASCombinationCrossing), @(kASCombinationJunction)];
             break;
+        case kASOtherInformation:
+            values = @[@(kASOtherInformationNone), @(kASOtherInformationFirstAidPost),@(kASOtherInformationRefreshmentPoint),@(kASOtherInformationRadioOrTV),@(kASOtherInformationControlCheck)];
+            break;
         default:
             break;
     }
@@ -137,6 +144,7 @@
     enum ASFeature feature;
     enum ASWhichOfAnySimilarFeature which;
     enum ASDimensionsOrCombination combo;
+    enum ASOtherInformation other;
     
     NSString *s = nil;
     switch (column) {
@@ -241,13 +249,21 @@
         case kASDimensionsOrCombinations:
             combo = (enum ASDimensionsOrCombination)value;
             switch (combo) {
-                case kASCombinationNone:            s = NSLocalizedString(@"None", nil);    break;
-                case kASCombinationCrossing:
-                    s = NSLocalizedString(@"10.1", nil);
+                case kASCombinationNone:        s = NSLocalizedString(@"None", nil);    break;
+                case kASCombinationCrossing:    s = NSLocalizedString(@"10.1", nil);    break;
+                case kASCombinationJunction:    s = NSLocalizedString(@"10.2", nil);    break;
+                default:
                     break;
-                case kASCombinationJunction:
-                    s = NSLocalizedString(@"10.2", nil);
-                    break;
+            }
+            break;
+        case kASOtherInformation:
+            other = (enum ASOtherInformation)value;
+            switch (other) {
+                case kASOtherInformationNone:           s = NSLocalizedString(@"None", nil);    break;
+                case kASOtherInformationFirstAidPost:   s = NSLocalizedString(@"12.1", nil);    break;
+                case kASOtherInformationRefreshmentPoint:s = NSLocalizedString(@"12.2", nil);    break;
+                case kASOtherInformationRadioOrTV:      s = NSLocalizedString(@"12.3", nil);    break;
+                case kASOtherInformationControlCheck:   s = NSLocalizedString(@"12.4", nil);    break;
                 default:
                     break;
             }
@@ -1181,6 +1197,65 @@
     if (subpath != NULL) {
         pathArray = @[(__bridge id)fillable, (__bridge id)subpath];
         CGPathRelease(subpath);
+    } else {
+        pathArray = @[(__bridge id)fillable];
+    }
+    CGPathRelease(fillable);
+    
+    return pathArray;
+}
+
+
+- (NSArray *)createPathsForOtherInformation:(NSNumber *)value transform:(CGAffineTransform *)tran {
+    enum ASOtherInformation other = (enum ASOtherInformation)[value intValue];
+    CGMutablePathRef path = CGPathCreateMutable(), nonfilled = NULL;
+    CGPathRef fillable;
+    switch (other) {
+        case kASOtherInformationFirstAidPost:
+            nonfilled = CGPathCreateMutable();
+            CGPathAddRect(nonfilled, tran, CGRectMake(-53.5, -19.5, 106, 37));
+            CGPathAddRect(nonfilled, tran, CGRectMake(-19.5, -54.5, 37, 106));
+            break;
+        case kASOtherInformationRefreshmentPoint:
+            CGPathAddEllipseInRect(path, NULL, CGRectMake(-42.5, 20.5, 82, 27));
+            CGPathMoveToPoint(path, NULL, -41.5, 31.5);
+            CGPathAddLineToPoint(path, NULL, -26.5, -46.5);
+            CGPathAddCurveToPoint(path, NULL, -26.5, -46.5, -5.18, -60.59, 21.5, -47.5);
+            CGPathMoveToPoint(path, NULL, 21.5, -47.5);
+            CGPathAddLineToPoint(path, NULL, 37.5, 29.5);
+            break;
+        case kASOtherInformationRadioOrTV:
+            CGPathMoveToPoint(path, NULL, -32.5, -53.5);
+            CGPathAddLineToPoint(path, NULL, 22.5, -0.5);
+            CGPathAddLineToPoint(path, NULL, -26.5, 0.5);
+            CGPathAddLineToPoint(path, NULL, 35.5, 47.5);
+            break;
+        case kASOtherInformationControlCheck:
+            nonfilled = CGPathCreateMutable();
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-11.5, 28.5, 23, 23));
+            CGPathMoveToPoint(path, NULL, 0.5, 28.5);
+            CGPathAddLineToPoint(path, NULL, 0.5, -10.5);
+            CGPathAddLineToPoint(path, NULL, -22.5, -49.5);
+            CGPathMoveToPoint(path, NULL, 23.5, -48.5);
+            CGPathAddLineToPoint(path, NULL, 0.5, -8.5);
+            CGPathMoveToPoint(path, NULL, -23.5, 3.5);
+            CGPathAddLineToPoint(path, NULL, -0.5, 17.5);
+            CGPathMoveToPoint(path, NULL, 22.5, 2.5);
+            CGPathAddLineToPoint(path, NULL, 0.5, 18.5);
+            break;
+        default:
+            break;
+    };
+    
+    // Stroke original path
+    CGFloat lw = THIN_LINE;
+    if (tran != NULL) lw /= tran->a;
+    fillable = CGPathCreateCopyByStrokingPath(path, tran, lw, kCGLineCapButt, kCGLineJoinBevel, 0.0);
+    CGPathRelease(path);
+    NSArray *pathArray;
+    if (nonfilled != NULL) {
+        pathArray = @[(__bridge id)fillable, (__bridge id)nonfilled];
+        CGPathRelease(nonfilled);
     } else {
         pathArray = @[(__bridge id)fillable];
     }

@@ -104,6 +104,14 @@ enum ASDimensionsOrCombination {
     kASCombinationJunction
 };
 
+enum ASOtherInformation {
+    kASOtherInformationNone,
+    kASOtherInformationFirstAidPost,
+    kASOtherInformationRefreshmentPoint,
+    kASOtherInformationRadioOrTV,
+    kASOtherInformationControlCheck
+};
+
 enum ASOverprintObjectType {
     kASOverprintObjectStart,
     kASOverprintObjectControl,

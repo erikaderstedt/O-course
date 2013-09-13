@@ -115,6 +115,9 @@
         case kASDimensionsOrCombinations:
             [self.activeObject setCombinationSymbol:value];
             break;
+        case kASOtherInformation:
+            [self.activeObject setOtherInformation:value];
+            break;
         default:
             break;
     }

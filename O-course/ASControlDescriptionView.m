@@ -341,6 +341,14 @@
                     CGContextFillPath(ctx);
                 }
             }
+            if (type == kASOverprintObjectControl && [item otherInformation] != nil) {
+                NSArray *paths = [self createPathsForColumn:kASOtherInformation withValue:[item otherInformation] atPosition:CGPointMake(x+7.5*blockSize+1.0, y + 0.5*blockSize) withSize:blockSize];
+                for (id thePath in paths) {
+                    CGContextBeginPath(ctx);
+                    CGContextAddPath(ctx, (__bridge CGPathRef)thePath);
+                    CGContextFillPath(ctx);
+                }
+            }
         } else {
             // Draw any of the different variations of taped routes.
             // If the previous horizontal divider was drawn with a thin line, we redraw it with a thick line. Always.
