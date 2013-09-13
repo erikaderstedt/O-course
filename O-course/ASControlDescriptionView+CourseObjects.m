@@ -37,6 +37,9 @@
         case kASDimensionsOrCombinations:
             return [self createPathsForDimensionsOrCombination:value transform:&at];
             break;
+        case kASLocationOfTheControlFlag:
+            return [self createPathsForLocationOfControlFlag:value transform:&at];
+            break;
         case kASOtherInformation:
             return [self createPathsForOtherInformation:value transform:&at];
             break;
@@ -211,6 +214,81 @@
         case kASDimensionsOrCombinations:
             values = @[@(kASCombinationNone), @(kASCombinationCrossing), @(kASCombinationJunction)];
             break;
+        case kASLocationOfTheControlFlag:
+            values = @[@(kASLocationSide + kASNorth),
+                       @(kASLocationSide + kASNorthEast),
+                       @(kASLocationSide + kASEast),
+                       @(kASLocationSide + kASSouthEast),
+                       @(kASLocationSide + kASSouth),
+                       @(kASLocationSide + kASSouthWest),
+                       @(kASLocationSide + kASWest),
+                       @(kASLocationSide + kASNorthWest),
+                       @(kASLocationEdge + kASNorth),
+                       @(kASLocationEdge + kASNorthEast),
+                       @(kASLocationEdge + kASEast),
+                       @(kASLocationEdge + kASSouthEast),
+                       @(kASLocationEdge + kASSouth),
+                       @(kASLocationEdge + kASSouthWest),
+                       @(kASLocationEdge + kASWest),
+                       @(kASLocationEdge + kASNorthWest),
+                       @(kASLocationPart + kASNorth),
+                       @(kASLocationPart + kASNorthEast),
+                       @(kASLocationPart + kASEast),
+                       @(kASLocationPart + kASSouthEast),
+                       @(kASLocationPart + kASSouth),
+                       @(kASLocationPart + kASSouthWest),
+                       @(kASLocationPart + kASWest),
+                       @(kASLocationPart + kASNorthWest),
+                       @(kASLocationInsideCorner + kASNorth),
+                       @(kASLocationInsideCorner + kASNorthEast),
+                       @(kASLocationInsideCorner + kASEast),
+                       @(kASLocationInsideCorner + kASSouthEast),
+                       @(kASLocationInsideCorner + kASSouth),
+                       @(kASLocationInsideCorner + kASSouthWest),
+                       @(kASLocationInsideCorner + kASWest),
+                       @(kASLocationInsideCorner + kASNorthWest),
+                       @(kASLocationOutsideCorner + kASNorth),
+                       @(kASLocationOutsideCorner + kASNorthEast),
+                       @(kASLocationOutsideCorner + kASEast),
+                       @(kASLocationOutsideCorner + kASSouthEast),
+                       @(kASLocationOutsideCorner + kASSouth),
+                       @(kASLocationOutsideCorner + kASSouthWest),
+                       @(kASLocationOutsideCorner + kASWest),
+                       @(kASLocationOutsideCorner + kASNorthWest),
+                       @(kASLocationTip + kASNorth),
+                       @(kASLocationTip + kASNorthEast),
+                       @(kASLocationTip + kASEast),
+                       @(kASLocationTip + kASSouthEast),
+                       @(kASLocationTip + kASSouth),
+                       @(kASLocationTip + kASSouthWest),
+                       @(kASLocationTip + kASWest),
+                       @(kASLocationTip + kASNorthWest),
+                       @(kASLocationEnd + kASNorth),
+                       @(kASLocationEnd + kASNorthEast),
+                       @(kASLocationEnd + kASEast),
+                       @(kASLocationEnd + kASSouthEast),
+                       @(kASLocationEnd + kASSouth),
+                       @(kASLocationEnd + kASSouthWest),
+                       @(kASLocationEnd + kASWest),
+                       @(kASLocationEnd + kASNorthWest),
+                       @(kASLocationFoot + kASNorth),
+                       @(kASLocationFoot + kASNorthEast),
+                       @(kASLocationFoot + kASEast),
+                       @(kASLocationFoot + kASSouthEast),
+                       @(kASLocationFoot + kASSouth),
+                       @(kASLocationFoot + kASSouthWest),
+                       @(kASLocationFoot + kASWest),
+                       @(kASLocationFoot + kASNorthWest),
+                       @(kASLocationBend),
+                       @(kASLocationUpperPart),
+                       @(kASLocationLowerPart),
+                       @(kASLocationTop),
+                       @(kASLocationBeneath),
+                       @(kASLocationAnyFoot),
+                       @(kASLocationBetween),
+                       @(kASLocationNone)
+                       ];
+            break;
         case kASOtherInformation:
             values = @[@(kASOtherInformationNone), @(kASOtherInformationFirstAidPost),@(kASOtherInformationRefreshmentPoint),@(kASOtherInformationRadioOrTV),@(kASOtherInformationControlCheck)];
             break;
@@ -225,7 +303,8 @@
     enum ASWhichOfAnySimilarFeature which;
     enum ASDimensionsOrCombination combo;
     enum ASOtherInformation other;
-    
+    enum ASLocationOfTheControlFlag location;
+
     NSString *s = nil;
     switch (column) {
         case kASAppearanceOrSecondaryFeature:
@@ -355,6 +434,54 @@
                 case kASCombinationJunction:    s = NSLocalizedString(@"10.2", nil);    break;
                 default:
                     break;
+            }
+            break;
+        case kASLocationOfTheControlFlag:
+            if (value < (int)kASLocationAnyFoot) {
+                int i, j;
+                i = value & 248;
+                j = value & 7;
+                location = (enum ASLocationOfTheControlFlag)i;
+                NSString *s2 = nil;
+                switch (location) {
+                    case kASLocationSide: s2 = NSLocalizedString(@"11.1", nil); break;
+                    case kASLocationEdge: s2 = NSLocalizedString(@"11.2", nil); break;
+                    case kASLocationPart: s2 = NSLocalizedString(@"11.3", nil); break;
+                    case kASLocationInsideCorner: s2 = NSLocalizedString(@"11.4", nil); break;
+                    case kASLocationOutsideCorner: s2 = NSLocalizedString(@"11.5", nil); break;
+                    case kASLocationTip: s2 = NSLocalizedString(@"11.6", nil); break;
+                    case kASLocationEnd: s2 = NSLocalizedString(@"11.8", nil); break;
+                    case kASLocationFoot: s2 = NSLocalizedString(@"11.14", nil); break;
+                    default:
+                        break;
+                }
+                enum ASLocationQualifier qualifier = (enum ASLocationQualifier)j;
+                switch (qualifier) {
+                    case kASNorth: s = NSLocalizedString(@"location.0", nil); break;
+                    case kASNorthEast: s = NSLocalizedString(@"location.1", nil); break;
+                    case kASEast: s = NSLocalizedString(@"location.2", nil); break;
+                    case kASSouthEast: s = NSLocalizedString(@"location.3", nil); break;
+                    case kASSouth: s = NSLocalizedString(@"location.4", nil); break;
+                    case kASSouthWest: s = NSLocalizedString(@"location.5", nil); break;
+                    case kASWest: s = NSLocalizedString(@"location.6", nil); break;
+                    case kASNorthWest: s = NSLocalizedString(@"location.7", nil); break;
+                    default:
+                        break;
+                }
+                s = [NSString stringWithFormat:@"%@ %@", s, s2];
+            } else {
+                location = (enum ASLocationOfTheControlFlag)value;
+                switch (location) {
+                    case kASLocationUpperPart: s = NSLocalizedString(@"11.9", nil); break;
+                    case kASLocationLowerPart: s = NSLocalizedString(@"11.10", nil); break;
+                    case kASLocationTop: s = NSLocalizedString(@"11.11", nil); break;
+                    case kASLocationBeneath: s = NSLocalizedString(@"11.12", nil); break;
+                    case kASLocationAnyFoot: s = NSLocalizedString(@"11.13", nil); break;
+                    case kASLocationBend: s = NSLocalizedString(@"11.7", nil); break;
+                    case kASLocationBetween: s = NSLocalizedString(@"11.15", nil); break;
+                    default:
+                        break;
+                }
             }
             break;
         case kASOtherInformation:
@@ -1488,6 +1615,147 @@
     return pathArray;
 }
 
+- (NSArray *)createPathsForLocationOfControlFlag:(NSNumber *)value transform:(CGAffineTransform *)tran {
+    int i = [value intValue];
+    CGAffineTransform rotation, modifiedTran;
+    CGMutablePathRef path = CGPathCreateMutable(), nonfilled = NULL;
+    CGPathRef fillable;
+    CGFloat angle = 0.0;
+    
+    if (i < (int)(kASLocationAnyFoot)) {
+        // One of the 8-directional items.
+        int j = i & 7;
+        angle = -M_PI_4 * j;
+        rotation = CGAffineTransformMakeRotation(angle);
+        modifiedTran = CGAffineTransformRotate(*tran, angle);
+        i = i & 248;
+    }
+    
+    enum ASLocationOfTheControlFlag location = (enum ASLocationOfTheControlFlag)i;
+    switch (location) {
+        case kASLocationSide:
+            nonfilled = CGPathCreateMutable();
+            CGPathAddEllipseInRect(path, &rotation, CGRectMake(-31.5, -30.5, 62, 62));
+            CGPathAddEllipseInRect(nonfilled, &modifiedTran, CGRectMake(-7.5, 38.5, 14, 14));
+            break;
+        case kASLocationEdge:
+            CGPathAddEllipseInRect(path, &rotation, CGRectMake(-27.5, -31.5, 62, 62));
+            CGPathMoveToPoint(path, &rotation, 3.5, 42.5);
+            CGPathAddLineToPoint(path, &rotation, 3.5, 18.5);
+            break;
+        case kASLocationPart:
+            nonfilled = CGPathCreateMutable();
+            CGPathAddEllipseInRect(path, &rotation, CGRectMake(-31.5, -30.5, 62, 62));
+            CGPathAddEllipseInRect(nonfilled, &modifiedTran, CGRectMake(-7.5, 11.5, 14, 14));
+            break;
+        case kASLocationInsideCorner:
+            nonfilled = CGPathCreateMutable();
+            CGPathAddEllipseInRect(nonfilled, &modifiedTran, CGRectMake(-5.5, -7.5, 15, 15));
+            CGPathMoveToPoint(path, &rotation, 1, 25);
+            CGPathAddLineToPoint(path, &rotation, 49, -23);
+            CGPathMoveToPoint(path, &rotation, 2, 24);
+            CGPathAddLineToPoint(path, &rotation, -46, -24);
+            break;
+        case kASLocationOutsideCorner:
+            nonfilled = CGPathCreateMutable();
+            CGPathAddEllipseInRect(nonfilled, &modifiedTran, CGRectMake(-5.5, 32.5, 15, 15));
+            CGPathMoveToPoint(path, &rotation, 1, 25);
+            CGPathAddLineToPoint(path, &rotation, 49, -23);
+            CGPathMoveToPoint(path, &rotation, 2, 24);
+            CGPathAddLineToPoint(path, &rotation, -46, -24);
+            break;
+        case kASLocationTip:
+            nonfilled = CGPathCreateMutable();
+            CGPathAddEllipseInRect(nonfilled, &modifiedTran, CGRectMake(-40.5, -41.5, 15, 15));
+            CGPathMoveToPoint(path, &rotation, 13.5, 42.5);
+            CGPathAddLineToPoint(path, &rotation, -20.5, -21.5);
+            CGPathAddLineToPoint(path, &rotation, 43.5, 12.5);
+            break;
+        case kASLocationEnd:
+            CGPathMoveToPoint(path, &rotation, 0.5, -45.5);
+            CGPathAddLineToPoint(path, &rotation, 0.5, 45.5);
+            CGPathMoveToPoint(path, &rotation, -14.5, 45.5);
+            CGPathAddLineToPoint(path, &rotation, 16.5, 45.5);
+            break;
+        case kASLocationFoot:
+            CGPathAddEllipseInRect(path, NULL, CGRectMake(-31.0, -31.0, 62, 62));
+            modifiedTran = CGAffineTransformMakeTranslation(50.0*sin(-angle), 50.0*cos(-angle));
+            CGPathMoveToPoint(path, &modifiedTran, -6.5, 9.5);
+            CGPathAddLineToPoint(path, &modifiedTran, -6.5, -7.5);
+            CGPathAddLineToPoint(path, &modifiedTran, 9.5, -7.5);
+            break;
+        case kASLocationBend:
+            CGPathMoveToPoint(path, NULL, 29.5, 52.5);
+            CGPathAddCurveToPoint(path, NULL, 29.5, 52.5, -27.5, 14.02, -31.5, 9.5);
+            CGPathAddCurveToPoint(path, NULL, -35.5, 4.98, -38.37, -1, -32.5, -6.5);
+            CGPathAddCurveToPoint(path, NULL, -26.63, -12, 26.5, -49.5, 26.5, -49.5);
+            break;
+        case kASLocationUpperPart:
+            CGPathMoveToPoint(path, NULL, -20.0, 47);
+            CGPathAddLineToPoint(path, NULL, -20.0, -47);
+            CGPathMoveToPoint(path, NULL, 20, 47);
+            CGPathAddLineToPoint(path, NULL, 20, -47);
+            nonfilled = CGPathCreateMutable();
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-8.0, 33.5, 16, 16));
+            break;
+        case kASLocationLowerPart:
+            CGPathMoveToPoint(path, NULL, -20.0, 47);
+            CGPathAddLineToPoint(path, NULL, -20.0, -47);
+            CGPathMoveToPoint(path, NULL, 20, 47);
+            CGPathAddLineToPoint(path, NULL, 20, -47);
+            nonfilled = CGPathCreateMutable();
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-8.0, -33.5, 16, 16));
+            break;
+        case kASLocationTop:
+            nonfilled = CGPathCreateMutable();
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-8, 35.5, 16, 16));
+            CGPathMoveToPoint(path, NULL, -20.5, -47.5);
+            CGPathAddLineToPoint(path, NULL, -20.5, 22.5);
+            CGPathAddLineToPoint(path, NULL, 20.5, 22.5);
+            CGPathAddLineToPoint(path, NULL, 20.5, -47.5);
+            break;
+        case kASLocationBeneath:
+            nonfilled = CGPathCreateMutable();
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-8.5, -27.5, 16, 16));
+            CGPathMoveToPoint(path, NULL, -45.5, -33.5);
+            CGPathAddLineToPoint(path, NULL, -45.5, 27.5);
+            CGPathAddLineToPoint(path, NULL, 47.5, 27.5);
+            CGPathAddLineToPoint(path, NULL, 47.5, -32.5);
+            break;
+        case kASLocationAnyFoot:
+            nonfilled = CGPathCreateMutable();
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-8.5, -27.5, 16, 16));
+            CGPathMoveToPoint(path, NULL, -18.5, 51.5);
+            CGPathAddLineToPoint(path, NULL, -18.5, -43.5);
+            CGPathAddLineToPoint(path, NULL, 22.5, -43.5);
+            break;
+        case kASLocationBetween:
+            nonfilled = CGPathCreateMutable();
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-8.5, -7.5, 16, 16));
+            CGPathMoveToPoint(path, NULL, -48.5, 28.5);
+            CGPathAddLineToPoint(path, NULL, 48.5, 28.5);
+            CGPathMoveToPoint(path, NULL, -48.5, -26.5);
+            CGPathAddLineToPoint(path, NULL, 48.5, -26.5);
+            break;
+        default:
+            break;
+    }
+    // Stroke original path
+    CGFloat lw = THIN_LINE;
+    if (tran != NULL) lw /= tran->a;
+    fillable = CGPathCreateCopyByStrokingPath(path, tran, lw, kCGLineCapButt, kCGLineJoinBevel, 0.0);
+    CGPathRelease(path);
+    NSArray *pathArray;
+    if (nonfilled != NULL) {
+        pathArray = @[(__bridge id)fillable, (__bridge id)nonfilled];
+        CGPathRelease(nonfilled);
+    } else {
+        pathArray = @[(__bridge id)fillable];
+    }
+    CGPathRelease(fillable);
+    
+    return pathArray;
+}
 
 - (NSArray *)createPathsForOtherInformation:(NSNumber *)value transform:(CGAffineTransform *)tran {
     enum ASOtherInformation other = (enum ASOtherInformation)[value intValue];

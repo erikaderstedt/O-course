@@ -10,4 +10,10 @@
 
 @interface ASControlDescriptionView (CourseObjects) <ASCourseObjectSelectionViewDataSource>
 
+- (NSArray *)createPathsForWhichOfAnySimilarFeatureWithValue:(NSNumber *)value transform:(CGAffineTransform *)tran;
+- (NSArray *)createPathsForFeatureOrAppearance:(NSNumber *)value transform:(CGAffineTransform *)tran;
+- (NSArray *)createPathsForDimensionsOrCombination:(NSNumber *)value transform:(CGAffineTransform *)tran;
+- (NSArray *)createPathsForLocationOfControlFlag:(NSNumber *)value transform:(CGAffineTransform *)tran;
+- (NSArray *)createPathsForOtherInformation:(NSNumber *)value transform:(CGAffineTransform *)tran;
+
 @end

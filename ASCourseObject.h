@@ -118,6 +118,36 @@ enum ASDimensionsOrCombination {
     kASCombinationJunction
 };
 
+enum ASLocationQualifier {
+    kASNorth,
+    kASNorthEast,
+    kASEast,
+    kASSouthEast,
+    kASSouth,
+    kASSouthWest,
+    kASWest,
+    kASNorthWest
+};
+
+enum ASLocationOfTheControlFlag {
+    kASLocationSide,
+    kASLocationEdge = 8,
+    kASLocationPart = 16,
+    kASLocationInsideCorner = 24,
+    kASLocationOutsideCorner = 32,
+    kASLocationTip = 40,
+    kASLocationEnd = 48,
+    kASLocationFoot = 56,
+    kASLocationAnyFoot = 64,
+    kASLocationBend,
+    kASLocationUpperPart,
+    kASLocationLowerPart,
+    kASLocationTop,
+    kASLocationBeneath,
+    kASLocationBetween,
+    kASLocationNone
+};
+
 enum ASOtherInformation {
     kASOtherInformationNone,
     kASOtherInformationFirstAidPost,
