@@ -54,41 +54,73 @@
             break;
         case kASFeature:
             values = (@[@(kASFeatureNone),
-                      @(kASFeatureTerrace),
-                      @(kASFeatureSpur),
-                      @(kASFeatureRe_Entrant),
-                      @(kASFeatureEarthBank),
-                      @(kASFeatureQuarry),
-                      @(kASFeatureEarthWall),
-                      @(kASFeatureErosionGully),
-                      @(kASFeatureHill),
-                      @(kASFeatureKnoll),
-                      @(kASFeatureSaddle),
-                      @(kASFeatureDepression),
-                      @(kASFeatureSmallDepression),
-                      @(kASFeaturePit),
-                      @(kASFeatureBrokenGround),
-                      @(kASFeatureAntHill),
-                      @(kASFeatureCliff),
-                      @(kASFeatureRockPillar),
-                      @(kASFeatureCave),
-                      @(kASFeatureBoulder),
-                      @(kASFeatureBoulderField),
-                      @(kASFeatureBoulderCluster),
-                      @(kASFeatureStonyGround),
-                      @(kASFeatureBareRock),
-                      @(kASFeatureNarrowPassage),
-                      @(kASFeatureLake),
-                      @(kASFeaturePond),
-                      @(kASFeatureWaterhole),
-                      @(kASFeatureStream),
-                      @(kASFeatureDitch),
-                      @(kASFeatureNarrowMarch),
-                      @(kASFeatureFirmGroundInMarch),
-                      @(kASFeatureWell),
-                      @(kASFeatureSpring),
-                      @(kASFeatureWaterTrough),
-                      @(kASFeatureOpenLand)]);
+                        @(kASFeatureTerrace),
+                        @(kASFeatureSpur),
+                        @(kASFeatureRe_Entrant),
+                        @(kASFeatureEarthBank),
+                        @(kASFeatureQuarry),
+                        @(kASFeatureEarthWall),
+                        @(kASFeatureErosionGully),
+                        @(kASFeatureHill),
+                        @(kASFeatureKnoll),
+                        @(kASFeatureSaddle),
+                        @(kASFeatureDepression),
+                        @(kASFeatureSmallDepression),
+                        @(kASFeaturePit),
+                        @(kASFeatureBrokenGround),
+                        @(kASFeatureAntHill),
+                        @(kASFeatureCliff),
+                        @(kASFeatureRockPillar),
+                        @(kASFeatureCave),
+                        @(kASFeatureBoulder),
+                        @(kASFeatureBoulderField),
+                        @(kASFeatureBoulderCluster),
+                        @(kASFeatureStonyGround),
+                        @(kASFeatureBareRock),
+                        @(kASFeatureNarrowPassage),
+                        @(kASFeatureLake),
+                        @(kASFeaturePond),
+                        @(kASFeatureWaterhole),
+                        @(kASFeatureStream),
+                        @(kASFeatureDitch),
+                        @(kASFeatureNarrowMarch),
+                        @(kASFeatureFirmGroundInMarch),
+                        @(kASFeatureWell),
+                        @(kASFeatureSpring),
+                        @(kASFeatureWaterTrough),
+                        @(kASFeatureOpenLand),
+                        @(kASFeatureSemiOpenLand),
+                        @(kASFeatureForestCorner),
+                        @(kASFeatureClearing),
+                        @(kASFeatureThicket),
+                        @(kASFeatureLinearThicket),
+                        @(kASFeatureVegetationBoundary),
+                        @(kASFeatureCopse),
+                        @(kASFeatureDistinctiveTree),
+                        @(kASFeatureTreeStumpOrRootStock),
+                        @(kASFeatureRoad),
+                        @(kASFeatureTrack),
+                        @(kASFeatureRide),
+                        @(kASFeatureBridge),
+                        @(kASFeaturePowerLine),
+                        @(kASFeaturePowerLinePylon),
+                        @(kASFeatureTunnel),
+                        @(kASFeatureStoneWall),
+                        @(kASFeatureFence),
+                        @(kASFeatureCrossingPoint),
+                        @(kASFeatureBuilding),
+                        @(kASFeaturePavedArea),
+                        @(kASFeatureRuin),
+                        @(kASFeaturePipeline),
+                        @(kASFeatureTower),
+                        @(kASFeatureShootingPlatform),
+                        @(kASFeatureCairn),
+                        @(kASFeatureFodderRack),
+                        @(kASFeatureCharcoalBurningGround),
+                        @(kASFeatureMonument),
+                        @(kASFeatureBuildingPassThrough),
+                        @(kASFeatureSpecialItem1),
+                        @(kASFeatureSpecialItem2)]);
             break;
             
         default:
@@ -145,6 +177,39 @@
                 case kASFeatureSpring:           s = NSLocalizedString(@"3.10", nil);    break;
                 case kASFeatureWaterTrough:            s = NSLocalizedString(@"3.11", nil);    break;
                 case kASFeatureOpenLand:               s = NSLocalizedString(@"4.1", nil);    break;
+                case kASFeatureSemiOpenLand:    s = NSLocalizedString(@"4.2", nil); break;
+                case kASFeatureForestCorner:    s = NSLocalizedString(@"4.3", nil); break;
+                case kASFeatureClearing:        s = NSLocalizedString(@"4.4", nil); break;
+                case kASFeatureThicket:         s = NSLocalizedString(@"4.5", nil); break;
+                case kASFeatureLinearThicket:   s = NSLocalizedString(@"4.6", nil); break;
+                case kASFeatureVegetationBoundary:s = NSLocalizedString(@"4.7", nil); break;
+                case kASFeatureCopse:           s = NSLocalizedString(@"4.8", nil); break;
+                case kASFeatureDistinctiveTree: s = NSLocalizedString(@"4.9", nil); break;
+                case kASFeatureTreeStumpOrRootStock:s = NSLocalizedString(@"4.10", nil); break;
+                case kASFeatureRoad:            s = NSLocalizedString(@"5.1", nil); break;
+                case kASFeatureTrack:           s = NSLocalizedString(@"5.2", nil); break;
+                case kASFeatureRide:            s = NSLocalizedString(@"5.3", nil); break;
+                case kASFeatureBridge:          s = NSLocalizedString(@"5.4", nil); break;
+                case kASFeaturePowerLine:       s = NSLocalizedString(@"5.5", nil); break;
+                case kASFeaturePowerLinePylon:  s = NSLocalizedString(@"5.6", nil); break;
+                case kASFeatureTunnel:          s = NSLocalizedString(@"5.7", nil); break;
+                case kASFeatureStoneWall:       s = NSLocalizedString(@"5.8", nil); break;
+                case kASFeatureFence:           s = NSLocalizedString(@"5.9", nil); break;
+                case kASFeatureCrossingPoint:   s = NSLocalizedString(@"5.10", nil); break;
+                case kASFeatureBuilding:        s = NSLocalizedString(@"5.11", nil); break;
+                case kASFeaturePavedArea:       s = NSLocalizedString(@"5.12", nil); break;
+                case kASFeatureRuin:            s = NSLocalizedString(@"5.13", nil); break;
+                case kASFeaturePipeline:        s = NSLocalizedString(@"5.14", nil); break;
+                case kASFeatureTower:           s = NSLocalizedString(@"5.15", nil); break;
+                case kASFeatureShootingPlatform:s = NSLocalizedString(@"5.16", nil); break;
+                case kASFeatureCairn:           s = NSLocalizedString(@"5.17", nil); break;
+                case kASFeatureFodderRack:      s = NSLocalizedString(@"5.18", nil); break;
+                case kASFeatureCharcoalBurningGround:s = NSLocalizedString(@"5.19", nil); break;
+                case kASFeatureMonument:        s = NSLocalizedString(@"5.20", nil); break;
+                case kASFeatureBuildingPassThrough:s = NSLocalizedString(@"5.23", nil); break;
+                case kASFeatureSpecialItem1:    s = NSLocalizedString(@"6.1", nil); break;
+                case kASFeatureSpecialItem2:    s = NSLocalizedString(@"6.2", nil); break;
+                case kASFeatureStairway:        s = NSLocalizedString(@"5.24", nil); break;
                 default:
                     break;
             }
@@ -729,7 +794,325 @@
             CGPathAddLineToPoint(path, NULL, 50.5, 0.5);
             CGPathCloseSubpath(path);
             break;
+        case kASFeatureSemiOpenLand:
+            //// Color Declarations
+            nonfilled = CGPathCreateMutable();
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-33.5, 11.5, 11, 11));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-49, -4, 11, 11));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-18, 26, 11, 11));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-4, 40, 11, 11));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(11, 26, 11, 11));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(26, 11, 11, 11));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(40, -4, 11, 11));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(25, -18, 11, 11));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(10, -33, 11, 11));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-4, -48, 11, 11));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-19, -33, 11, 11));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-35, -18, 11, 11));
+            break;
+        case kASFeatureForestCorner:
+            //// Color Declarations
+            CGPathMoveToPoint(path, NULL, -47, 0);
+            CGPathAddLineToPoint(path, NULL, 2, 49);
+            CGPathAddLineToPoint(path, NULL, 3, 0);
+            CGPathAddLineToPoint(path, NULL, 52, 0);
+            CGPathAddLineToPoint(path, NULL, 2, -49);
+            CGPathAddLineToPoint(path, NULL, -47, 0);
+            CGPathCloseSubpath(path);
+            break;
+        case kASFeatureClearing:
+            nonfilled = CGPathCreateMutable();
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-6, 42, 12, 12));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(18, 35, 12, 12));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(35, 18, 12, 12));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(42, -6, 12, 12));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(35, -30, 12, 12));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(18, -47, 12, 12));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-6, -54, 12, 12));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-29, -48, 12, 12));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-46, -30, 12, 12));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-53, -6, 12, 12));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-47, 18, 12, 12));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-29, 35, 12, 12));
+            break;
+        case kASFeatureThicket:
+            CGPathMoveToPoint(path, NULL, -12.5, 47.5);
+            CGPathAddLineToPoint(path, NULL, 48.5, -14.5);
+            CGPathMoveToPoint(path, NULL, -30.5, 29.5);
+            CGPathAddLineToPoint(path, NULL, 31.5, -33.5);
+            CGPathMoveToPoint(path, NULL, -48.5, 11.5);
+            CGPathAddLineToPoint(path, NULL, 13.5, -50.5);
+            CGPathMoveToPoint(path, NULL, 48.5, 14);
+            CGPathAddLineToPoint(path, NULL, -12.5, -48);
+            CGPathMoveToPoint(path, NULL, 31.5, 33.5);
+            CGPathAddLineToPoint(path, NULL, -30.5, -29.5);
+            CGPathMoveToPoint(path, NULL, 13.5, 50.5);
+            CGPathAddLineToPoint(path, NULL, -48.5, -11.5);
+            break;
+        case kASFeatureLinearThicket:
+            CGPathMoveToPoint(path, NULL, -49.5, -51.5);
+            CGPathAddLineToPoint(path, NULL, -34.5, -35.5);
+            CGPathMoveToPoint(path, NULL, 51.5, 49.5);
+            CGPathAddLineToPoint(path, NULL, 35.5, 33.5);
+            CGPathMoveToPoint(path, NULL, 18.5, 17.5);
+            CGPathAddLineToPoint(path, NULL, 9.5, 7.5);
+            CGPathMoveToPoint(path, NULL, -7.5, -8.5);
+            CGPathAddLineToPoint(path, NULL, -17.5, -19.5);
+            CGPathAddEllipseInRect(path, NULL, CGRectMake(-37.5, -38.5, 23, 22));
+            CGPathAddEllipseInRect(path, NULL, CGRectMake(-10.5, -11.5, 23, 22));
+            CGPathAddEllipseInRect(path, NULL, CGRectMake(15.5, 14.5, 23, 22));
+            break;
+        case kASFeatureVegetationBoundary:
+            nonfilled = CGPathCreateMutable();
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-37, 41, 11, 11));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-20, 27, 11, 11));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-5, 17, 11, 11));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(11, 6, 11, 11));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(27, -5, 11, 11));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(11, -16, 11, 11));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-4, -27, 11, 11));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-20, -38, 11, 11));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-37, -49, 11, 11));
+            break;
+        case kASFeatureCopse:
+            //// Color Declarations
+            CGPathMoveToPoint(path, NULL, -36.5, -26.5);
+            CGPathAddLineToPoint(path, NULL, -15.5, 40.5);
+            CGPathAddLineToPoint(path, NULL, -0.5, -8.7);
+            CGPathAddLineToPoint(path, NULL, 15.5, 40.5);
+            CGPathAddLineToPoint(path, NULL, 36.5, -26.5);
+            CGPathCloseSubpath(path);
+            
+            CGPathMoveToPoint(path, NULL, -14.5, -42.5);
+            CGPathAddLineToPoint(path, NULL, -14.5, -25.5);
+            CGPathMoveToPoint(path, NULL, 14.5, -26.5);
+            CGPathAddCurveToPoint(path, NULL, 14.5, -41.5, 14.5, -42.5, 14.5, -42.5);
+            break;
+        case kASFeatureDistinctiveTree:
+            CGPathMoveToPoint(path, NULL, -22.5, -26.5);
+            CGPathAddLineToPoint(path, NULL, -1.5, 37.5);
+            CGPathAddLineToPoint(path, NULL, 21.5, -26.5);
+            CGPathAddLineToPoint(path, NULL, -22.5, -26.5);
+            CGPathCloseSubpath(path);
+            CGPathMoveToPoint(path, NULL, -1, -43);
+            CGPathAddLineToPoint(path, NULL, -1, -26);
+            break;
+        case kASFeatureTreeStumpOrRootStock:
+            CGPathAddEllipseInRect(path, NULL, CGRectMake(-40.5, -39.5, 81, 81));
+            CGPathMoveToPoint(path, NULL, -29.5, 28.5);
+            CGPathAddLineToPoint(path, NULL, 29.5, -26.5);
+            CGPathMoveToPoint(path, NULL, -28.5, -27.5);
+            CGPathAddLineToPoint(path, NULL, 29.5, 28.5);
+            break;
+        case kASFeatureRoad:
+            CGPathMoveToPoint(path, NULL, -48.5, -46.5);
+            CGPathAddLineToPoint(path, NULL, 53.5, 55.5);
+            break;
+        case kASFeatureTrack:
+            CGPathMoveToPoint(path, NULL, -52.5, -51.5);
+            CGPathAddLineToPoint(path, NULL, -25.5, -25.5);
+            CGPathMoveToPoint(path, NULL, -16.5, -16.5);
+            CGPathAddLineToPoint(path, NULL, 13.5, 13.5);
+            CGPathMoveToPoint(path, NULL, 22.5, 22.5);
+            CGPathAddLineToPoint(path, NULL, 49.5, 49.5);
+            break;
+        case kASFeatureRide:
+            nonfilled = CGPathCreateMutable();
+
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-49, -31, 14, 14));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-35, -17, 14, 14));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-20, -2, 14, 14));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-5, 13, 14, 14));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(9, 27, 14, 14));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(24, 42, 14, 14));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-32, -46, 14, 14));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-18, -32, 14, 14));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-3, -17, 14, 14));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(12, -2, 14, 14));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(26, 12, 14, 14));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(41, 27, 14, 14));
+            break;
+        case kASFeatureBridge:
+            CGPathMoveToPoint(path, NULL, -50.5, -22.5);
+            CGPathAddLineToPoint(path, NULL, -32.5, -22.5);
+            CGPathAddLineToPoint(path, NULL, 20.5, 31.5);
+            CGPathAddLineToPoint(path, NULL, 20.5, 50.5);
+            CGPathMoveToPoint(path, NULL, 51.5, 20.5);
+            CGPathAddLineToPoint(path, NULL, 31.5, 20.5);
+            CGPathAddLineToPoint(path, NULL, -21.5, -32.5);
+            CGPathAddLineToPoint(path, NULL, -21.5, -50.5);
+            break;
+        case kASFeaturePowerLine:
+            CGPathMoveToPoint(path, NULL, -51.5, -48.5);
+            CGPathAddLineToPoint(path, NULL, 49.5, 52.5);
+            CGPathMoveToPoint(path, NULL, -12.5, 14.5);
+            CGPathAddLineToPoint(path, NULL, 8.5, -7.5);
+            CGPathMoveToPoint(path, NULL, 19.5, 46.5);
+            CGPathAddLineToPoint(path, NULL, 41.5, 24.5);
+            CGPathMoveToPoint(path, NULL, -43.5, -16.5);
+            CGPathAddLineToPoint(path, NULL, -22.5, -38.5);
+            break;
+        case kASFeaturePowerLinePylon:
+            CGPathMoveToPoint(path, NULL, -49.5, -49.5);
+            CGPathAddLineToPoint(path, NULL, 51.5, 51.5);
+            CGPathMoveToPoint(path, NULL, -9.5, 11.5);
+            CGPathAddLineToPoint(path, NULL, 11.5, -10.5);
+            CGPathMoveToPoint(path, NULL, 19.5, 42.5);
+            CGPathAddLineToPoint(path, NULL, 41.5, 20.5);
+            CGPathMoveToPoint(path, NULL, -41.5, -17.5);
+            CGPathAddLineToPoint(path, NULL, -20.5, -39.5);
+            CGPathAddEllipseInRect(path, NULL, CGRectMake(-29.5, -28.5, 60, 60));
+            break;
+        case kASFeatureTunnel:
+            CGPathMoveToPoint(path, NULL, -38.5, 16.5);
+            CGPathAddLineToPoint(path, NULL, 38.5, 16.5);
+            CGPathMoveToPoint(path, NULL, -15.5, 39.5);
+            CGPathAddLineToPoint(path, NULL, -0.5, 16.5);
+            CGPathAddLineToPoint(path, NULL, 15.5, 38.5);
+            CGPathMoveToPoint(path, NULL, -38.5, -14.5);
+            CGPathAddLineToPoint(path, NULL, 38.5, -14.5);
+            CGPathMoveToPoint(path, NULL, -15.5, -37.5);
+            CGPathAddLineToPoint(path, NULL, -0.5, -14.5);
+            CGPathAddLineToPoint(path, NULL, 15.5, -36.5);
+            break;
+        case kASFeatureStoneWall:
+            CGPathMoveToPoint(path, NULL, -49.5, -49.5);
+            CGPathAddLineToPoint(path, NULL, 49.5, 49.5);
+            nonfilled = CGPathCreateMutable();
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-42.5, -41.5, 27, 27));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-13.5, -12.5, 27, 27));
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(16.5, 17.5, 27, 27));
+            break;
+        case kASFeatureFence:
+            CGPathMoveToPoint(path, NULL, -34.5, -51.5);
+            CGPathAddLineToPoint(path, NULL, -34.5, -20.5);
+            CGPathAddLineToPoint(path, NULL, 35.5, 48.5);
+            CGPathAddLineToPoint(path, NULL, 35.5, 19.5);
+            CGPathMoveToPoint(path, NULL, -10.5, -27.5);
+            CGPathAddLineToPoint(path, NULL, -10.5, 2.5);
+            CGPathMoveToPoint(path, NULL, 13.5, -4.5);
+            CGPathAddLineToPoint(path, NULL, 13.5, 27.5);
+            break;
+        case kASFeatureCrossingPoint:
+            CGPathMoveToPoint(path, NULL, -52.5, -0.5);
+            CGPathAddLineToPoint(path, NULL, -12.5, -0.5);
+            CGPathMoveToPoint(path, NULL, -13.5, 39.5);
+            CGPathAddLineToPoint(path, NULL, -13.5, -38.5);
+            CGPathMoveToPoint(path, NULL, 15.5, 38.5);
+            CGPathAddLineToPoint(path, NULL, 15.5, -38.5);
+            CGPathMoveToPoint(path, NULL, 16.5, 0.5);
+            CGPathAddLineToPoint(path, NULL, 53.5, 0.5);
+            break;
+        case kASFeatureBuilding:
+            CGPathAddRect(path, NULL, CGRectMake(-43.5, -41.5, 85, 85));
+            break;
+        case kASFeaturePavedArea:
+            CGPathAddRect(path, NULL, CGRectMake(-44.5, -44.5, 90, 88));
+            CGPathMoveToPoint(path, NULL, -42.5, 9);
+            CGPathAddLineToPoint(path, NULL, -6.5, 44);
+            CGPathMoveToPoint(path, NULL, -45.5, -26.5);
+            CGPathAddLineToPoint(path, NULL, 26.5, 44.5);
+            CGPathMoveToPoint(path, NULL, -27, -45);
+            CGPathAddLineToPoint(path, NULL, 45, 26);
+            CGPathMoveToPoint(path, NULL, 7, -45);
+            CGPathAddLineToPoint(path, NULL, 43, -10);
+            break;
+        case kASFeatureRuin:
+            CGPathMoveToPoint(path, NULL, -40.5, 7.5);
+            CGPathAddLineToPoint(path, NULL, -40.5, 38.5);
+            CGPathAddLineToPoint(path, NULL, -7.5, 38.5);
+            CGPathMoveToPoint(path, NULL, 38.5, 7.5);
+            CGPathAddLineToPoint(path, NULL, 38.5, 38.5);
+            CGPathAddLineToPoint(path, NULL, 6.5, 38.5);
+            CGPathMoveToPoint(path, NULL, 38.5, -5.5);
+            CGPathAddLineToPoint(path, NULL, 38.5, -40.5);
+            CGPathAddLineToPoint(path, NULL, 6.5, -40.5);
+            CGPathMoveToPoint(path, NULL, -40.5, -5.5);
+            CGPathAddLineToPoint(path, NULL, -40.5, -40.5);
+            CGPathAddLineToPoint(path, NULL, -8.5, -40.5);
+            break;
+        case kASFeaturePipeline:
+            CGPathMoveToPoint(path, NULL, -45.5, -45.5);
+            CGPathAddLineToPoint(path, NULL, 44.5, 45.5);
+            CGPathMoveToPoint(path, NULL, -54.5, -21.5);
+            CGPathAddLineToPoint(path, NULL, -21.5, -21.5);
+            CGPathAddLineToPoint(path, NULL, -21.5, -50.5);
+            CGPathMoveToPoint(path, NULL, -25.5, 7.5);
+            CGPathAddLineToPoint(path, NULL, 7.5, 7.5);
+            CGPathAddLineToPoint(path, NULL, 7.5, -21.5);
+            CGPathMoveToPoint(path, NULL, 4, 38.5);
+            CGPathAddLineToPoint(path, NULL, 37, 38.5);
+            CGPathAddLineToPoint(path, NULL, 37, 9.5);
+            break;
+        case kASFeatureTower:
+            CGPathMoveToPoint(path, NULL, -41.5, 39.5);
+            CGPathAddLineToPoint(path, NULL, 40.5, 39.5);
+            CGPathMoveToPoint(path, NULL, -0.5, 38.5);
+            CGPathAddLineToPoint(path, NULL, -0.5, -40.5);
+            break;
+        case kASFeatureShootingPlatform:
+            CGPathMoveToPoint(path, NULL, -19.5, -41.5);
+            CGPathAddLineToPoint(path, NULL, -19.5, 38.5);
+            CGPathAddLineToPoint(path, NULL, 23.5, 38.5);
+            break;
+        case kASFeatureCairn:
+            CGPathAddEllipseInRect(path, NULL, CGRectMake(-31.5, -31.5, 64, 64));
+            nonfilled = CGPathCreateMutable();
+            CGPathAddEllipseInRect(nonfilled, tran, CGRectMake(-10.5, -10.5, 21, 21));
+            break;
+        case kASFeatureFodderRack:
+            CGPathMoveToPoint(path, NULL, -24.5, 25.5);
+            CGPathAddLineToPoint(path, NULL, 0.5, 50.5);
+            CGPathAddLineToPoint(path, NULL, 25.5, 26.5);
+            CGPathMoveToPoint(path, NULL, 0.5, -48.5);
+            CGPathAddLineToPoint(path, NULL, 0.5, 51.5);
+            CGPathMoveToPoint(path, NULL, -24.5, -48.5);
+            CGPathAddLineToPoint(path, NULL, 26.5, -48.5);
+            break;
+        case kASFeatureCharcoalBurningGround:
+            CGPathAddEllipseInRect(path, NULL, CGRectMake(-46, -46, 92, 92));
+            CGPathMoveToPoint(path, NULL, -39.5, -21.5);
+            CGPathAddLineToPoint(path, NULL, 39.5, -21.5);
+            CGPathAddLineToPoint(path, NULL, -0.5, 45.5);
+            CGPathAddLineToPoint(path, NULL, -39.5, -21.5);
+            CGPathCloseSubpath(path);
+            break;
+        case kASFeatureMonument:
+            CGPathMoveToPoint(path, NULL, -46.5, -43.5);
+            CGPathAddLineToPoint(path, NULL, 45.5, -43.5);
+            CGPathMoveToPoint(path, NULL, -27.5, -43.5);
+            CGPathAddLineToPoint(path, NULL, -0.5, 42.5);
+            CGPathAddLineToPoint(path, NULL, 27.5, -42.5);
+            break;
+        case kASFeatureBuildingPassThrough:
+            CGPathMoveToPoint(path, NULL, -29.5, -47.5);
+            CGPathAddLineToPoint(path, NULL, -29.5, 43.5);
+            CGPathMoveToPoint(path, NULL, 29.5, -47.5);
+            CGPathAddLineToPoint(path, NULL, 29.5, 43.5);
+            CGPathMoveToPoint(path, NULL, -46.5, 43.5);
+            CGPathAddLineToPoint(path, NULL, 46.5, 43.5);
+            break;
+        case kASFeatureStairway:
+            CGPathMoveToPoint(path, NULL, -46.5, -34.5);
+            CGPathAddLineToPoint(path, NULL, -22.5, -34.5);
+            CGPathAddLineToPoint(path, NULL, -22.5, -12.5);
+            CGPathAddLineToPoint(path, NULL, -0.5, -12.5);
+            CGPathAddLineToPoint(path, NULL, -0.5, 9.5);
+            CGPathAddLineToPoint(path, NULL, 22.5, 9.5);
+            CGPathAddLineToPoint(path, NULL, 22.5, 32.5);
+            CGPathAddLineToPoint(path, NULL, 45.5, 32.5);
+            break;
+        case kASFeatureSpecialItem1:
+            CGPathMoveToPoint(path, NULL, -32.5, -33.5);
+            CGPathAddLineToPoint(path, NULL, 33.5, 32.5);
+            CGPathMoveToPoint(path, NULL, -32.5, 32.5);
+            CGPathAddLineToPoint(path, NULL, 32.5, -33.5);
+            break;
+        case kASFeatureSpecialItem2:
+            CGPathAddEllipseInRect(path, NULL, CGRectMake(-51, -51, 102, 102));
+            break;
         default:
+            
             break;
     }
     CGFloat lw = THIN_LINE;
