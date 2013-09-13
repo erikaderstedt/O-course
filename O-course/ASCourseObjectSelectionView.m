@@ -8,7 +8,7 @@
 
 #import "ASCourseObjectSelectionView.h"
 
-#define COLUMNS (12)
+#define COLUMNS (8)
 
 @implementation ASCourseObjectSelectionView
 
