@@ -123,7 +123,7 @@
         if (rowIndex > 0 && (rowIndex - 1 < [[self.courses arrangedObjects] count])) {
             Course *thisCourse = [self.courses arrangedObjects][(rowIndex - 1)];
             
-            if ([anObject intValue] != NSNotFound) {
+            if ([anObject integerValue] != NSNotFound) {
                 NSMenu *theMenu = [(NSPopUpButtonCell *)[aTableColumn dataCell] menu];
                 NSMenuItem *theMenuItem = [theMenu itemAtIndex:[anObject intValue]];
             
