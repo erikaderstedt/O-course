@@ -98,6 +98,12 @@ enum ASFeature {
     kASFeatureSpecialItem2
 };
 
+enum ASDimensionsOrCombination {
+    kASCombinationNone,
+    kASCombinationCrossing,
+    kASCombinationJunction
+};
+
 enum ASOverprintObjectType {
     kASOverprintObjectStart,
     kASOverprintObjectControl,

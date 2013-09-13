@@ -34,7 +34,9 @@
         case kASAppearanceOrSecondaryFeature:
             return [self createPathsForFeatureOrAppearance:value transform:&at];
             break;
-            
+        case kASDimensionsOrCombinations:
+            return [self createPathsForDimensionsOrCombination:value transform:&at];
+            break;
         default:
             break;
     }
@@ -122,7 +124,9 @@
                         @(kASFeatureSpecialItem1),
                         @(kASFeatureSpecialItem2)]);
             break;
-            
+        case kASDimensionsOrCombinations:
+            values = @[@(kASCombinationNone), @(kASCombinationCrossing), @(kASCombinationJunction)];
+            break;
         default:
             break;
     }
@@ -132,6 +136,7 @@
 - (NSString *)localizedNameForValue:(NSInteger)value inColumn:(enum ASControlDescriptionColumn)column {
     enum ASFeature feature;
     enum ASWhichOfAnySimilarFeature which;
+    enum ASDimensionsOrCombination combo;
     
     NSString *s = nil;
     switch (column) {
@@ -232,6 +237,21 @@
                 default:
                     break;
             }
+            break;
+        case kASDimensionsOrCombinations:
+            combo = (enum ASDimensionsOrCombination)value;
+            switch (combo) {
+                case kASCombinationNone:            s = NSLocalizedString(@"None", nil);    break;
+                case kASCombinationCrossing:
+                    s = NSLocalizedString(@"10.1", nil);
+                    break;
+                case kASCombinationJunction:
+                    s = NSLocalizedString(@"10.2", nil);
+                    break;
+                default:
+                    break;
+            }
+            break;
         default:
             break;
     }
@@ -1123,6 +1143,44 @@
     if (nonfilled != NULL) {
         pathArray = @[(__bridge id)fillable, (__bridge id)nonfilled];
         CGPathRelease(nonfilled);
+    } else {
+        pathArray = @[(__bridge id)fillable];
+    }
+    CGPathRelease(fillable);
+    
+    return pathArray;
+}
+
+- (NSArray *)createPathsForDimensionsOrCombination:(NSNumber *)value transform:(CGAffineTransform *)tran {
+    enum ASDimensionsOrCombination combo = (enum ASDimensionsOrCombination)[value intValue];
+    CGMutablePathRef path = CGPathCreateMutable(), subpath = NULL;
+    CGPathRef fillable;
+    switch (combo) {
+        case kASCombinationCrossing:
+            CGPathMoveToPoint(path, NULL, -41.5, 42.5);
+            CGPathAddLineToPoint(path, NULL, 42.5, -41.5);
+            CGPathMoveToPoint(path, NULL, -41.5, -41.5);
+            CGPathAddLineToPoint(path, NULL, 42.5, 42.5);
+            break;
+        case kASCombinationJunction:
+            CGPathMoveToPoint(path, NULL, -41.5, 42.5);
+            CGPathAddLineToPoint(path, NULL, 0.0, 0.0);
+            CGPathMoveToPoint(path, NULL, -41.5, -41.5);
+            CGPathAddLineToPoint(path, NULL, 42.5, 42.5);
+            break;
+         default:
+            break;
+    };
+    
+    // Stroke original path
+    CGFloat lw = THIN_LINE;
+    if (tran != NULL) lw /= tran->a;
+    fillable = CGPathCreateCopyByStrokingPath(path, tran, lw, kCGLineCapButt, kCGLineJoinBevel, 0.0);
+    CGPathRelease(path);
+    NSArray *pathArray;
+    if (subpath != NULL) {
+        pathArray = @[(__bridge id)fillable, (__bridge id)subpath];
+        CGPathRelease(subpath);
     } else {
         pathArray = @[(__bridge id)fillable];
     }

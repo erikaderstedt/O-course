@@ -112,6 +112,9 @@
         case kASWhichOfAnySimilarFeature:
             [self.activeObject setWhichOfAnySimilarFeature:value];
             break;
+        case kASDimensionsOrCombinations:
+            [self.activeObject setCombinationSymbol:value];
+            break;
         default:
             break;
     }
