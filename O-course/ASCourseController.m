@@ -96,7 +96,7 @@
         }
     } else if ([[aTableColumn identifier] isEqualToString:@"layout"]) {
         if (rowIndex == 0) {
-            return nil;
+            return @(0);
         } else {
             Course *thisCourse = [self.courses arrangedObjects][(rowIndex - 1)];
             
