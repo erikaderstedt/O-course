@@ -196,10 +196,8 @@
     } else {
         if (tiledLayer != nil) {
             tiledLayer.delegate = nil;
-            [tiledLayer removeFromSuperlayer];
             
             overprintLayer.delegate = nil;
-            [overprintLayer removeFromSuperlayer];
         }
     }
     
