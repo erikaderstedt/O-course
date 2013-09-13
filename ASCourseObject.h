@@ -98,6 +98,20 @@ enum ASFeature {
     kASFeatureSpecialItem2
 };
 
+enum ASAppearance {
+    kASAppearanceLow = 1000,
+    kASAppearanceShallow,
+    kASAppearanceDeep,
+    kASAppearanceOvergrown,
+    kASAppearanceOpen,
+    kASAppearanceRocky,
+    kASAppearanceMarshy,
+    kASAppearanceSandy,
+    kASAppearanceNeedleLeaves,
+    kASAppearanceBroadLeaves,
+    kASAppearanceRuined
+};
+
 enum ASDimensionsOrCombination {
     kASCombinationNone,
     kASCombinationCrossing,
