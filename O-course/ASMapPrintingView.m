@@ -9,6 +9,7 @@
 #import "ASMapPrintingView.h"
 #import "ASMapView.h"
 #import "ASMapView+Layout.h"
+#import "ASControlDescriptionView.h"
 
 #define RESOLUTION (72.0/25.4)
 
@@ -50,7 +51,6 @@
 
 - (CGAffineTransform)patternTransform {
 
-    
     CGPoint p = [baseView centerOfMap];
     CGFloat scale = [baseView printingScale];
     CGFloat mapPointsPerMm = 100.0; // At 15000
@@ -119,6 +119,55 @@
         CGContextRestoreGState(ctx);
     }
     
+    if ([baseView controlDescriptionVisible]) {
+        enum ASLayoutControlDescriptionLocation location = [baseView location];
+        
+        // Calculate the map frame in our own coordinate system.
+        CGFloat scale = 1.0/(f2.size.width/[self frame].size.width);
+        CGRect mapInOurCoordinates = CGRectApplyAffineTransform(f1, CGAffineTransformMakeScale(scale, scale));
+
+        ASControlDescriptionView *cView = baseView.controlDescriptionView;
+        NSRect r = [cView controlDescriptionBounds];
+        CGFloat targetWidth = 7.0 * 8.0 * RESOLUTION;
+        scale = targetWidth / r.size.width;
+        NSAffineTransformStruct ats;
+        ats.m11 = scale; ats.m22 = scale;
+        ats.m21 = 0.0; ats.m12 = 0.0;
+        
+        CGPoint p1 = CGPointMake(0.0, 0.0), p2 = CGPointMake(0.0, 0.0);
+        switch (location) {
+            case kASControlDescriptionBottomLeft:
+                p1 = CGPointMake(NSMinX(r),NSMinY(r));
+                p2 = CGPointMake(NSMinX(mapInOurCoordinates), NSMinY(mapInOurCoordinates));
+                break;
+            case kASControlDescriptionBottomRight:
+                p1 = CGPointMake(NSMaxX(r),NSMinY(r));
+                p2 = CGPointMake(NSMaxX(mapInOurCoordinates), NSMinY(mapInOurCoordinates));
+                break;
+            case kASControlDescriptionTopLeft:
+                p1 = CGPointMake(NSMinX(r),NSMaxY(r));
+                p2 = CGPointMake(NSMinX(mapInOurCoordinates), NSMaxY(mapInOurCoordinates));
+                break;
+            case kASControlDescriptionTopRight:
+                p1 = CGPointMake(NSMaxX(r),NSMaxY(r));
+                p2 = CGPointMake(NSMaxX(mapInOurCoordinates), NSMaxY(mapInOurCoordinates));
+                break;                
+            default:
+                break;
+        }
+        ats.tX = p2.x - p1.x*scale;
+        ats.tY = p2.y - p1.y*scale;
+        
+        [NSGraphicsContext saveGraphicsState];
+        NSAffineTransform *at3 = [NSAffineTransform transform];
+        [at3 setTransformStruct:ats];
+        [at3 concat];
+        // Set up a suitab
+        [[NSColor whiteColor] set];
+        [NSBezierPath fillRect:NSInsetRect(r, -INSET_DIST, -INSET_DIST)];
+        [cView drawActualControlDescription];
+        [NSGraphicsContext restoreGraphicsState];
+    }
 }
 
 @end

@@ -9,6 +9,7 @@
 #import <AppKit/AppKit.h>
 #import "ASControlDescriptionProvider.h"
 
+#define INSET_DIST (8.0)
 @class ASDistanceFormatter;
 
 @interface ASControlDescriptionView : NSView {
@@ -51,6 +52,7 @@
 
 - (CGFloat)insetDistanceForLayer:(CALayer *)layer;
 - (void)drawControlDescriptionInLayer:(CALayer *)layer inContext:(CGContextRef)ctx;
+- (CGRect)controlDescriptionBounds;
 - (void)drawActualControlDescription;
 
 @end

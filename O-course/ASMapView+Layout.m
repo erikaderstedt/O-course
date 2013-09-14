@@ -8,7 +8,6 @@
 
 #import "ASMapView+Layout.h"
 #import "ASLayoutController.h"
-#import "Layout.h"
 #import "ASControlDescriptionView.h"
 
 #define DEFAULT_PRINTING_SCALE 10000.0
@@ -153,12 +152,6 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     CGContextSetLineCap(ctx, kCGLineCapRound);
     
     CGContextStrokePath(ctx);
-}
-
-- (void)drawControlDescriptionInContext:(CGContextRef)ctx {
-    enum ASLayoutControlDescriptionLocation location = [self.layoutController controlDescriptionLocation];
-    
-    // Calculate how wide the control description needs to be.
 }
 
 - (CIFilter *)backgroundMapFilter {
@@ -579,6 +572,14 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 
 - (CGFloat)cornerRadius {
     return [_printedMapScrollLayer cornerRadius];    
+}
+
+- (enum ASLayoutControlDescriptionLocation)location {
+    return [self.layoutController controlDescriptionLocation];
+}
+
+- (BOOL)controlDescriptionVisible {
+    return [self.layoutController showControlDescription];
 }
 
 @end

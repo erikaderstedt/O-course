@@ -17,7 +17,7 @@
 #define START_FRACTION (0.7)
 #define CIRCLE_FRACTION (0.7)
 #define ARROW_FRACTION (0.8)
-#define INSET_DIST (8.0)
+
 @implementation ASControlDescriptionView
 
 @synthesize provider;

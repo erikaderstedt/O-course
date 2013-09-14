@@ -7,6 +7,7 @@
 //
 
 #import "ASMapView.h"
+#import "Layout.h"
 
 #define LAYOUT_VIEW_WIDTH 273.0
 
@@ -42,6 +43,8 @@
 - (CGRect)mapFrame;
 - (CGRect)paperFrame;
 - (CGFloat)cornerRadius;
+- (enum ASLayoutControlDescriptionLocation)location;
+- (BOOL)controlDescriptionVisible;
 
 @end
 
