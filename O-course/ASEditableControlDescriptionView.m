@@ -41,7 +41,7 @@
     
     // Add a tracking area for each element that can be changed.
     __block NSInteger topItem = [self numberOfItems] - [self.provider numberOfControlDescriptionItems];
-    NSArray *regularColumns = @[@(kASWhichOfAnySimilarFeature), @(kASFeature), @(kASAppearanceOrSecondaryFeature), @(kASDimensionsOrCombinations), @(kASLocationOfTheControlFlag), @(kASOtherInformation)];
+    NSArray *regularColumns = @[@(kASControlCode), @(kASWhichOfAnySimilarFeature), @(kASFeature), @(kASAppearanceOrSecondaryFeature), @(kASDimensionsOrCombinations), @(kASLocationOfTheControlFlag), @(kASOtherInformation)];
     
     [self.provider enumerateControlDescriptionItemsUsingBlock:^(id<ASControlDescriptionItem> item) {
         if ([item objectType] == kASOverprintObjectControl) {
@@ -78,17 +78,31 @@
 - (void)mouseDown:(NSEvent *)theEvent {
     if (activeTrackingArea != nil) {
         NSDictionary *userInfo = [activeTrackingArea userInfo];
+        enum ASControlDescriptionColumn column = (enum ASControlDescriptionColumn)[userInfo[@"column"] intValue];
         if (userInfo) {
-            self.selectionView.column = (enum ASControlDescriptionColumn)[userInfo[@"column"] intValue];
             self.activeObject = userInfo[@"object"];
+            if (column != kASControlCode) {
+                self.selectionView.column = column;
+            }
         } else {
             self.selectionView.column = kASAllColumns;
         }
-        [self.popoverForCDEGH setContentSize:[[self selectionView] bounds].size];
-        [self.popoverForCDEGH showRelativeToRect:[activeTrackingArea rect] ofView:self preferredEdge:NSMaxXEdge];
+        
+        if (column != kASControlCode) {
+            [self.popoverForCDEGH setContentSize:[[self selectionView] bounds].size];
+            [self.popoverForCDEGH showRelativeToRect:[activeTrackingArea rect] ofView:self preferredEdge:NSMaxXEdge];
+        } else {
+            [[self.popoverForB contentViewController] setRepresentedObject:self.activeObject];
+            self.popoverForB.delegate = self;
+            [self.popoverForB showRelativeToRect:[activeTrackingArea rect] ofView:self preferredEdge:NSMaxXEdge];
+        }
     } else {
         self.activeObject = nil;
     }
+}
+
+- (void)popoverDidClose:(NSNotification *)notification {
+    [self setNeedsDisplay:YES];
 }
 
 - (void)drawRect:(NSRect)dirtyRect {

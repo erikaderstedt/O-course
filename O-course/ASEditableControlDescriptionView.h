@@ -10,12 +10,14 @@
 
 @class ASCourseObjectSelectionView;
 
-@interface ASEditableControlDescriptionView : ASControlDescriptionView {
+@interface ASEditableControlDescriptionView : ASControlDescriptionView  <NSPopoverDelegate> {
     NSTrackingArea *activeTrackingArea;
 }
 
 @property (nonatomic,weak) IBOutlet ASCourseObjectSelectionView *selectionView;
 @property (nonatomic,weak) IBOutlet NSPopover *popoverForCDEGH;
 @property (nonatomic,strong) id <ASEditableControlDescriptionItem> activeObject;
+@property (nonatomic,weak) IBOutlet NSPopover *popoverForB;
+
 
 @end
