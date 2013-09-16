@@ -415,13 +415,17 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     rightMargin = (psize.width -NSMaxX(ib)) *scale;
     topMargin = NSMinY(ib)*scale;
     bottomMargin = (psize.height - NSMaxY(ib)) *scale;
-    if (self.frameVisible) {
+    /*if (self.frameVisible) {
         if (self.orientation == NSLandscapeOrientation) {
             rightMargin += 5.0;
         } else {
             topMargin += 5.0;
         }
-    }
+    }*/
+    topMargin = MIN(leftMargin,rightMargin);
+    bottomMargin = MIN(leftMargin,rightMargin);
+    leftMargin = MIN(leftMargin,rightMargin);
+    rightMargin = MIN(leftMargin,rightMargin);
 }
 
 - (void)handleScaleAndOrientation {

@@ -42,7 +42,7 @@ enum ASControlDescriptionColumn {
 - (NSString *)eventName;
 - (NSString *)classNames;
 - (NSString *)number;
-- (NSString *)length;
+- (NSNumber *)length;
 - (NSString *)heightClimb;
 
 // Each item returned by the course object enumerator conforms

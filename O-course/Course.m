@@ -10,6 +10,7 @@
 #import "OverprintObject.h"
 #import "CourseObject.h"
 #import "Layout.h"
+#import "CoordinateTransverser.h"
 
 @implementation Course
 
@@ -123,6 +124,29 @@
         currentCourseObjectIndex++;
         oldAngleToNext = angleToNext + M_PI;
     }
+}
+
+// Length, in kilometers.
+- (CGFloat)length {
+    NSOrderedSet *cos = [self valueForKey:@"courseObjects"];
+    if ([cos count] < 2) return 0.0;
+    
+    // Find first start.
+    NSInteger i;
+    for (i = 0; i < [cos count] && [[(CourseObject *)(cos[i]) overprintObject] objectType] != kASOverprintObjectStart; i++);
+    if (i == [cos count]) return 0.0;
+    
+    CGPoint position = [[(CourseObject *)(cos[i]) overprintObject] position], p2;
+    CGFloat l = 0.0;
+    
+    for (++i; i < [cos count]; i++) {
+        p2 = [[(CourseObject *)(cos[i]) overprintObject] position];
+        l += regular_distance_between_points(position, p2);
+        position = p2;
+    }
+    
+    // Each point is 15 cm.
+    return l *15.0/100.0 / 1000.0;
 }
 
 @end

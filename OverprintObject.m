@@ -48,7 +48,7 @@
     NSArray *affectedCourses = [self valueForKeyPath:@"courseObjects.@distinctUnionOfObjects.course"];
     for (Course *course in affectedCourses) {
         [course recalculateControlNumberPositions];
-    }
+    }    
 }
 
 - (NSInteger)controlNumber {

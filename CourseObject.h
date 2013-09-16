@@ -8,10 +8,11 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
+#import "ASControlDescriptionProvider.h"
 
 @class Course, OverprintObject;
 
-@interface CourseObject : NSManagedObject
+@interface CourseObject : NSManagedObject <ASControlDescriptionItem>
 
 @property (nonatomic) double position_x;
 @property (nonatomic) double position_y;
@@ -20,7 +21,7 @@
 @property (nonatomic, retain) Course *course;
 
 - (CGPoint)controlNumberPosition;
-- (CGPoint)courseObjectPosition;
+- (CGPoint)overprintObjectPosition;
 
 - (CGFloat)angleToNextCourseObject;
 - (CGRect)frame;

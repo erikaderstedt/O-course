@@ -24,16 +24,12 @@
     return CGPointMake([[self valueForKey:@"position_x"] doubleValue], [[self valueForKey:@"position_y"] doubleValue]);
 }
 
-- (CGPoint)courseObjectPosition {
-    return [self.overprintObject position];
-}
-
 - (CGFloat)angleToNextCourseObject {
-    CGPoint p1 = [self courseObjectPosition], p2;
+    CGPoint p1 = [self overprintObjectPosition], p2;
 
     NSOrderedSet *courseObjects = [self.course valueForKey:@"courseObjects"];
     NSInteger i = [courseObjects indexOfObject:self] + 1;
-    p2 = [[courseObjects objectAtIndex:i] courseObjectPosition];
+    p2 = [[courseObjects objectAtIndex:i] overprintObjectPosition];
     
     return angle_between_points(p1, p2);
 }
@@ -42,5 +38,38 @@
     CGPoint p = [self controlNumberPosition];
     return CGRectMake(p.x - 400.0, p.y - 300.0, 800.0, 600.0);
 }
+
+- (CGPoint)overprintObjectPosition {
+    return [self.overprintObject position];
+}
+
+#pragma mark ASControlDescriptionItem
+
+- (enum ASOverprintObjectType)objectType {
+    return [self.overprintObject objectType];
+}
+
+// In km.
+- (NSNumber *)distance {
+    enum ASOverprintObjectType oType = [self.overprintObject objectType];
+    if (oType == kASOverprintObjectFinish) {
+        // Calculate distance to previous.
+        NSOrderedSet *courseObjects = [self.course valueForKey:@"courseObjects"];
+        NSInteger i = [courseObjects indexOfObject:self] - 1;
+        if (i < 0) return @(0.0);
+        return @(regular_distance_between_points([self overprintObjectPosition], [[courseObjects objectAtIndex:i] overprintObjectPosition]) * 15.0 / 100.0 / 1000.0);
+    }
+    NSAssert(NO, @"Not yet implemented");
+    return @(0.0);
+}
+
+- (NSNumber *)controlCode { return [self.overprintObject controlCode]; }
+- (NSNumber *)whichOfAnySimilarFeature { return [self.overprintObject whichOfAnySimilarFeature]; }
+- (NSNumber *)controlFeature { return [self.overprintObject controlFeature]; }
+- (NSNumber *)appearanceOrSecondControlFeature { return [self.overprintObject appearanceOrSecondControlFeature]; }
+- (NSString *)dimensions { return [self.overprintObject dimensions]; }
+- (NSNumber *)combinationSymbol { return [self.overprintObject combinationSymbol]; }
+- (NSNumber *)locationOfTheControlFlag { return [self.overprintObject locationOfTheControlFlag]; }
+- (NSNumber *)otherInformation { return [self.overprintObject otherInformation]; }
 
 @end

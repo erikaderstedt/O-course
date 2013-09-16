@@ -204,6 +204,10 @@
 }
 
 - (NSString *)classNames {
+    if ([[self.courses selectedObjects] count]) {
+        Course *course = [self.courses selectedObjects][0];
+        return [course valueForKey:@"name"];
+    }
     return nil;
 }
 
@@ -213,8 +217,11 @@
 }
 
 - (NSNumber *)length {
+    if ([[self.courses selectedObjects] count]) {
+        Course *course = [self.courses selectedObjects][0];
+        return @([course length]);
+    }
     return nil;
-    
 }
 
 - (NSNumber *)heightClimb {
@@ -222,19 +229,21 @@
 }
 
 - (NSInteger)numberOfControlDescriptionItems {
-    if ([[self.courses selectedObjects] count]) {
-        NSManagedObject *course = [self.courses arrangedObjects][0];
-        return [[course valueForKeyPath:@"courseObjects.@count"] integerValue];
+    Course *selectedCourse = [self selectedCourse];
+    if (selectedCourse != nil) {
+        return [[selectedCourse valueForKey:@"courseObjects"] count];
     }
+
     NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"OverprintObject"];
     return [[self managedObjectContext] countForFetchRequest:fr error:nil];
 }
 
 - (void)enumerateControlDescriptionItemsUsingBlock:(void (^)(id<ASControlDescriptionItem>))handler {
-    if ([[self.courses selectedObjects] count]) {
-        NSManagedObject *course = [self.courses arrangedObjects][0];
-        for (NSManagedObject *courseObject in [course valueForKey:@"courseObjects"]) {
-            handler([courseObject valueForKey:@"overprintObject"]);
+    Course *selectedCourse = [self selectedCourse];
+    if (selectedCourse != nil) {
+        NSOrderedSet *courseObjects = [selectedCourse valueForKey:@"courseObjects"];
+        for (id <ASControlDescriptionItem> courseObject in courseObjects) {
+            handler(courseObject);
         }
     } else {
         NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"OverprintObject"];

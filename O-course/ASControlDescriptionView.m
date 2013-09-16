@@ -217,6 +217,15 @@
     return controlDescriptionBounds;
 }
 
+- (void)drawString:(NSString *)s verticallyCenteredInRect:(NSRect)r withAttributes:(NSDictionary *)attributes {
+    NSSize sz = [s boundingRectWithSize:r.size
+                                                        options:NSStringDrawingUsesFontLeading
+                                                     attributes:attributes].size;
+    NSRect r2 = r;
+    r2.origin.y = r.origin.y - 0.5*(blockSize - sz.height);
+    [s drawInRect:NSIntegralRect(r2) withAttributes:attributes];
+}
+
 - (void)drawActualControlDescription {
     
     [overprintColor set];
@@ -236,21 +245,14 @@
     if ([self.provider eventName] != nil) {
         eventBounds = CGRectMake(CGRectGetMinX(controlDescriptionBounds), CGRectGetMaxY(controlDescriptionBounds) - blockSize,
                                  controlDescriptionBounds.size.width, blockSize);
-        sz = [[self.provider eventName] boundingRectWithSize:NSSizeFromCGSize(eventBounds.size)
-                                                     options:NSStringDrawingUsesFontLeading
-                                                  attributes:boldAttributes].size;
-        NSRect r =  NSRectFromCGRect(eventBounds);
-        r.origin.y = r.origin.y - 0.5*(blockSize - sz.height);
-        [[self.provider eventName] drawInRect:NSIntegralRect(r)
-                               withAttributes:boldAttributes];
+        [self drawString:[self.provider eventName] verticallyCenteredInRect:eventBounds withAttributes:boldAttributes];
         [NSBezierPath strokeLineFromPoint:NSMakePoint(x, y) toPoint:NSMakePoint(x + controlDescriptionBounds.size.width, y)];
         y -= blockSize;
     }
     
     // The class names.
     if ([self.provider classNames]) {
-        [[self.provider classNames] drawInRect:NSMakeRect(controlDescriptionBounds.origin.x, y, controlDescriptionBounds.size.width, blockSize)
-                                withAttributes:boldAttributes];
+        [self drawString:[self.provider classNames] verticallyCenteredInRect:NSMakeRect(controlDescriptionBounds.origin.x, y, controlDescriptionBounds.size.width, blockSize) withAttributes:boldAttributes];
         [NSBezierPath strokeLineFromPoint:NSMakePoint(x, y) toPoint:NSMakePoint(x + controlDescriptionBounds.size.width, y)];
         y -= blockSize;
     }
@@ -260,8 +262,8 @@
         [[self.provider number] drawInRect:NSMakeRect(x, y, 3.0*blockSize, blockSize)
                             withAttributes:boldAttributes];
         x += 3.0*blockSize;
-        [[self.provider length] drawInRect:NSMakeRect(x, y, 3.0*blockSize, blockSize)
-                            withAttributes:boldAttributes];
+        [self drawString:[distanceFormatter stringFromNumber:[self.provider length]] verticallyCenteredInRect:NSMakeRect(x, y, 3.0*blockSize, blockSize) withAttributes:boldAttributes];
+
         x += 3.0*blockSize;
         [[self.provider heightClimb] drawInRect:NSMakeRect(x, y, 2.0*blockSize, blockSize)
                                  withAttributes:boldAttributes];
@@ -365,7 +367,8 @@
             [NSBezierPath strokeLineFromPoint:NSMakePoint(x, y + blockSize)
                                       toPoint:NSMakePoint(x + controlDescriptionBounds.size.width, y + blockSize)];
             CGFloat blankSegment = 0.0;
-            if ([item distance] != nil) {
+            NSNumber *dist = [item distance];
+            if (dist != nil) {
                 NSString *s = [distanceFormatter stringFromNumber:[item distance]];
                 sz = [s boundingRectWithSize:NSMakeSize(blockSize * 4.0, blockSize)
                                      options:NSStringDrawingUsesFontLeading
@@ -459,7 +462,8 @@
         NSRect r = NSIntegralRect(NSInsetRect(NSMakeRect(p.x + 7.0*blockSize, p.y, blockSize, blockSize), (1.0-CIRCLE_FRACTION)*0.5*blockSize,(1.0-CIRCLE_FRACTION)*0.5*blockSize));
         if (routeType == kASOverprintObjectTapedRouteToFinish ||
             routeType == kASOverprintObjectRouteToFinish ||
-            routeType == kASOverprintObjectPartlyTapedRouteToFinish) {
+            routeType == kASOverprintObjectPartlyTapedRouteToFinish ||
+            routeType == kASOverprintObjectFinish) {
             [bp appendBezierPathWithOvalInRect:NSInsetRect(r, -0.04*blockSize, -0.04*blockSize)];
             [bp appendBezierPathWithOvalInRect:NSInsetRect(r, 0.04*blockSize, 0.04*blockSize)];
         } else {

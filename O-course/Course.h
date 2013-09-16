@@ -20,4 +20,7 @@
 + (CGRect)controlNumberFrameBasedOnObjectPosition:(CGPoint)position angle:(CGFloat)angle;
 - (void)recalculateControlNumberPositions;
 
+// Length, in km.
+- (CGFloat)length;
+
 @end
