@@ -11,10 +11,10 @@
 #import "ASControlDescriptionView.h"
 
 #define DEFAULT_PRINTING_SCALE 10000.0
-#define FRAME_INSET 10.0
 #define FRAME_CORNER_RADIUS 12.0
 #define FRAME_WIDTH 6.0
-
+#define USER_POINTS_TO_MM(x) ((x)*25.4/72)
+#define MM_TO_USER_POINTS(x) ((x)*72./25.4)
 
 CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 {
@@ -116,7 +116,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 
 - (void)drawPaperFrameInContext:(CGContextRef)ctx {
     NSAssert(self.frameVisible, @"Shouldn't be drawing the frame");
-    CGRect r = CGRectInset(_printedMapScrollLayer.frame, -FRAME_INSET,- FRAME_INSET);
+    CGRect r = uninsetFrameForScrollMapLayer;
 
     CGContextBeginPath(ctx);
     if (eventDetails != NULL) {
@@ -127,16 +127,19 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         
         CGFloat maxX = CGRectGetMaxX(r);
         CGFloat maxY = CGRectGetMaxY(r);
+        CGFloat inset = NSMinX(r);
+        CGFloat scale = 1.0/[self actualPaperRelatedToPaperOnPage];
+        CGContextSetTextMatrix(ctx, CGAffineTransformMakeScale(scale, scale));
         
         CGRect textBounds = CTLineGetBoundsWithOptions(eventDetails, kCTLineBoundsUseGlyphPathBounds);
-        CGContextSetTextPosition(ctx, r.origin.x + 2.5*FRAME_INSET, maxY - 0.25*textBounds.size.height);
+        CGContextSetTextPosition(ctx, r.origin.x + 2.5*inset, maxY - 0.25*textBounds.size.height/scale);
         CTLineDraw(eventDetails, ctx);
         
         CGPathAddArcToPoint(p, NULL, maxX, r.origin.y, maxX, r.origin.y + FRAME_CORNER_RADIUS, FRAME_CORNER_RADIUS);
         CGPathAddArcToPoint(p, NULL, maxX, maxY, maxX - FRAME_CORNER_RADIUS, maxY, FRAME_CORNER_RADIUS);
         
-        CGPathAddLineToPoint(p, NULL, r.origin.x + 3.0*FRAME_INSET + textBounds.size.width, maxY);
-        CGPathMoveToPoint(p, NULL, r.origin.x + 2.0*FRAME_INSET, maxY);
+        CGPathAddLineToPoint(p, NULL, r.origin.x + 3.0*inset + textBounds.size.width, maxY);
+        CGPathMoveToPoint(p, NULL, r.origin.x + 2.0*inset, maxY);
         CGPathAddArcToPoint(p, NULL, r.origin.x, maxY, r.origin.x, maxY - FRAME_CORNER_RADIUS, FRAME_CORNER_RADIUS);
         CGPathAddArcToPoint(p, NULL, r.origin.x, r.origin.y, r.origin.x + FRAME_CORNER_RADIUS, r.origin.y, FRAME_CORNER_RADIUS);
         CGContextAddPath(ctx, p);
@@ -148,7 +151,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         CGPathRelease(p2);
     }
     CGContextSetStrokeColorWithColor(ctx, self.frameColor);
-    CGContextSetLineWidth(ctx, 4.0);
+    CGContextSetLineWidth(ctx, 5.0/[self actualPaperRelatedToPaperOnPage]);
     CGContextSetLineCap(ctx, kCGLineCapRound);
     
     CGContextStrokePath(ctx);
@@ -159,10 +162,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         _backgroundMapFilter = [CIFilter filterWithName:@"CIColorControls"];
         [_backgroundMapFilter setDefaults];
         _backgroundMapFilter.name = @"skuggkarta";
-        /*        [_backgroundMapFilter setValue:@(0.2) forKey:@"inputSaturation"];
-         [_backgroundMapFilter setValue:@(-0.32) forKey:@"inputBrightness"];
-         [_backgroundMapFilter setValue:@(0.62) forKey:@"inputContrast"];
-         */    }
+    }
     return _backgroundMapFilter;
 }
 
@@ -205,6 +205,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     
     [self determineMargins];
     r = _printedMapLayer.bounds;
+
     if (self.orientation == NSLandscapeOrientation) {
         // The landscape version is rotated counter-clockwise.
         r.size.height -= leftMargin + rightMargin;
@@ -217,8 +218,10 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         r.origin.x += leftMargin;
         r.origin.y += bottomMargin;
     }
+    CGFloat inset = [self recommendedFrameInsetForBounds:r];
+    uninsetFrameForScrollMapLayer = r;
     if (self.frameColor != NULL) {
-        r = CGRectInset(r, FRAME_INSET, FRAME_INSET);
+        r = CGRectInset(uninsetFrameForScrollMapLayer, inset, inset);
         self.frameVisible = YES;
     } else {
         self.frameVisible = NO;
@@ -274,14 +277,15 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     if (showFrame) {
         [self setFrameColor:[self.layoutController frameColor]];
         if (!self.frameVisible) {
-            [[self printedMapLayer] setFrame:CGRectInset([[self printedMapLayer] frame], FRAME_INSET, FRAME_INSET)];
+            CGFloat inset = [self recommendedFrameInsetForBounds:_printedMapLayer.bounds];
+            [_printedMapScrollLayer setFrame:CGRectInset(uninsetFrameForScrollMapLayer, inset, inset)];
             _printedMapScrollLayer.cornerRadius = FRAME_CORNER_RADIUS;
             self.frameVisible = YES;
         }
     } else {
         [self setFrameColor:NULL];
         if (self.frameVisible) {
-            [[self printedMapLayer] setFrame:CGRectInset([[self printedMapLayer] frame], -FRAME_INSET, -FRAME_INSET)];
+            [_printedMapScrollLayer setFrame:uninsetFrameForScrollMapLayer];
             _printedMapScrollLayer.cornerRadius = 0.0;
             self.frameVisible = NO;
         }
@@ -383,24 +387,41 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [CATransaction commit];
 }
 
+- (CGFloat)actualPaperRelatedToPaperOnPage {
+    NSSize  actualPaper = self.paperSize,
+            paperOnPage = _printedMapLayer.bounds.size;
+    
+    return sqrt((actualPaper.width*actualPaper.width + actualPaper.height*actualPaper.height)/(paperOnPage.height*paperOnPage.height + paperOnPage.width*paperOnPage.width));
+}
+
+- (CGFloat)recommendedFrameInsetForBounds:(NSRect)r {
+    // This value will change if we're showing event name or event details.
+    // 5 mm otherwise
+    
+    CGFloat x = MAX(self.paperSize.width, self.paperSize.height);
+    CGFloat inset = 4.5 /* mm */ /USER_POINTS_TO_MM(x);
+    return inset*MAX(r.size.width, r.size.height);
+}
+
 - (void)determineMargins {
     NSPrintInfo *pi = [NSPrintInfo sharedPrintInfo];
-    NSSize sz = self.paperSize,sz2;
     CGFloat scale;
-    if (self.orientation == NSLandscapeOrientation) {
-        sz2 = NSMakeSize(sz.height,sz.width);
-        scale = sz.height/_printedMapLayer.bounds.size.width;
-    } else {
-        sz2 = sz;
-        scale = sz.height/_printedMapLayer.bounds.size.height;
-    }
+    scale = 1.0/[self actualPaperRelatedToPaperOnPage];
     [pi setOrientation:self.orientation];
-    [pi setPaperSize:sz2];
-    
-    leftMargin = [pi leftMargin]*scale;
-    rightMargin = [pi rightMargin]*scale;
-    topMargin = [pi topMargin]*scale;
-    bottomMargin = [pi bottomMargin]*scale;
+    NSRect ib = [pi imageablePageBounds];
+    NSSize psize = [pi paperSize];
+
+    leftMargin = NSMinX(ib) *scale;
+    rightMargin = (psize.width -NSMaxX(ib)) *scale;
+    topMargin = NSMinY(ib)*scale;
+    bottomMargin = (psize.height - NSMaxY(ib)) *scale;
+    if (self.frameVisible) {
+        if (self.orientation == NSLandscapeOrientation) {
+            rightMargin += 5.0;
+        } else {
+            topMargin += 5.0;
+        }
+    }
 }
 
 - (void)handleScaleAndOrientation {
@@ -410,7 +431,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         NSLog(@"Unable to ensure correct scale at this time.");
         return;
     }
-    CGFloat pointsInWidth = ((self.orientation == NSLandscapeOrientation)?self.paperSize.height:self.paperSize.width) * 100.0 * p / 15000.0;
+    CGFloat pointsInWidth = USER_POINTS_TO_MM(((self.orientation == NSLandscapeOrientation)?self.paperSize.height:self.paperSize.width)) * 100.0 * p / 15000.0;
 
     CGFloat z2 = visibleWidth/pointsInWidth;
     
@@ -431,7 +452,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     CGRect psmf = [_printedMapScrollLayer frame];
     CGRect frame = [[self printedMapLayer] frame];
     CGSize pSize = [self.layoutController paperSize];
-    CGFloat width = MIN(frame.size.width,frame.size.height)/MIN(pSize.width, pSize.height) * 7.0 * 8.0;
+    CGFloat width = MIN(frame.size.width,frame.size.height)/MIN(USER_POINTS_TO_MM(pSize.width), USER_POINTS_TO_MM(pSize.height)) * 7.0 * 8.0;
     
     CALayer *cd = [self controlDescriptionLayer];
     cd.bounds = CGRectMake(0.0, 0.0, width, [self.controlDescriptionView heightForWidth:width]);
@@ -497,7 +518,8 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [self updatePaperMapButMaintainPositionWhileDoing:^{
         if ([self.layoutController frameVisible]) {
             if (!self.frameVisible) {
-                _printedMapScrollLayer.frame = CGRectInset(_printedMapScrollLayer.frame, FRAME_INSET,FRAME_INSET);
+                CGFloat inset = [self recommendedFrameInsetForBounds:_printedMapLayer.bounds];
+                _printedMapScrollLayer.frame = CGRectInset(uninsetFrameForScrollMapLayer, inset, inset);
                 _printedMapScrollLayer.cornerRadius = FRAME_CORNER_RADIUS;
                 self.frameVisible = YES;
             }
@@ -505,7 +527,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         } else {
             [self setFrameColor:NULL];
             if (self.frameVisible) {
-                _printedMapScrollLayer.frame = CGRectInset(_printedMapScrollLayer.frame, -FRAME_INSET,-FRAME_INSET);
+                _printedMapScrollLayer.frame = uninsetFrameForScrollMapLayer;
                 _printedMapScrollLayer.cornerRadius = 0.0;
                 self.frameVisible = NO;
             }
@@ -529,7 +551,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     NSString *ed = [self.layoutController eventDescription];
     if (ed != nil && self.frameColor != NULL) {
 
-        NSFont *font = [NSFont fontWithName:@"Helvetica Neue" size:[self.layoutController paperSize].width/10.0];
+        NSFont *font = [NSFont fontWithName:@"Helvetica Neue" size:16.0];
         NSAttributedString *as = [[NSAttributedString alloc] initWithString:[self.layoutController eventDescription]
                                                                  attributes:@{ NSFontAttributeName:font, NSForegroundColorAttributeName:(__bridge id)self.frameColor}];
         eventDetails = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef)as);

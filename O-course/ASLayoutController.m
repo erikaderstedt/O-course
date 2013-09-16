@@ -205,7 +205,7 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
 
 - (NSSize)paperSize {
     Layout *selectedLayout = [self selectedLayout];
-    if (selectedLayout == nil) return NSMakeSize(210, 297);
+    if (selectedLayout == nil) return NSMakeSize(595.0, 842.0);
     
     return [selectedLayout paperSize];
 }

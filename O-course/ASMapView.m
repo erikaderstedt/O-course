@@ -28,7 +28,7 @@
     if (self) {
 		_zoom = 1.0;
         self.orientation = NSLandscapeOrientation;
-        self.paperSize = CGSizeMake(210.0, 297.0);
+        self.paperSize = CGSizeMake(595.0, 842.0);
     }
     return self;
 }
@@ -37,7 +37,7 @@
 	if (self) {
 		_zoom = 1.0;
         self.orientation = NSLandscapeOrientation;
-        self.paperSize = CGSizeMake(210.0, 297.0);
+        self.paperSize = CGSizeMake(595.0, 842.0);
 	}
 	return self;
 }
@@ -533,6 +533,7 @@
         [self adjustPrintedMapLayerForBounds];
         [self handleScaleAndOrientation];
         [self centerMapOnCoordinates:[self.layoutController layoutCenterPosition]];
+        [[self printedMapLayer] setNeedsDisplay];
         [CATransaction commit];
     } else {
         CGFloat oMinZoom = minZoom;

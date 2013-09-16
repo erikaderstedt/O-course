@@ -39,6 +39,8 @@
 - (void)adjustControlDescription;
 
 - (CGFloat)printingScale;
+- (CGFloat)actualPaperRelatedToPaperOnPage;
+- (CGFloat)recommendedFrameInsetForBounds:(NSRect)r;
 
 - (CGRect)mapFrame;
 - (CGRect)paperFrame;

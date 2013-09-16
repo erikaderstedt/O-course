@@ -21,9 +21,9 @@
     NSPrintingOrientation o = _baseView.orientation;
     NSRect r;
     if (o != NSLandscapeOrientation) {
-        r = NSMakeRect(0.0, 0.0, psz.width*RESOLUTION, psz.height*RESOLUTION);
+        r = NSMakeRect(0.0, 0.0, psz.width, psz.height);
     } else {
-        r = NSMakeRect(0.0, 0.0, psz.height*RESOLUTION, psz.width * RESOLUTION);
+        r = NSMakeRect(0.0, 0.0, psz.height, psz.width);
     }
     r.size.width = round(r.size.width);
     r.size.height = round(r.size.height);
@@ -162,7 +162,7 @@
         NSAffineTransform *at3 = [NSAffineTransform transform];
         [at3 setTransformStruct:ats];
         [at3 concat];
-        // Set up a suitab
+
         [[NSColor whiteColor] set];
         [NSBezierPath fillRect:NSInsetRect(r, -INSET_DIST, -INSET_DIST)];
         [cView drawActualControlDescription];

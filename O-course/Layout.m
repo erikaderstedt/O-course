@@ -62,9 +62,9 @@
     NSSize sz;
     
     if (type == kASLayoutPaperTypeA3) {
-        sz = NSMakeSize(297, 420);
+        sz = NSMakeSize(842., 1190.0);
     } else {
-        sz = NSMakeSize(210, 297);
+        sz = NSMakeSize(595., 842.);
     }
 
     return sz;
