@@ -199,6 +199,24 @@
     [self alterCourseObject:courseObject informLayer:layer hidden:YES];
 }
 
+- (CGFloat)distanceFromCenterForObjectType:(enum ASOverprintObjectType)oType {
+    CGFloat distanceFromCenter = 0.0;
+    switch (oType) {
+        case kASOverprintObjectControl:
+            distanceFromCenter = 600.0;
+            break;
+        case kASOverprintObjectFinish:
+            distanceFromCenter = 700.0;
+            break;
+        case kASOverprintObjectStart:
+            distanceFromCenter = 700.0/cos(M_PI/6);
+            break;
+        default:
+            break;
+    }
+    return distanceFromCenter;
+}
+
 #pragma mark ASOverprintProvider
 
 // This is called on several different background threads. It isn't practical to use different managed object context for this.
@@ -292,10 +310,10 @@
                 enum ASOverprintObjectType otype = (enum ASOverprintObjectType)[previousCourseObject[@"type"] integerValue];
                 angle = [[self class] angleBetweenCourseObjectInfos:previousCourseObject and:courseObjectInfo];
                 CGPoint startPoint = translatePoint(NSPointToCGPoint([previousCourseObject[@"position"] pointValue]),
-                                                    0.5*((otype == kASOverprintObjectControl)?600.0:(700.0/cos(M_PI/6))),
+                                                    0.5*[self distanceFromCenterForObjectType:otype],
                                                     angle);
                 CGPoint endPoint = translatePoint(p,
-                                                  0.5*((type == kASOverprintObjectControl)?600.0:(700.0/cos(M_PI/6))),
+                                                  0.5*[self distanceFromCenterForObjectType:type],
                                                   angle+M_PI);
                 CGContextBeginPath(ctx);
                 CGContextMoveToPoint(ctx, startPoint.x, startPoint.y);
