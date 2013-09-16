@@ -221,6 +221,10 @@
 
 // This is called on several different background threads. It isn't practical to use different managed object context for this.
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
+    [self drawLayer:layer inContext:ctx showObjectsNotInCourse:NO];
+}
+
+- (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx showObjectsNotInCourse:(BOOL)showObjectsNotInCourse {
 
     if (self.cacheArray == nil) return;
     
@@ -243,11 +247,11 @@
         BOOL inCourse = [courseObjectInfo[@"in_course"] boolValue];
         CGContextSetStrokeColorWithColor(ctx, (inCourse?[self overprintColor]:[self transparentOverprintColor]));
         CGContextSetFillColorWithColor(ctx, (inCourse?[self overprintColor]:[self transparentOverprintColor]));
-        
+
         CGRect r;
         CGFloat z;
         if ([[courseObjectInfo objectForKey:@"hidden"] boolValue] == NO &&
-            [[courseObjectInfo objectForKey:@"draw"] boolValue] == YES) {
+            [[courseObjectInfo objectForKey:@"draw"] boolValue] == YES && (showObjectsNotInCourse || inCourse)) {
             switch (type) {
                 case kASOverprintObjectControl:
                     r = CGRectMake(p.x-300.0, p.y-300.0, 600.0, 600.0);
