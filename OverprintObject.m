@@ -164,11 +164,121 @@
             feature = kASFeatureBareRock;
             break;
             
+        /* Symbols 3xx */
+        case 301:
+        case 304:
+            feature = kASFeatureLake;
+            break;
+        case 302:
+            feature = kASFeaturePond;
+            break;
+        case 303:
+            feature = kASFeatureWaterhole;
+            break;
+        case 305:
+        case 306:
+            feature = kASFeatureStream;
+            break;
+        case 307:
+            feature = kASFeatureDitch;
+            break;
+        case 308:
+            feature = kASFeatureNarrowMarch;
+            break;
+        case 309:
+        case 310:
+        case 311:
+            feature = kASFeatureMarch;
+            break;
+        case 312:
+            feature = kASFeatureWell;
+            break;
+        case 313:
+            feature = kASFeatureSpring;
+            break;
             
+        /* Symbols 4xx */
+        case 401:
+        case 403:
+            feature = kASFeatureOpenLand;
+            break;
+        case 402:
+        case 404:
+            feature = kASFeatureSemiOpenLand;
+            break;
+
+        /* Symbols 5xx */
+        case 501:
+        case 502:
+        case 503:
+        case 504:
+            feature = kASFeatureRoad;
+            break;
+        case 505:
+        case 506:
+        case 507:
+            feature = kASFeatureTrack;
+            break;
+        case 508:
+        case 509:
+            feature = kASFeatureRide;
+            break;
+        case 512:
+            feature = kASFeatureBridge;
+            break;
+        case 516:
+        case 517:
+            feature = kASFeaturePowerLine;
+            break;
+        case 518:
+            feature = kASFeatureTunnel;
+            break;
+        case 519:
+        case 521:
+            feature = kASFeatureStoneWall;
+            break;
+        case 520:
+            feature = kASFeatureStoneWall;
+            self.appearanceOrSecondControlFeature = @(kASAppearanceRuined);
+            break;
+        case 522:
+        case 524:
+            feature = kASFeatureFence;
+            break;
+        case 523:
+            feature = kASFeatureFence;
+            self.appearanceOrSecondControlFeature = @(kASAppearanceRuined);
+            break;
+        case 525:
+            feature = kASFeatureCrossingPoint;
+            break;
         case 527:
         case 526:
             feature = kASFeatureBuilding;
             break;
+        case 529:
+            feature = kASFeaturePavedArea;
+            break;
+        case 530:
+            feature = kASFeatureRuin;
+            break;
+        case 533:
+        case 534:
+            feature = kASFeaturePipeline;
+            break;
+        case 535:
+            feature = kASFeatureTower;
+            break;
+        case 536:
+            feature = kASFeatureShootingPlatform;
+            break;
+        case 537:
+            feature = kASFeatureCairn;
+            break;
+        case 538:
+            feature = kASFeatureFodderRack;
+            break;
+            
         default:
             break;
     }
