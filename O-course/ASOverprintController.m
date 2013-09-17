@@ -13,7 +13,7 @@
 
 @implementation ASOverprintController
 
-@synthesize document;
+@synthesize document, controlDigitAttributes, dataSource, cacheArray;
 
 - (void)dealloc {
     if (_overprintColor != NULL) CGColorRelease(_overprintColor);
@@ -40,16 +40,21 @@
     return _transparentOverprintColor;
 }
 
-- (void)awakeFromNib {
-    controlDigitAttributes = @{
+- (void)setupAttributes {
+    self.controlDigitAttributes = @{
                                [NSString stringWithString:(NSString *)kCTForegroundColorFromContextAttributeName]: @(YES),
                                NSFontAttributeName:[NSFont fontWithName:@"Helvetica Neue" size:400]};
-    
+}
+
+- (void)awakeFromNib {
+    [self setupAttributes];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(courseChanged:) name:@"ASCourseChanged" object:[self.document managedObjectContext]];
 }
 
 - (void)teardown {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ASCourseChanged" object:[self.document managedObjectContext]];
+    if (masterController == nil) {
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ASCourseChanged" object:[self.document managedObjectContext]];
+    }
 }
 
 - (void)courseChanged:(NSNotification *)n {
@@ -59,13 +64,13 @@
 - (void)updateOverprint {
 
     NSAssert([NSThread isMainThread], @"Not the main thread.");
-    @synchronized(self) {
-        self.cacheArray = nil;
+    if (masterController != nil) {
+        [masterController updateOverprint];
+        return;
     }
     
     NSMutableArray *ma = [NSMutableArray arrayWithCapacity:100];
 
-    //    NSInteger controlNumber = 1;
     drawConnectingLines = [self.dataSource specificCourseSelected];
     NSMutableArray *drawnObjects = [NSMutableArray arrayWithCapacity:100];
     [self.dataSource enumerateOverprintObjectsInSelectedCourseUsingBlock:^(id<ASOverprintObject> object, NSInteger index, CGPoint controlNumberPosition) {
@@ -94,33 +99,10 @@
     @synchronized(self) {
         self.cacheArray = ma;
     }
+
     [[NSNotificationCenter defaultCenter] postNotificationName:@"ASOverprintChanged" object:nil];
 }
-/*
-- (void)updateOverprintObject:(id <ASOverprintObject>)courseObject withNewPosition:(CGPoint)p inLayer:(CATiledLayer *)layer {
-    @synchronized(self) {
-        NSMutableArray *ma = [NSMutableArray arrayWithArray:self.cacheArray];
-        NSPoint p_orig = NSPointFromCGPoint([courseObject position]);
-        __block NSUInteger modifyIndex = NSNotFound;
-        [ma enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            NSDictionary *d = (NSDictionary *)obj;
-            NSPoint p_this = [[d objectForKey:@"position"] pointValue];
-            if (p_orig.x == p_this.x && p_orig.y == p_this.y) {
-                modifyIndex = idx;
-                *stop = YES;
-            }
-        }];
-        if (modifyIndex != NSNotFound) {
-            [layer setNeedsDisplayInRect:[self frameForOverprintObject:courseObject]];
-            courseObject.position = p;
-            [ma replaceObjectAtIndex:modifyIndex withObject:@{ @"position":[NSValue valueWithPoint:NSPointFromCGPoint(p)],
-             @"type":@([courseObject objectType]), @"in_course":[[ma objectAtIndex:modifyIndex] valueForKey:@"in_course"], @"hidden":[[ma objectAtIndex:modifyIndex] valueForKey:@"hidden"]}];
-            [layer setNeedsDisplayInRect:[self frameForOverprintObject:courseObject]];
-            self.cacheArray = ma;
-        }
-    }
-}
-*/
+
 + (CGFloat)angleBetweenCourseObjectInfos:(NSDictionary *)courseObjectInfo and:(NSDictionary *)secondCourseObjectInfo {
     CGFloat angle = 0.0;
 
@@ -169,6 +151,11 @@
 }
 
 - (void)alterCourseObject:(id<ASOverprintObject>)courseObject informLayer:(CATiledLayer *)layer hidden:(BOOL)hide {
+    if (masterController != nil) {
+        [masterController alterCourseObject:courseObject informLayer:layer hidden:hide];
+        return;
+    }
+    
     @synchronized(self) {
         NSMutableArray *ma = [NSMutableArray arrayWithArray:self.cacheArray];
         NSPoint p_orig = NSPointFromCGPoint([courseObject position]);
@@ -219,18 +206,25 @@
 
 #pragma mark ASOverprintProvider
 
-// This is called on several different background threads. It isn't practical to use different managed object context for this.
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
-    [self drawLayer:layer inContext:ctx showObjectsNotInCourse:NO];
-}
 
-- (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx showObjectsNotInCourse:(BOOL)showObjectsNotInCourse {
-
-    if (self.cacheArray == nil) return;
+    if (self.cacheArray == nil && masterController == nil) return;
     
     NSArray *cacheCopy;
-    @synchronized(self) {
-        cacheCopy = [NSArray arrayWithArray:self.cacheArray];
+    BOOL showObjectsNotInCourse;
+    BOOL dcl;
+    if (masterController != nil) {
+        @synchronized(masterController) {
+            cacheCopy = [NSArray arrayWithArray:masterController.cacheArray];
+        }
+        showObjectsNotInCourse = NO;
+        dcl = masterController->drawConnectingLines;
+    } else {
+        @synchronized(self) {
+            cacheCopy = [NSArray arrayWithArray:self.cacheArray];
+        }
+        showObjectsNotInCourse = YES;
+        dcl = drawConnectingLines;
     }
     
     // Draw the actual course.
@@ -263,7 +257,7 @@
                     }
                     break;
                 case kASOverprintObjectStart:
-                    if (drawConnectingLines && inCourse) {
+                    if (dcl && inCourse) {
                         angle = [[self class] angleBetweenStartAndFirstControlUsingCache:cacheCopy];
                     } else {
                         angle = -M_PI/6.0;
@@ -299,7 +293,7 @@
             
             if (inCourse && type == kASOverprintObjectControl) {
                 // Draw control code / control number at the specified position.
-                NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:[courseObjectInfo[@"index"] stringValue] attributes:controlDigitAttributes];
+                NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:[courseObjectInfo[@"index"] stringValue] attributes:self.controlDigitAttributes];
                 CTLineRef line = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef)attributedString);
                 
                 // Set text position and draw the line into the graphics context
@@ -309,7 +303,7 @@
             }
         }
         
-        if (drawConnectingLines && inCourse) {
+        if (dcl && inCourse) {
             if (previousCourseObject && (![courseObjectInfo[@"hidden"] boolValue] && ![previousCourseObject[@"hidden"] boolValue])) {
                 enum ASOverprintObjectType otype = (enum ASOverprintObjectType)[previousCourseObject[@"type"] integerValue];
                 angle = [[self class] angleBetweenCourseObjectInfos:previousCourseObject and:courseObjectInfo];
@@ -329,6 +323,20 @@
             previousCourseObject = courseObjectInfo;
         }
     }
+}
+
+#pragma mark Layout proxy stuff
+
+- (ASOverprintController *)layoutProxy {
+    if (self._layoutProxy == nil) {
+        ASOverprintController *p = [[ASOverprintController alloc] init];
+        p.document = self.document;
+        p.dataSource = self.dataSource;
+        p->masterController = self;
+        [p setupAttributes];
+        self._layoutProxy = p;
+    }
+    return self._layoutProxy;
 }
 
 @end

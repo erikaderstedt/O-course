@@ -31,13 +31,16 @@
     
     BOOL drawConnectingLines;
     
-    NSDictionary *controlDigitAttributes;
+    ASOverprintController *masterController;
 }
 @property (nonatomic,weak) IBOutlet id <ASCourseDataSource> dataSource;
 @property (nonatomic,weak) IBOutlet ASOcourseDocument *document;
 @property (nonatomic,strong) NSArray *cacheArray;
+@property (nonatomic,strong) NSDictionary *controlDigitAttributes;
+@property (nonatomic,strong) ASOverprintController *_layoutProxy;
 
 - (CGColorRef)overprintColor;
+- (ASOverprintController *)layoutProxy;
 
 - (void)teardown;
 @end

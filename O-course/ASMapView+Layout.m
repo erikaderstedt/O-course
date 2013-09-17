@@ -85,7 +85,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         _innerOverprintLayer.bounds = _innerMapLayer.bounds;
         _innerOverprintLayer.anchorPoint = _innerMapLayer.anchorPoint;
         _innerOverprintLayer.position = _innerMapLayer.position;
-        _innerOverprintLayer.delegate = self.overprintProvider;
+        _innerOverprintLayer.delegate = [self.overprintProvider layoutProxy];
 
         /*
          CIFilter *mulBlend = [CIFilter filterWithName:@"CIMultiplyCompositing"];

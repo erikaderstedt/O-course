@@ -19,6 +19,8 @@
 - (void)hideOverprintObject:(id <ASOverprintObject>)courseObject informLayer:(CATiledLayer *)layer;
 - (void)showOverprintObject:(id <ASOverprintObject>)courseObject informLayer:(CATiledLayer *)layer;
 
+- (id <ASOverprintProvider>)layoutProxy;
+
 @end
 
 @protocol ASMapProvider <NSObject>

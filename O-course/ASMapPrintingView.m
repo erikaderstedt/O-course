@@ -98,7 +98,7 @@
     
     // Simulated overprint
     CGContextSetBlendMode(ctx, kCGBlendModeMultiply);
-    [baseView.overprintProvider drawLayer:nil inContext:ctx];
+    [[baseView.overprintProvider layoutProxy] drawLayer:nil inContext:ctx];
     
     // The paper frame is drawn in the paperFrame coordinate space.
     CGContextRestoreGState(ctx);
