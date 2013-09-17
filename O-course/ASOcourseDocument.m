@@ -200,7 +200,7 @@ out_error:
     [self.courseController setManagedObjectContext:[self managedObjectContext]];
     [self.courseController willAppear];
     
-    mapView.overprintProvider = self.overprintController;
+    self.mapView.overprintProvider = self.overprintController;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(undoOrRedo:) name:NSUndoManagerDidUndoChangeNotification object:[[self managedObjectContext] undoManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(undoOrRedo:) name:NSUndoManagerDidRedoChangeNotification object:[[self managedObjectContext] undoManager]];
@@ -448,6 +448,10 @@ out_error:
         [po setCanSpawnSeparateThread:YES];
         [po runOperation];
     }
+}
+
+- (NSUndoManager *)undoManager {
+    return [self.managedObjectContext undoManager];
 }
 
 @end
