@@ -1450,7 +1450,8 @@
                 CGPathAddLineToPoint(path, NULL, 53.5, 0.5);
                 break;
             case kASFeatureBuilding:
-                CGPathAddRect(path, NULL, CGRectMake(-43.5, -41.5, 85, 85));
+                nonfilled = CGPathCreateMutable();
+                CGPathAddRect(nonfilled, tran, CGRectMake(-43.5, -41.5, 85, 85));
                 break;
             case kASFeaturePavedArea:
                 CGPathAddRect(path, NULL, CGRectMake(-44.5, -44.5, 90, 88));
