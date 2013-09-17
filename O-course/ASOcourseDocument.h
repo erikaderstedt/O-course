@@ -29,6 +29,11 @@
 @property (nonatomic,weak) IBOutlet NSPopover *controlDefinitionsPopover;
 @property (nonatomic,weak) IBOutlet NSToolbarItem *showControlDefinitionsToolbarItem;
 @property (strong) NSURL *loadedURL;
+@property (nonatomic,weak) IBOutlet NSPanel *eventInfoPanel;
+
+- (IBAction)changeEventInfo:(id)sender;
+- (IBAction)changeEventInfoOK:(id)sender;
+- (IBAction)changeEventInfoCancel:(id)sender;
 
 - (NSManagedObjectContext *)managedObjectContext;
 

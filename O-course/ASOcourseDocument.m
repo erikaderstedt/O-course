@@ -454,4 +454,29 @@ out_error:
     return [self.managedObjectContext undoManager];
 }
 
+- (IBAction)changeEventInfoOK:(id)sender {
+    [self.eventInfoPanel makeFirstResponder:nil];
+    [NSApp endSheet:self.eventInfoPanel returnCode:NSOKButton];
+}
+
+- (IBAction)changeEventInfoCancel:(id)sender {
+    [NSApp endSheet:self.eventInfoPanel returnCode:NSCancelButton];
+}
+
+- (IBAction)changeEventInfo:(id)sender {
+    [self.undoManager beginUndoGrouping];
+    [NSApp beginSheet:self.eventInfoPanel modalForWindow:[self.mapView window] modalDelegate:self didEndSelector:@selector(changeEventSheetDidEnd:returnCode:contextInfo:) contextInfo:NULL];
+}
+
+- (void)changeEventSheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
+    [sheet orderOut:nil];
+    [self.undoManager endUndoGrouping];
+    
+    if (returnCode == NSCancelButton) {
+        [self.undoManager undo];
+    } else {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"ASCourseChanged" object:self.managedObjectContext];
+    }
+    
+}
 @end
