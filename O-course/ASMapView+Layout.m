@@ -455,11 +455,12 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     CGRect psmf = [_printedMapScrollLayer frame];
     CGRect frame = [[self printedMapLayer] frame];
     CGSize pSize = [self.layoutController paperSize];
-    CGFloat width = MIN(frame.size.width,frame.size.height)/MIN(USER_POINTS_TO_MM(pSize.width), USER_POINTS_TO_MM(pSize.height)) * 7.0 * 8.0;
     
     CALayer *cd = [self controlDescriptionLayer];
-    cd.bounds = CGRectMake(0.0, 0.0, width, [self.controlDescriptionView heightForWidth:width]);
+    // TODO: calculate a better inset.
     CGFloat inset = round([self.controlDescriptionView insetDistanceForLayer:cd]);
+    CGFloat width = MIN(frame.size.width,frame.size.height)/MIN(USER_POINTS_TO_MM(pSize.width), USER_POINTS_TO_MM(pSize.height)) * 6.0 * 8.0 + 2.0*inset;
+    cd.bounds = CGRectMake(0.0, 0.0, width, [self.controlDescriptionView heightForWidth:width]);
     switch (location) {
         case kASControlDescriptionBottomLeft:
             cd.anchorPoint = CGPointMake(0.0, 0.0);
@@ -559,7 +560,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
                                                                  attributes:@{ NSFontAttributeName:font, NSForegroundColorAttributeName:(__bridge id)self.frameColor}];
         eventDetails = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef)as);
     }
-    [self adjustControlDescription];
+//    [self adjustControlDescription];
     [_printedMapLayer setNeedsDisplay];
 }
 

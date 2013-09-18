@@ -812,11 +812,11 @@
     [_innerOverprintLayer setNeedsDisplay];
     if (self.state == kASMapViewLayout) {
         [self adjustControlDescription];
+    } else {
+        // Update tracking areas.
+        [self updateTrackingAreas];
     }
     [self setNeedsDisplay:YES];
-    
-    // Update tracking areas.
-    [self updateTrackingAreas];
 }
 
 - (BOOL)isOpaque {

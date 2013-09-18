@@ -101,7 +101,7 @@
     blockSize = round(descWidth / 8.0);
     descWidth = 8.0*blockSize;
 
-    CGFloat height = [self heightForWidth:descWidth];
+    CGFloat height = descWidth / 8.0 * [self numberOfItems];
     if (height == 0.0) {
         blockSize = 0.0;
         paperBounds = CGRectZero;
@@ -136,8 +136,8 @@
 }
 
 - (CGFloat)heightForWidth:(CGFloat)width {
-    // 8 columns.
-    return width / 8.0 * [self numberOfItems];
+    
+    return paperBounds.size.height/paperBounds.size.width * width;
 }
 
 - (void)drawThickGridAtOrigin:(NSPoint)origin {
@@ -195,15 +195,12 @@
     CGPoint p, p2;
     p = CGPointMake(CGRectGetMinX(layer.bounds), CGRectGetMinY(layer.bounds));
     p2 = CGPointMake(CGRectGetMinX(paperBounds), CGRectGetMinY(paperBounds));
-    
     at.tX = p.x - scale*p2.x;
     at.tY = p.y - scale*p2.y;
     
     NSAffineTransform *at2 = [[NSAffineTransform alloc] init];
     [at2 setTransformStruct:at];
     [at2 concat];
-    
-    // Draw white background.
     // Draw extra rounded paths adjacent to our rect.
     
     // ...Draw content using NS APIs...
