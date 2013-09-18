@@ -33,6 +33,7 @@ extern NSString *const ASLayoutDecorChanged;
 @property (strong) NSArray *waterAndMarsh;
 @property (strong) NSArray *vegetation;
 @property (strong) NSArray *manMade;
+@property (strong) NSArray *technical;
 @property (assign) BOOL recognizesSymbols;
 
 - (void)willAppear;

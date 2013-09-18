@@ -22,7 +22,7 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
 
 @implementation ASLayoutController
 
-@synthesize landForms, rocksAndCliffs, waterAndMarsh, vegetation, manMade, recognizesSymbols;
+@synthesize landForms, rocksAndCliffs, waterAndMarsh, vegetation, manMade, technical, recognizesSymbols;
 
 - (void)willAppear {
     if ([[self.layouts arrangedObjects] count] == 0) {
@@ -69,6 +69,7 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
     self.rocksAndCliffs = nil;
     self.vegetation = nil;
     self.manMade = nil;
+    self.technical = nil;
 }
 /*
 - (void)awakeFromNib {
@@ -119,6 +120,7 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
         NSMutableArray *m300 = [NSMutableArray arrayWithCapacity:20];
         NSMutableArray *m400 = [NSMutableArray arrayWithCapacity:20];
         NSMutableArray *m500 = [NSMutableArray arrayWithCapacity:20];
+        NSMutableArray *m600 = [NSMutableArray arrayWithCapacity:10];
         
         for (NSDictionary *symbol in symbolList) {
             NSInteger grp = [[symbol valueForKey:@"number"] integerValue] / 100;
@@ -138,6 +140,9 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
                 case 5:
                     [m500 addObject:symbol];
                     break;
+                case 6:
+                    [m600 addObject:symbol];
+                    break;
                 default:
                     break;
             }
@@ -150,18 +155,21 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
         [m300 sortUsingComparator:comparator];
         [m400 sortUsingComparator:comparator];
         [m500 sortUsingComparator:comparator];
+        [m600 sortUsingComparator:comparator];
         
         self.landForms = m100;
         self.rocksAndCliffs = m200;
         self.waterAndMarsh = m300;
         self.vegetation = m400;
         self.manMade = m500;
+        self.technical = m600;
     } else {
         self.landForms = nil;
         self.rocksAndCliffs = nil;
         self.waterAndMarsh = nil;
         self.vegetation = nil;
         self.manMade = nil;
+        self.technical = nil;
         self.recognizesSymbols = NO;
     }
 }
@@ -328,7 +336,7 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item {
     if (self.recognizesSymbols) {
         if (item == nil) {
-            return 5;
+            return 6;
         } else if ([item isKindOfClass:[NSArray class]]) {
             return [(NSArray *)item count];
         }
@@ -361,6 +369,9 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
             case 4:
                 return self.manMade;
                 break;
+            case 5:
+                return self.technical;
+                break;
             default:
                 break;
         }
@@ -380,6 +391,7 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
             if (item == self.waterAndMarsh) return NSLocalizedString(@"waterandmarsh", nil);
             if (item == self.vegetation) return NSLocalizedString(@"vegetation", nil);
             if (item == self.manMade) return NSLocalizedString(@"manmade", nil);
+            if (item == self.technical) return NSLocalizedString(@"technical", nil);
         } else if ([item isKindOfClass:[NSDictionary class]]) {
             NSDictionary *d = (NSDictionary *)item;
             return [NSString stringWithFormat:@"%@ %@", [d valueForKey:@"number"], [d valueForKey:@"name"]];
