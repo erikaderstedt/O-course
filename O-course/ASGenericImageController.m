@@ -57,7 +57,6 @@
     }
 }
 
-// Brown image not supported.
 - (BOOL)supportsHiddenSymbolNumbers{
     return NO;
 }
@@ -73,6 +72,10 @@
 
 - (NSArray *)symbolList {
     return @[];
+}
+
+- (id <ASMapProvider>)layoutProxy {
+    return self;
 }
 
 @end

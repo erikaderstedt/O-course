@@ -725,8 +725,13 @@ static CGFloat colorData[170] = {
 }
 
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx useSecondaryTransform:(BOOL)useSecondaryTransform {
-
-    for (NSDictionary *background in backgroundImages) {
+    ASOCADController *dest;
+    if (masterController != nil) {
+        dest = masterController;
+    } else {
+        dest = self;
+    }
+    for (NSDictionary *background in dest->backgroundImages) {
         id <ASMapProvider> map = background[@"mapProvider"];
         [map drawLayer:layer inContext:ctx];
     }
@@ -735,8 +740,8 @@ static CGFloat colorData[170] = {
     struct ocad_cache *cache;
     CGRect clipBox = CGContextGetClipBoundingBox(ctx);
     
-    for (i = 0; i < num_cached_objects; i++) {
-        cache = sortedCache[i];
+    for (i = 0; i < dest->num_cached_objects; i++) {
+        cache = dest->sortedCache[i];
         if (hiddenSymbolCount) {
             j3 = cache->element->symnum / 1000;
             for (j2 = 0; j2 < hiddenSymbolCount && hiddenSymbols[j2] != j3; j2++);
@@ -778,8 +783,15 @@ static CGFloat colorData[170] = {
             }
         }
     }
-     
 }
 
+- (ASOCADController *)layoutProxy {
+    if (self._layoutProxy == nil) {
+        ASOCADController *p = [[ASOCADController alloc] init];
+        p->masterController = self;
+        self._layoutProxy = p;
+    }
+    return self._layoutProxy;
+}
 
 @end

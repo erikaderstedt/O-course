@@ -94,7 +94,7 @@
     CGContextAddPath(ctx, roundClipRect);
     CGContextClip(ctx);
 
-    [self.mapProvider drawLayer:nil inContext:ctx useSecondaryTransform:YES];
+    [[self.mapProvider layoutProxy] drawLayer:nil inContext:ctx useSecondaryTransform:YES];
     
     // Simulated overprint
     CGContextSetBlendMode(ctx, kCGBlendModeMultiply);

@@ -36,4 +36,6 @@
 - (void)setHiddenSymbolNumbers:(const int32_t *)symbols count:(size_t)count;
 - (const int32_t *)hiddenSymbolNumbers:(size_t *)count;
 
+- (id <ASMapProvider>)layoutProxy;
+
 @end

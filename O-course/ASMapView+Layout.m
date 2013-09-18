@@ -74,7 +74,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         _innerMapLayer.position = tiledLayer.position;
         _innerMapLayer.anchorPoint = tiledLayer.anchorPoint;
         _innerMapLayer.bounds = [self.mapProvider mapBounds];
-        _innerMapLayer.delegate = self;
+        _innerMapLayer.delegate = [self.mapProvider layoutProxy];
         
         _innerOverprintLayer = [CATiledLayer layer];
         _innerOverprintLayer.name = @"innerOverprint";
@@ -304,8 +304,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     if (self.state == kASMapViewLayout && [self.mapProvider supportsHiddenSymbolNumbers]) {
         size_t c;
         const int32_t *hidden = [self.layoutController hiddenObjects:&c];
-        [self.mapProvider setHiddenSymbolNumbers:hidden count:c];
-        [tiledLayer setNeedsDisplayInRect:[tiledLayer bounds]];
+        [[self.mapProvider layoutProxy] setHiddenSymbolNumbers:hidden count:c];
         [_innerMapLayer setNeedsDisplayInRect:[_innerMapLayer bounds]];
     }
 }

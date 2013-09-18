@@ -179,7 +179,7 @@
         mapBounds = [self.mapProvider mapBounds];
 
         tiledLayer.bounds = mapBounds; overprintLayer.bounds = mapBounds;
-        tiledLayer.delegate = self; overprintLayer.delegate = self.overprintProvider;
+        tiledLayer.delegate = self.mapProvider; overprintLayer.delegate = self.overprintProvider;
         tiledLayer.contents = nil;
         [tiledLayer setNeedsDisplay];
         overprintLayer.contents = nil;
@@ -637,9 +637,7 @@
 
 // CATiledLayer delegate stuff.
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
-    if (layer == tiledLayer || layer == _innerMapLayer) {
-        [mapProvider drawLayer:layer inContext:ctx];
-    } else if (layer == innerMagnifyingGlassLayer) {
+    if (layer == innerMagnifyingGlassLayer) {
         CGContextSaveGState(ctx);
        
         // Get the current position of the glass, in map coordinates.
