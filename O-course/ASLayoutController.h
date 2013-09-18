@@ -25,6 +25,10 @@ extern NSString *const ASLayoutDecorChanged;
 @property (nonatomic, strong) IBOutlet NSArrayController *layouts;
 @property (weak) IBOutlet NSTableView *layoutsTable;
 @property (weak) IBOutlet NSOutlineView *visibleSymbolsTable;
+@property (weak) IBOutlet NSMatrix *paperMatrix;
+@property (weak) IBOutlet NSMatrix *orientationMatrix;
+@property (weak) IBOutlet NSMatrix *controlDescriptionMatrix;
+
 @property (weak) NSArray *symbolList;
 @property (assign) BOOL observing;
 

@@ -30,7 +30,7 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
     }
 //    [self.layouts addObserver:self forKeyPath:@"arrangedObjects" options:0 context:(__bridge void *)(self)];
     [self.layouts addObserver:self forKeyPath:@"selection.scale" options:0 context:(__bridge void *)(self)];
-    [self.layouts addObserver:self forKeyPath:@"selection.paperSize" options:0 context:(__bridge void *)(self)];
+    [self.layouts addObserver:self forKeyPath:@"selection.paperType" options:0 context:(__bridge void *)(self)];
     [self.layouts addObserver:self forKeyPath:@"selection.orientation" options:0 context:(__bridge void *)(self)];
     [self.layouts addObserver:self forKeyPath:@"selection.frameColor" options:0 context:(__bridge void *)(self)];
     [self.layouts addObserver:self forKeyPath:@"selection.frameVisible" options:0 context:(__bridge void *)(self)];
@@ -48,7 +48,7 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
     if (self.observing) {
 //        [self.layouts removeObserver:self forKeyPath:@"arrangedObjects"];
         [self.layouts removeObserver:self forKeyPath:@"selection.scale"];
-        [self.layouts removeObserver:self forKeyPath:@"selection.paperSize"];
+        [self.layouts removeObserver:self forKeyPath:@"selection.paperType"];
         [self.layouts removeObserver:self forKeyPath:@"selection.orientation"];
         [self.layouts removeObserver:self forKeyPath:@"selection.frameColor"];
         [self.layouts removeObserver:self forKeyPath:@"selection.frameVisible"];
@@ -91,7 +91,7 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
             [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutChanged object:self.layouts.managedObjectContext];
         } else*/ if ([keyPath isEqualToString:@"selection.scale"]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutScaleChanged object:self];
-        } else if ([keyPath isEqualToString:@"selection.paperSize"]) {
+        } else if ([keyPath isEqualToString:@"selection.paperType"]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutOrientationChanged object:self];
         } else if ([keyPath isEqualToString:@"selection.orientation"]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutOrientationChanged object:self];
@@ -107,6 +107,9 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
         }
     } else if (object == self.layouts && [keyPath isEqualToString:@"selection"]) {
         [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutChanged object:self];
+        [self.paperMatrix setNeedsDisplay:YES];
+        [self.orientationMatrix setNeedsDisplay:YES];
+        [self.controlDescriptionMatrix setNeedsDisplay:YES];
     } else {
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
@@ -435,10 +438,6 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
         [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutVisibleItemsChanged object:self];
 
     }
-
 }
-
-
-
 
 @end

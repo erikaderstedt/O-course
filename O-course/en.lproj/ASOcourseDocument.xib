@@ -482,7 +482,7 @@
 							</object>
 						</object>
 					</dictionary>
-					<array class="NSMutableArray" key="NSToolbarIBAllowedItems">
+					<array key="NSToolbarIBAllowedItems">
 						<reference ref="33856050"/>
 						<reference ref="13158074"/>
 						<reference ref="90853670"/>
@@ -2920,14 +2920,10 @@ AQABAAEAAQAB//+dkAEA//+PgAAE//+dkAEI//+dkAEMUERUAFBTVABQV1QAUFBUAAAAAAEAAAABA</b
 							<string key="NSLabel">selectedTag: selection.paperType</string>
 							<string key="NSBinding">selectedTag</string>
 							<string key="NSKeyPath">selection.paperType</string>
-							<object class="NSDictionary" key="NSOptions">
-								<string key="NS.key.0">NSConditionallySetsEnabled</string>
-								<boolean value="NO" key="NS.object.0"/>
-							</object>
 							<int key="NSNibBindingConnectorVersion">2</int>
 						</object>
 					</object>
-					<int key="connectionID">101726</int>
+					<int key="connectionID">101847</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
@@ -3180,6 +3176,38 @@ AQABAAEAAQAB//+dkAEA//+PgAAE//+dkAEI//+dkAEMUERUAFBTVABQV1QAUFBUAAAAAAEAAAABA</b
 						<reference key="destination" ref="35744561"/>
 					</object>
 					<int key="connectionID">101567</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">paperMatrix</string>
+						<reference key="source" ref="567312014"/>
+						<reference key="destination" ref="484763363"/>
+					</object>
+					<int key="connectionID">101843</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">selectPaper:</string>
+						<reference key="source" ref="567312014"/>
+						<reference key="destination" ref="484763363"/>
+					</object>
+					<int key="connectionID">101844</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">orientationMatrix</string>
+						<reference key="source" ref="567312014"/>
+						<reference key="destination" ref="148314005"/>
+					</object>
+					<int key="connectionID">101845</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">controlDescriptionMatrix</string>
+						<reference key="source" ref="567312014"/>
+						<reference key="destination" ref="686177173"/>
+					</object>
+					<int key="connectionID">101848</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
@@ -6998,7 +7026,7 @@ AQABAAEAAQAB//+dkAEA//+PgAAE//+dkAEI//+dkAEMUERUAFBTVABQV1QAUFBUAAAAAAEAAAABA</b
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">101842</int>
+			<int key="maxID">101848</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes"/>
 		<int key="IBDocument.localizationMode">0</int>
