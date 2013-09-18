@@ -85,6 +85,7 @@ enum ASMapViewUIState {
 @property(nonatomic,weak) IBOutlet NSView *controlDescriptionContainerView;
 @property(nonatomic,weak) IBOutlet ASControlDescriptionView *controlDescriptionView;
 
+@property (assign) BOOL changedLayoutPosition;
 @property(assign) BOOL frameVisible;
 @property(assign) CGSize paperSize; // in points, in portrait orientation
 @property(assign) NSPrintingOrientation orientation;

@@ -240,14 +240,21 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     r.origin.x += dX;
     r.origin.y += dY;
     [_printedMapLayer setFrame:r];
+    self.changedLayoutPosition = YES;
 }
 
 #pragma mark Responding to layout change notifications
 
 - (void)recordNewLayoutCenter {
-    CGRect visibleRect = [_innerMapLayer visibleRect];
-    CGPoint newCenterPosition = CGPointMake(CGRectGetMidX(visibleRect), CGRectGetMidY(visibleRect));
-    [self.layoutController writeLayoutCenterPosition:newCenterPosition];
+    CGPoint p = [self centerOfMap];
+    p.x = round(p.x);
+    p.y = round(p.y);
+    CGPoint p2 = [self.layoutController layoutCenterPosition];
+    p2.x = round(p2.x);
+    p2.y = round(p2.y);
+    if (p2.x != p.x || p2.y != p2.y) {
+        [self.layoutController writeLayoutCenterPosition:p];
+    }
 }
 
 - (void)setFrameColor:(CGColorRef)fColor {
@@ -265,7 +272,10 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 }
 
 - (void)layoutWillChange:(NSNotification *)n {
-    [self recordNewLayoutCenter];
+    if (self.changedLayoutPosition == YES) {
+        [self recordNewLayoutCenter];
+        self.changedLayoutPosition = NO;
+    }
 }
 
 - (void)layoutChanged:(NSNotification *)n {
@@ -574,7 +584,6 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(printingScaleChanged:) name:ASLayoutScaleChanged object:self.layoutController];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:ASLayoutOrientationChanged object:self.layoutController];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutChanged:) name:ASLayoutChanged object:self.layoutController];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutWillChange:) name:ASLayoutWillChange object:self.layoutController];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(decorChanged:) name:ASLayoutDecorChanged object:self.layoutController];
 }
 
@@ -584,7 +593,6 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutScaleChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutOrientationChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutChanged object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutWillChange object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutDecorChanged object:nil];
 }
 

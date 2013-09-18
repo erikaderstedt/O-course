@@ -259,9 +259,13 @@
     
     [self.layoutController willAppear];
     [self.theConstraint.animator setConstant:0.0];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutWillChange:) name:ASLayoutWillChange object:self.layoutController];
 }
 
 - (void)hidePrintedMap {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutWillChange object:nil];
+
     NSClipView *vc = [[self enclosingScrollView] contentView];
     [vc setPostsBoundsChangedNotifications:YES];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewBoundsDidChangeNotification object:vc];
@@ -564,7 +568,7 @@
     [CATransaction setDisableActions:YES];
     
     [self synchronizePaperWithBackground];
-    
+    self.changedLayoutPosition = YES;
     [CATransaction commit];
 }
 
@@ -741,21 +745,12 @@
             break;
         case kASMapViewLayout:
         {
-            // Remember the current transform.
-            // Ask the layout controller for the layout for the current course.
-            
-            // (If there is no layout defined, the layout controller will create one).
-            // Add in the printmap layer
-            //
             [[[[self enclosingScrollView] superview] layer] addSublayer:[self printedMapLayer]];
             
-            leftMargin = 50.0;
-            rightMargin = 50.0;
-            topMargin = 50.0;
-            bottomMargin = 50.0;
             [self adjustPrintedMapLayerForBounds];
-            
             [self showPrintedMap];
+            [self centerMapOnCoordinates:[self.layoutController layoutCenterPosition]];
+            self.changedLayoutPosition = NO;
         }
             break;
         default:
@@ -764,9 +759,6 @@
     
     if (oldState == kASMapViewLayout && state != kASMapViewLayout) {
         [self recordNewLayoutCenter];
-        
-        // Remove the filter from the tiledLayer
-        // Go back to the other transforms.
         
         [self hidePrintedMap];
     }
