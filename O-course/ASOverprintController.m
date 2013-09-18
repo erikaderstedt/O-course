@@ -320,6 +320,10 @@
     }
 }
 
+- (CGPoint)suggestedCenterPosition {
+    return [OverprintObject averagePositionOfOverprintObjectsInContext:self.document.managedObjectContext];
+}
+
 #pragma mark Layout proxy stuff
 
 - (ASOverprintController *)layoutProxy {

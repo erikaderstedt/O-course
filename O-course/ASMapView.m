@@ -192,6 +192,18 @@
         if (cv.size.width > 0) {
             minZoom = [self calculateMinimumZoomForFrame:cv];
             [self setZoom:minZoom*3.0];
+            
+            CGPoint p = [self.overprintProvider suggestedCenterPosition];
+            p = [tiledLayer convertPoint:p toLayer:[self layer]];
+            NSRect r = [self visibleRect];
+            NSRect r2 = NSMakeRect(p.x-0.5*NSWidth(r), p.y-0.5*NSHeight(r), NSWidth(r), NSHeight(r));
+/*            NSLog(@"visible %@ / %@", NSStringFromRect(r), NSStringFromRect([self bounds]));
+            NSLog(@"visible (layer) %@", NSStringFromRect([[self layer] visibleRect]));
+            NSLog(@"visible  (cv) %@", NSStringFromRect([[self enclosingScrollView] documentVisibleRect]));
+            NSLog(@"attempting to see %@", NSStringFromRect(r2));
+            NSLog(@"attempting to see %@ (map coords)", NSStringFromRect([tiledLayer convertRect:r2 fromLayer:[self layer]]));
+            NSLog(@"bounds %@", NSStringFromRect(mapBounds));
+*/            [self scrollRectToVisible:r2];
         }
     } else {
         if (tiledLayer != nil) {

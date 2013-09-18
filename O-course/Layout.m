@@ -155,30 +155,13 @@
     return hidden_symbols+1;
 }
 
+
 - (CGPoint)position {
     NSNumber *px = [self valueForKey:@"position_x"];
     NSNumber *py = [self valueForKey:@"position_y"];
     
     if (px == nil || py == nil) {
-        // Calculate a default position
-        NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"OverprintObject"];
-        [fr setPredicate:[NSPredicate predicateWithFormat:@"type == %@ || type == %@ || type == %@", @(kASOverprintObjectControl), @(kASOverprintObjectFinish), @(kASOverprintObjectStart)]];
-        NSArray *overprintObjects = [self.managedObjectContext executeFetchRequest:fr error:nil];
-        if ([overprintObjects count] == 0) {
-            return [[Project projectInManagedObjectContext:self.managedObjectContext] centerPosition];
-        }
-        CGFloat fx = 0, fy = 0;
-        NSInteger i = 0;
-        CGPoint p;
-        for (OverprintObject *object in overprintObjects) {
-            p = [object position];
-            fx += p.x; fy += p.y; i++;
-        }
-        
-        NSAssert(i > 0, @"What?");
-        fx /= i; fy /= i;
-        
-        return CGPointMake(fx, fy);
+        return [OverprintObject averagePositionOfOverprintObjectsInContext:self.managedObjectContext];
     }
     
     return CGPointMake([px doubleValue], [py doubleValue]);

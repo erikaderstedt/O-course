@@ -8,6 +8,7 @@
 
 #import "OverprintObject.h"
 #import "Course.h"
+#import "Project.h"
 
 @implementation OverprintObject
 
@@ -303,6 +304,28 @@
 - (CGPoint)controlCodePosition {
     CGPoint p = [Course controlNumberPositionBasedOnObjectPosition:[self position] angle:0.75*M_PI];
     return p;
+}
+
+
++ (CGPoint)averagePositionOfOverprintObjectsInContext:(NSManagedObjectContext *)managedObjectContext {
+    NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"OverprintObject"];
+    [fr setPredicate:[NSPredicate predicateWithFormat:@"type == %@ || type == %@ || type == %@", @(kASOverprintObjectControl), @(kASOverprintObjectFinish), @(kASOverprintObjectStart)]];
+    NSArray *overprintObjects = [managedObjectContext executeFetchRequest:fr error:nil];
+    if ([overprintObjects count] == 0) {
+        return [[Project projectInManagedObjectContext:managedObjectContext] centerPosition];
+    }
+    CGFloat fx = 0, fy = 0;
+    NSInteger i = 0;
+    CGPoint p;
+    for (OverprintObject *object in overprintObjects) {
+        p = [object position];
+        fx += p.x; fy += p.y; i++;
+    }
+    
+    NSAssert(i > 0, @"What?");
+    fx /= i; fy /= i;
+    
+    return CGPointMake(fx, fy);
 }
 
 @end

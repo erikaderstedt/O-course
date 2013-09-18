@@ -35,4 +35,6 @@
 - (CGRect)frame;
 - (CGPoint)controlCodePosition;
 
++ (CGPoint)averagePositionOfOverprintObjectsInContext:(NSManagedObjectContext *)managedObjectContext;
+
 @end

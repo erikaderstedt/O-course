@@ -190,8 +190,13 @@ out_error:
     if (self.mapView.mapProvider != nil) {
         Project *p = [self project];
         CGRect r = [self.mapView.mapProvider mapBounds];
-        // TODO: Don't update the center position needlessly.
-        p.centerPosition = CGPointMake(CGRectGetMidX(r), CGRectGetMidY(r));
+
+        CGFloat x = round(CGRectGetMidX(r));
+        CGFloat y = round(CGRectGetMidY(r));
+        CGPoint op = p.centerPosition;
+        if (op.x != x || op.y != y) {
+            p.centerPosition = CGPointMake(x, y);
+        }
     }
     [self.mapView mapLoaded];
 }

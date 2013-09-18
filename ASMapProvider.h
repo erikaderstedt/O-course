@@ -21,6 +21,8 @@
 
 - (id <ASOverprintProvider>)layoutProxy;
 
+- (CGPoint)suggestedCenterPosition;
+
 @end
 
 @protocol ASMapProvider <NSObject>
