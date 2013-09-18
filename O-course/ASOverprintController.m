@@ -65,6 +65,7 @@
 
     NSAssert([NSThread isMainThread], @"Not the main thread.");
     if (masterController != nil) {
+        NSLog(@"updating overprint on the proxy");
         [masterController updateOverprint];
         return;
     }
@@ -151,10 +152,7 @@
 }
 
 - (void)alterCourseObject:(id<ASOverprintObject>)courseObject informLayer:(CATiledLayer *)layer hidden:(BOOL)hide {
-    if (masterController != nil) {
-        [masterController alterCourseObject:courseObject informLayer:layer hidden:hide];
-        return;
-    }
+    NSAssert(masterController == nil, @"Changes to the layout proxy aren't allowed.");
     
     @synchronized(self) {
         NSMutableArray *ma = [NSMutableArray arrayWithArray:self.cacheArray];
@@ -207,31 +205,28 @@
 #pragma mark ASOverprintProvider
 
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx {
+    BOOL showObjectsNotInCourse;
 
-    if (self.cacheArray == nil && masterController == nil) return;
+    ASOverprintController *dest;
+    if (masterController != nil) {
+        dest = masterController;
+        showObjectsNotInCourse = NO;
+    } else {
+        dest = self;
+        showObjectsNotInCourse = YES;
+    }
+    
+    if (dest.cacheArray == nil) return;
     
     NSArray *cacheCopy;
-    BOOL showObjectsNotInCourse;
-    BOOL dcl;
-    if (masterController != nil) {
-        @synchronized(masterController) {
-            cacheCopy = [NSArray arrayWithArray:masterController.cacheArray];
-        }
-        showObjectsNotInCourse = NO;
-        dcl = masterController->drawConnectingLines;
-    } else {
-        @synchronized(self) {
-            cacheCopy = [NSArray arrayWithArray:self.cacheArray];
-        }
-        showObjectsNotInCourse = YES;
-        dcl = drawConnectingLines;
+    @synchronized(dest) {
+        cacheCopy = [NSArray arrayWithArray:dest.cacheArray];
     }
     
     // Draw the actual course.
     CGRect clipBox = CGContextGetClipBoundingBox(ctx);
     CGFloat angle; // In radians.
 
-//    NSInteger controlNumber = 1;
     NSDictionary *previousCourseObject = nil;
     
     for (NSDictionary *courseObjectInfo in cacheCopy) {
@@ -257,7 +252,7 @@
                     }
                     break;
                 case kASOverprintObjectStart:
-                    if (dcl && inCourse) {
+                    if (dest->drawConnectingLines && inCourse) {
                         angle = [[self class] angleBetweenStartAndFirstControlUsingCache:cacheCopy];
                     } else {
                         angle = -M_PI/6.0;
@@ -293,7 +288,7 @@
             
             if (inCourse && type == kASOverprintObjectControl) {
                 // Draw control code / control number at the specified position.
-                NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:[courseObjectInfo[@"index"] stringValue] attributes:self.controlDigitAttributes];
+                NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:[courseObjectInfo[@"index"] stringValue] attributes:dest.controlDigitAttributes];
                 CTLineRef line = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef)attributedString);
                 
                 // Set text position and draw the line into the graphics context
@@ -303,7 +298,7 @@
             }
         }
         
-        if (dcl && inCourse) {
+        if (dest->drawConnectingLines && inCourse) {
             if (previousCourseObject && (![courseObjectInfo[@"hidden"] boolValue] && ![previousCourseObject[@"hidden"] boolValue])) {
                 enum ASOverprintObjectType otype = (enum ASOverprintObjectType)[previousCourseObject[@"type"] integerValue];
                 angle = [[self class] angleBetweenCourseObjectInfos:previousCourseObject and:courseObjectInfo];
@@ -330,10 +325,7 @@
 - (ASOverprintController *)layoutProxy {
     if (self._layoutProxy == nil) {
         ASOverprintController *p = [[ASOverprintController alloc] init];
-        p.document = self.document;
-        p.dataSource = self.dataSource;
         p->masterController = self;
-        [p setupAttributes];
         self._layoutProxy = p;
     }
     return self._layoutProxy;
