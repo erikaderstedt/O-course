@@ -117,8 +117,6 @@ static CGFloat colorData[170] = {
         currentBox = ocdf->bbox;
         
         self.ocadFilePath = _path;
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(queryResultsUpdated:) name:NSMetadataQueryDidUpdateNotification object:nil];
 
     }
     return self;
