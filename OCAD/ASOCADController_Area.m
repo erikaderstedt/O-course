@@ -258,7 +258,11 @@
 
     CGColorSpaceRelease(cspace);
 
-   return @[(id)CFBridgingRelease(structureColor), (id)CFBridgingRelease(secondStructureColor)];
+    if (secondStructureColor != NULL) {
+        return @[(id)CFBridgingRelease(structureColor), (id)CFBridgingRelease(secondStructureColor)];
+    } else {
+        return @[(id)CFBridgingRelease(structureColor), (__bridge id)structureColor];
+    }
 }
 
 - (NSArray *)hatchColorsForSymbol:(struct ocad_area_symbol *)a index:(int)index {
@@ -315,7 +319,11 @@
     }
     CGColorSpaceRelease(cspace);
 
-    return @[(id)CFBridgingRelease(c), (id)CFBridgingRelease(transformedHatchColor)];
+    if (transformedHatchColor != NULL) {
+        return @[(id)CFBridgingRelease(c), (id)CFBridgingRelease(transformedHatchColor)];
+    } else {
+        return @[(id)CFBridgingRelease(c), (__bridge id)c];
+    }
 }
 
 @end
