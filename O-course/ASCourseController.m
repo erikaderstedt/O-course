@@ -290,6 +290,7 @@
     
     [[NSNotificationCenter defaultCenter] postNotificationName:@"ASCourseChanged" object:self.managedObjectContext];
 }
+
 - (void)moveInterstitialSelectionInDirection:(enum ASControlDescriptionItemMovementDirection)direction {
     Course *selectedCourse = [self selectedCourse];
     if (selectedCourse == nil || self.selectedInterstitialIndex == NSNotFound) return;
@@ -297,6 +298,84 @@
         self.selectedInterstitialIndex --;
     } else if (direction == kASMovementDown && self.selectedInterstitialIndex + 1 < [[selectedCourse valueForKey:@"courseObjects"] count]) {
         self.selectedInterstitialIndex ++;
+    }
+}
+
+- (void)deleteSelectedItem {
+    Course *selectedCourse = [self selectedCourse];
+    if (selectedCourse == nil) {
+        // Remove it altogether
+        NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"OverprintObject"];
+        [fr setSortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"type" ascending:YES],
+                                 [NSSortDescriptor sortDescriptorWithKey:@"added" ascending:YES]]];
+        [fr setFetchOffset:self.selectedItemIndex];
+        [fr setFetchLimit:1];
+        
+        self.selectedItemIndex = NSNotFound;
+        NSArray *a = [[self managedObjectContext] executeFetchRequest:fr error:nil];
+        if ([a count] != 1) {
+            NSLog(@"Bad course object selection when deleting!");
+        } else {
+            [[self managedObjectContext] deleteObject:a[0]];
+        }
+    } else {
+        // Remove it from the course
+        NSMutableOrderedSet *mos = [selectedCourse mutableOrderedSetValueForKey:@"courseObjects"];
+        [mos removeObjectAtIndex:self.selectedItemIndex];
+        self.selectedItemIndex = NSNotFound;
+    }
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"ASCourseChanged" object:self.managedObjectContext];
+}
+
+- (NSInteger)selectedInterstitialIndex {
+    return _selectedInterstitialIndex;
+}
+
+- (void)setSelectedInterstitialIndex:(NSInteger)selectedInterstitialIndex {
+    [self willChangeValueForKey:@"selectedItemIndex"];
+    _selectedItemIndex = NSNotFound;
+    [self didChangeValueForKey:@"selectedItemIndex"];
+    _selectedInterstitialIndex = selectedInterstitialIndex;
+}
+
+- (NSInteger)selectedItemIndex {
+    return _selectedItemIndex;
+}
+
+- (void)setSelectedItemIndex:(NSInteger)selectedItemIndex {
+    [self willChangeValueForKey:@"selectedInterstitialIndex"];
+    _selectedInterstitialIndex = NSNotFound;
+    [self didChangeValueForKey:@"selectedInterstitialIndex"];
+    
+    _selectedItemIndex = selectedItemIndex;
+}
+
++ (NSSet *)keyPathsForValuesAffectingSelectedCourseObject { return [NSSet setWithObject:@"selectedItemIndex"]; }
+- (void)setSelectedCourseObject:(id<ASControlDescriptionItem>)selectedCourseObject {
+    Course *selectedCourse = [self selectedCourse];
+    if (selectedCourse != nil) {
+        NSOrderedSet *courseObjects = [selectedCourse valueForKey:@"courseObjects"];
+        self.selectedItemIndex = [courseObjects indexOfObject:selectedCourseObject];
+    } else {
+        NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"OverprintObject"];
+        [fr setSortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"type" ascending:YES],
+                                 [NSSortDescriptor sortDescriptorWithKey:@"added" ascending:YES]]];
+        NSArray *a = [[self managedObjectContext] executeFetchRequest:fr error:nil];
+        self.selectedItemIndex = [a indexOfObject:selectedCourseObject];
+    }
+}
+
+- (id <ASControlDescriptionItem>)selectedCourseObject {
+    Course *selectedCourse = [self selectedCourse];
+    if (selectedCourse != nil) {
+        NSOrderedSet *courseObjects = [selectedCourse valueForKey:@"courseObjects"];
+        return [courseObjects objectAtIndex:self.selectedItemIndex];
+    } else {
+        NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"OverprintObject"];
+        [fr setSortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"type" ascending:YES],
+                                 [NSSortDescriptor sortDescriptorWithKey:@"added" ascending:YES]]];
+        NSArray *a = [[self managedObjectContext] executeFetchRequest:fr error:nil];
+        return [a objectAtIndex:self.selectedItemIndex];
     }
 }
 
@@ -500,61 +579,6 @@
         }
         
         [self.courseTable reloadData];
-    }
-}
-
-#pragma mark -
-#pragma mark Selection
-
-- (NSInteger)selectedInterstitialIndex {
-    return _selectedInterstitialIndex;
-}
-
-- (void)setSelectedInterstitialIndex:(NSInteger)selectedInterstitialIndex {
-    [self willChangeValueForKey:@"selectedItemIndex"];
-    _selectedItemIndex = NSNotFound;
-    [self didChangeValueForKey:@"selectedItemIndex"];
-    _selectedInterstitialIndex = selectedInterstitialIndex;
-}
-
-- (NSInteger)selectedItemIndex {
-    return _selectedItemIndex;
-}
-
-- (void)setSelectedItemIndex:(NSInteger)selectedItemIndex {
-    [self willChangeValueForKey:@"selectedInterstitialIndex"];
-    _selectedInterstitialIndex = NSNotFound;
-    [self didChangeValueForKey:@"selectedInterstitialIndex"];
-    
-    _selectedItemIndex = selectedItemIndex;
-}
-
-+ (NSSet *)keyPathsForValuesAffectingSelectedCourseObject { return [NSSet setWithObject:@"selectedItemIndex"]; }
-- (void)setSelectedCourseObject:(id<ASControlDescriptionItem>)selectedCourseObject {
-    Course *selectedCourse = [self selectedCourse];
-    if (selectedCourse != nil) {
-        NSOrderedSet *courseObjects = [selectedCourse valueForKey:@"courseObjects"];
-        self.selectedItemIndex = [courseObjects indexOfObject:selectedCourseObject];
-    } else {
-        NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"OverprintObject"];
-        [fr setSortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"type" ascending:YES],
-                                 [NSSortDescriptor sortDescriptorWithKey:@"added" ascending:YES]]];
-        NSArray *a = [[self managedObjectContext] executeFetchRequest:fr error:nil];
-        self.selectedItemIndex = [a indexOfObject:selectedCourseObject];
-    }
-}
-
-- (id <ASControlDescriptionItem>)selectedCourseObject {
-    Course *selectedCourse = [self selectedCourse];
-    if (selectedCourse != nil) {
-        NSOrderedSet *courseObjects = [selectedCourse valueForKey:@"courseObjects"];
-        return [courseObjects objectAtIndex:self.selectedItemIndex];
-    } else {
-        NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"OverprintObject"];
-        [fr setSortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"type" ascending:YES],
-                                 [NSSortDescriptor sortDescriptorWithKey:@"added" ascending:YES]]];
-        NSArray *a = [[self managedObjectContext] executeFetchRequest:fr error:nil];
-        return [a objectAtIndex:self.selectedItemIndex];
     }
 }
 

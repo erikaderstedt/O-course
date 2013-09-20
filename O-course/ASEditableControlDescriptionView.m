@@ -201,14 +201,17 @@
 }
 
 - (void)keyDown:(NSEvent *)theEvent {
-    if ([theEvent keyCode] == 126 || [theEvent keyCode] == 125) {
-        enum ASControlDescriptionItemMovementDirection direction = ([theEvent keyCode] == 126)?kASMovementUp:kASMovementDown;
+    NSInteger kCode = [theEvent keyCode];
+    if (kCode == 125 || kCode == 126) {
+        enum ASControlDescriptionItemMovementDirection direction = (kCode == 126)?kASMovementUp:kASMovementDown;
         if ([self.provider selectedItemIndex] != NSNotFound) {
             [self.provider moveSelectedItemInDirection:direction];
         } else if ([self.provider selectedInterstitialIndex] != NSNotFound) {
             [self.provider moveInterstitialSelectionInDirection:direction];
             [self setNeedsDisplay:YES];
         }
+    } else if ((kCode == 117 || kCode == 51) && ([self.provider selectedItemIndex] != NSNotFound)) {
+        [self.provider deleteSelectedItem];
     }
 }
 

@@ -59,6 +59,7 @@ enum ASControlDescriptionItemMovementDirection {
 
 - (void)moveSelectedItemInDirection:(enum ASControlDescriptionItemMovementDirection)direction;
 - (void)moveInterstitialSelectionInDirection:(enum ASControlDescriptionItemMovementDirection)direction;
+- (void)deleteSelectedItem;
 
 @property (assign) NSInteger selectedItemIndex;
 @property (assign) NSInteger selectedInterstitialIndex;
