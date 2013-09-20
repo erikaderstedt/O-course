@@ -54,6 +54,7 @@
 - (void)drawControlDescriptionInLayer:(CALayer *)layer inContext:(CGContextRef)ctx;
 - (CGRect)controlDescriptionBounds;
 - (void)drawActualControlDescription;
+- (void)drawSelectionUnderneath;
 
 @end
 

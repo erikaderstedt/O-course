@@ -84,14 +84,6 @@
                                   count:5];
 
 }
-/*
-- (void)adjustFrameSizeForLayout {
-    [self recalculateLayout];
-    CGRect bounds = [self bounds];
-    NSSize sz = paperBounds.size;
-    if (sz.height < bounds.size.width / 8.0 + 1) sz.height = ceil(bounds.size.width/8.0 + 1);
-    [self setFrameSize:sz];
-} */
 
 - (void)recalculateLayout {
     paperBounds = CGRectInset([self bounds], INSET_DIST, INSET_DIST);
@@ -221,6 +213,10 @@
     NSRect r2 = r;
     r2.origin.y = r.origin.y - 0.5*(blockSize - sz.height);
     [s drawInRect:NSIntegralRect(r2) withAttributes:attributes];
+}
+
+- (void)drawSelectionUnderneath {
+    
 }
 
 - (void)drawActualControlDescription {
@@ -403,7 +399,8 @@
     
     [[NSColor blackColor] set];
     [NSBezierPath strokeLineFromPoint:NSMakePoint(NSMaxX(bounds), NSMinY(bounds)) toPoint:NSMakePoint(NSMaxX(bounds), NSMaxY(bounds))];
-    
+
+    [self drawSelectionUnderneath];
     [self drawActualControlDescription];
 }
 

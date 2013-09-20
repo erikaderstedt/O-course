@@ -19,6 +19,9 @@
 - (void)awakeFromNib {
     [super awakeFromNib];
     [self.selectionView setDataSource:self];
+    
+    selectedControlDescriptionIndex = NSNotFound;
+    selectedControlDescriptionInterstitialIndex = NSNotFound;
 }
 
 - (void)updateTrackingAreas {
@@ -45,16 +48,35 @@
     
     [self.provider enumerateControlDescriptionItemsUsingBlock:^(id<ASControlDescriptionItem> item) {
         if ([item objectType] == kASOverprintObjectControl) {
-            
+            NSRect r;
+            NSTrackingArea *ta;
             for (NSNumber *columnIntegerValue in regularColumns) {
                 enum ASControlDescriptionColumn column = (enum ASControlDescriptionColumn)[columnIntegerValue intValue];
-                NSRect r = NSRectFromCGRect([self boundsForRow:topItem column:column]);
-                NSTrackingArea *ta = [[NSTrackingArea alloc] initWithRect:NSIntegralRect(NSInsetRect(r, 1, 1))
-                                                                  options:NSTrackingMouseEnteredAndExited | NSTrackingActiveInKeyWindow
-                                                                    owner:self
-                                                                 userInfo:@{@"object":item, @"column":@(column)}];
+                r = NSRectFromCGRect([self boundsForRow:topItem column:column]);
+                ta = [[NSTrackingArea alloc] initWithRect:NSIntegralRect(NSInsetRect(r, 1, 3))
+                                                  options:NSTrackingMouseEnteredAndExited | NSTrackingActiveInKeyWindow
+                                                    owner:self
+                                                 userInfo:@{@"object":item, @"column":@(column)}];
                 [self addTrackingArea:ta];
             }
+            r = NSRectFromCGRect([self boundsForRow:topItem column:kASControlNumber]);
+            
+            ta = [[NSTrackingArea alloc] initWithRect:NSIntegralRect(NSInsetRect(r, 1, 3))
+                                              options:NSTrackingMouseEnteredAndExited | NSTrackingActiveInKeyWindow
+                                                owner:self
+                                             userInfo:@{@"column":@(kASControlNumber), @"index":@(topItem)}];
+            [self addTrackingArea:ta];
+            
+            // Add interstitial rect.
+            r.origin.y -= 3.0;
+            r.size.height = 6.0;
+            r.size.width *= 8.0;
+            ta = [[NSTrackingArea alloc] initWithRect:NSIntegralRect(r)
+                                              options:NSTrackingMouseEnteredAndExited | NSTrackingActiveInKeyWindow
+                                                owner:self
+                                             userInfo:@{@"index":@(topItem), @"column":@(kASAllColumns)}];
+            [self addTrackingArea:ta];
+            
         }
         topItem ++;
     }];
@@ -79,22 +101,50 @@
     if (activeTrackingArea != nil) {
         NSDictionary *userInfo = [activeTrackingArea userInfo];
         enum ASControlDescriptionColumn column = (enum ASControlDescriptionColumn)[userInfo[@"column"] intValue];
+        
         if (userInfo) {
-            self.activeObject = userInfo[@"object"];
-            if (column != kASControlCode) {
-                self.selectionView.column = column;
+            if (column == kASControlNumber) {
+                self.activeObject = nil;
+                NSInteger i = [userInfo[@"index"] integerValue];
+                if (i == selectedControlDescriptionIndex) {
+                    selectedControlDescriptionIndex = NSNotFound;
+                } else {
+                    selectedControlDescriptionIndex = i;
+                }
+                selectedControlDescriptionInterstitialIndex = NSNotFound;
+            } else if (column == kASAllColumns) {
+                self.activeObject = nil;
+                NSInteger i = [userInfo[@"index"] integerValue];
+                if (i == selectedControlDescriptionInterstitialIndex) {
+                    selectedControlDescriptionInterstitialIndex = NSNotFound;
+                } else {
+                    selectedControlDescriptionInterstitialIndex = i;
+                }
+                selectedControlDescriptionIndex = NSNotFound;
+            } else {
+                selectedControlDescriptionIndex = NSNotFound;
+                selectedControlDescriptionInterstitialIndex = NSNotFound;
+                [self setNeedsDisplay:YES];
+                
+                self.activeObject = userInfo[@"object"];
+                if (column != kASControlCode) {
+                    self.selectionView.column = column;
+                }
             }
         } else {
             self.selectionView.column = kASAllColumns;
         }
         
-        if (column != kASControlCode) {
-            [self.popoverForCDEGH setContentSize:[[self selectionView] bounds].size];
-            [self.popoverForCDEGH showRelativeToRect:[activeTrackingArea rect] ofView:self preferredEdge:NSMaxXEdge];
-        } else {
+        if (column == kASControlCode) {
             [[self.popoverForB contentViewController] setRepresentedObject:self.activeObject];
             self.popoverForB.delegate = self;
             [self.popoverForB showRelativeToRect:[activeTrackingArea rect] ofView:self preferredEdge:NSMaxXEdge];
+        } else if (column != kASControlNumber && column != kASAllColumns) {
+            [self.popoverForCDEGH setContentSize:[[self selectionView] bounds].size];
+            [self.popoverForCDEGH showRelativeToRect:[activeTrackingArea rect] ofView:self preferredEdge:NSMaxXEdge];
+        } else {
+            // Show selection
+            [self setNeedsDisplay:YES];
         }
     } else {
         self.activeObject = nil;
@@ -103,6 +153,25 @@
 
 - (void)popoverDidClose:(NSNotification *)notification {
     [self setNeedsDisplay:YES];
+}
+
+- (void)drawSelectionUnderneath {
+    NSColor *blue = [NSColor colorWithDeviceRed:0.21 green:0.47 blue:0.84 alpha:0.6];
+    [blue set];
+
+    if (selectedControlDescriptionIndex != NSNotFound) {
+        
+        CGRect r = [self boundsForRow:selectedControlDescriptionIndex column:kASControlNumber];
+        r.size.width *= 8.0;
+        [NSBezierPath fillRect:r];
+    } else if (selectedControlDescriptionInterstitialIndex != NSNotFound) {
+        
+        CGRect r = [self boundsForRow:selectedControlDescriptionInterstitialIndex column:kASControlNumber];
+        r.origin.y -= 3.0;
+        r.size.height = 6.0;
+        r.size.width *= 8.0;
+        [NSBezierPath fillRect:r];
+    }
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
