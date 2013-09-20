@@ -48,6 +48,7 @@
     
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewFrameDidChangeNotification object:[self enclosingScrollView]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ASOverprintChanged" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ASMapChanged" object:nil];
     [self teardownLayoutNotificationObserving];
     
 	[_magnifyingGlass removeFromSuperlayer];
@@ -84,6 +85,7 @@
     
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameChanged:) name:NSViewFrameDidChangeNotification object:[self enclosingScrollView]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(overprintChanged:) name:@"ASOverprintChanged" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshMap:) name:@"ASMapChanged" object:nil];
     [self setupLayoutNotificationObserving];
     
     [[self enclosingScrollView] setBackgroundColor:[NSColor whiteColor]];
@@ -808,6 +810,12 @@
         // Update tracking areas.
         [self updateTrackingAreas];
     }
+    [self setNeedsDisplay:YES];
+}
+
+- (void)refreshMap:(NSNotification *)n {
+    [tiledLayer setNeedsDisplay];
+    [_innerMapLayer setNeedsDisplay];
     [self setNeedsDisplay:YES];
 }
 

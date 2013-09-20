@@ -24,32 +24,50 @@
     return projects[0];
 }
 
-- (BOOL)setMapURL:(NSURL *)url error:(NSError **)error {
+- (BOOL)addMapURL:(NSURL *)url error:(NSError **)error {
     
     NSData *bookmarkData = [url bookmarkDataWithOptions:NSURLBookmarkCreationWithSecurityScope
                        includingResourceValuesForKeys:nil
                                         relativeToURL:nil
                                                 error:error];
     if (bookmarkData == nil) {
-        NSLog(@"Could not set map %@. Error: %@", url, *error);
-        self.mapBookmark = nil;
+        NSLog(@"Could not add map %@. Error: %@", url, *error);
         return NO;
     }
     
-    self.mapBookmark = bookmarkData;
+    NSMutableArray *x;
+    if (self.mapBookmark == nil) {
+        x = [NSMutableArray arrayWithCapacity:4];
+    } else {
+        x = [NSMutableArray arrayWithArray:[NSKeyedUnarchiver unarchiveObjectWithData:self.mapBookmark]];
+    }
+    [x addObject:bookmarkData];
+    self.mapBookmark = [NSKeyedArchiver archivedDataWithRootObject:x];
+    
     return YES;
 }
 
-- (NSURL *)mapURL {
-    if (self.mapBookmark == nil) return nil;
+- (NSArray *)mapURLs {
+    if (self.mapBookmark == nil) return @[];
     
-    NSError *error = nil;
-    NSURL *u = [NSURL URLByResolvingBookmarkData:self.mapBookmark options:NSURLBookmarkResolutionWithSecurityScope relativeToURL:nil bookmarkDataIsStale:NULL error:&error];
-    if (u == nil) {
-        NSLog(@"Error: %@. Data %@.", error, self.mapBookmark);
+    NSMutableArray *x = [NSMutableArray arrayWithArray:[NSKeyedUnarchiver unarchiveObjectWithData:self.mapBookmark]];
+    NSMutableArray *y = [NSMutableArray arrayWithCapacity:[x count]];
+    
+    for (NSData *bookmark in x) {
+        NSError *error = nil;
+        NSURL *u = [NSURL URLByResolvingBookmarkData:bookmark options:NSURLBookmarkResolutionWithSecurityScope relativeToURL:nil bookmarkDataIsStale:NULL error:&error];
+        if (u == nil) {
+            NSLog(@"Error: %@. Data %@.", error, bookmark);
+        } else {
+            [y addObject:u];
+        }
     }
     
-    return u;
+    return y;
+}
+
+- (void)clearMapURLs {
+    self.mapBookmark = nil;
 }
 
 - (CGPoint)centerPosition {

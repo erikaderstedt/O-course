@@ -36,11 +36,7 @@ struct ocad_cache {
 
 };
 
-@interface ASOCADController : NSObject <ASMapProvider
-#if !TARGET_OS_IPHONE
-, NSMetadataQueryDelegate
-#endif
-> {
+@interface ASOCADController : NSObject <ASMapProvider> {
 @private
     struct  ocad_cache *cachedDrawingInfo;
     struct  ocad_cache **sortedCache;
@@ -67,7 +63,6 @@ struct ocad_cache {
     size_t      hiddenSymbolCount;
 
     NSMutableArray *backgroundImages;
-    NSMutableArray *spotlightQueries;
     
     CGAffineTransform areaColorTransform;
     CGAffineTransform secondaryAreaColorTransform;

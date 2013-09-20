@@ -146,7 +146,8 @@ out_error:
     NSError *error = nil;
     
     [[self undoManager] disableUndoRegistration];
-    if (![p setMapURL:u error:&error]) {
+    [p clearMapURLs];
+    if (![p addMapURL:u error:&error]) {
         NSAlert *alert = [NSAlert alertWithError:error];
         [alert runModal];
     }
@@ -181,7 +182,10 @@ out_error:
         return;
     }
 
-    NSURL *u = [[self project] mapURL];
+    NSArray *urls = [[self project] mapURLs];
+    if ([urls count] == 0) return;
+    
+    NSURL *u = [urls objectAtIndex:0];
     if ([u isEqual:self.loadedURL]) return;
     
     self.mapView.mapProvider = [self mapProviderForURL:u primaryTransform:CGAffineTransformIdentity secondaryTransform:CGAffineTransformMakeScale(GLASS_SIZE/ACROSS_GLASS, GLASS_SIZE/ACROSS_GLASS)];

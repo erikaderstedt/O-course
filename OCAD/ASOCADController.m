@@ -100,7 +100,9 @@ static CGFloat colorData[170] = {
         ocdf = calloc(sizeof(struct ocad_file), 1);
         
         // Load the OCD file.
-        load_file(ocdf, [_path cStringUsingEncoding:NSUTF8StringEncoding]);
+        if (!load_file(ocdf, [_path cStringUsingEncoding:NSUTF8StringEncoding])) {
+            return nil;
+        }
         load_symbols(ocdf);
         load_objects(ocdf);
         load_strings(ocdf);
@@ -261,9 +263,8 @@ static CGFloat colorData[170] = {
 #if !TARGET_OS_IPHONE
 - (void)loadBackgroundImagesRelativeToPath:(NSString *)basePath {
     int i;
-    
+
     backgroundImages = [[NSMutableArray alloc] initWithCapacity:5];
-    spotlightQueries = [[NSMutableArray alloc] initWithCapacity:5];
     
     for (i = 0; i < ocdf->num_strings; i++) {
         if (ocdf->string_rec_types[i] != 8) continue;
@@ -276,67 +277,71 @@ static CGFloat colorData[170] = {
             backgroundFileName = [backgroundFileName lastPathComponent];
         }
 
-        NSMutableDictionary *backgroundImage = [NSMutableDictionary dictionaryWithCapacity:10];
-        
-        if (![[NSFileManager defaultManager] fileExistsAtPath:[basePath stringByAppendingPathComponent:backgroundFileName]]) {
-            // Initiate a Spotlight search for the file.
-            // Handle the result 'lazily'
-            NSMetadataQuery *query = [[NSMetadataQuery alloc] init];
-            [query setDelegate:self];
-            [query setPredicate:[NSPredicate predicateWithFormat:@"name == %@", backgroundFileName]];
-            [query setSearchScopes:@[NSMetadataQueryUserHomeScope]];
-            [spotlightQueries addObject:query];
-        } else {
+        if ([[NSFileManager defaultManager] fileExistsAtPath:[basePath stringByAppendingPathComponent:backgroundFileName]]) {
+    
+            NSString *backgroundImagePath = [basePath stringByAppendingPathComponent:backgroundFileName];
+            NSMutableDictionary *backgroundImage = [NSMutableDictionary dictionaryWithCapacity:2];
             
             if ([[backgroundFileName pathExtension] isEqualToString:@"ocd"] ) {
-                ASOCADController *map = [[ASOCADController alloc] initWithOCADFile:[basePath stringByAppendingPathComponent:backgroundFileName]];
+                ASOCADController *map = [[ASOCADController alloc] initWithOCADFile:backgroundImagePath];
                 if (map != nil) {
                     [map prepareCacheWithAreaTransform:self.areaColorTransform];
                     backgroundImage[@"mapProvider"] = map;
                 } else {
-                    continue;
+                    NSOpenPanel *op = [NSOpenPanel openPanel];
+                    [op setAllowsMultipleSelection:NO];
+                    [op setCanChooseDirectories:NO];
+                    [op setDirectoryURL:[NSURL fileURLWithPath:basePath]];
+                    [op setNameFieldStringValue:backgroundFileName];
+                    [op setMessage:[NSString stringWithFormat:NSLocalizedString(@"Please locate the background file %@.", nil), backgroundFileName]];
+                    [op setPrompt:NSLocalizedString(@"Choose", nil)];
+
+                    [op beginSheetModalForWindow:[NSApp mainWindow] completionHandler:^(NSInteger result) {
+                        if (result == NSFileHandlingPanelOKButton) {
+                            ASOCADController *map = [[ASOCADController alloc] initWithOCADFile:backgroundImagePath];
+                            if (map != nil) {
+                                [map prepareCacheWithAreaTransform:self.areaColorTransform];
+                                backgroundImage[@"mapProvider"] = map;
+                                [[NSNotificationCenter defaultCenter] postNotificationName:@"ASMapChanged" object:nil];
+                            }
+                        }
+                    }];
                 }
             } else {
-                ASGenericImageController *bg = [[ASGenericImageController alloc] initWithContentsOfFile:[basePath stringByAppendingPathComponent:backgroundFileName]];
+                ASGenericImageController *bg = [[ASGenericImageController alloc] initWithContentsOfFile:backgroundImagePath];
                 if (bg != nil) {
                     backgroundImage[@"mapProvider"] = bg;
                 }
                 continue;
             }
+            
+            /*
+             si_BackgroundMap[list] = 8 (background maps)
+             --------------------------------------------
+             // First = file name
+             // a = angle omega
+             // b = angle phi
+             // d = dim
+             // o = render with spot colors
+             // p = assigned to spot color
+             // q = subtract from spot color (0=normal, 1=subtract)
+             // r = visible in draft mode (0=hidden, 1=visible)
+             // s = visible in normal mode (0=hidden, 1=visible)
+             // t = transparent
+             // x = offset x
+             // y = offset y
+             // u = pixel size x
+             // v = pixel size y
+             */
+            backgroundImage[@"path"] = backgroundImagePath;
+            [backgroundImages addObject:backgroundImage];
         }
-        /*
-         si_BackgroundMap[list] = 8 (background maps)
-         --------------------------------------------
-         // First = file name
-         // a = angle omega
-         // b = angle phi
-         // d = dim
-         // o = render with spot colors
-         // p = assigned to spot color
-         // q = subtract from spot color (0=normal, 1=subtract)
-         // r = visible in draft mode (0=hidden, 1=visible)
-         // s = visible in normal mode (0=hidden, 1=visible)
-         // t = transparent
-         // x = offset x
-         // y = offset y
-         // u = pixel size x
-         // v = pixel size y
-         */
-        [backgroundImages addObject:backgroundImage];
     }
-    
-    for (NSMetadataQuery *q in spotlightQueries) {
-        [q startQuery];
-    }
+
 }
 #endif
 
 - (void)dealloc {
-#if !TARGET_OS_IPHONE
-    for (NSMetadataQuery *q in spotlightQueries) {
-        [q stopQuery];
-    }
-#endif
 
     if (colors != NULL) CFRelease(colors);
 
