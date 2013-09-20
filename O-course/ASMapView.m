@@ -499,7 +499,7 @@
                 if ([theEvent modifierFlags] & NSShiftKeyMask) {
                     [self.courseDataSource removeLastOccurrenceOfOverprintObjectFromSelectedCourse:self.draggedCourseObject];
                 } else {
-                    [self.courseDataSource appendOverprintObjectToSelectedCourse:self.draggedCourseObject];
+                    [self.courseDataSource addOverprintObjectToSelectedCourse:self.draggedCourseObject];
                 }
             }
             self.draggedCourseObject = nil;
@@ -532,6 +532,17 @@
     [self.courseDataSource addOverprintObject:addingType atLocation:p symbolNumber:i];
     [overprintLayer setNeedsDisplay];
     [innerMagnifyingGlassLayer setNeedsDisplay];
+}
+
+#pragma mark -
+#pragma mark Key events
+
+- (void)keyDown:(NSEvent *)theEvent {
+    if ([theEvent keyCode] == 53) {
+        [super keyDown:theEvent];
+    } else {
+        [self.controlDescriptionView keyDown:theEvent];
+    }
 }
 
 #pragma mark -

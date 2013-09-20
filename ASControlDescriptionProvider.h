@@ -36,6 +36,11 @@ enum ASControlDescriptionColumn {
 
 @end
 
+enum ASControlDescriptionItemMovementDirection {
+    kASMovementUp,
+    kASMovementDown
+};
+
 // Course is an opaque type for this.
 @protocol ASControlDescriptionDataSource <NSObject>
 
@@ -50,6 +55,13 @@ enum ASControlDescriptionColumn {
 // to <ASControlDescriptionItem>
 - (void)enumerateControlDescriptionItemsUsingBlock:(void (^)(id <ASControlDescriptionItem> item))handler;
 - (NSInteger)numberOfControlDescriptionItems;
+- (NSInteger)numberOfItemsPrecedingActualCourseObjects;
+
+- (void)moveSelectedItemInDirection:(enum ASControlDescriptionItemMovementDirection)direction;
+- (void)moveInterstitialSelectionInDirection:(enum ASControlDescriptionItemMovementDirection)direction;
+
+@property (assign) NSInteger selectedItemIndex;
+@property (assign) NSInteger selectedInterstitialIndex;
 
 @end
 

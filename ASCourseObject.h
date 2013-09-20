@@ -192,7 +192,7 @@ enum ASOverprintObjectType {
 - (void)enumerateOverprintObjectsInSelectedCourseUsingBlock:(void (^)(id <ASOverprintObject> object, NSInteger index, CGPoint controlNumberPosition))handler;
 - (void)enumerateOtherOverprintObjectsUsingBlock:(void (^)(id <ASOverprintObject> object, NSInteger index, CGPoint controlNumberPosition))handler;
 - (void)enumerateAllOverprintObjectsUsingBlock:(void (^)(id <ASOverprintObject> object))handler;
-- (void)appendOverprintObjectToSelectedCourse:(id <ASOverprintObject>)object;
+- (void)addOverprintObjectToSelectedCourse:(id <ASOverprintObject>)object;
 - (void)removeLastOccurrenceOfOverprintObjectFromSelectedCourse:(id <ASOverprintObject>)object;
 - (BOOL)specificCourseSelected;
 

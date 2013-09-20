@@ -13,7 +13,10 @@
 @class ASControlDescriptionView;
 @class ASCourseObjectSelectionView;
 
-@interface ASCourseController : NSObject <NSTableViewDataSource, NSTableViewDelegate, ASControlDescriptionDataSource, ASCourseDataSource>
+@interface ASCourseController : NSObject <NSTableViewDataSource, NSTableViewDelegate, ASControlDescriptionDataSource, ASCourseDataSource> {
+    NSInteger _selectedInterstitialIndex;
+    NSInteger _selectedItemIndex;
+}
 
 @property (nonatomic, weak) IBOutlet NSManagedObjectContext *managedObjectContext;
 @property (nonatomic, weak) IBOutlet NSArrayController *courses;
@@ -31,5 +34,10 @@
 
 - (void)willAppear;
 - (void)willDisappear;
+
+// Maintain a selection. Both ASMapView and ASEditableControlDescriptionView
+// observe this selection and display accordingly.
+@property (nonatomic, weak) id <ASControlDescriptionItem> selectedCourseObject;
+
 
 @end

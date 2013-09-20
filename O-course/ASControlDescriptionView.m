@@ -119,10 +119,7 @@
 - (NSInteger)numberOfItems {
     NSInteger numberOfItems;
     
-    numberOfItems = [self.provider numberOfControlDescriptionItems];
-    if ([self.provider eventName]) numberOfItems++;
-    if ([self.provider classNames]) numberOfItems ++;
-    if ([self.provider number] || [self.provider length]) numberOfItems ++;
+    numberOfItems = [self.provider numberOfControlDescriptionItems] + [self.provider numberOfItemsPrecedingActualCourseObjects];
 
     return numberOfItems;
 }

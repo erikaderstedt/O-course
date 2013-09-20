@@ -12,9 +12,6 @@
 
 @interface ASEditableControlDescriptionView : ASControlDescriptionView  <NSPopoverDelegate> {
     NSTrackingArea *activeTrackingArea;
-    
-    NSInteger selectedControlDescriptionIndex; // Start through finish
-    NSInteger selectedControlDescriptionInterstitialIndex;
 }
 
 @property (nonatomic,weak) IBOutlet ASCourseObjectSelectionView *selectionView;
