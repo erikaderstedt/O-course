@@ -132,7 +132,8 @@
                 }
             }
         } else {
-            self.selectionView.column = kASAllColumns;
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"ASEditEventName" object:[self.provider project] userInfo:@{ @"rect":[NSValue valueWithRect:[activeTrackingArea rect]], @"view":self}];
+             return;
         }
         
         if (column == kASControlCode) {

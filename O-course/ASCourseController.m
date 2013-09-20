@@ -224,6 +224,10 @@
     return nil;
 }
 
+- (id)project {
+    return self.managedObjectContext;
+}
+
 - (NSNumber *)heightClimb {
     return nil; // Not yet implemented.
 }

@@ -26,12 +26,9 @@
 @property (nonatomic,strong) IBOutlet ASCourseController *courseController;
 @property (nonatomic,weak) IBOutlet NSObjectController *projectController;
 @property (nonatomic,strong) NSURL *mapURL;
-@property (nonatomic,weak) IBOutlet NSPopover *controlDefinitionsPopover;
-@property (nonatomic,weak) IBOutlet NSToolbarItem *showControlDefinitionsToolbarItem;
 @property (strong) NSURL *loadedURL;
-@property (nonatomic,weak) IBOutlet NSPanel *eventInfoPanel;
+@property (nonatomic,weak) IBOutlet NSPopover *eventInfoPopover;
 
-- (IBAction)changeEventInfo:(id)sender;
 - (IBAction)changeEventInfoOK:(id)sender;
 - (IBAction)changeEventInfoCancel:(id)sender;
 

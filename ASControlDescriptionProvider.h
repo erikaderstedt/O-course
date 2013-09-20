@@ -39,6 +39,7 @@ enum ASControlDescriptionColumn {
 // Course is an opaque type for this.
 @protocol ASControlDescriptionDataSource <NSObject>
 
+- (id)project;
 - (NSString *)eventName;
 - (NSString *)classNames;
 - (NSString *)number;

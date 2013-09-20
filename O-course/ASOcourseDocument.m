@@ -88,8 +88,6 @@ out_error:
 @synthesize overprintController, courseController;
 @synthesize projectController;
 @synthesize mapURL;
-@synthesize controlDefinitionsPopover;
-@synthesize showControlDefinitionsToolbarItem;
 
 - (Project *)project {
     Project *p = [Project projectInManagedObjectContext:[self managedObjectContext]];
@@ -213,6 +211,7 @@ out_error:
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(undoOrRedo:) name:NSUndoManagerDidUndoChangeNotification object:[[self managedObjectContext] undoManager]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(undoOrRedo:) name:NSUndoManagerDidRedoChangeNotification object:[[self managedObjectContext] undoManager]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(showEventInfoPopupForNotification:) name:@"ASEditEventName" object:[self managedObjectContext]];
 
     if (self.mapView.mapProvider == nil) [self updateMap:nil];
 }
@@ -227,6 +226,7 @@ out_error:
     
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSUndoManagerDidRedoChangeNotification object:[[self managedObjectContext] undoManager]];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSUndoManagerDidUndoChangeNotification object:[[self managedObjectContext] undoManager]];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ASEditEventName" object:nil];
     
     [self.courseController setManagedObjectContext:nil];
     [self.courseController willDisappear];
@@ -464,28 +464,23 @@ out_error:
 }
 
 - (IBAction)changeEventInfoOK:(id)sender {
-    [self.eventInfoPanel makeFirstResponder:nil];
-    [NSApp endSheet:self.eventInfoPanel returnCode:NSOKButton];
+    [self.eventInfoPopover close];
+    [[self.managedObjectContext undoManager] endUndoGrouping];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"ASCourseChanged" object:self.managedObjectContext];
 }
 
 - (IBAction)changeEventInfoCancel:(id)sender {
-    [NSApp endSheet:self.eventInfoPanel returnCode:NSCancelButton];
+    [self.eventInfoPopover close];
+    [[self.managedObjectContext undoManager] endUndoGrouping];
+    [[self.managedObjectContext undoManager] undo];
+    self.eventInfoPopover = nil;
 }
 
-- (IBAction)changeEventInfo:(id)sender {
+- (void)showEventInfoPopupForNotification:(NSNotification *)n {
     [self.undoManager beginUndoGrouping];
-    [NSApp beginSheet:self.eventInfoPanel modalForWindow:[self.mapView window] modalDelegate:self didEndSelector:@selector(changeEventSheetDidEnd:returnCode:contextInfo:) contextInfo:NULL];
+
+    [self.eventInfoPopover showRelativeToRect:[[[n userInfo] valueForKey:@"rect"] rectValue] ofView:[[n userInfo] valueForKey:@"view"] preferredEdge:NSMaxXEdge];
 }
 
-- (void)changeEventSheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
-    [sheet orderOut:nil];
-    [self.undoManager endUndoGrouping];
-    
-    if (returnCode == NSCancelButton) {
-        [self.undoManager undo];
-    } else {
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"ASCourseChanged" object:self.managedObjectContext];
-    }
-    
-}
+
 @end
