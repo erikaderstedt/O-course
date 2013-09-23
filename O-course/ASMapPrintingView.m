@@ -185,10 +185,10 @@
         r.size.width = r.size.height;
     }
 
-    r = NSInsetRect(r, 100.0, 100.0);
+    r = NSInsetRect(r, 100.0, 70.0);
     [s drawWithRect:r options:NSStringDrawingUsesFontLeading attributes:@{
                                                                           NSParagraphStyleAttributeName:mps,
-                                                                          NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue-Light" size:96.0],
+                                                                          NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue-UltraLight" size:96.0],
                                                                           NSForegroundColorAttributeName:[NSColor grayColor]}];
     [NSGraphicsContext restoreGraphicsState];
 }

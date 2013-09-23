@@ -72,4 +72,13 @@
 - (NSNumber *)locationOfTheControlFlag { return [self.overprintObject locationOfTheControlFlag]; }
 - (NSNumber *)otherInformation { return [self.overprintObject otherInformation]; }
 
+- (void)setControlCode:(NSNumber *)code { [self.overprintObject setControlCode:code]; }
+- (void)setWhichOfAnySimilarFeature:(NSNumber *)whichOfAnySimilarFeature { [self.overprintObject setWhichOfAnySimilarFeature:whichOfAnySimilarFeature]; }
+- (void)setControlFeature:(NSNumber *)controlFeature { [self.overprintObject setControlFeature:controlFeature]; }
+- (void)setAppearanceOrSecondControlFeature:(NSNumber *)appearanceOrSecondControlFeature { [self.overprintObject setAppearanceOrSecondControlFeature:appearanceOrSecondControlFeature]; }
+- (void)setDimensions:(NSString *)dimensions { [self.overprintObject setDimensions:dimensions]; }
+- (void)setCombinationSymbol:(NSNumber *)combinationSymbol { [self.overprintObject setCombinationSymbol:combinationSymbol]; }
+- (void)setLocationOfTheControlFlag:(NSNumber *)locationOfTheControlFlag { [self.overprintObject setLocationOfTheControlFlag:locationOfTheControlFlag]; }
+- (void)setOtherInformation:(NSNumber *)otherInformation { [self.overprintObject setOtherInformation:otherInformation]; }
+
 @end

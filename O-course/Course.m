@@ -47,7 +47,6 @@
     if (co != nil) {
         [[self mutableOrderedSetValueForKey:@"courseObjects"] removeObjectAtIndex:i];
         co.overprintObject = nil;
-        co.course = nil;
         [co.managedObjectContext deleteObject:co];
         [[self managedObjectContext] processPendingChanges];
         

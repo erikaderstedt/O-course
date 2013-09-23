@@ -12,7 +12,7 @@
 
 @class Course, OverprintObject;
 
-@interface CourseObject : NSManagedObject <ASControlDescriptionItem>
+@interface CourseObject : NSManagedObject <ASControlDescriptionItem, ASEditableControlDescriptionItem>
 
 @property (nonatomic) double position_x;
 @property (nonatomic) double position_y;

@@ -14,6 +14,7 @@
 #import "ASCourseObjectSelectionView.h"
 #import "ASOcourseDocument.h"
 #import "Course.h"
+#import "CourseObject.h"
 
 @implementation ASCourseController
 
@@ -321,7 +322,12 @@
     } else {
         // Remove it from the course
         NSMutableOrderedSet *mos = [selectedCourse mutableOrderedSetValueForKey:@"courseObjects"];
+        CourseObject *courseObject = [mos objectAtIndex:self.selectedItemIndex];
         [mos removeObjectAtIndex:self.selectedItemIndex];
+        courseObject.overprintObject = nil;
+        [self.managedObjectContext deleteObject:courseObject];
+        [[self managedObjectContext] processPendingChanges];
+        
         self.selectedItemIndex = NSNotFound;
     }
     [[NSNotificationCenter defaultCenter] postNotificationName:@"ASCourseChanged" object:self.managedObjectContext];
@@ -494,7 +500,7 @@
     [sheet close];
     [[[self managedObjectContext] undoManager] endUndoGrouping];
     if (returnCode == 1) {
-        [[self managedObjectContext] undo];
+        [[[self managedObjectContext] undoManager] undo];
     }
     [self updateCoursePopup];    
 }
