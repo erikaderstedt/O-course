@@ -572,7 +572,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         }
     }
 
-    //    [self adjustControlDescription];
+    [self adjustControlDescription];
     [_printedMapLayer setNeedsDisplay];
 }
 
