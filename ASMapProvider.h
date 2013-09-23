@@ -29,6 +29,7 @@
 
 - (NSInteger)symbolNumberAtPosition:(CGPoint)p;
 - (CGRect)mapBounds; // In native coordinates.
+- (CGFloat)nativeScale;
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx;
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx useSecondaryTransform:(BOOL)useSecondaryTransform;
 

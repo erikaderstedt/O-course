@@ -69,6 +69,8 @@ struct ocad_cache {
     NSString *ocadFilePath;
     
     ASOCADController *masterController;
+    
+    CGFloat nativeScale;
 }
 @property(nonatomic,assign) CGAffineTransform areaColorTransform;
 @property(nonatomic,assign) CGAffineTransform secondaryAreaColorTransform;
@@ -83,6 +85,7 @@ struct ocad_cache {
 #if !TARGET_OS_IPHONE
 - (void)loadBackgroundImagesRelativeToPath:(NSString *)basePath;
 #endif
+- (void)parseScale;
 - (void)parseColors;
 - (CGColorRef)colorWithNumber:(int)color_number;
 

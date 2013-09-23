@@ -78,4 +78,8 @@
     return self;
 }
 
+- (CGFloat)nativeScale {
+    return 1.0;
+}
+
 @end

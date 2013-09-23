@@ -113,6 +113,7 @@ static CGFloat colorData[170] = {
 #endif
 
         [self parseColors];
+        [self parseScale];
         
         currentBox = ocdf->bbox;
         
@@ -155,6 +156,25 @@ static CGFloat colorData[170] = {
     
     free(ocdf);
     ocdf = NULL;
+}
+
+- (void)parseScale {
+    int i;
+    nativeScale = 15000.0; // Default if no scale is found.
+    if (ocdf->header->version != 8) {
+        for (i = 0; i < ocdf->num_strings; i++) {
+            if (ocdf->string_rec_types[i] != 1039) {
+                continue;
+            }
+            NSString *s = [NSString stringWithCString:ocdf->strings[i] encoding:NSISOLatin1StringEncoding];
+            NSArray *a = [s componentsSeparatedByString:@"\t"];
+            for (NSString *component in a) {
+                if ([component hasPrefix:@"m"]) {
+                    nativeScale = [[component substringFromIndex:1] doubleValue];
+                }
+            }
+        }
+    }
 }
 
 - (void)parseColors {
@@ -795,6 +815,10 @@ static CGFloat colorData[170] = {
         self._layoutProxy = p;
     }
     return self._layoutProxy;
+}
+
+- (CGFloat)nativeScale {
+    return nativeScale;
 }
 
 @end

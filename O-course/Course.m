@@ -145,7 +145,7 @@
     }
     
     // Each point is 15 cm.
-    return l *15.0/100.0 / 1000.0;
+    return l * [[self valueForKeyPath:@"project.scale"] doubleValue]/100.0 / 1e6;
 }
 
 @end

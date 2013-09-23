@@ -187,6 +187,8 @@ out_error:
     if ([u isEqual:self.loadedURL]) return;
     
     self.mapView.mapProvider = [self mapProviderForURL:u primaryTransform:CGAffineTransformIdentity secondaryTransform:CGAffineTransformMakeScale(GLASS_SIZE/ACROSS_GLASS, GLASS_SIZE/ACROSS_GLASS)];
+    [[self project] setValue:@([self.mapView.mapProvider nativeScale]) forKey:@"scale"];
+    
     self.loadedURL = u;
     
     if (self.mapView.mapProvider != nil) {

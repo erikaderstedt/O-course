@@ -452,7 +452,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         NSLog(@"Unable to ensure correct scale at this time.");
         return;
     }
-    CGFloat pointsInWidth = USER_POINTS_TO_MM(((self.orientation == NSLandscapeOrientation)?self.paperSize.height:self.paperSize.width)) * 100.0 * p / 15000.0;
+    CGFloat pointsInWidth = USER_POINTS_TO_MM(((self.orientation == NSLandscapeOrientation)?self.paperSize.height:self.paperSize.width)) * 100.0 * p / [self.mapProvider nativeScale];
 
     CGFloat z2 = visibleWidth/pointsInWidth;
     

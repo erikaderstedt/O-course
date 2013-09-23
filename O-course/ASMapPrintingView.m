@@ -201,7 +201,7 @@
     CGFloat mapPointsPerMm = 100.0; // At 15000
     CGFloat pointsAcross = [self frame].size.width;
     CGFloat mmAcross = pointsAcross/RESOLUTION;
-    CGFloat desiredMapPointsAcross = scale/15000.0 * mmAcross * mapPointsPerMm;
+    CGFloat desiredMapPointsAcross = scale/[baseView.mapProvider nativeScale] * mmAcross * mapPointsPerMm;
     CGFloat f = pointsAcross/desiredMapPointsAcross;
 
     CGAffineTransform at;
