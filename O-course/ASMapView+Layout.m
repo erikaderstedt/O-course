@@ -119,7 +119,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     CGRect r = uninsetFrameForScrollMapLayer;
 
     CGContextBeginPath(ctx);
-    if (eventDetails != NULL) {
+    if (self.eventDetails != nil) {
         CGMutablePathRef p;
         p = CGPathCreateMutable();
 
@@ -129,16 +129,21 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         CGFloat maxY = CGRectGetMaxY(r);
         CGFloat inset = NSMinX(r);
         CGFloat scale = 1.0/[self actualPaperRelatedToPaperOnPage];
-        CGContextSetTextMatrix(ctx, CGAffineTransformMakeScale(scale, scale));
         
-        CGRect textBounds = CTLineGetBoundsWithOptions(eventDetails, kCTLineBoundsUseGlyphPathBounds);
-        CGContextSetTextPosition(ctx, r.origin.x + 2.5*inset, maxY - 0.25*textBounds.size.height/scale);
-        CTLineDraw(eventDetails, ctx);
+        NSFont *font = [NSFont fontWithName:@"Helvetica Neue" size:round(16.0*scale)];
+        NSAttributedString *as = [[NSAttributedString alloc] initWithString:self.eventDetails
+                                                                 attributes:@{ NSFontAttributeName:font, NSForegroundColorAttributeName:(__bridge id)self.frameColor}];
+        CTLineRef ed = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef)as);
+        CGRect textBounds = CTLineGetBoundsWithOptions(ed, kCTLineBoundsUseGlyphPathBounds);
+
+        CGContextSetTextPosition(ctx, r.origin.x + 2.5*inset, maxY - 0.25*textBounds.size.height);
+        CTLineDraw(ed, ctx);
+        CFRelease(ed);
         
         CGPathAddArcToPoint(p, NULL, maxX, r.origin.y, maxX, r.origin.y + FRAME_CORNER_RADIUS, FRAME_CORNER_RADIUS);
         CGPathAddArcToPoint(p, NULL, maxX, maxY, maxX - FRAME_CORNER_RADIUS, maxY, FRAME_CORNER_RADIUS);
         
-        CGPathAddLineToPoint(p, NULL, r.origin.x + 3.0*inset + textBounds.size.width, maxY);
+        CGPathAddLineToPoint(p, NULL, r.origin.x + 3.2*inset + textBounds.size.width, maxY);
         CGPathMoveToPoint(p, NULL, r.origin.x + 2.0*inset, maxY);
         CGPathAddArcToPoint(p, NULL, r.origin.x, maxY, r.origin.x, maxY - FRAME_CORNER_RADIUS, FRAME_CORNER_RADIUS);
         CGPathAddArcToPoint(p, NULL, r.origin.x, r.origin.y, r.origin.x + FRAME_CORNER_RADIUS, r.origin.y, FRAME_CORNER_RADIUS);
@@ -424,17 +429,20 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     rightMargin = (psize.width -NSMaxX(ib)) *scale;
     topMargin = NSMinY(ib)*scale;
     bottomMargin = (psize.height - NSMaxY(ib)) *scale;
-    /*if (self.frameVisible) {
-        if (self.orientation == NSLandscapeOrientation) {
-            rightMargin += 5.0;
-        } else {
-            topMargin += 5.0;
-        }
-    }*/
+
     topMargin = MIN(leftMargin,rightMargin);
     bottomMargin = MIN(leftMargin,rightMargin);
     leftMargin = MIN(leftMargin,rightMargin);
     rightMargin = MIN(leftMargin,rightMargin);
+    
+    if (self.frameVisible && self.eventDetails != nil) {
+        if (self.orientation == NSLandscapeOrientation) {
+            rightMargin += 5.0*scale;
+        } else {
+            topMargin += 5.0*scale;
+        }
+    }
+    
 }
 
 - (void)handleScaleAndOrientation {
@@ -528,7 +536,8 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 
 - (void)layoutFrameChanged:(NSNotification *)notification {
     BOOL after = [self.layoutController frameVisible];
-    if (self.frameVisible != after) {
+    BOOL change = (self.frameVisible != after) || (self.eventDetails != [self.layoutController eventDescription]);
+    if (change) {
     [self updatePaperMapButMaintainPositionWhileDoing:^{
         if ([self.layoutController frameVisible]) {
             if (!self.frameVisible) {
@@ -546,9 +555,14 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
                 self.frameVisible = NO;
             }
         }
+        
+        self.eventDetails = [self.layoutController eventDescription];
+
+        [self adjustPrintedMapLayerForBounds];
+
     } animate:NO];
     }
-
+    
     CGColorRef nColor = [self.layoutController frameColor];
     if (nColor != self.frameColor) {
         if ([self.layoutController frameVisible]) {
@@ -557,20 +571,8 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
             self.frameColor = NULL;
         }
     }
-    
-    if (eventDetails != NULL) {
-        CFRelease(eventDetails);
-        eventDetails = NULL;
-    }
-    NSString *ed = [self.layoutController eventDescription];
-    if (ed != nil && self.frameColor != NULL) {
 
-        NSFont *font = [NSFont fontWithName:@"Helvetica Neue" size:16.0];
-        NSAttributedString *as = [[NSAttributedString alloc] initWithString:[self.layoutController eventDescription]
-                                                                 attributes:@{ NSFontAttributeName:font, NSForegroundColorAttributeName:(__bridge id)self.frameColor}];
-        eventDetails = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef)as);
-    }
-//    [self adjustControlDescription];
+    //    [self adjustControlDescription];
     [_printedMapLayer setNeedsDisplay];
 }
 

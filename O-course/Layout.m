@@ -179,6 +179,7 @@
         n = [self valueForKeyPath:@"project.event"];
         aDesc = YES;
     }
+    
     if ([[self valueForKey:@"showEventDate"] boolValue]) {
         NSDateFormatter *df = [[NSDateFormatter alloc] init];
         [df setDateStyle:NSDateFormatterShortStyle];
@@ -186,6 +187,9 @@
         aDesc = YES;
     }
     if (!aDesc) return nil;
+    if ([d length] == 0) return n;
+    if ([n length] == 0) return d;
+    
     return [NSString stringWithFormat:@"%@ %@", n, d];
 }
 

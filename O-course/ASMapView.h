@@ -57,8 +57,6 @@ enum ASMapViewUIState {
     CALayer *_controlDescriptionLayer;
     
     CGColorRef _frameColor;
-    NSString *eventTitle;
-    CTLineRef eventDetails;
     CGFloat _printingScale;
     BOOL draggingPaperMap;
     CGSize paperOffset;
@@ -90,6 +88,7 @@ enum ASMapViewUIState {
 @property(assign) CGSize paperSize; // in points, in portrait orientation
 @property(assign) NSPrintingOrientation orientation;
 @property CGColorRef frameColor;
+@property (nonatomic,strong) NSString *eventDetails;
 
 - (IBAction)revertToStandardMode:(id)sender;
 - (IBAction)goIntoAddControlsMode:(id)sender;
