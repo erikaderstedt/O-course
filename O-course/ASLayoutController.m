@@ -286,6 +286,15 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
     return [[selectedLayout showControlDescription] boolValue];
 }
 
+- (BOOL)printClassNameOnBack {
+    Layout *selectedLayout = [self selectedLayout];
+    if (selectedLayout == nil) {
+        return NO;
+    }
+    
+    return [[selectedLayout valueForKey:@"printClassNameOnBack"] boolValue];
+}
+
 #pragma mark NSTableViewDataSource
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView {

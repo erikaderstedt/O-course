@@ -10,6 +10,7 @@
 #import "ASMapView.h"
 #import "ASMapView+Layout.h"
 #import "ASControlDescriptionView.h"
+#import "ASLayoutController.h"
 
 #define RESOLUTION (72.0/25.4)
 
@@ -27,6 +28,11 @@
     }
     r.size.width = round(r.size.width);
     r.size.height = round(r.size.height);
+    
+    if ([_baseView.layoutController printClassNameOnBack]) {
+        r.size.height *= 2.0;
+    }
+
     self = [super initWithFrame:r];
     if (self) {
         baseView = _baseView;
@@ -36,53 +42,42 @@
 }
 
 - (BOOL)knowsPageRange:(NSRangePointer)range {
-    *range = NSMakeRange(1, 1);
-    
+    if ([baseView.layoutController printClassNameOnBack]) {
+        *range = NSMakeRange(1, 2);
+    }    else {
+        *range = NSMakeRange(1, 1);
+    }
     return YES;
 }
 
 - (NSRect)rectForPage:(NSInteger)page {
-    return [self frame];
+    NSRect r = [self frame];
+    if ([baseView.layoutController printClassNameOnBack]) {
+        r.size.height /= 2.0;
+        if (page > 1) {
+            r.origin.y += r.size.height;
+        }
+    }
+    return r;
 }
 
 - (NSString *)printJobTitle {
     return @"Test";
 }
 
-- (CGAffineTransform)patternTransform {
-
-    CGPoint p = [baseView centerOfMap];
-    CGFloat scale = [baseView printingScale];
-    CGFloat mapPointsPerMm = 100.0; // At 15000
-    CGFloat pointsAcross = [self frame].size.width;
-    CGFloat mmAcross = pointsAcross/RESOLUTION;
-    CGFloat desiredMapPointsAcross = scale/15000.0 * mmAcross * mapPointsPerMm;
-    CGFloat f = pointsAcross/desiredMapPointsAcross;
-
-    CGAffineTransform at;
-    at.a = f;
-    at.b = 0.0;
-    at.c = 0.0;
-    at.d = f;
-    at.tx = NSMidX([self frame]) - p.x*f;
-    at.ty = NSMidY([self frame]) - p.y*f;
-    
-    return at;
-}
-
-- (void)drawRect:(NSRect)dirtyRect {
-
+- (void)drawActualMap {
     CGContextRef ctx = [[NSGraphicsContext currentContext] graphicsPort];
     
     CGRect f1 = [baseView mapFrame];
     CGRect f2 = [baseView paperFrame];
+    CGRect frame = [self rectForPage:1];
     CGAffineTransform at = [self patternTransform];
-
+    
     CGContextSaveGState(ctx);
     CGContextConcatCTM(ctx, at);
-
+    
     CGContextBeginPath(ctx);
-    CGRect n1 = CGRectApplyAffineTransform([self frame],CGAffineTransformInvert(at));
+    CGRect n1 = CGRectApplyAffineTransform(frame,CGAffineTransformInvert(at));
     n1.origin.x = CGRectGetMinX(n1) + CGRectGetWidth(n1)*CGRectGetMinX(f1)/CGRectGetWidth(f2);
     n1.origin.y = CGRectGetMinY(n1) + CGRectGetHeight(n1)*CGRectGetMinY(f1)/CGRectGetHeight(f2);
     n1.size.width = CGRectGetWidth(n1)*CGRectGetWidth(f1)/CGRectGetWidth(f2);
@@ -93,7 +88,7 @@
     CGPathRef roundClipRect = CGPathCreateRoundRect(n1 , cRad);
     CGContextAddPath(ctx, roundClipRect);
     CGContextClip(ctx);
-
+    
     [[self.mapProvider layoutProxy] drawLayer:nil inContext:ctx useSecondaryTransform:YES];
     
     // Simulated overprint
@@ -105,7 +100,7 @@
     
     if ([baseView frameVisible]) {
         CGContextSaveGState(ctx);
-        n1 = [self bounds];
+        n1 = frame;
         CGFloat scale = CGRectGetWidth(n1)/CGRectGetWidth(f2);
         at.a = scale;
         at.b = 0.0; at.c = 0.0;
@@ -123,9 +118,9 @@
         enum ASLayoutControlDescriptionLocation location = [baseView location];
         
         // Calculate the map frame in our own coordinate system.
-        CGFloat scale = 1.0/(f2.size.width/[self frame].size.width);
+        CGFloat scale = 1.0/(f2.size.width/frame.size.width);
         CGRect mapInOurCoordinates = CGRectApplyAffineTransform(f1, CGAffineTransformMakeScale(scale, scale));
-
+        
         ASControlDescriptionView *cView = baseView.controlDescriptionView;
         NSRect r = [cView controlDescriptionBounds];
         CGFloat targetWidth = 7.0 * 8.0 * RESOLUTION;
@@ -151,7 +146,7 @@
             case kASControlDescriptionTopRight:
                 p1 = CGPointMake(NSMaxX(r),NSMaxY(r));
                 p2 = CGPointMake(NSMaxX(mapInOurCoordinates), NSMaxY(mapInOurCoordinates));
-                break;                
+                break;
             default:
                 break;
         }
@@ -162,12 +157,56 @@
         NSAffineTransform *at3 = [NSAffineTransform transform];
         [at3 setTransformStruct:ats];
         [at3 concat];
-
+        
         [[NSColor whiteColor] set];
         [NSBezierPath fillRect:NSInsetRect(r, -INSET_DIST, -INSET_DIST)];
         [cView drawActualControlDescription];
         [NSGraphicsContext restoreGraphicsState];
     }
+}
+
+- (void)drawClassNameOnBack {
+    
+    NSString *s = [[baseView.controlDescriptionView provider] classNames];
+    NSRect r = [self rectForPage:2];
+    r = NSInsetRect(r, 100.0, 100.0);
+    NSMutableParagraphStyle *mps = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+    [mps setAlignment:NSCenterTextAlignment];
+    [s drawWithRect:r options:NSStringDrawingUsesFontLeading attributes:@{
+                                                                          NSParagraphStyleAttributeName:mps,
+                                                                          NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue-Light" size:96.0],
+                                                                          NSForegroundColorAttributeName:[NSColor grayColor]}];
+}
+
+- (CGAffineTransform)patternTransform {
+
+    CGPoint p = [baseView centerOfMap];
+    CGFloat scale = [baseView printingScale];
+    CGRect frame = [self rectForPage:1];
+    CGFloat mapPointsPerMm = 100.0; // At 15000
+    CGFloat pointsAcross = [self frame].size.width;
+    CGFloat mmAcross = pointsAcross/RESOLUTION;
+    CGFloat desiredMapPointsAcross = scale/15000.0 * mmAcross * mapPointsPerMm;
+    CGFloat f = pointsAcross/desiredMapPointsAcross;
+
+    CGAffineTransform at;
+    at.a = f;
+    at.b = 0.0;
+    at.c = 0.0;
+    at.d = f;
+    at.tx = NSMidX(frame) - p.x*f;
+    at.ty = NSMidY(frame) - p.y*f;
+    
+    return at;
+}
+
+- (void)drawRect:(NSRect)dirtyRect {
+    if (NSIntersectsRect(dirtyRect, [self rectForPage:1])) {
+        [self drawActualMap];
+    } else {
+        [self drawClassNameOnBack];
+    }
+
 }
 
 @end

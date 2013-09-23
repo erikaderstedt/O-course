@@ -55,5 +55,6 @@ extern NSString *const ASLayoutDecorChanged;
 - (NSString *)eventDescription;
 - (enum ASLayoutControlDescriptionLocation)controlDescriptionLocation;
 - (BOOL)showControlDescription;
+- (BOOL)printClassNameOnBack;
 
 @end

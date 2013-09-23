@@ -430,7 +430,7 @@ out_error:
         [pi setLeftMargin:0.0];
         [pi setRightMargin:0.0];
         [pi setOrientation:self.mapView.orientation];
-        [pi setPaperSize:pv.frame.size];
+        [pi setPaperSize:[pv rectForPage:1].size];
         [pi setHorizontalPagination:NSClipPagination];
         [pi setVerticalPagination:NSClipPagination];
         [pi setHorizontallyCentered:YES];
