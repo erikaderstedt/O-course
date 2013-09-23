@@ -169,13 +169,28 @@
     
     NSString *s = [[baseView.controlDescriptionView provider] classNames];
     NSRect r = [self rectForPage:2];
-    r = NSInsetRect(r, 100.0, 100.0);
     NSMutableParagraphStyle *mps = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
     [mps setAlignment:NSCenterTextAlignment];
+    
+    [NSGraphicsContext saveGraphicsState];
+    NSAffineTransform *page = [NSAffineTransform transform];
+    [page translateXBy:0.0 yBy:r.size.height];
+    r.origin.y -= r.size.height;
+    [page concat];
+    if (baseView.orientation == NSLandscapeOrientation) {
+        NSAffineTransform *t = [NSAffineTransform transform];
+        [t rotateByDegrees:90.0];
+        [t translateXBy:0.0 yBy:-r.size.width];
+        [t concat];
+        r.size.width = r.size.height;
+    }
+
+    r = NSInsetRect(r, 100.0, 100.0);
     [s drawWithRect:r options:NSStringDrawingUsesFontLeading attributes:@{
                                                                           NSParagraphStyleAttributeName:mps,
                                                                           NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue-Light" size:96.0],
                                                                           NSForegroundColorAttributeName:[NSColor grayColor]}];
+    [NSGraphicsContext restoreGraphicsState];
 }
 
 - (CGAffineTransform)patternTransform {
