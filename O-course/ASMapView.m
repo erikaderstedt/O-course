@@ -494,15 +494,20 @@
     enum ASOverprintObjectType addingType;
     switch (self.state) {
         case kASMapViewNormal:
-            if ([self.courseDataSource specificCourseSelected] && self.draggedCourseObject != nil) {
-                // Add to current course.
-                if ([theEvent modifierFlags] & NSShiftKeyMask) {
-                    [self.courseDataSource removeLastOccurrenceOfOverprintObjectFromSelectedCourse:self.draggedCourseObject];
+            if (self.draggedCourseObject != nil) {
+                if ([self.courseDataSource specificCourseSelected]) {
+                    // Add to current course.
+                    if ([theEvent modifierFlags] & NSShiftKeyMask) {
+                        [self.courseDataSource removeLastOccurrenceOfOverprintObjectFromSelectedCourse:self.draggedCourseObject];
+                    } else {
+                        [self.courseDataSource addOverprintObjectToSelectedCourse:self.draggedCourseObject];
+                    }
                 } else {
-                    [self.courseDataSource addOverprintObjectToSelectedCourse:self.draggedCourseObject];
+                    [self.courseDataSource removeOverprintObject:self.draggedCourseObject];
+                    dragIndicatorLayer.hidden = YES;
                 }
+                self.draggedCourseObject = nil;
             }
-            self.draggedCourseObject = nil;
             return;
             break;
         case kASMapViewDraggingCourseObject:

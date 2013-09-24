@@ -423,6 +423,13 @@
     }
 }
 
+- (void)removeOverprintObject:(id<ASOverprintObject>)object {
+    // The model should be set up correctly to cascade this to course objects.
+    [self.managedObjectContext deleteObject:object];
+    [self.managedObjectContext processPendingChanges];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"ASCourseChanged" object:self.managedObjectContext];
+}
+
 - (BOOL)specificCourseSelected {
     return [[self.courses selectedObjects] count];
 }

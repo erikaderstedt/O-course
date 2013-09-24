@@ -195,5 +195,6 @@ enum ASOverprintObjectType {
 - (void)addOverprintObjectToSelectedCourse:(id <ASOverprintObject>)object;
 - (void)removeLastOccurrenceOfOverprintObjectFromSelectedCourse:(id <ASOverprintObject>)object;
 - (BOOL)specificCourseSelected;
+- (void)removeOverprintObject:(id <ASOverprintObject>)object;
 
 @end
