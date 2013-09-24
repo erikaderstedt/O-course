@@ -502,7 +502,7 @@
                     } else {
                         [self.courseDataSource addOverprintObjectToSelectedCourse:self.draggedCourseObject];
                     }
-                } else {
+                } else if ([theEvent modifierFlags] & NSShiftKeyMask) {
                     [self.courseDataSource removeOverprintObject:self.draggedCourseObject];
                     dragIndicatorLayer.hidden = YES;
                 }
