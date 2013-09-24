@@ -830,6 +830,15 @@
 }
 
 - (void)refreshMap:(NSNotification *)n {
+    // Map bounds may have changed.
+    CGRect r = [self.mapProvider mapBounds];
+    mapBounds = r;
+    tiledLayer.bounds = r;
+    _innerMapLayer.bounds = r;
+    overprintLayer.bounds = r;
+    _innerOverprintLayer.bounds = r;
+    [self setZoom:_zoom];
+    
     [tiledLayer setNeedsDisplay];
     [_innerMapLayer setNeedsDisplay];
     [self setNeedsDisplay:YES];

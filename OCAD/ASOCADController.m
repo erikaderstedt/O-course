@@ -430,6 +430,10 @@ static CGFloat colorData[170] = {
             }
 		}
 	}
+    
+    for (NSDictionary *bmap in backgroundImages) {
+        wholeMap = CGRectUnion(wholeMap, [[bmap objectForKey:@"mapProvider"] mapBounds]);
+    }
 
 	return wholeMap;
 }
