@@ -6,9 +6,17 @@
 //  Copyright 2011 Aderstedt Software AB. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import <Cocoa/Cocoa.h>
 #import <QuartzCore/QuartzCore.h>
 #import "ASCourseObject.h"
+
+@protocol ASBackgroundImageLoaderDelegate <NSObject>
+
+- (NSWindow *)modalWindow;
+- (NSURL *)resolvedURLBookmarkForPath:(NSString *)path;
+- (BOOL)addMapBookmarkForURL:(NSURL *)url originalPath:(NSString *)path error:(NSError **)error;
+
+@end
 
 @protocol ASOverprintProvider <NSObject>
 

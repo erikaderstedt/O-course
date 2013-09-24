@@ -7,13 +7,14 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "ASMapProvider.h"
 
 @class ASMapView;
 @class Project;
 @class ASOverprintController;
 @class ASCourseController;
 
-@interface ASOcourseDocument : NSDocument {
+@interface ASOcourseDocument : NSDocument <ASBackgroundImageLoaderDelegate> {
 @private
     NSObjectController *__weak projectController;
     
@@ -38,7 +39,11 @@
 - (IBAction)chooseBackgroundMap:(id)sender;
 - (void)updateMap:(NSNotification *)n;
 
+- (void)clearMapBookmarks;
+- (NSArray *)bookmarkedURLs;
+
 - (void)setMapURL:(NSURL *)mapURL;
 - (void)loadCoursesFromMap;
-+ (NSWindow *)windowForManagedObjectContext:(NSManagedObjectContext *)context ;
++ (NSWindow *)windowForManagedObjectContext:(NSManagedObjectContext *)context;
+
 @end

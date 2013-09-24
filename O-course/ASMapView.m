@@ -837,7 +837,8 @@
     _innerMapLayer.bounds = r;
     overprintLayer.bounds = r;
     _innerOverprintLayer.bounds = r;
-    [self setZoom:_zoom];
+    minZoom = [self calculateMinimumZoomForFrame:[self frame]];
+    [self setZoom:minZoom*3.0];
     
     [tiledLayer setNeedsDisplay];
     [_innerMapLayer setNeedsDisplay];

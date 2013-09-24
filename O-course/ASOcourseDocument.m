@@ -130,6 +130,32 @@ out_error:
     return YES;
 }
 
+#pragma mark -
+#pragma mark Map loading
+
+- (NSArray *)bookmarkedURLs {
+    if (self.project.mapBookmark == nil) return @[];
+    
+    NSMutableArray *x = [NSMutableArray arrayWithArray:[NSKeyedUnarchiver unarchiveObjectWithData:self.project.mapBookmark]];
+    NSMutableArray *y = [NSMutableArray arrayWithCapacity:[x count]];
+    
+    for (NSDictionary *bookmarkDict in x) {
+        NSError *error = nil;
+        NSURL *u = [NSURL URLByResolvingBookmarkData:[bookmarkDict valueForKey:@"data"] options:NSURLBookmarkResolutionWithSecurityScope relativeToURL:nil bookmarkDataIsStale:NULL error:&error];
+        if (u == nil) {
+            NSLog(@"Error: %@. Data %@.", error, bookmarkDict);
+        } else {
+            [y addObject:u];
+        }
+    }
+    
+    return y;
+}
+
+- (void)clearMapBookmarks {
+    self.project.mapBookmark = nil;
+}
+
 - (IBAction)chooseBackgroundMap:(id)sender {
     NSOpenPanel *op = [MyDocumentController openPanelForBackgroundMap];
 
@@ -141,13 +167,12 @@ out_error:
 }
 
 - (void)setMapURL:(NSURL *)u {
-    
-    Project *p = [self project];
+    // Requires that the url has been added to our sandbox.
     NSError *error = nil;
     
     [[self undoManager] disableUndoRegistration];
-    [p clearMapURLs];
-    if (![p addMapURL:u error:&error]) {
+    [self clearMapBookmarks];
+    if (![self addMapBookmarkForURL:u originalPath:nil error:&error]) {
         NSAlert *alert = [NSAlert alertWithError:error];
         [alert runModal];
     }
@@ -158,13 +183,14 @@ out_error:
 
 - (id <ASMapProvider>)mapProviderForURL:(NSURL *)u primaryTransform:(CGAffineTransform)primary secondaryTransform:(CGAffineTransform)secondary {
     id <ASMapProvider> provider = nil;
-    
+    // This may trigger the loading of background images, too.
+    // The
     if (u != nil) {
         [u startAccessingSecurityScopedResource];
         
         NSString *s = [u path];
         if ([[s pathExtension] isEqualToString:@"ocd"]) {
-            ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:s];
+            ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:s delegate:self];
             [o prepareCacheWithAreaTransform:primary secondaryTransform:secondary];
             provider = o;
         } else {
@@ -182,12 +208,13 @@ out_error:
         return;
     }
 
-    NSArray *urls = [[self project] mapURLs];
+    NSArray *urls = [self bookmarkedURLs];
     if ([urls count] == 0) return;
     
     NSURL *u = [urls objectAtIndex:0];
     if ([u isEqual:self.loadedURL]) return;
     
+   // dispatch_suspend([self imageLoaderQueue]);
     self.mapView.mapProvider = [self mapProviderForURL:u primaryTransform:CGAffineTransformIdentity secondaryTransform:CGAffineTransformMakeScale(GLASS_SIZE/ACROSS_GLASS, GLASS_SIZE/ACROSS_GLASS)];
     [[self project] setValue:@([self.mapView.mapProvider nativeScale]) forKey:@"scale"];
     
@@ -205,6 +232,7 @@ out_error:
         }
     }
     [self.mapView mapLoaded];
+    //dispatch_resume([self imageLoaderQueue]);
 }
 
 - (void)loadCoursesFromMap {
@@ -232,6 +260,64 @@ out_error:
     }];
     [self.overprintController updateOverprint];
 }
+
+#pragma mark -
+#pragma mark ASBackgroundImageLoaderDelegate
+
+- (NSWindow *)modalWindow {
+    NSArray *a = [self windowControllers];
+    if ([a count] == 0) return nil;
+    NSWindow *w = [[a objectAtIndex:0] window];
+    if (w == nil) return [NSApp mainWindow];
+    return w;
+}
+
+- (NSURL *)resolvedURLBookmarkForPath:(NSString *)path {
+    if (self.project.mapBookmark == nil) return nil;
+    
+    NSMutableArray *x = [NSMutableArray arrayWithArray:[NSKeyedUnarchiver unarchiveObjectWithData:self.project.mapBookmark]];
+    
+    for (NSDictionary *bookmarkDict in x) {
+        NSError *error = nil;
+        if ([[bookmarkDict valueForKey:@"path"] isEqualToString:path]) {
+            NSURL *u = [NSURL URLByResolvingBookmarkData:[bookmarkDict valueForKey:@"data"] options:NSURLBookmarkResolutionWithSecurityScope relativeToURL:nil bookmarkDataIsStale:NULL error:&error];
+            return u;
+        }
+    }
+    return nil;
+}
+
+- (BOOL)addMapBookmarkForURL:(NSURL *)url originalPath:(NSString *)path error:(NSError *__autoreleasing *)error {
+    
+    NSMutableArray *x;
+    if (self.project.mapBookmark == nil) {
+        x = [NSMutableArray arrayWithCapacity:4];
+    } else {
+        x = [NSMutableArray arrayWithArray:[NSKeyedUnarchiver unarchiveObjectWithData:self.project.mapBookmark]];
+    }
+    for (NSDictionary *d in x) {
+        if ([[d valueForKey:@"path"] isEqualToString:path]) {
+            if (error != nil) *error = nil;
+            return NO;
+        }
+    }
+    NSData *bookmarkData = [url bookmarkDataWithOptions:NSURLBookmarkCreationWithSecurityScope
+                         includingResourceValuesForKeys:nil
+                                          relativeToURL:nil
+                                                  error:error];
+    if (bookmarkData == nil) {
+        NSLog(@"Could not add map %@. Error: %@", url, *error);
+        return NO;
+    }
+    
+    if (path == nil) path = [url path];
+    [x addObject:@{@"path":path, @"data":bookmarkData}];
+    self.project.mapBookmark = [NSKeyedArchiver archivedDataWithRootObject:x];
+    
+    return YES;
+}
+
+#pragma mark -
 
 - (void)awakeFromNib {
     [self.courseController setManagedObjectContext:[self managedObjectContext]];

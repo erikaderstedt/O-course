@@ -62,8 +62,6 @@ struct ocad_cache {
     int32_t     *hiddenSymbols;
     size_t      hiddenSymbolCount;
 
-    NSMutableArray *backgroundImages;
-    
     CGAffineTransform areaColorTransform;
     CGAffineTransform secondaryAreaColorTransform;
     NSString *ocadFilePath;
@@ -77,14 +75,12 @@ struct ocad_cache {
 @property(nonatomic,strong) NSString *ocadFilePath;
 @property(nonatomic, strong) NSArray *symbolList;
 @property(nonatomic,strong) ASOCADController *_layoutProxy;
+@property(nonatomic,strong) NSMutableArray *backgroundImages;
 
-- (id)initWithOCADFile:(NSString *)path;
+- (id)initWithOCADFile:(NSString *)path delegate:(id <ASBackgroundImageLoaderDelegate>)_delegate;
 - (void)prepareCacheWithAreaTransform:(CGAffineTransform)transform;
 - (void)prepareCacheWithAreaTransform:(CGAffineTransform)transform secondaryTransform:(CGAffineTransform)secondaryTransform;
 
-#if !TARGET_OS_IPHONE
-- (void)loadBackgroundImagesRelativeToPath:(NSString *)basePath;
-#endif
 - (void)parseScale;
 - (void)parseColors;
 - (CGColorRef)colorWithNumber:(int)color_number;

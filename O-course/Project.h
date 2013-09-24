@@ -14,8 +14,4 @@
 
 + (Project *)projectInManagedObjectContext:(NSManagedObjectContext *)moc;
 
-- (BOOL)addMapURL:(NSURL *)url error:(NSError **)error;
-- (void)clearMapURLs;
-- (NSArray *)mapURLs;
-
 @end
