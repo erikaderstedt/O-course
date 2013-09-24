@@ -587,6 +587,8 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:ASLayoutOrientationChanged object:self.layoutController];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutChanged:) name:ASLayoutChanged object:self.layoutController];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(decorChanged:) name:ASLayoutDecorChanged object:self.layoutController];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(courseChanged:) name:@"ASCourseChanged" object:self.layoutController.layouts.managedObjectContext];
 }
 
 - (void)teardownLayoutNotificationObserving {
@@ -596,6 +598,8 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutOrientationChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutChanged object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ASLayoutDecorChanged object:nil];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ASCourseChanged" object:nil];
 }
 
 - (CGRect)mapFrame {
@@ -616,6 +620,10 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 
 - (BOOL)controlDescriptionVisible {
     return [self.layoutController showControlDescription];
+}
+
+- (void)courseChanged:(NSNotification *)n {
+    [self adjustControlDescription];
 }
 
 @end
