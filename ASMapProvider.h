@@ -30,6 +30,9 @@
 - (NSInteger)symbolNumberAtPosition:(CGPoint)p;
 - (CGRect)mapBounds; // In native coordinates.
 - (CGFloat)nativeScale;
+- (void)loadOverprintObjects:(id (^)(CGFloat position_x, CGFloat position_y, enum ASOverprintObjectType otp, NSInteger controlCode, enum ASWhichOfAnySimilarFeature which, enum ASFeature feature, enum ASAppearance appearance,  enum ASDimensionsOrCombination dim, enum ASLocationOfTheControlFlag flag, enum ASOtherInformation other))objectHandler courses:(void (^)(NSString *name, NSArray *overprintObjects))courseHandler;
+- (BOOL)hasCourseInformation;
+
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx;
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)ctx useSecondaryTransform:(BOOL)useSecondaryTransform;
 

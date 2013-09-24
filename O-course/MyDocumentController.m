@@ -22,7 +22,7 @@
         if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
             e = [NSError errorWithDomain:NSCocoaErrorDomain code:1 userInfo:@{NSLocalizedDescriptionKey: NSLocalizedString(@"File not found.", nil)}];
         } else if (!supported_version([path cStringUsingEncoding:NSUTF8StringEncoding])) {
-            e = [NSError errorWithDomain:NSCocoaErrorDomain code:1 userInfo:@{NSLocalizedDescriptionKey: NSLocalizedString(@"Invalid OCAD version. Only versions 9 and 10 are supported.", nil)}];
+            e = [NSError errorWithDomain:NSCocoaErrorDomain code:1 userInfo:@{NSLocalizedDescriptionKey: NSLocalizedString(@"Invalid OCAD version. Only versions 9 and up are supported.", nil)}];
         }
         
         if (e != nil) {
@@ -34,10 +34,10 @@
             if (displayDocument) {
                 [doc makeWindowControllers];
                 [doc showWindows];
-                [doc setMapURL:url];
-            } else {
-                [doc setMapURL:url];
             }
+            [doc setMapURL:url];
+            
+            [doc loadCoursesFromMap];
 
             completionHandler(doc, NO, nil);
         }

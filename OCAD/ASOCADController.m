@@ -154,8 +154,11 @@ static CGFloat colorData[170] = {
     }
     self.symbolList = ma;
     
+#if TARGET_OS_IPHONE
     free(ocdf);
     ocdf = NULL;
+#endif
+    
 }
 
 - (void)parseScale {
@@ -472,6 +475,7 @@ static CGFloat colorData[170] = {
     for (i = start; i < stop; i += step) {
         e = ocdf->elements[i];
         type = (enum ocad_object_type)(e->obj_type);
+        if (e->symbol->csmode > 0) continue; // Don't render these.
 		switch (type) {
 			case ocad_area_object:
 				area = (struct ocad_area_symbol *)(e->symbol);
@@ -605,9 +609,8 @@ static CGFloat colorData[170] = {
 
 - (NSArray *)cachedDrawingInfoForPointObject:(struct ocad_element *)e {
     struct ocad_point_symbol *point = (struct ocad_point_symbol *)(e->symbol);
-    
+
     if (point == NULL || point->status == 2) return @[];
-    
     
     float angle = 0.0;
     if (e->angle != -1) angle = ((float)(e->angle)) / 10.0 * M_PI / 180.0;
@@ -819,6 +822,202 @@ static CGFloat colorData[170] = {
 
 - (CGFloat)nativeScale {
     return nativeScale;
+}
+
+- (void)loadOverprintObjects:(id (^)(CGFloat position_x, CGFloat position_y, enum ASOverprintObjectType otp, NSInteger controlCode, enum ASWhichOfAnySimilarFeature which, enum ASFeature feature, enum ASAppearance appearance,  enum ASDimensionsOrCombination dim, enum ASLocationOfTheControlFlag flag, enum ASOtherInformation other))objectHandler courses:(void (^)(NSString *name, NSArray *overprintObjects))courseHandler {
+
+    int i;
+    if (ocdf->header->filetype != 1) { // Course setting project
+        return;
+    }
+    
+    NSDictionary *colD = @{@"1.1": @(kASFeatureTerrace),
+                           @"1.2": @(kASFeatureSpur),
+                           @"1.3": @(kASFeatureRe_Entrant),
+                           @"1.4": @(kASFeatureEarthBank),
+                           @"1.5": @(kASFeatureEarthWall),
+                           @"1.6": @(kASFeatureQuarry),
+                           @"1.7": @(kASFeatureErosionGully),
+                           @"1.8": @(kASFeatureSmallErosionGully),
+                           @"1.9": @(kASFeatureHill),
+                           @"1.10": @(kASFeatureKnoll),
+                           @"1.11": @(kASFeatureSaddle),
+                           @"1.12": @(kASFeatureDepression),
+                           @"1.13": @(kASFeatureSmallDepression),
+                           @"1.14": @(kASFeaturePit),
+                           @"1.15": @(kASFeatureBrokenGround),
+                           @"1.16": @(kASFeatureAntHill),
+                           @"2.1": @(kASFeatureCliff),
+                           @"2.2": @(kASFeatureRockPillar),
+                           @"2.3": @(kASFeatureCave),
+                           @"2.4": @(kASFeatureBoulder),
+                           @"2.5": @(kASFeatureBoulderField),
+                           @"2.6": @(kASFeatureBoulderCluster),
+                           @"2.7": @(kASFeatureStonyGround),
+                           @"2.8": @(kASFeatureBareRock),
+                           @"2.9": @(kASFeatureNarrowPassage),
+                           @"3.1": @(kASFeatureLake),
+                           @"3.2": @(kASFeaturePond),
+                           @"3.3": @(kASFeatureWaterhole),
+                           @"3.4": @(kASFeatureStream),
+                           @"3.5": @(kASFeatureDitch),
+                           @"3.6": @(kASFeatureNarrowMarch),
+                           @"3.7": @(kASFeatureMarch),
+                           @"3.8": @(kASFeatureFirmGroundInMarch),
+                           @"3.9": @(kASFeatureWell),
+                           @"3.10": @(kASFeatureSpring),
+                           @"3.11": @(kASFeatureWaterTrough),
+                           @"4.1": @(kASFeatureOpenLand),
+                           @"4.2": @(kASFeatureSemiOpenLand),
+                           @"4.3": @(kASFeatureForestCorner),
+                           @"4.4": @(kASFeatureClearing),
+                           @"4.5": @(kASFeatureThicket),
+                           @"4.6": @(kASFeatureLinearThicket),
+                           @"4.7": @(kASFeatureVegetationBoundary),
+                           @"4.8": @(kASFeatureCopse),
+                           @"4.9": @(kASFeatureDistinctiveTree),
+                           @"4.10": @(kASFeatureTreeStumpOrRootStock),
+                           @"5.1": @(kASFeatureRoad),
+                           @"5.2": @(kASFeatureTrack),
+                           @"5.3": @(kASFeatureRide),
+                           @"5.4": @(kASFeatureBridge),
+                           @"5.4": @(kASFeatureBridge),
+                           @"5.5": @(kASFeaturePowerLine),
+                           @"5.6": @(kASFeaturePowerLinePylon),
+                           @"5.7": @(kASFeatureTunnel),
+                           @"5.8": @(kASFeatureStoneWall),
+                           @"5.9": @(kASFeatureFence),
+                           @"5.10": @(kASFeatureCrossingPoint),
+                           @"5.11": @(kASFeatureBuilding),
+                           @"5.12": @(kASFeaturePavedArea),
+                           @"5.13": @(kASFeatureRuin),
+                           @"5.14": @(kASFeaturePipeline),
+                           @"5.15": @(kASFeatureTower),
+                           @"5.16": @(kASFeatureShootingPlatform),
+                           @"5.17": @(kASFeatureCairn),
+                           @"5.18": @(kASFeatureFodderRack),
+                           @"5.19": @(kASFeatureCharcoalBurningGround),
+                           @"5.20": @(kASFeatureMonument),
+                           @"5.21": @(kASFeatureBuildingPassThrough),
+                           @"5.22": @(kASFeatureStairway)};
+    NSDictionary *colE = @{@"8.1": @(kASAppearanceLow),
+                           @"8.2": @(kASAppearanceShallow),
+                           @"8.3": @(kASAppearanceDeep),
+                           @"8.4": @(kASAppearanceOvergrown),
+                           @"8.5": @(kASAppearanceOpen),
+                           @"8.6": @(kASAppearanceRocky),
+                           @"8.7": @(kASAppearanceMarshy),
+                           @"8.8": @(kASAppearanceSandy),
+                           @"8.9": @(kASAppearanceNeedleLeaves),
+                           @"8.10": @(kASAppearanceBroadLeaves),
+                           @"8.11": @(kASAppearanceRuined)};
+    NSDictionary *colF = @{@"10.1": @(kASCombinationCrossing),
+                           @"10.2": @(kASCombinationJunction)};
+    
+    NSMutableDictionary *overprintObjects = [NSMutableDictionary dictionaryWithCapacity:200];
+    for (i = 0; i < ocdf->num_strings; i++) {
+        if (ocdf->string_rec_types[i] != 1) {
+            continue;
+        }
+        NSString *s = [NSString stringWithCString:ocdf->strings[i] encoding:NSISOLatin1StringEncoding];
+        NSArray *a = [[s lowercaseString] componentsSeparatedByString:@"\t"];
+        enum ASOverprintObjectType type;
+        NSInteger controlCode = 0;
+        enum ASWhichOfAnySimilarFeature which = kASFeatureNotSpecified;
+        enum ASFeature feature = kASFeatureNone;
+        enum ASAppearance appearance = (enum ASAppearance)kASFeatureNone;
+        enum ASDimensionsOrCombination dim = kASCombinationNone;
+        enum ASLocationOfTheControlFlag flag = kASLocationNone;
+        enum ASOtherInformation other = kASOtherInformationNone;
+
+        BOOL validType = NO;
+        for (NSString *component in a) {
+            /*
+             // First = Code
+             // Y = Type (s=start, c=control, m=marked route, f=finish, d=control description,
+             //           n=course title, u=start number, v=variation code, t=text block)
+             // b = Symbol for field B (Trail-O, Macr-O, Micr-O)
+             // c = Symbol for field C
+             // d = Symbol for field D
+             // e = Symbol for field E
+             // f = Symbol for field F
+             // g = Symbol for field G
+             // h = Symbol for field H
+             // mf = Funnel tapes
+             // ot = Text control description object
+             // s = Size information
+             // t = Text for text description or text for text block
+             // u = evelation user [double]
+             // v = is evelation user used [boolean]*/
+            if ([component hasPrefix:@"y"]) {
+                validType = YES;
+                const char *typeStr = [[component substringWithRange:NSMakeRange(1, 1)] cStringUsingEncoding:NSASCIIStringEncoding];
+                switch (typeStr[0]) {
+                    case 's':
+                        type = kASOverprintObjectStart;
+                        break;
+                    case 'c':
+                        type = kASOverprintObjectControl;
+                        break;
+                    case 'm':
+                        type = kASOverprintObjectTapedRouteBetweenControls;
+                        break;
+                    case 'f':
+                        type = kASOverprintObjectFinish;
+                        break;
+                    default:
+                        validType = NO;
+                        break;
+                };
+            } else if ([component hasPrefix:@"d"]) {
+                feature = (enum ASFeature)[[colD objectForKey:[component substringFromIndex:1]] integerValue];
+            } else if ([component hasPrefix:@"e"]) {
+                NSNumber *n = [colD objectForKey:[component substringFromIndex:1]];
+                if (n != nil) {
+                    appearance = (enum ASAppearance)[n integerValue];
+                } else {
+                    appearance = (enum ASAppearance)[[colE objectForKey:[component substringFromIndex:1]] integerValue];
+                    
+                }
+            } else if ([component hasPrefix:@"f"]) {
+                dim = (enum ASDimensionsOrCombination)[[colF objectForKey:[component substringFromIndex:1]] integerValue];
+            }
+        }
+        if (validType && type == kASOverprintObjectControl) {
+            controlCode = [a[0] integerValue];
+        }
+        
+        if (validType) {
+            
+            // Get the element location.
+            struct ocad_element *e = element_by_index(ocdf, ocdf->string_obj_indices[i]);
+            id o = objectHandler((CGFloat)(e->coords[0].x >> 8), (CGFloat)(e->coords[0].y >> 8),
+                                 type, controlCode, which, feature, appearance, dim, flag, other);
+            [overprintObjects setObject:o forKey:a[0]];
+        }
+        
+    }
+    
+    // Now look at the courses.
+    for (i = 0; i < ocdf->num_strings; i++) {
+        if (ocdf->string_rec_types[i] != 2) {
+            continue;
+        }
+        NSString *s = [NSString stringWithCString:ocdf->strings[i] encoding:NSISOLatin1StringEncoding];
+        NSArray *a = [s componentsSeparatedByString:@"\t"];
+        NSMutableArray *oo = [NSMutableArray arrayWithCapacity:50];
+        for (NSString *component in a) {
+            id x = [overprintObjects objectForKey:[component lowercaseString]];
+            if (x != nil) {
+                [oo addObject:x];
+            }
+        }
+        courseHandler(a[0], oo);
+    }
+}
+
+- (BOOL)hasCourseInformation {
+    return ocdf->header->filetype == 1;
 }
 
 @end

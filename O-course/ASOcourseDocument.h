@@ -39,6 +39,6 @@
 - (void)updateMap:(NSNotification *)n;
 
 - (void)setMapURL:(NSURL *)mapURL;
-
+- (void)loadCoursesFromMap;
 + (NSWindow *)windowForManagedObjectContext:(NSManagedObjectContext *)context ;
 @end

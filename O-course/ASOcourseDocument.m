@@ -13,6 +13,8 @@
 #import "ASMapView+Layout.h"
 #import "Project.h"
 #import "OverprintObject.h"
+#import "CourseObject.h"
+#import "Course.h"
 #import "ASMapPrintingView.h"
 
 #import "ASOverprintController.h"
@@ -203,6 +205,32 @@ out_error:
         }
     }
     [self.mapView mapLoaded];
+}
+
+- (void)loadCoursesFromMap {
+    [self.mapView.mapProvider loadOverprintObjects:^id(CGFloat position_x, CGFloat position_y, enum ASOverprintObjectType otp, NSInteger controlCode, enum ASWhichOfAnySimilarFeature which, enum ASFeature feature, enum ASAppearance appearance, enum ASDimensionsOrCombination dim, enum ASLocationOfTheControlFlag flag, enum ASOtherInformation other) {
+        OverprintObject *o = [NSEntityDescription insertNewObjectForEntityForName:@"OverprintObject" inManagedObjectContext:self.managedObjectContext];
+        o.position_x = @(position_x);
+        o.position_y = @(position_y);
+        o.objectType = otp;
+        o.controlCode = @(controlCode);
+        o.whichOfAnySimilarFeature = @(which);
+        o.controlFeature = @(feature);
+        o.appearanceOrSecondControlFeature = @(appearance);
+        o.combinationSymbol = @(dim);
+        o.locationOfTheControlFlag = @(flag);
+        o.otherInformation = @(other);
+        return o;
+    } courses:^(NSString *name, NSArray *overprintObjects) {
+        Course *c = [NSEntityDescription insertNewObjectForEntityForName:@"Course" inManagedObjectContext:self.managedObjectContext];
+        c.name = name;
+        for (OverprintObject *o in overprintObjects) {
+            CourseObject *co = [NSEntityDescription insertNewObjectForEntityForName:@"CourseObject" inManagedObjectContext:self.managedObjectContext];
+            co.overprintObject = o;
+            co.course = c;
+        }
+    }];
+    [self.overprintController updateOverprint];
 }
 
 - (void)awakeFromNib {

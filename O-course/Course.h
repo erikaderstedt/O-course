@@ -11,6 +11,7 @@
 @class OverprintObject;
 
 @interface Course : NSManagedObject
+@property (nonatomic, retain) NSString * name;
 
 - (void)appendOverprintObject:(OverprintObject *)object;
 - (void)insertOverprintObject:(OverprintObject *)object atPosition:(NSUInteger)position;

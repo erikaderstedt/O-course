@@ -13,6 +13,7 @@
 #import "CoordinateTransverser.h"
 
 @implementation Course
+@dynamic name;
 
 - (void)awakeFromInsert {
     [super awakeFromInsert];

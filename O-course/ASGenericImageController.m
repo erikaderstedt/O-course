@@ -82,4 +82,11 @@
     return 1.0;
 }
 
+- (void)loadOverprintObjects:(id (^)(CGFloat position_x, CGFloat position_y, enum ASOverprintObjectType otp, NSInteger controlCode, enum ASWhichOfAnySimilarFeature which, enum ASFeature feature, enum ASAppearance appearance,  enum ASDimensionsOrCombination dim, enum ASLocationOfTheControlFlag flag, enum ASOtherInformation other))objectHandler courses:(void (^)(NSString *name, NSArray *overprintObjects))courseHandler {
+}
+
+- (BOOL)hasCourseInformation {
+    return NO;
+}
+
 @end

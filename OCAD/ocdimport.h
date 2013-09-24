@@ -51,7 +51,7 @@ struct ocad_element {
     uint8_t mark;
     uint8_t reserved3;
     uint16_t reserved4;
-    uint32_t height;
+    uint32_t index;
     struct TDPoly coords[1];
 };
 
@@ -447,6 +447,7 @@ struct ocad_file {
     int num_strings;
     char **strings;
     int *string_rec_types;
+    int *string_obj_indices;
     
     struct LRect bbox;
     
@@ -617,6 +618,7 @@ void unload_file(struct ocad_file *f);
 void load_symbols(struct ocad_file *f);
 void load_objects(struct ocad_file *f);
 void load_strings(struct ocad_file *f);
+struct ocad_element *element_by_index(struct ocad_file *f, int index);
 
 struct ocad_symbol *symbol_by_number(struct ocad_file *ocdf, int32_t symnum);
 void get_bounding_box(struct ocad_file *ocdf, struct LRect *r);

@@ -137,11 +137,10 @@ void load_symbols(struct ocad_file *f) {
         }
         i = b->nextsymbolblock;
     }
-//    b = (struct ocad_symbol_block *)((f->data) + f->header->symbolindex);
 }
 
 void load_objects(struct ocad_file *f) {
-    int k, j = 0;
+    int k, j = 0, n;
     long i;
     struct ocad_object_index_block *b;
     struct ocad8_object_index_block *b8;
@@ -149,7 +148,6 @@ void load_objects(struct ocad_file *f) {
     struct LRect r;
 
     int version8 = (f->header->version == 8);
-    
     i = f->header->objectindex;
     
     if (version8) {
@@ -160,7 +158,7 @@ void load_objects(struct ocad_file *f) {
             
             j += k;
             i = b8->nextindexblock;
-        }        
+        }
     } else {
         while (i != 0) {
             b = (struct ocad_object_index_block *)((f->data) + i);
@@ -179,7 +177,7 @@ void load_objects(struct ocad_file *f) {
     }
     
     i = f->header->objectindex;
-    j = 0;
+    j = 0; n = 0;
     
     r.lower_left.x = 1e30;
     r.lower_left.y = 1e30;
@@ -187,6 +185,7 @@ void load_objects(struct ocad_file *f) {
     r.upper_right.y = -1e30;
     
     if (version8) {
+        // TODO: fix version 8 support.
         // The numberOfElements > 0 condition is for the static analyzer
         while (i != 0 && numberOfElements > 0) {
             b8 = (struct ocad8_object_index_block *)((f->data) + i);
@@ -202,7 +201,6 @@ void load_objects(struct ocad_file *f) {
 
                 element = convert_ocad8_element((struct ocad8_element *)((f->data) + (objindex->position)));
                 element->symbol = symbol_by_number(f, element->symnum);
-//                struct ocad_text_symbol *ts = (struct ocad_text_symbol *)element->symbol;
                 if (element->symbol != NULL) {
                     element->color = element->symbol->colors[0];
                 } else {
@@ -221,9 +219,12 @@ void load_objects(struct ocad_file *f) {
             
             for (k = 0; k < 256 && b->indices[k].position != 0; k++) {
                 struct ocad_object_index *objindex = &(b->indices[k]);
+                n++;
                 if (objindex->status != 1) continue;
                 
                 element = (struct ocad_element *)((f->data) + (objindex->position));
+                element->index = n;
+                
                 if (element->symnum == 0) {
                     element->obj_type = ocad_hidden_object;
                 } else {
@@ -267,9 +268,11 @@ void load_strings(struct ocad_file *f) {
     if (f->num_strings > 0) {
         f->strings = calloc(sizeof(char *), f->num_strings);
         f->string_rec_types = calloc(sizeof(int), f->num_strings);
+        f->string_obj_indices = calloc(sizeof(int), f->num_strings);
     } else {
         f->strings = NULL;
         f->string_rec_types = NULL;
+        f->string_obj_indices = NULL;
     }
     i = f->header->stringindex;
     j = 0;
@@ -280,6 +283,7 @@ void load_strings(struct ocad_file *f) {
         for (k = 0; k < 256 && b->indices[k].position != 0; k++) {
             s = &(b->indices[k]);
             f->string_rec_types[currentstring] = s->rectype;
+            f->string_obj_indices[currentstring] = s->objectindex;
             f->strings[currentstring] = (char *)(f->data + s->position);
             
             currentstring ++;
@@ -413,4 +417,14 @@ struct ocad_element *convert_ocad8_element(struct ocad8_element *source) {
     };
     
     return dest;
+}
+
+struct ocad_element *element_by_index(struct ocad_file *f, int index) {
+    int i;
+    struct ocad_element *e;
+    for (i = 0; i < f->num_objects; i++) {
+        e = f->elements[i];
+        if (e->index == index) return e;
+    }
+    return NULL;
 }
