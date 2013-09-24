@@ -1978,49 +1978,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 													<bool key="NSIsEditable">YES</bool>
 													<reference key="NSTableView" ref="741939773"/>
 												</object>
-												<object class="NSTableColumn" id="769754003">
-													<string key="NSIdentifier">layout</string>
-													<double key="NSWidth">72</double>
-													<double key="NSMinWidth">10</double>
-													<double key="NSMaxWidth">3.4028234663852886e+38</double>
-													<object class="NSTableHeaderCell" key="NSHeaderCell">
-														<int key="NSCellFlags">75497536</int>
-														<int key="NSCellFlags2">2048</int>
-														<string key="NSContents">Layout</string>
-														<reference key="NSSupport" ref="26"/>
-														<reference key="NSBackgroundColor" ref="188324127"/>
-														<reference key="NSTextColor" ref="902837364"/>
-													</object>
-													<object class="NSPopUpButtonCell" key="NSDataCell" id="800156547">
-														<int key="NSCellFlags">-2076180416</int>
-														<int key="NSCellFlags2">2048</int>
-														<reference key="NSSupport" ref="668841342"/>
-														<string key="NSCellIdentifier">_NS:9</string>
-														<reference key="NSControlView" ref="741939773"/>
-														<int key="NSButtonFlags">100679680</int>
-														<int key="NSButtonFlags2">129</int>
-														<string key="NSAlternateContents"/>
-														<string key="NSKeyEquivalent"/>
-														<int key="NSPeriodicDelay">400</int>
-														<int key="NSPeriodicInterval">75</int>
-														<nil key="NSMenuItem"/>
-														<bool key="NSMenuItemRespectAlignment">YES</bool>
-														<object class="NSMenu" key="NSMenu" id="192627789">
-															<string key="NSTitle"/>
-															<array class="NSMutableArray" key="NSMenuItems"/>
-															<reference key="NSMenuFont" ref="26"/>
-														</object>
-														<int key="NSSelectedIndex">-1</int>
-														<int key="NSPreferredEdge">3</int>
-														<bool key="NSUsesItemFromMenu">YES</bool>
-														<bool key="NSAltersState">YES</bool>
-														<int key="NSArrowPosition">1</int>
-													</object>
-													<int key="NSResizingMask">3</int>
-													<bool key="NSIsResizeable">YES</bool>
-													<bool key="NSIsEditable">YES</bool>
-													<reference key="NSTableView" ref="741939773"/>
-												</object>
 												<object class="NSTableColumn" id="804952120">
 													<string key="NSIdentifier">length</string>
 													<double key="NSWidth">95.68359375</double>
@@ -2039,7 +1996,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 														<int key="NSCellFlags2">2048</int>
 														<string key="NSContents"/>
 														<reference key="NSSupport" ref="668841342"/>
-														<object class="IBCustomFormatter" key="NSFormatter" id="113000044"/>
+														<object class="IBCustomFormatter" key="NSFormatter" id="296409901"/>
 														<reference key="NSControlView" ref="741939773"/>
 														<reference key="NSBackgroundColor" ref="472537078"/>
 														<reference key="NSTextColor" ref="448247285"/>
@@ -2056,7 +2013,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 													<object class="NSTableHeaderCell" key="NSHeaderCell">
 														<int key="NSCellFlags">75497536</int>
 														<int key="NSCellFlags2">67110912</int>
-														<string key="NSContents">Antal kontroller</string>
+														<string key="NSContents"># of controls</string>
 														<reference key="NSSupport" ref="26"/>
 														<reference key="NSBackgroundColor" ref="188324127"/>
 														<reference key="NSTextColor" ref="902837364"/>
@@ -3130,7 +3087,7 @@ AQABAAEAAQAB//+dkAEA//+PgAAE//+dkAEI//+dkAEMUERUAFBTVABQV1QAUFBUAAAAAAEAAAABA</b
 						<string key="label">enabled: canRemove</string>
 						<reference key="source" ref="697460301"/>
 						<reference key="destination" ref="1032559269"/>
-						<object class="NSNibBindingConnector" key="connector" id="27020852">
+						<object class="NSNibBindingConnector" key="connector" id="1039138257">
 							<reference key="NSSource" ref="697460301"/>
 							<reference key="NSDestination" ref="1032559269"/>
 							<string key="NSLabel">enabled: canRemove</string>
@@ -3163,7 +3120,7 @@ AQABAAEAAQAB//+dkAEA//+PgAAE//+dkAEI//+dkAEMUERUAFBTVABQV1QAUFBUAAAAAAEAAAABA</b
 								<integer value="-1" key="NSNullPlaceholder"/>
 								<string key="NSValueTransformerName">NSNegateBoolean</string>
 							</dictionary>
-							<reference key="NSPreviousConnector" ref="27020852"/>
+							<reference key="NSPreviousConnector" ref="1039138257"/>
 							<int key="NSNibBindingConnectorVersion">2</int>
 						</object>
 					</object>
@@ -3939,7 +3896,6 @@ AQABAAEAAQAB//+dkAEA//+PgAAE//+dkAEI//+dkAEMUERUAFBTVABQV1QAUFBUAAAAAAEAAAABA</b
 							<reference ref="53527621"/>
 							<reference ref="804952120"/>
 							<reference ref="79050567"/>
-							<reference ref="769754003"/>
 						</array>
 						<reference key="parent" ref="613372587"/>
 					</object>
@@ -3978,7 +3934,7 @@ AQABAAEAAQAB//+dkAEA//+PgAAE//+dkAEI//+dkAEMUERUAFBTVABQV1QAUFBUAAAAAAEAAAABA</b
 						<int key="objectID">101081</int>
 						<reference key="object" ref="781920854"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="113000044"/>
+							<reference ref="296409901"/>
 						</array>
 						<reference key="parent" ref="804952120"/>
 					</object>
@@ -4465,28 +4421,6 @@ AQABAAEAAQAB//+dkAEA//+PgAAE//+dkAEI//+dkAEMUERUAFBTVABQV1QAUFBUAAAAAAEAAAABA</b
 						<int key="objectID">101059</int>
 						<reference key="object" ref="536624289"/>
 						<reference key="parent" ref="740985683"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">101353</int>
-						<reference key="object" ref="769754003"/>
-						<array class="NSMutableArray" key="children">
-							<reference ref="800156547"/>
-						</array>
-						<reference key="parent" ref="741939773"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">101355</int>
-						<reference key="object" ref="800156547"/>
-						<array class="NSMutableArray" key="children">
-							<reference ref="192627789"/>
-						</array>
-						<reference key="parent" ref="769754003"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">101356</int>
-						<reference key="object" ref="192627789"/>
-						<array class="NSMutableArray" key="children"/>
-						<reference key="parent" ref="800156547"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">101486</int>
@@ -6924,7 +6858,7 @@ AQABAAEAAQAB//+dkAEA//+PgAAE//+dkAEI//+dkAEMUERUAFBTVABQV1QAUFBUAAAAAAEAAAABA</b
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">101928</int>
-						<reference key="object" ref="113000044"/>
+						<reference key="object" ref="296409901"/>
 						<reference key="parent" ref="781920854"/>
 					</object>
 				</array>
@@ -7147,9 +7081,6 @@ AQABAAEAAQAB//+dkAEA//+PgAAE//+dkAEI//+dkAEMUERUAFBTVABQV1QAUFBUAAAAAAEAAAABA</b
 				<boolean value="NO" key="101319.IBNSViewMetadataTranslatesAutoresizingMaskIntoConstraints"/>
 				<string key="101319.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="101320.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="101353.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="101355.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="101356.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<array key="101358.IBNSViewMetadataConstraints">
 					<reference ref="78173917"/>
 				</array>
@@ -7664,6 +7595,9 @@ AQABAAEAAQAB//+dkAEA//+PgAAE//+dkAEI//+dkAEMUERUAFBTVABQV1QAUFBUAAAAAAEAAAABA</b
 						<string key="changeEventInfoCancel:">id</string>
 						<string key="changeEventInfoOK:">id</string>
 						<string key="chooseBackgroundMap:">id</string>
+						<string key="printDocument:">id</string>
+						<string key="zoomIn:">id</string>
+						<string key="zoomOut:">id</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="actionInfosByName">
 						<object class="IBActionInfo" key="changeEventInfoCancel:">
@@ -7676,6 +7610,18 @@ AQABAAEAAQAB//+dkAEA//+PgAAE//+dkAEI//+dkAEMUERUAFBTVABQV1QAUFBUAAAAAAEAAAABA</b
 						</object>
 						<object class="IBActionInfo" key="chooseBackgroundMap:">
 							<string key="name">chooseBackgroundMap:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="printDocument:">
+							<string key="name">printDocument:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="zoomIn:">
+							<string key="name">zoomIn:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="zoomOut:">
+							<string key="name">zoomOut:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 					</dictionary>
