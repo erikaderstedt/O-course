@@ -39,6 +39,10 @@ enum ASLayoutControlDescriptionLocation {
 @property (nonatomic, retain) Project *project;
 @property (assign) CGPoint position;
 @property (assign) enum ASLayoutControlDescriptionLocation controlDescriptionLocation;
+@property (nonatomic, retain) NSNumber * orientation;
+@property (nonatomic, retain) NSNumber * printClassNameOnBack;
+@property (nonatomic, retain) NSNumber * showEventDate;
+@property (nonatomic, retain) NSNumber * showEventName;
 
 + (instancetype)defaultLayoutInContext:(NSManagedObjectContext *)managedObjectContext;
 - (NSString *)paperName;

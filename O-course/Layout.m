@@ -23,6 +23,9 @@
 @dynamic courses;
 @dynamic project;
 @dynamic showControlDescription;
+@dynamic printClassNameOnBack;
+@dynamic showEventDate;
+@dynamic showEventName;
 
 - (void)awakeFromInsert {
     [super awakeFromInsert];
@@ -171,6 +174,8 @@
     [self setValue:@(position.x) forKey:@"position_x"];
     [self setValue:@(position.y) forKey:@"position_y"];
 }
+
+@dynamic orientation;
 
 - (NSString *)eventDescription {
     NSString *n = @"", *d = @"";

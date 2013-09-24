@@ -57,4 +57,6 @@ extern NSString *const ASLayoutDecorChanged;
 - (BOOL)showControlDescription;
 - (BOOL)printClassNameOnBack;
 
+- (IBAction)duplicateLayout:(id)sender;
+
 @end

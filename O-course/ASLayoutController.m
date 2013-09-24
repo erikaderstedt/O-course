@@ -449,4 +449,32 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
     }
 }
 
+- (IBAction)duplicateLayout:(id)sender {
+    NSArray *selectedLayouts = [self.layouts selectedObjects];
+    if ([selectedLayouts count] != 1) return;
+    
+    Layout *selectedLayout = selectedLayouts[0];
+    
+    Layout *dup = [NSEntityDescription insertNewObjectForEntityForName:@"Layout" inManagedObjectContext:selectedLayout.managedObjectContext];
+    
+    dup.mapInset = selectedLayout.mapInset;
+    dup.frameColor = selectedLayout.frameColor;
+    dup.frameVisible = selectedLayout.frameVisible;
+    dup.hiddenObjectTypes = selectedLayout.hiddenObjectTypes;
+    dup.name = [NSString stringWithFormat:NSLocalizedString(@"%@ (copy)", nil), selectedLayout.name];
+    dup.paperType = selectedLayout.paperType;
+    dup.scale = selectedLayout.scale;
+    dup.showControlDescription = selectedLayout.showControlDescription;
+    dup.controlDescriptionLocation = selectedLayout.controlDescriptionLocation;
+    dup.project = selectedLayout.project;
+    dup.orientation = selectedLayout.orientation;
+    dup.position = selectedLayout.position;
+    dup.showEventDate = selectedLayout.showEventDate;
+    dup.showEventName = selectedLayout.showEventName;
+    dup.printClassNameOnBack = selectedLayout.printClassNameOnBack;
+    [dup setValue:@(NO) forKey:@"default"];
+    [self.layouts addObject:dup];
+    [self.layoutsTable reloadData];
+}
+
 @end
