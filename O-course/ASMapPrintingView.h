@@ -13,7 +13,7 @@
 
 @interface ASMapPrintingView : NSView {
     ASMapView *baseView;
-    
+    BOOL classNameOnBack;
 }
 @property (strong) id <ASMapProvider> mapProvider;
 

@@ -29,7 +29,8 @@
     r.size.width = round(r.size.width);
     r.size.height = round(r.size.height);
     
-    if ([_baseView.layoutController printClassNameOnBack]) {
+    classNameOnBack = [_baseView.layoutController printClassNameOnBack] && [_baseView.courseDataSource specificCourseSelected];
+    if (classNameOnBack) {
         r.size.height *= 2.0;
     }
 
@@ -42,7 +43,7 @@
 }
 
 - (BOOL)knowsPageRange:(NSRangePointer)range {
-    if ([baseView.layoutController printClassNameOnBack]) {
+    if (classNameOnBack) {
         *range = NSMakeRange(1, 2);
     }    else {
         *range = NSMakeRange(1, 1);
@@ -52,7 +53,7 @@
 
 - (NSRect)rectForPage:(NSInteger)page {
     NSRect r = [self frame];
-    if ([baseView.layoutController printClassNameOnBack]) {
+    if (classNameOnBack) {
         r.size.height /= 2.0;
         if (page > 1) {
             r.origin.y += r.size.height;
