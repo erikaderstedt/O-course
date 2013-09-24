@@ -578,19 +578,22 @@
 - (IBAction)duplicateCourse:(id)sender {
     NSArray *s = [self.courses selectedObjects];
     if ([s count] == 1) {
-        NSManagedObject *orign = s[0];
-        NSManagedObject *dup = [NSEntityDescription insertNewObjectForEntityForName:@"Course" inManagedObjectContext:self.managedObjectContext];
+        Course *orign = s[0];
+        Course *dup = [NSEntityDescription insertNewObjectForEntityForName:@"Course" inManagedObjectContext:self.managedObjectContext];
         [dup setValue:[orign valueForKey:@"project"] forKey:@"project"];
-        [dup setValue:[orign valueForKey:@"name"] forKey:@"name"];
-        [dup setValue:[orign valueForKey:@"length"] forKey:@"length"];
+        [dup setValue:[NSString stringWithFormat:NSLocalizedString(@"%@ (copy)", nil), [orign valueForKey:@"name"]] forKey:@"name"];
         [dup setValue:[orign valueForKey:@"cuts"] forKey:@"cuts"];
-        for (NSManagedObject *c in [orign valueForKey:@"classes"]) {
-            [[dup valueForKey:@"classes"] addObject:c];
-        }
-        for (NSManagedObject *c in [orign valueForKey:@"courses"]) {
-            [[dup valueForKey:@"courses"] addObject:c];
-        }
         
+        for (CourseObject *obj in [orign valueForKey:@"courseObjects"]) {
+            CourseObject *co = [NSEntityDescription insertNewObjectForEntityForName:@"CourseObject" inManagedObjectContext:self.managedObjectContext];
+            co.overprintObject = obj.overprintObject;
+            co.manualPosition = obj.manualPosition;
+            co.position_x = obj.position_x;
+            co.position_y = obj.position_y;
+            co.course = dup;
+        }
+        [self.courses addObject:dup];
+        [self.courses setSelectedObjects:@[dup]];
         [self.courseTable reloadData];
     }
 }
