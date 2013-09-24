@@ -15,6 +15,7 @@
     if (self) {
         [self setMaximumFractionDigits:1];
         [self setMinimumFractionDigits:1];
+        [self setLocalizesFormat:YES];
     }
     return self;
 }
@@ -24,6 +25,7 @@
     if (self) {
         [self setMaximumFractionDigits:1];
         [self setMinimumFractionDigits:1];
+        [self setLocalizesFormat:YES];
     }
     return self;
 }
@@ -39,7 +41,7 @@
         [self setMaximumFractionDigits:1];
         return s;
     }
-    return [NSString stringWithFormat:@"%@ km", [super stringForObjectValue:obj]];    
+    return [NSString stringWithFormat:@"%@ km", [super stringForObjectValue:obj]];
 }
 
 @end
