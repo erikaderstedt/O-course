@@ -12,6 +12,7 @@
 
 @protocol ASBackgroundImageLoaderDelegate <NSObject>
 
+- (NSNotification *)mapChangeNotification;
 - (NSWindow *)modalWindow;
 - (void)addMapURL:(NSURL *)url filename:(NSString *)filename;
 - (BOOL)isIgnoringFilename:(NSString *)path;

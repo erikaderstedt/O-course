@@ -146,7 +146,8 @@ int i;
             
             if (provider != nil) {
                 [self.backgroundImages addObject:provider];
-                [[NSNotificationCenter defaultCenter] postNotificationName:@"ASMapChanged" object:nil];
+                NSNotification *n = [_delegate mapChangeNotification];
+                if (n != nil) [[NSNotificationCenter defaultCenter] postNotification:n];
             }
         } else {
             dispatch_async([_delegate imageLoaderQueue], ^{
@@ -183,7 +184,8 @@ int i;
                                 if (secondProvider != nil) {
                                     [_delegate addMapURL:[op URL] filename:backgroundFileName];
                                     [self.backgroundImages addObject:secondProvider];
-                                    [[NSNotificationCenter defaultCenter] postNotificationName:@"ASMapChanged" object:nil];
+                                    NSNotification *n = [_delegate mapChangeNotification];
+                                    if (n != nil) [[NSNotificationCenter defaultCenter] postNotification:n];
                                 }
                             }
                         }];

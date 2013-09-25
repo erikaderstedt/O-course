@@ -22,6 +22,7 @@
 #import "ASCourseController.h"
 #import "ASControlDescriptionView.h"
 #import "MyDocumentController.h"
+#import "ASControlDescriptionProvider.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -256,6 +257,13 @@ out_error:
 
 #pragma mark -
 #pragma mark ASBackgroundImageLoaderDelegate
+
+- (NSNotification *)mapChangeNotification {
+    if (self.mapView.state == kASMapViewLayout) {
+        return nil;
+    }
+    return [NSNotification notificationWithName:@"ASMapChanged" object:self.managedObjectContext];
+}
 
 - (dispatch_semaphore_t)imageLoaderSequentializer {
     if (loader == NULL) {
@@ -534,10 +542,11 @@ out_error:
         // Start a printing operation based on the orientation in the base view.
         NSPrintInfo *pi = [[NSPrintInfo alloc] initWithDictionary:[[NSPrintInfo sharedPrintInfo] dictionary]];
         ASMapPrintingView *pv = [[ASMapPrintingView alloc] initWithBaseView:self.mapView];
-        
-        [[NSNotificationCenter defaultCenter] removeObserver:self.mapView name:@"ASMapChanged" object:nil];
         pv.mapProvider = [self mapProviderForURL:self.loadedURL primaryTransform:CGAffineTransformIdentity secondaryTransform:[pv patternTransform]];
-        [[NSNotificationCenter defaultCenter] addObserver:self.mapView selector:@selector(refreshMap:) name:@"ASMapChanged" object:self.managedObjectContext];
+        NSString *jobTitle = self.project.event;
+        if ([self.courseController specificCourseSelected]) {
+            jobTitle = [jobTitle stringByAppendingFormat:@" %@", [self.courseController classNames]];
+        }
         size_t numberOfHiddenSymbols;
         const int32_t *hiddenSymbols = [self.mapView.mapProvider hiddenSymbolNumbers:&numberOfHiddenSymbols];
         [pv.mapProvider setHiddenSymbolNumbers:hiddenSymbols count:numberOfHiddenSymbols];
@@ -563,6 +572,7 @@ out_error:
 
         NSPrintOperation *po = [NSPrintOperation printOperationWithView:pv printInfo:pi];
         [po setCanSpawnSeparateThread:YES];
+        [po setJobTitle:jobTitle];
         [po runOperation];
     }
 }
