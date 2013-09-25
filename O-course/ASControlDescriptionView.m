@@ -65,6 +65,19 @@
 
 - (void)courseChanged:(NSNotification *)n {
     [self recalculateLayout];
+    CGFloat minHeight = paperBounds.size.height + 2.0*INSET_DIST;
+    if (minHeight > [self frame].size.height) {
+        NSRect r = [self frame];
+        r.size.height = minHeight;
+        [self setFrame:r];
+    }
+    CGFloat enc = [[[self enclosingScrollView] contentView] frame].size.height;
+    CGFloat x = MAX(minHeight,enc);
+    if ([self frame].size.height > x) {
+        NSRect r = [self frame];
+        r.size.height = x;
+        [self setFrame:r];
+    }
 }
 
 - (void)setOverprintColor:(NSColor *)newColor {
