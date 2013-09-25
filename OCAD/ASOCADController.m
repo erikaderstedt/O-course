@@ -77,7 +77,7 @@ static CGFloat colorData[170] = {
 @synthesize secondaryAreaColorTransform;
 @synthesize ocadFilePath;
 
-- (id)initWithOCADFile:(NSString *)_path delegate:(id<ASBackgroundImageLoaderDelegate>)_delegate {
+- (id)initWithOCADFile:(NSString *)_path {
     if ((self = [super init])) {
 
         if (![[NSFileManager defaultManager] fileExistsAtPath:_path]) {
@@ -103,75 +103,97 @@ static CGFloat colorData[170] = {
         [self parseColors];
         [self parseScale];
         
-#if !TARGET_OS_IPHONE
-        int i;
-
         self.ocadFilePath = _path;
-    
-        self.backgroundImages = [[NSMutableArray alloc] initWithCapacity:5];
-        NSString *basePath = [self.ocadFilePath stringByDeletingLastPathComponent];
-        for (i = 0; i < ocdf->num_strings; i++) {
-            if (ocdf->string_rec_types[i] != 8) continue;
-            NSArray *a = [[NSString stringWithCString:ocdf->strings[i] encoding:NSISOLatin1StringEncoding] componentsSeparatedByString:@"\t"];
-            __block NSString *backgroundFileName = a[0];
-            if ([backgroundFileName rangeOfString:@"\\"].location != NSNotFound) {
-                backgroundFileName = [[backgroundFileName componentsSeparatedByString:@"\\"] lastObject];
-            } else {
-                backgroundFileName = [backgroundFileName lastPathComponent];
-            }
-            
-            NSURL *u = [_delegate resolvedURLBookmarkForPath:backgroundFileName];
-            
-            if (u != nil) { // We have a bookmark.
-                id <ASMapProvider> provider;
-                [u startAccessingSecurityScopedResource];
-                if ([[[[u path] pathExtension] lowercaseString] isEqualToString:@"ocd"] ) {
-                    provider = [[ASOCADController alloc] initWithOCADFile:[u path] delegate:_delegate];
-                    [(ASOCADController *)provider prepareCacheWithAreaTransform:self.areaColorTransform];
-                } else {
-                    provider = [[ASGenericImageController alloc] initWithContentsOfFile:[u path]];
-                }
-                [u stopAccessingSecurityScopedResource];
-                
-                if (provider != nil) {
-                    [self.backgroundImages addObject:provider];
-                    [[NSNotificationCenter defaultCenter] postNotificationName:@"ASMapChanged" object:nil];
-                }
-            } else {
-                NSOpenPanel *op = [NSOpenPanel openPanel];
-                [op setAllowsMultipleSelection:NO];
-                [op setCanChooseDirectories:NO];
-                [op setDirectoryURL:[NSURL fileURLWithPath:basePath]];
-                [op setMessage:[NSString stringWithFormat:NSLocalizedString(@"Please locate the background file %@.", nil), backgroundFileName]];
-                [op setPrompt:NSLocalizedString(@"Choose", nil)];
-                
-                [op beginSheetModalForWindow:[_delegate modalWindow] completionHandler:^(NSInteger result) {
-                    if (result == NSFileHandlingPanelOKButton) {
-                        id <ASMapProvider> secondProvider;
-                        if ([[[[op URL] pathExtension] lowercaseString] isEqualToString:@"ocd"] ) {
-                            secondProvider = [[ASOCADController alloc] initWithOCADFile:[[op URL] path] delegate:_delegate];
-                            [(ASOCADController *)secondProvider prepareCacheWithAreaTransform:self.areaColorTransform];
-                        } else {
-                            secondProvider = [[ASGenericImageController alloc] initWithContentsOfFile:[[op URL] path]];
-                        }
-                        
-                        if (secondProvider != nil) {
-                            [_delegate addMapBookmarkForURL:[op URL] originalPath:backgroundFileName error:nil];
-                            [self.backgroundImages addObject:secondProvider];
-                            [[NSNotificationCenter defaultCenter] postNotificationName:@"ASMapChanged" object:nil];
-                        }
-                    }
-                }];
-            }
-        }
-        
-#endif
+
     
         currentBox = ocdf->bbox;
         
     }
     return self;
 }
+
+#if !TARGET_OS_IPHONE
+int i;
+
+- (void)loadAdditionalResourcesWithDelegate:(id <ASBackgroundImageLoaderDelegate>)_delegate {
+    
+    self.backgroundImages = [[NSMutableArray alloc] initWithCapacity:5];
+    NSString *basePath = [self.ocadFilePath stringByDeletingLastPathComponent];
+    for (i = 0; i < ocdf->num_strings; i++) {
+        if (ocdf->string_rec_types[i] != 8) continue;
+        NSArray *a = [[NSString stringWithCString:ocdf->strings[i] encoding:NSISOLatin1StringEncoding] componentsSeparatedByString:@"\t"];
+        __block NSString *backgroundFileName = a[0];
+        if ([backgroundFileName rangeOfString:@"\\"].location != NSNotFound) {
+            backgroundFileName = [[backgroundFileName componentsSeparatedByString:@"\\"] lastObject];
+        } else {
+            backgroundFileName = [backgroundFileName lastPathComponent];
+        }
+        
+        if ([_delegate isIgnoringFilename:backgroundFileName]) continue;
+
+        NSURL *u = [_delegate resolvedURLBookmarkForFilename:backgroundFileName];
+        
+        if (u != nil) { // We have a bookmark. Use it.
+            id <ASMapProvider> provider;
+            [u startAccessingSecurityScopedResource];
+            if ([[[[u path] pathExtension] lowercaseString] isEqualToString:@"ocd"] ) {
+                provider = [[ASOCADController alloc] initWithOCADFile:[u path]];
+                [(ASOCADController *)provider prepareCacheWithAreaTransform:self.areaColorTransform];
+            } else {
+                provider = [[ASGenericImageController alloc] initWithContentsOfFile:[u path]];
+            }
+            [u stopAccessingSecurityScopedResource];
+            
+            if (provider != nil) {
+                [self.backgroundImages addObject:provider];
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"ASMapChanged" object:nil];
+            }
+        } else {
+            dispatch_async([_delegate imageLoaderQueue], ^{
+                dispatch_semaphore_wait([_delegate imageLoaderSequentializer], DISPATCH_TIME_FOREVER);
+                if ([_delegate isIgnoringFilename:backgroundFileName]) {
+                    dispatch_semaphore_signal([_delegate imageLoaderSequentializer]);
+                } else {
+                    
+                    CGAffineTransform at = self.areaColorTransform;
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        NSOpenPanel *op = [NSOpenPanel openPanel];
+                        [op setAllowsMultipleSelection:NO];
+                        [op setCanChooseDirectories:NO];
+                        [op setDirectoryURL:[NSURL fileURLWithPath:basePath]];
+                        [op setMessage:[NSString stringWithFormat:NSLocalizedString(@"Please locate the background file %@.", nil), backgroundFileName]];
+                        [op setPrompt:NSLocalizedString(@"Choose", nil)];
+                        
+                        [op beginSheetModalForWindow:[_delegate modalWindow] completionHandler:^(NSInteger result) {
+                            if (result != NSFileHandlingPanelOKButton) {
+                                [_delegate ignoreFurtherRequestsForFile:backgroundFileName];
+                            }
+                            dispatch_semaphore_signal([_delegate imageLoaderSequentializer]);
+                            if (result == NSFileHandlingPanelOKButton) {
+                                id <ASMapProvider> secondProvider;
+                                if ([[[[op URL] pathExtension] lowercaseString] isEqualToString:@"ocd"] ) {
+                                    secondProvider = [[ASOCADController alloc] initWithOCADFile:[[op URL] path]];
+                                    [(ASOCADController *)secondProvider prepareCacheWithAreaTransform:at];
+                                    [(ASOCADController *)secondProvider loadAdditionalResourcesWithDelegate:_delegate];
+                                } else {
+                                    secondProvider = [[ASGenericImageController alloc] initWithContentsOfFile:[[op URL] path]];
+                                }
+                                
+                                if (secondProvider != nil) {
+                                    [_delegate addMapURL:[op URL] filename:backgroundFileName];
+                                    [self.backgroundImages addObject:secondProvider];
+                                    [[NSNotificationCenter defaultCenter] postNotificationName:@"ASMapChanged" object:nil];
+                                }
+                            }
+                        }];
+                    });
+                }
+            });
+        }
+    }
+}
+
+#endif
 
 - (void)prepareCacheWithAreaTransform:(CGAffineTransform)transform {
     [self prepareCacheWithAreaTransform:transform secondaryTransform:CGAffineTransformIdentity];
@@ -182,7 +204,7 @@ static CGFloat colorData[170] = {
     self.secondaryAreaColorTransform = secondaryTransform;
     
     [self createAreaSymbolColors];
-    [self createCache];        
+    [self createCache];
    
     NSMutableArray *ma = [NSMutableArray arrayWithCapacity:ocdf->num_symbols];
     for (int j = 0; j < ocdf->num_symbols; j++) {
@@ -725,7 +747,7 @@ static CGFloat colorData[170] = {
         dest = self;
     }
     for (id <ASMapProvider> background in dest.backgroundImages) {
-        [background drawLayer:layer inContext:ctx];
+        [background drawLayer:layer inContext:ctx useSecondaryTransform:useSecondaryTransform];
     }
     CGContextSetTextDrawingMode(ctx, kCGTextFill);
     int i, j2, j3;
@@ -973,7 +995,7 @@ static CGFloat colorData[170] = {
         NSArray *a = [s componentsSeparatedByString:@"\t"];
         NSMutableArray *oo = [NSMutableArray arrayWithCapacity:50];
         for (NSString *component in a) {
-            id x = [overprintObjects objectForKey:[component lowercaseString]];
+            id x = [overprintObjects objectForKey:[[component substringFromIndex:1] lowercaseString]];
             if (x != nil) {
                 [oo addObject:x];
             }

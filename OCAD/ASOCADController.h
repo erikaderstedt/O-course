@@ -77,9 +77,10 @@ struct ocad_cache {
 @property(nonatomic,strong) ASOCADController *_layoutProxy;
 @property(nonatomic,strong) NSMutableArray *backgroundImages;
 
-- (id)initWithOCADFile:(NSString *)path delegate:(id <ASBackgroundImageLoaderDelegate>)_delegate;
+- (id)initWithOCADFile:(NSString *)path;
 - (void)prepareCacheWithAreaTransform:(CGAffineTransform)transform;
 - (void)prepareCacheWithAreaTransform:(CGAffineTransform)transform secondaryTransform:(CGAffineTransform)secondaryTransform;
+- (void)loadAdditionalResourcesWithDelegate:(id <ASBackgroundImageLoaderDelegate>)_delegate;
 
 - (void)parseScale;
 - (void)parseColors;

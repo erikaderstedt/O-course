@@ -19,7 +19,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
  
     @autoreleasepool {
     
-        ASOCADController *ocad = [[ASOCADController alloc] initWithOCADFile:[(__bridge NSURL *)url path] delegate:nil];
+        ASOCADController *ocad = [[ASOCADController alloc] initWithOCADFile:[(__bridge NSURL *)url path]];
         
         if (ocad == nil) {
             return noErr;

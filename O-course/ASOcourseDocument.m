@@ -16,6 +16,7 @@
 #import "CourseObject.h"
 #import "Course.h"
 #import "ASMapPrintingView.h"
+#import "BackgroundMap.h"
 
 #import "ASOverprintController.h"
 #import "ASCourseController.h"
@@ -133,27 +134,13 @@ out_error:
 #pragma mark -
 #pragma mark Map loading
 
-- (NSArray *)bookmarkedURLs {
-    if (self.project.mapBookmark == nil) return @[];
-    
-    NSMutableArray *x = [NSMutableArray arrayWithArray:[NSKeyedUnarchiver unarchiveObjectWithData:self.project.mapBookmark]];
-    NSMutableArray *y = [NSMutableArray arrayWithCapacity:[x count]];
-    
-    for (NSDictionary *bookmarkDict in x) {
-        NSError *error = nil;
-        NSURL *u = [NSURL URLByResolvingBookmarkData:[bookmarkDict valueForKey:@"data"] options:NSURLBookmarkResolutionWithSecurityScope relativeToURL:nil bookmarkDataIsStale:NULL error:&error];
-        if (u == nil) {
-            NSLog(@"Error: %@. Data %@.", error, bookmarkDict);
-        } else {
-            [y addObject:u];
-        }
-    }
-    
-    return y;
-}
-
 - (void)clearMapBookmarks {
-    self.project.mapBookmark = nil;
+    NSFetchRequest *f = [NSFetchRequest fetchRequestWithEntityName:@"BackgroundMap"];
+    NSArray *a = [self.managedObjectContext executeFetchRequest:f error:nil];
+    for (BackgroundMap *map in a) {
+        map.project = nil;
+        [self.managedObjectContext deleteObject:map];
+    }
 }
 
 - (IBAction)chooseBackgroundMap:(id)sender {
@@ -168,14 +155,9 @@ out_error:
 
 - (void)setMapURL:(NSURL *)u {
     // Requires that the url has been added to our sandbox.
-    NSError *error = nil;
-    
     [[self undoManager] disableUndoRegistration];
     [self clearMapBookmarks];
-    if (![self addMapBookmarkForURL:u originalPath:nil error:&error]) {
-        NSAlert *alert = [NSAlert alertWithError:error];
-        [alert runModal];
-    }
+    [self addMapURL:u filename:nil];
     [[self undoManager] enableUndoRegistration];
     
     [self updateMap:nil];
@@ -189,9 +171,10 @@ out_error:
         [u startAccessingSecurityScopedResource];
         
         NSString *s = [u path];
-        if ([[s pathExtension] isEqualToString:@"ocd"]) {
-            ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:s delegate:self];
+        if ([[[s pathExtension] lowercaseString] isEqualToString:@"ocd"]) {
+            ASOCADController *o = [[ASOCADController alloc] initWithOCADFile:s];
             [o prepareCacheWithAreaTransform:primary secondaryTransform:secondary];
+            [o loadAdditionalResourcesWithDelegate:self];
             provider = o;
         } else {
             ASGenericImageController *i = [[ASGenericImageController alloc] initWithContentsOfFile:s];
@@ -208,13 +191,9 @@ out_error:
         return;
     }
 
-    NSArray *urls = [self bookmarkedURLs];
-    if ([urls count] == 0) return;
+    NSURL *u = [[BackgroundMap topInManagedObjectContext:self.managedObjectContext] resolvedURL];
+    if (u == nil || [u isEqual:self.loadedURL]) return;
     
-    NSURL *u = [urls objectAtIndex:0];
-    if ([u isEqual:self.loadedURL]) return;
-    
-   // dispatch_suspend([self imageLoaderQueue]);
     self.mapView.mapProvider = [self mapProviderForURL:u primaryTransform:CGAffineTransformIdentity secondaryTransform:CGAffineTransformMakeScale(GLASS_SIZE/ACROSS_GLASS, GLASS_SIZE/ACROSS_GLASS)];
     [[self project] setValue:@([self.mapView.mapProvider nativeScale]) forKey:@"scale"];
     
@@ -232,11 +211,11 @@ out_error:
         }
     }
     [self.mapView mapLoaded];
-    //dispatch_resume([self imageLoaderQueue]);
 }
 
 - (void)loadCoursesFromMap {
     [self.mapView.mapProvider loadOverprintObjects:^id(CGFloat position_x, CGFloat position_y, enum ASOverprintObjectType otp, NSInteger controlCode, enum ASWhichOfAnySimilarFeature which, enum ASFeature feature, enum ASAppearance appearance, enum ASDimensionsOrCombination dim, enum ASLocationOfTheControlFlag flag, enum ASOtherInformation other) {
+        NSLog(@"adding overprint objects %d", [NSThread isMainThread]);
         OverprintObject *o = [NSEntityDescription insertNewObjectForEntityForName:@"OverprintObject" inManagedObjectContext:self.managedObjectContext];
         o.position_x = @(position_x);
         o.position_y = @(position_y);
@@ -250,71 +229,90 @@ out_error:
         o.otherInformation = @(other);
         return o;
     } courses:^(NSString *name, NSArray *overprintObjects) {
+        NSLog(@"adding course %d", [NSThread isMainThread]);
         Course *c = [NSEntityDescription insertNewObjectForEntityForName:@"Course" inManagedObjectContext:self.managedObjectContext];
+        [c setValue:self.project forKey:@"project"];
         c.name = name;
         for (OverprintObject *o in overprintObjects) {
             CourseObject *co = [NSEntityDescription insertNewObjectForEntityForName:@"CourseObject" inManagedObjectContext:self.managedObjectContext];
             co.overprintObject = o;
             co.course = c;
         }
+        [c recalculateControlNumberPositions];
     }];
+    [self.courseController updateCoursePopup];
     [self.overprintController updateOverprint];
+}
+
+- (BackgroundMap *)mapInfoForFile:(NSString *)file {
+    NSFetchRequest *r = [NSFetchRequest fetchRequestWithEntityName:@"BackgroundMap"];
+    [r setPredicate:[NSPredicate predicateWithFormat:@"filename == %@", file]];
+    NSArray *a = [self.managedObjectContext executeFetchRequest:r error:nil];
+    if ([a count] == 0) return nil;
+    
+    BackgroundMap *map = a[0];
+    return map;
 }
 
 #pragma mark -
 #pragma mark ASBackgroundImageLoaderDelegate
 
+- (dispatch_semaphore_t)imageLoaderSequentializer {
+    if (loader == NULL) {
+        loader = dispatch_semaphore_create(1);
+    }
+    return loader;
+}
+
+- (dispatch_queue_t)imageLoaderQueue {
+    if (queue == NULL) {
+        queue = dispatch_queue_create("imageLoader", DISPATCH_QUEUE_PRIORITY_DEFAULT);
+    }
+    return queue;
+}
+
 - (NSWindow *)modalWindow {
     NSArray *a = [self windowControllers];
     if ([a count] == 0) return nil;
-    NSWindow *w = [[a objectAtIndex:0] window];
-    if (w == nil) return [NSApp mainWindow];
-    return w;
-}
-
-- (NSURL *)resolvedURLBookmarkForPath:(NSString *)path {
-    if (self.project.mapBookmark == nil) return nil;
-    
-    NSMutableArray *x = [NSMutableArray arrayWithArray:[NSKeyedUnarchiver unarchiveObjectWithData:self.project.mapBookmark]];
-    
-    for (NSDictionary *bookmarkDict in x) {
-        NSError *error = nil;
-        if ([[bookmarkDict valueForKey:@"path"] isEqualToString:path]) {
-            NSURL *u = [NSURL URLByResolvingBookmarkData:[bookmarkDict valueForKey:@"data"] options:NSURLBookmarkResolutionWithSecurityScope relativeToURL:nil bookmarkDataIsStale:NULL error:&error];
-            return u;
-        }
-    }
+    NSWindowController *wc = [a objectAtIndex:0];
+    if ([wc isWindowLoaded]) return [wc window];
     return nil;
 }
 
-- (BOOL)addMapBookmarkForURL:(NSURL *)url originalPath:(NSString *)path error:(NSError *__autoreleasing *)error {
-    
-    NSMutableArray *x;
-    if (self.project.mapBookmark == nil) {
-        x = [NSMutableArray arrayWithCapacity:4];
+- (NSURL *)resolvedURLBookmarkForFilename:(NSString *)name {
+    return [[self mapInfoForFile:name] resolvedURL];
+}
+
+- (void)addMapURL:(NSURL *)url filename:(NSString *)filename {
+    BackgroundMap *map = [self mapInfoForFile:filename];
+    if (map == nil) {
+        map = [NSEntityDescription insertNewObjectForEntityForName:@"BackgroundMap" inManagedObjectContext:self.managedObjectContext];
+        map.project = self.project;
+        map.filename = filename;
+        map.ignored = NO;
+        [map setURL:url];
     } else {
-        x = [NSMutableArray arrayWithArray:[NSKeyedUnarchiver unarchiveObjectWithData:self.project.mapBookmark]];
+        map.ignored = NO;
+        [map setURL:url];
     }
-    for (NSDictionary *d in x) {
-        if ([[d valueForKey:@"path"] isEqualToString:path]) {
-            if (error != nil) *error = nil;
-            return NO;
-        }
+}
+- (BOOL)isIgnoringFilename:(NSString *)path {
+    BackgroundMap *map = [self mapInfoForFile:path];
+    return map.ignored;
+}
+
+- (void)ignoreFurtherRequestsForFile:(NSString *)file {
+    BackgroundMap *map = [self mapInfoForFile:file];
+    if (map == nil) {
+        map = [NSEntityDescription insertNewObjectForEntityForName:@"BackgroundMap" inManagedObjectContext:self.managedObjectContext];
+        map.project = self.project;
+        map.filename = file;
+        map.ignored = YES;
+        map.bookmark = nil;
+    } else {
+        map.ignored = YES;
+        map.bookmark = nil;
     }
-    NSData *bookmarkData = [url bookmarkDataWithOptions:NSURLBookmarkCreationWithSecurityScope
-                         includingResourceValuesForKeys:nil
-                                          relativeToURL:nil
-                                                  error:error];
-    if (bookmarkData == nil) {
-        NSLog(@"Could not add map %@. Error: %@", url, *error);
-        return NO;
-    }
-    
-    if (path == nil) path = [url path];
-    [x addObject:@{@"path":path, @"data":bookmarkData}];
-    self.project.mapBookmark = [NSKeyedArchiver archivedDataWithRootObject:x];
-    
-    return YES;
 }
 
 #pragma mark -

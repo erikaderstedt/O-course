@@ -20,7 +20,7 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
     
     @autoreleasepool {
     
-        ASOCADController *ocad = [[ASOCADController alloc] initWithOCADFile:[(__bridge NSURL *)url path] delegate:nil];
+        ASOCADController *ocad = [[ASOCADController alloc] initWithOCADFile:[(__bridge NSURL *)url path]];
         
         if (ocad == nil) {
             return noErr;

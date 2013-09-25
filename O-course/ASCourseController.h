@@ -39,5 +39,6 @@
 // observe this selection and display accordingly.
 @property (nonatomic, weak) id <ASControlDescriptionItem> selectedCourseObject;
 
+- (void)updateCoursePopup;
 
 @end

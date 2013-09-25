@@ -13,6 +13,7 @@
 @class Project;
 @class ASOverprintController;
 @class ASCourseController;
+@class BackgroundMap;
 
 @interface ASOcourseDocument : NSDocument <ASBackgroundImageLoaderDelegate> {
 @private
@@ -21,6 +22,9 @@
     NSPersistentStoreCoordinator *_psc;
 	NSManagedObjectContext *_context;
 	NSManagedObjectModel *_model;
+    
+    dispatch_semaphore_t loader;
+    dispatch_queue_t queue;
 }
 @property (nonatomic,weak) IBOutlet ASMapView *mapView;
 @property (nonatomic,strong) IBOutlet ASOverprintController *overprintController;
@@ -40,7 +44,7 @@
 - (void)updateMap:(NSNotification *)n;
 
 - (void)clearMapBookmarks;
-- (NSArray *)bookmarkedURLs;
+- (BackgroundMap *)mapInfoForFile:(NSString *)file;
 
 - (void)setMapURL:(NSURL *)mapURL;
 - (void)loadCoursesFromMap;

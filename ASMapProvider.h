@@ -13,8 +13,13 @@
 @protocol ASBackgroundImageLoaderDelegate <NSObject>
 
 - (NSWindow *)modalWindow;
-- (NSURL *)resolvedURLBookmarkForPath:(NSString *)path;
-- (BOOL)addMapBookmarkForURL:(NSURL *)url originalPath:(NSString *)path error:(NSError **)error;
+- (void)addMapURL:(NSURL *)url filename:(NSString *)filename;
+- (BOOL)isIgnoringFilename:(NSString *)path;
+- (NSURL *)resolvedURLBookmarkForFilename:(NSString *)path;
+- (void)ignoreFurtherRequestsForFile:(NSString *)file;
+
+- (dispatch_semaphore_t)imageLoaderSequentializer;
+- (dispatch_queue_t)imageLoaderQueue;
 
 @end
 

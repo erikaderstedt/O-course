@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0306AC9617F2DCAB0081FC2E /* BackgroundMap.m in Sources */ = {isa = PBXBuildFile; fileRef = 0306AC9517F2DCAB0081FC2E /* BackgroundMap.m */; };
 		030728D0179A8A74002E3CE7 /* CourseObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 030728CF179A8A74002E3CE7 /* CourseObject.m */; };
 		032001BE12FE9EF900707BA5 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 032001BD12FE9EF900707BA5 /* Cocoa.framework */; };
 		032001C812FE9EF900707BA5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 032001C612FE9EF900707BA5 /* InfoPlist.strings */; };
@@ -99,6 +100,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0306AC9417F2DCAB0081FC2E /* BackgroundMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BackgroundMap.h; sourceTree = "<group>"; };
+		0306AC9517F2DCAB0081FC2E /* BackgroundMap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BackgroundMap.m; sourceTree = "<group>"; };
 		030728CE179A8A74002E3CE7 /* CourseObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CourseObject.h; sourceTree = "<group>"; };
 		030728CF179A8A74002E3CE7 /* CourseObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CourseObject.m; sourceTree = "<group>"; };
 		032001B912FE9EF900707BA5 /* O-course.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "O-course.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -412,6 +415,8 @@
 		03F2C76C142C81040053A47F /* Model objects */ = {
 			isa = PBXGroup;
 			children = (
+				0306AC9417F2DCAB0081FC2E /* BackgroundMap.h */,
+				0306AC9517F2DCAB0081FC2E /* BackgroundMap.m */,
 				0367EBAB17CA70A400784BE0 /* Layout.h */,
 				0367EBAC17CA70A400784BE0 /* Layout.m */,
 				03F2C769142C725F0053A47F /* Project.h */,
@@ -569,6 +574,7 @@
 				03CE92A3142E6C06003EBECD /* MyDocumentController.m in Sources */,
 				03B90D3B14330A530033216D /* CoordinateTransverser.m in Sources */,
 				033DA8B2144EFFC600C787F8 /* ASGenericImageController.m in Sources */,
+				0306AC9617F2DCAB0081FC2E /* BackgroundMap.m in Sources */,
 				03EEB2A0147194A300BD9E0F /* ASOverprintController.m in Sources */,
 				03EEB2A61471C0D100BD9E0F /* ASControlDescriptionView.m in Sources */,
 				03EEB2A9147427F500BD9E0F /* ASCourseController.m in Sources */,
