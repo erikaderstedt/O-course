@@ -43,6 +43,20 @@
     return [self.overprintObject position];
 }
 
+- (NSArray *)objectsInCourseWithTheSameOverprintObject {
+    return [[[self.course mutableOrderedSetValueForKey:@"courseObjects"] array] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"overprintObject == %@", self.overprintObject]];
+}
+
+- (NSInteger)controlNumber {
+    NSInteger j = 1;
+    for (CourseObject *co in [self.course valueForKey:@"courseObjects"]) {
+        if (co == self) return j;
+        if (co.overprintObject.objectType == kASOverprintObjectControl) j++;
+    }
+    NSAssert(0, @"Object not in course!");
+    return NSNotFound;
+}
+
 #pragma mark ASControlDescriptionItem
 
 - (enum ASOverprintObjectType)objectType {

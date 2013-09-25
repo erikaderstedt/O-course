@@ -25,5 +25,7 @@
 
 - (CGFloat)angleToNextCourseObject;
 - (CGRect)frame;
+- (NSArray *)objectsInCourseWithTheSameOverprintObject;
+- (NSInteger)controlNumber;
 
 @end

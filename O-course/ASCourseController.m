@@ -434,19 +434,34 @@
     return [[self.courses selectedObjects] count];
 }
 
-- (void)enumerateOverprintObjectsInSelectedCourseUsingBlock:(void (^)(id <ASOverprintObject> object, NSInteger index, CGPoint controlNumberPosition))handler {
-    __block NSInteger reg = 1;
+- (void)enumerateCourseObjectsUsingBlock:(void (^)(id <ASOverprintObject> object, NSString *controlNumbers, BOOL firstOccurence, CGPoint controlNumberPosition))handler {
+
     Course *selectedCourse = [self selectedCourse];
     if (selectedCourse == nil) return;
-    for (NSManagedObject *courseObject in [selectedCourse valueForKey:@"courseObjects"]) {
+    for (CourseObject *courseObject in [selectedCourse valueForKey:@"courseObjects"]) {
+        NSArray *br_others = [courseObject objectsInCourseWithTheSameOverprintObject];
+        BOOL first = [br_others indexOfObject:courseObject] == 0;
+        NSString *controlNumbers = @"";
+        if (courseObject.overprintObject.objectType == kASOverprintObjectControl) {
+            if ([br_others count] == 1) {
+                controlNumbers = [NSString stringWithFormat:@"%d", (int)[courseObject controlNumber]];
+            } else {
+                
+                NSMutableArray *numberStringArray = [NSMutableArray arrayWithCapacity:[br_others count]];
+                for (CourseObject *co in br_others) {
+                    [numberStringArray addObject:[NSString stringWithFormat:@"%d", (int)[co controlNumber]]];
+                }
+                controlNumbers = [numberStringArray componentsJoinedByString:@"/"];
+            }
+        }
         OverprintObject *o = [courseObject valueForKey:@"overprintObject"];
         NSAssert(o != nil, @"No overprint object!");
         CGPoint numberPosition = CGPointMake([[courseObject valueForKey:@"position_x"] doubleValue], [[courseObject valueForKey:@"position_y"] doubleValue]);
-        handler(o, ([o objectType] == kASOverprintObjectControl)?(reg++):(NSNotFound), numberPosition);
+        handler(o, controlNumbers, first, numberPosition);
     }
 }
 
-- (void)enumerateOtherOverprintObjectsUsingBlock:(void (^)(id <ASOverprintObject> object, NSInteger index, CGPoint controlNumberPosition))handler {
+- (void)enumerateOtherOverprintObjectsUsingBlock:(void (^)(id <ASOverprintObject> object, NSString *code, CGPoint controlNumberPosition))handler {
     NSFetchRequest *fr = [NSFetchRequest fetchRequestWithEntityName:@"OverprintObject"];
     NSArray *allCourseObjects = [[self managedObjectContext] executeFetchRequest:fr error:nil];
 
@@ -454,7 +469,7 @@
     NSMutableSet *notSelected = [NSMutableSet setWithArray:allCourseObjects];
     [notSelected minusSet:[objectsInSelected set]];
     for (OverprintObject *courseObject in notSelected) {
-        handler(courseObject, [[courseObject controlCode] integerValue], [courseObject controlCodePosition]);
+        handler(courseObject, [[courseObject controlCode] description], [courseObject controlCodePosition]);
     }
 }
 

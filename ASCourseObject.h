@@ -188,13 +188,13 @@ enum ASOverprintObjectType {
 
 @protocol ASCourseDataSource <NSObject>
 
-- (BOOL)addOverprintObject:(enum ASOverprintObjectType)objectType atLocation:(CGPoint)location symbolNumber:(NSInteger)symbolNumber;
-- (void)enumerateOverprintObjectsInSelectedCourseUsingBlock:(void (^)(id <ASOverprintObject> object, NSInteger index, CGPoint controlNumberPosition))handler;
-- (void)enumerateOtherOverprintObjectsUsingBlock:(void (^)(id <ASOverprintObject> object, NSInteger index, CGPoint controlNumberPosition))handler;
+- (void)enumerateCourseObjectsUsingBlock:(void (^)(id <ASOverprintObject> object, NSString *controlNumbers, BOOL firstOccurence, CGPoint controlNumberPosition))handler;
+- (void)enumerateOtherOverprintObjectsUsingBlock:(void (^)(id <ASOverprintObject> object, NSString *code, CGPoint controlNumberPosition))handler;
 - (void)enumerateAllOverprintObjectsUsingBlock:(void (^)(id <ASOverprintObject> object))handler;
+
+- (BOOL)addOverprintObject:(enum ASOverprintObjectType)objectType atLocation:(CGPoint)location symbolNumber:(NSInteger)symbolNumber;
 - (void)addOverprintObjectToSelectedCourse:(id <ASOverprintObject>)object;
 - (void)removeLastOccurrenceOfOverprintObjectFromSelectedCourse:(id <ASOverprintObject>)object;
 - (BOOL)specificCourseSelected;
 - (void)removeOverprintObject:(id <ASOverprintObject>)object;
-
 @end

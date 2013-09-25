@@ -74,26 +74,29 @@
 
     drawConnectingLines = [self.dataSource specificCourseSelected];
     NSMutableArray *drawnObjects = [NSMutableArray arrayWithCapacity:100];
-    [self.dataSource enumerateOverprintObjectsInSelectedCourseUsingBlock:^(id<ASOverprintObject> object, NSInteger index, CGPoint controlNumberPosition) {
-        
-        [ma addObject:@{
-         @"position":[NSValue valueWithPoint:NSPointFromCGPoint(object.position)],
-         @"type":@([object objectType]),
-         @"in_course":@(YES),
-         @"hidden":@NO,
-         @"draw":@(![drawnObjects containsObject:object]),
-         @"index":@(index),
-        @"controlNumberPosition":[NSValue valueWithPoint:NSPointFromCGPoint(controlNumberPosition)]}];
-        [drawnObjects addObject:object];
-    }];
     BOOL singleCourse = [self.dataSource specificCourseSelected];
-    [self.dataSource enumerateOtherOverprintObjectsUsingBlock:^(id<ASOverprintObject> object, NSInteger index, CGPoint controlNumberPosition) {
+
+    if (singleCourse) {
+        [self.dataSource enumerateCourseObjectsUsingBlock:^(id<ASOverprintObject> object, NSString *controlNumbers, BOOL firstOccurence, CGPoint controlNumberPosition) {
+            [ma addObject:@{
+                            @"position":[NSValue valueWithPoint:NSPointFromCGPoint(object.position)],
+                            @"type":@([object objectType]),
+                            @"in_course":@(YES),
+                            @"hidden":@NO,
+                            @"draw":@(firstOccurence),
+                            @"cnumber":controlNumbers,
+                            @"controlNumberPosition":[NSValue valueWithPoint:NSPointFromCGPoint(controlNumberPosition)]}];
+            [drawnObjects addObject:object];
+        }];
+    }
+
+    [self.dataSource enumerateOtherOverprintObjectsUsingBlock:^(id<ASOverprintObject> object, NSString *code, CGPoint controlNumberPosition) {
         [ma addObject:@{
          @"position":[NSValue valueWithPoint:NSPointFromCGPoint(object.position)],
          @"type":@([object objectType]),
          @"in_course":@(singleCourse?NO:YES),
          @"hidden":@NO,
-         @"draw":@(YES), @"index":@(index),
+         @"draw":@(YES), @"cnumber":code,
          @"controlNumberPosition":[NSValue valueWithPoint:NSPointFromCGPoint(controlNumberPosition)]}];
     }];
     
@@ -288,7 +291,7 @@
             
             if (inCourse && type == kASOverprintObjectControl) {
                 // Draw control code / control number at the specified position.
-                NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:[courseObjectInfo[@"index"] stringValue] attributes:dest.controlDigitAttributes];
+                NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:courseObjectInfo[@"cnumber"] attributes:dest.controlDigitAttributes];
                 CTLineRef line = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef)attributedString);
                 
                 // Set text position and draw the line into the graphics context

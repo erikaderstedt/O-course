@@ -14,6 +14,7 @@
 
 @implementation Course
 @dynamic name;
+@dynamic courseObjects;
 
 - (void)awakeFromInsert {
     [super awakeFromInsert];

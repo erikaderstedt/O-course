@@ -9,6 +9,7 @@
 #import <CoreData/CoreData.h>
 
 @class OverprintObject;
+@class CourseObject;
 
 @interface Course : NSManagedObject
 @property (nonatomic, retain) NSString * name;
@@ -23,5 +24,5 @@
 
 // Length, in km.
 - (CGFloat)length;
-
+@property (nonatomic, retain) NSOrderedSet *courseObjects;
 @end
