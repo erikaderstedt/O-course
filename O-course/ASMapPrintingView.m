@@ -62,10 +62,6 @@
     return r;
 }
 
-- (NSString *)printJobTitle {
-    return @"Test";
-}
-
 - (void)drawActualMap {
     CGContextRef ctx = [[NSGraphicsContext currentContext] graphicsPort];
     

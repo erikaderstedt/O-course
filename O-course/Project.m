@@ -11,6 +11,7 @@
 @implementation Project
 
 @dynamic mapBookmark;
+@dynamic event;
 
 + (instancetype)projectInManagedObjectContext:(NSManagedObjectContext *)moc {
     if (moc == nil) return nil;
