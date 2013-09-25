@@ -85,7 +85,7 @@
     
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameChanged:) name:NSViewFrameDidChangeNotification object:[self enclosingScrollView]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(overprintChanged:) name:@"ASOverprintChanged" object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshMap:) name:@"ASMapChanged" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshMap:) name:@"ASMapChanged" object:self.layoutController.layouts.managedObjectContext];
     [self setupLayoutNotificationObserving];
     
     [[self enclosingScrollView] setBackgroundColor:[NSColor whiteColor]];

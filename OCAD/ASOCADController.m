@@ -138,7 +138,7 @@ int i;
             [u startAccessingSecurityScopedResource];
             if ([[[[u path] pathExtension] lowercaseString] isEqualToString:@"ocd"] ) {
                 provider = [[ASOCADController alloc] initWithOCADFile:[u path]];
-                [(ASOCADController *)provider prepareCacheWithAreaTransform:self.areaColorTransform];
+                [(ASOCADController *)provider prepareCacheWithAreaTransform:self.areaColorTransform secondaryTransform:self.secondaryAreaColorTransform];
             } else {
                 provider = [[ASGenericImageController alloc] initWithContentsOfFile:[u path]];
             }
@@ -156,6 +156,7 @@ int i;
                 } else {
                     
                     CGAffineTransform at = self.areaColorTransform;
+                    CGAffineTransform at2 = self.secondaryAreaColorTransform;
                     dispatch_async(dispatch_get_main_queue(), ^{
                         NSOpenPanel *op = [NSOpenPanel openPanel];
                         [op setAllowsMultipleSelection:NO];
@@ -173,7 +174,7 @@ int i;
                                 id <ASMapProvider> secondProvider;
                                 if ([[[[op URL] pathExtension] lowercaseString] isEqualToString:@"ocd"] ) {
                                     secondProvider = [[ASOCADController alloc] initWithOCADFile:[[op URL] path]];
-                                    [(ASOCADController *)secondProvider prepareCacheWithAreaTransform:at];
+                                    [(ASOCADController *)secondProvider prepareCacheWithAreaTransform:at secondaryTransform:at2];
                                     [(ASOCADController *)secondProvider loadAdditionalResourcesWithDelegate:_delegate];
                                 } else {
                                     secondProvider = [[ASGenericImageController alloc] initWithContentsOfFile:[[op URL] path]];

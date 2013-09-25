@@ -532,10 +532,12 @@ out_error:
         [self.mapView enterLayoutMode:sender];
     } else {
         // Start a printing operation based on the orientation in the base view.
-
         NSPrintInfo *pi = [[NSPrintInfo alloc] initWithDictionary:[[NSPrintInfo sharedPrintInfo] dictionary]];
         ASMapPrintingView *pv = [[ASMapPrintingView alloc] initWithBaseView:self.mapView];
+        
+        [[NSNotificationCenter defaultCenter] removeObserver:self.mapView name:@"ASMapChanged" object:nil];
         pv.mapProvider = [self mapProviderForURL:self.loadedURL primaryTransform:CGAffineTransformIdentity secondaryTransform:[pv patternTransform]];
+        [[NSNotificationCenter defaultCenter] addObserver:self.mapView selector:@selector(refreshMap:) name:@"ASMapChanged" object:self.managedObjectContext];
         size_t numberOfHiddenSymbols;
         const int32_t *hiddenSymbols = [self.mapView.mapProvider hiddenSymbolNumbers:&numberOfHiddenSymbols];
         [pv.mapProvider setHiddenSymbolNumbers:hiddenSymbols count:numberOfHiddenSymbols];
@@ -550,14 +552,6 @@ out_error:
         [pi setHorizontallyCentered:YES];
         [pi setVerticallyCentered:YES];
         
-        // Use PMPrintSettings to attempt to force high quality from the printer.
-        // Prevent the user from changing the orientation.
-        /* CFNumber - kCFNumberSInt32Type, Enum, B/W, Grayscale, Color, HiFi Color. */
-        //#define kPMColorModeStr                 "com.apple.print.PrintSettings.PMColorMode"
-        //#define kPMColorModeKey                 CFSTR("com.apple.print.PrintSettings.PMColorMode")
-        /* CFNumber - kCFNumberSInt32Type, Enum, draft, normal, best */
-        //#define kPMQualityStr                   "com.apple.print.PrintSettings.PMQuality"
-        //#define kPMQualityKey                   CFSTR("com.apple.print.PrintSettings.PMQuality")
         PMPrintSettings ps = [pi PMPrintSettings];
         NSNumber *colorMode = @(3);
         NSNumber *quality = @(2);
