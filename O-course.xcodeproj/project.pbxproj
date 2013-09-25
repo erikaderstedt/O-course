@@ -16,7 +16,6 @@
 		032001D112FE9EF900707BA5 /* ASOcourseDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 032001D012FE9EF900707BA5 /* ASOcourseDocument.m */; };
 		032001D412FE9EF900707BA5 /* ASOcourseDocument.xib in Resources */ = {isa = PBXBuildFile; fileRef = 032001D212FE9EF900707BA5 /* ASOcourseDocument.xib */; };
 		032001D712FE9EF900707BA5 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 032001D512FE9EF900707BA5 /* MainMenu.xib */; };
-		032001DA12FE9EF900707BA5 /* ASOcourseDocument.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 032001D812FE9EF900707BA5 /* ASOcourseDocument.xcdatamodeld */; };
 		032001E212FE9F1000707BA5 /* ocdimport.c in Sources */ = {isa = PBXBuildFile; fileRef = 032001E012FE9F1000707BA5 /* ocdimport.c */; };
 		033D6818134AF79C00502CA8 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 033D6817134AF79C00502CA8 /* QuartzCore.framework */; };
 		033DA8B1144EFFC600C787F8 /* ASGenericImageController.h in Headers */ = {isa = PBXBuildFile; fileRef = 033DA8AF144EFFC600C787F8 /* ASGenericImageController.h */; };
@@ -65,6 +64,7 @@
 		03B90D3D143315A10033216D /* CoordinateTransverser.m in Sources */ = {isa = PBXBuildFile; fileRef = 03B90D3A14330A530033216D /* CoordinateTransverser.m */; };
 		03C305161347B5FA00FB8133 /* ASOCADController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03C305151347B5FA00FB8133 /* ASOCADController.m */; };
 		03CE92A3142E6C06003EBECD /* MyDocumentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03CE92A2142E6C06003EBECD /* MyDocumentController.m */; };
+		03D6D19B17F382230082CB9F /* O-course.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 03D6D19917F382230082CB9F /* O-course.xcdatamodeld */; };
 		03EEB2A0147194A300BD9E0F /* ASOverprintController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03EEB29F147194A300BD9E0F /* ASOverprintController.m */; };
 		03EEB2A61471C0D100BD9E0F /* ASControlDescriptionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 03EEB2A51471C0D100BD9E0F /* ASControlDescriptionView.m */; };
 		03EEB2A9147427F500BD9E0F /* ASCourseController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03EEB2A8147427F400BD9E0F /* ASCourseController.m */; };
@@ -118,7 +118,6 @@
 		032001D012FE9EF900707BA5 /* ASOcourseDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASOcourseDocument.m; sourceTree = "<group>"; };
 		032001D312FE9EF900707BA5 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ASOcourseDocument.xib; sourceTree = "<group>"; };
 		032001D612FE9EF900707BA5 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		032001D912FE9EF900707BA5 /* ASOcourseDocument.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = ASOcourseDocument.xcdatamodel; sourceTree = "<group>"; };
 		032001E012FE9F1000707BA5 /* ocdimport.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ocdimport.c; sourceTree = "<group>"; };
 		032001E112FE9F1000707BA5 /* ocdimport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ocdimport.h; sourceTree = "<group>"; };
 		0321D2D4156D13A600180ADE /* O-course.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "O-course.entitlements"; sourceTree = "<group>"; };
@@ -181,6 +180,7 @@
 		03C305171347B60B00FB8133 /* ASMapProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASMapProvider.h; sourceTree = "<group>"; };
 		03CE92A1142E6C06003EBECD /* MyDocumentController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyDocumentController.h; sourceTree = "<group>"; };
 		03CE92A2142E6C06003EBECD /* MyDocumentController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyDocumentController.m; sourceTree = "<group>"; };
+		03D6D19A17F382230082CB9F /* O-course.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "O-course.xcdatamodel"; sourceTree = "<group>"; };
 		03EEB29E147194A300BD9E0F /* ASOverprintController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASOverprintController.h; sourceTree = "<group>"; };
 		03EEB29F147194A300BD9E0F /* ASOverprintController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASOverprintController.m; sourceTree = "<group>"; };
 		03EEB2A2147194DB00BD9E0F /* ASControlDescriptionProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASControlDescriptionProvider.h; sourceTree = "<group>"; };
@@ -302,7 +302,6 @@
 				0373FA6C1349A42C006E41C9 /* ASMapView.m */,
 				0381DD6717D08BA600B2C089 /* ASMapView+Layout.h */,
 				0381DD6817D08BA600B2C089 /* ASMapView+Layout.m */,
-				032001D812FE9EF900707BA5 /* ASOcourseDocument.xcdatamodeld */,
 				032001C412FE9EF900707BA5 /* Supporting Files */,
 				03A3524E13B30F480028D87C /* AppDelegate.h */,
 				03A3524F13B30F480028D87C /* AppDelegate.m */,
@@ -427,6 +426,7 @@
 				0385ED7B156E2E630013AB2D /* OverprintObject.m */,
 				037A4446175F3CD900FFABBD /* Course.h */,
 				037A4447175F3CD900FFABBD /* Course.m */,
+				03D6D19917F382230082CB9F /* O-course.xcdatamodeld */,
 			);
 			name = "Model objects";
 			path = ..;
@@ -562,7 +562,6 @@
 			files = (
 				032001CB12FE9EF900707BA5 /* main.m in Sources */,
 				032001D112FE9EF900707BA5 /* ASOcourseDocument.m in Sources */,
-				032001DA12FE9EF900707BA5 /* ASOcourseDocument.xcdatamodeld in Sources */,
 				032001E212FE9F1000707BA5 /* ocdimport.c in Sources */,
 				03C305161347B5FA00FB8133 /* ASOCADController.m in Sources */,
 				0373FA6D1349A42C006E41C9 /* ASMapView.m in Sources */,
@@ -579,6 +578,7 @@
 				03EEB2A61471C0D100BD9E0F /* ASControlDescriptionView.m in Sources */,
 				03EEB2A9147427F500BD9E0F /* ASCourseController.m in Sources */,
 				03EEB2AC1474330500BD9E0F /* ASDistanceFormatter.m in Sources */,
+				03D6D19B17F382230082CB9F /* O-course.xcdatamodeld in Sources */,
 				0385ED7C156E2E630013AB2D /* OverprintObject.m in Sources */,
 				03FA63A1156FEBB700EF4ACF /* ASCourseObjectSelectionView.m in Sources */,
 				03FA63A5156FEE3A00EF4ACF /* ASControlDescriptionView+CourseObjects.m in Sources */,
@@ -841,13 +841,13 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		032001D812FE9EF900707BA5 /* ASOcourseDocument.xcdatamodeld */ = {
+		03D6D19917F382230082CB9F /* O-course.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				032001D912FE9EF900707BA5 /* ASOcourseDocument.xcdatamodel */,
+				03D6D19A17F382230082CB9F /* O-course.xcdatamodel */,
 			);
-			currentVersion = 032001D912FE9EF900707BA5 /* ASOcourseDocument.xcdatamodel */;
-			path = ASOcourseDocument.xcdatamodeld;
+			currentVersion = 03D6D19A17F382230082CB9F /* O-course.xcdatamodel */;
+			path = "O-course.xcdatamodeld";
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};

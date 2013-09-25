@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="3396" systemVersion="12F37" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="BackgroundMap" representedClassName="BackgroundMap" syncable="YES">
+        <attribute name="bookmark" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="filename" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="ignored" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <relationship name="project" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Project" inverseName="backgroundMaps" inverseEntity="Project" indexed="YES" syncable="YES"/>
+    </entity>
+    <entity name="Class" representedClassName="NSManagedObject" syncable="YES">
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <relationship name="course" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Course" inverseName="classes" inverseEntity="Course" indexed="YES" syncable="YES">
+            <userInfo/>
+        </relationship>
+        <userInfo/>
+    </entity>
+    <entity name="Course" representedClassName="Course" syncable="YES">
+        <attribute name="cuts" optional="YES" attributeType="Binary" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <relationship name="classes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Class" inverseName="course" inverseEntity="Class" indexed="YES" syncable="YES">
+            <userInfo/>
+        </relationship>
+        <relationship name="courseObjects" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="CourseObject" inverseName="course" inverseEntity="CourseObject" indexed="YES" syncable="YES">
+            <userInfo/>
+        </relationship>
+        <relationship name="project" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Project" inverseName="courses" inverseEntity="Project" indexed="YES" syncable="YES">
+            <userInfo/>
+        </relationship>
+        <userInfo/>
+    </entity>
+    <entity name="CourseObject" representedClassName="CourseObject" syncable="YES">
+        <attribute name="manualPosition" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
+        <attribute name="position_x" optional="YES" attributeType="Double" defaultValueString="0" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <attribute name="position_y" optional="YES" attributeType="Double" defaultValueString="0" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <relationship name="course" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Course" inverseName="courseObjects" inverseEntity="Course" indexed="YES" syncable="YES">
+            <userInfo/>
+        </relationship>
+        <relationship name="overprintObject" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="OverprintObject" inverseName="courseObjects" inverseEntity="OverprintObject" indexed="YES" syncable="YES">
+            <userInfo/>
+        </relationship>
+        <userInfo/>
+    </entity>
+    <entity name="Layout" representedClassName="Layout" syncable="YES">
+        <attribute name="controlDescriptionPlacement" attributeType="Integer 16" minValueString="1" maxValueString="6" defaultValueString="3" syncable="YES"/>
+        <attribute name="default" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
+        <attribute name="frameColor" optional="YES" attributeType="Transformable" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <attribute name="frameVisible" attributeType="Boolean" defaultValueString="YES" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <attribute name="hiddenObjectTypes" optional="YES" attributeType="Binary" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <attribute name="mapInset" optional="YES" attributeType="Boolean" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="orientation" attributeType="Integer 32" minValueString="0" maxValueString="1" defaultValueString="1" syncable="YES"/>
+        <attribute name="paperType" attributeType="Integer 16" minValueString="0" maxValueString="1" defaultValueString="0" syncable="YES"/>
+        <attribute name="position_x" optional="YES" attributeType="Double" syncable="YES"/>
+        <attribute name="position_y" optional="YES" attributeType="Double" syncable="YES"/>
+        <attribute name="printClassNameOnBack" optional="YES" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
+        <attribute name="scale" attributeType="Integer 32" minValueString="4000" maxValueString="25000" defaultValueString="10000" syncable="YES"/>
+        <attribute name="showControlDescription" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="showEventDate" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="showEventName" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
+        <relationship name="project" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Project" inverseName="layouts" inverseEntity="Project" indexed="YES" syncable="YES">
+            <userInfo/>
+        </relationship>
+        <userInfo/>
+    </entity>
+    <entity name="OverprintObject" representedClassName="OverprintObject" syncable="YES">
+        <attribute name="added" attributeType="Date" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <attribute name="angle" optional="YES" attributeType="Double" defaultValueString="0" syncable="YES"/>
+        <attribute name="appearanceOrSecondControlFeature" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <attribute name="combinationSymbol" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <attribute name="controlCode" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <attribute name="controlFeature" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <attribute name="data" optional="YES" attributeType="Binary" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <attribute name="dimensions" optional="YES" attributeType="String" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <attribute name="distance" optional="YES" attributeType="Double" defaultValueString="0" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <attribute name="locationOfTheControlFlag" optional="YES" attributeType="Integer 32" defaultValueString="71" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <attribute name="otherInformation" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <attribute name="position_x" optional="YES" attributeType="Double" defaultValueString="0" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <attribute name="position_y" optional="YES" attributeType="Double" defaultValueString="0" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <attribute name="type" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <attribute name="whichOfAnySimilarFeature" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <relationship name="courseObjects" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CourseObject" inverseName="overprintObject" inverseEntity="CourseObject" indexed="YES" syncable="YES"/>
+        <userInfo/>
+    </entity>
+    <entity name="Project" representedClassName="Project" syncable="YES">
+        <attribute name="date" optional="YES" attributeType="Date" spotlightIndexingEnabled="YES" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <attribute name="event" optional="YES" attributeType="String" spotlightIndexingEnabled="YES" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <attribute name="position_x" attributeType="Double" defaultValueString="0" syncable="YES"/>
+        <attribute name="position_y" attributeType="Double" defaultValueString="0" syncable="YES"/>
+        <attribute name="scale" optional="YES" attributeType="Double" defaultValueString="0" syncable="YES">
+            <userInfo/>
+        </attribute>
+        <relationship name="backgroundMaps" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="BackgroundMap" inverseName="project" inverseEntity="BackgroundMap" indexed="YES" syncable="YES"/>
+        <relationship name="courses" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Course" inverseName="project" inverseEntity="Course" indexed="YES" syncable="YES">
+            <userInfo/>
+        </relationship>
+        <relationship name="layouts" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Layout" inverseName="project" inverseEntity="Layout" indexed="YES" syncable="YES">
+            <userInfo/>
+        </relationship>
+        <userInfo/>
+    </entity>
+    <fetchRequest name="THE_PROJECT" entity="Project"/>
+    <elements>
+        <element name="Course" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="CourseObject" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Layout" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="OverprintObject" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Project" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Class" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="BackgroundMap" positionX="0" positionY="0" width="0" height="0"/>
+    </elements>
+</model>
