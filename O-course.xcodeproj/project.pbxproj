@@ -65,6 +65,7 @@
 		03C305161347B5FA00FB8133 /* ASOCADController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03C305151347B5FA00FB8133 /* ASOCADController.m */; };
 		03CE92A3142E6C06003EBECD /* MyDocumentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03CE92A2142E6C06003EBECD /* MyDocumentController.m */; };
 		03D6D19B17F382230082CB9F /* O-course.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 03D6D19917F382230082CB9F /* O-course.xcdatamodeld */; };
+		03D6D19C17F384530082CB9F /* O-course.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 03D6D19917F382230082CB9F /* O-course.xcdatamodeld */; };
 		03EEB2A0147194A300BD9E0F /* ASOverprintController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03EEB29F147194A300BD9E0F /* ASOverprintController.m */; };
 		03EEB2A61471C0D100BD9E0F /* ASControlDescriptionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 03EEB2A51471C0D100BD9E0F /* ASControlDescriptionView.m */; };
 		03EEB2A9147427F500BD9E0F /* ASCourseController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03EEB2A8147427F400BD9E0F /* ASCourseController.m */; };
@@ -597,6 +598,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				03D6D19C17F384530082CB9F /* O-course.xcdatamodeld in Sources */,
 				03A3527A13B31C5E0028D87C /* GenerateThumbnailForURL.m in Sources */,
 				03A3527C13B31C5E0028D87C /* GeneratePreviewForURL.m in Sources */,
 				03A3527E13B31C5E0028D87C /* main.c in Sources */,

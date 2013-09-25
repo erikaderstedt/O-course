@@ -19,7 +19,6 @@
 - (void)awakeFromInsert {
     [super awakeFromInsert];
     
-    [self setValue:[Layout defaultLayoutInContext:[self managedObjectContext]] forKey:@"layout"];
     [self setPrimitiveValue:NSLocalizedString(@"New course", nil) forKey:@"name"];
 }
 

@@ -70,7 +70,7 @@
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.sports</string>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.8.3</string>
+	<string>10.8.5</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
