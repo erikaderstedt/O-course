@@ -228,6 +228,7 @@ void load_objects(struct ocad_file *f) {
                 if (element->symnum == 0) {
                     element->obj_type = ocad_hidden_object;
                 } else {
+                    element->reserved0 = objindex->viewtype;
                     element->symbol = symbol_by_number(f, element->symnum);
                     if (element->symbol != NULL && element->symbol->selected != 512) {
                         if (r.lower_left.x > objindex->rc.lower_left.x) r.lower_left.x = objindex->rc.lower_left.x;

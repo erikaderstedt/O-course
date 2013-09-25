@@ -467,7 +467,7 @@ int i;
     for (i = start; i < stop; i += step) {
         e = ocdf->elements[i];
         type = (enum ocad_object_type)(e->obj_type);
-        if (e->symbol->csmode > 0) continue; // Don't render these.
+        if (e->reserved0 > 0) continue; // Don't render these.
 		switch (type) {
 			case ocad_area_object:
 				area = (struct ocad_area_symbol *)(e->symbol);

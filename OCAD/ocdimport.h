@@ -33,7 +33,7 @@ struct LRect {
 struct ocad_element {
     int32_t symnum;
     uint8_t obj_type;
-    uint8_t reserved0;
+    uint8_t reserved0; // Used by us to copy the viewtype from the object index.
     int16_t angle;
     int32_t nCoordinates;
     int16_t nText;
