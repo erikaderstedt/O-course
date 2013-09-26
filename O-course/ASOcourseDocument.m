@@ -341,6 +341,7 @@ out_error:
 - (void)undoOrRedo:(NSNotification *)n {
     [[NSNotificationCenter defaultCenter] postNotificationName:@"ASCourseChanged" object:self.managedObjectContext userInfo:nil];;
     [self.mapView.controlDescriptionView setNeedsDisplay:YES];
+    [self.mapView decorChanged:nil];
 }
 
 - (void)windowWillClose:(NSNotification *)notification {

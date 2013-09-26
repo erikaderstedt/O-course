@@ -377,29 +377,52 @@
         [self removeTrackingArea:ta];
     }
     glassTrackingArea = nil;
-
-    // Handle the glass tracking area, which is to get mouseMoved messages for
-    // the magnifying glass.
-	if (self.showMagnifyingGlass) {
-		glassTrackingArea = [[NSTrackingArea alloc] initWithRect:[self bounds] 
-														 options:NSTrackingMouseMoved/* | NSTrackingCursorUpdate */| NSTrackingActiveInKeyWindow
-														   owner:self 
-														userInfo:nil];		 
-		[self addTrackingArea:glassTrackingArea];
-	} else {
-        // Now add tracking areas for each course object.
-        [self.courseDataSource enumerateAllOverprintObjectsUsingBlock:^(id<ASOverprintObject> object) {
-            // Add a tracking rect for this object.
-            // Set up a userInfo object for the tracking areas. We need to remember to check that the object actually
-            // exists when we get around to dealing with an event for the given tracking area.
-            CGPoint positionInMap = [object position];
-            CGRect r = CGRectMake(positionInMap.x - 150.0, positionInMap.y-150.0, 300.0, 300.0);
-            NSRect rectInView = NSRectFromCGRect([tiledLayer convertRect:r toLayer:[self layer]]);
-            NSTrackingArea *ta = [[NSTrackingArea alloc] initWithRect:rectInView options:NSTrackingMouseEnteredAndExited | NSTrackingActiveInKeyWindow owner:self userInfo:@{@"object":object}];
-            [self addTrackingArea:ta];
+    
+    if (self.state == kASMapViewLayout) {
+        if (self.selectedGraphic) {
+            NSInteger i = 0;
+            for (NSValue *cornerCenterValue in [[self class] cornersForRect:self.selectedGraphic.frame]) {
+                NSPoint cornerCenter = [cornerCenterValue pointValue];
+                // Convert this point to view coordinates.
+                CGFloat f = [self actualPaperRelatedToPaperOnPage];
+                cornerCenter.x /= f;
+                cornerCenter.y /= f;
+                cornerCenter = [[self layer] convertPoint:cornerCenter fromLayer:[self printedMapLayer]];
+                NSRect r = NSMakeRect(cornerCenter.x-3.0, cornerCenter.y-3.0, 6.0, 6.0);
             
-            // Are there affiliated digits?
-        }];
+                NSTrackingArea *ta = [[NSTrackingArea alloc] initWithRect:r
+                                                                 options:NSTrackingCursorUpdate | NSTrackingActiveInKeyWindow
+                                                                   owner:self
+                                                                 userInfo:@{@"graphic": self.selectedGraphic, @"corner":@(i++)}];
+                [self addTrackingArea:ta];
+            }
+            
+        }
+    } else {
+        
+        // Handle the glass tracking area, which is to get mouseMoved messages for
+        // the magnifying glass.
+        if (self.showMagnifyingGlass) {
+            glassTrackingArea = [[NSTrackingArea alloc] initWithRect:[self bounds]
+                                                             options:NSTrackingMouseMoved | NSTrackingActiveInKeyWindow
+                                                               owner:self
+                                                            userInfo:nil];
+            [self addTrackingArea:glassTrackingArea];
+        } else {
+            // Now add tracking areas for each course object.
+            [self.courseDataSource enumerateAllOverprintObjectsUsingBlock:^(id<ASOverprintObject> object) {
+                // Add a tracking rect for this object.
+                // Set up a userInfo object for the tracking areas. We need to remember to check that the object actually
+                // exists when we get around to dealing with an event for the given tracking area.
+                CGPoint positionInMap = [object position];
+                CGRect r = CGRectMake(positionInMap.x - 150.0, positionInMap.y-150.0, 300.0, 300.0);
+                NSRect rectInView = NSRectFromCGRect([tiledLayer convertRect:r toLayer:[self layer]]);
+                NSTrackingArea *ta = [[NSTrackingArea alloc] initWithRect:rectInView options:NSTrackingMouseEnteredAndExited | NSTrackingActiveInKeyWindow owner:self userInfo:@{@"object":object}];
+                [self addTrackingArea:ta];
+                
+                // Are there affiliated digits?
+            }];
+        }
     }
 }
 
@@ -437,28 +460,73 @@
         dragIndicatorLayer.hidden = YES;
     }
 }
-/*
+
 - (void)cursorUpdate:(NSEvent *)event {
-    if (self.showMagnifyingGlass) {
-        [NSCursor hide];
+    if ([event trackingArea] && self.selectedGraphic != nil) {
+        [[NSCursor openHandCursor] set];
+    } else {
+        [[NSCursor arrowCursor] set];
     }
 }
-*/
+
+
 #pragma mark -
 #pragma mark Regular mouse events
 
 - (void)mouseDown:(NSEvent *)theEvent {
     if (self.state == kASMapViewLayout) {
-        NSPoint eventLocationInView = [[[self window] contentView] convertPoint:[theEvent locationInWindow] fromView:nil];
         
-        // First check if we're inside a graphic.
+        NSPoint eventLocationInView = [self convertPoint:[theEvent locationInWindow] fromView:nil];
         
-        if (CGRectContainsPoint([[self printedMapLayer] frame],eventLocationInView)) {
-            draggingPaperMap = YES;
-            return;
+        // Check if we hit one of our tracking areas.
+        resizingGraphic = NO;
+        for (NSTrackingArea *ta in [self trackingAreas]) {
+            if (NSPointInRect(eventLocationInView, [ta rect])) {
+                // Resize.
+                resizingGraphic = YES;
+                resizeCorner = (enum ASCorner)[[[ta userInfo] objectForKey:@"corner"] integerValue];
+                break;
+            }
+        }
+        if (!resizingGraphic) {
+            
+            CGPoint p2 = [[self layer] convertPoint:eventLocationInView toLayer:_decorLayer], p;
+            CGFloat f = [self actualPaperRelatedToPaperOnPage];
+            p.x = p2.x * f;
+            p.y = p2.y * f;
+            BOOL set = NO;
+            for (id <ASGraphicItem> item in [self.layoutController graphicsInLayout]) {
+                if (CGRectContainsPoint(item.frame, p)) {
+                    self.selectedGraphic = item;
+                    set = YES;
+                }
+            }
+            if (!set && self.selectedGraphic != nil) {
+                self.selectedGraphic = nil;
+                set = YES;
+            }
+            
+            if (self.selectedGraphic == nil) {
+                if (CGRectContainsPoint([[self printedMapLayer] bounds],p2)) {
+                    draggingPaperMap = YES;
+                } else {
+                    draggingPaperMap = NO;
+                }
+            }
+            
+            if (set) {
+                if ([theEvent modifierFlags] & NSAlternateKeyMask) {
+                    [self.selectedGraphic setWhiteBackground:![self.selectedGraphic whiteBackground]];
+                }
+                [_decorLayer setNeedsDisplay];
+                [self updateTrackingAreas];
+                draggingPaperMap = NO;
+            }
+        }
+        if (self.selectedGraphic != nil) {
+            [[[self window] undoManager] beginUndoGrouping];
         }
     }
-    draggingPaperMap = NO;
 }
 
 - (void)mouseDragged:(NSEvent *)theEvent {
@@ -487,6 +555,22 @@
         [self dragPaperMapBasedOnEvent:theEvent];
         [self synchronizePaperWithBackground];
         [CATransaction commit];
+    }
+    if (self.state == kASMapViewLayout && self.selectedGraphic != nil) {
+        // Move the graphic.
+        CGFloat dX, dY;
+        CGFloat f = [self actualPaperRelatedToPaperOnPage];
+        dX = [theEvent deltaX] * f;
+        dY = -[theEvent deltaY] * f;
+        if (resizingGraphic) {
+            [self.selectedGraphic moveCorner:resizeCorner deltaX:dX deltaY:dY];
+        } else {
+            CGPoint p = self.selectedGraphic.position;
+            p.x += dX;
+            p.y += dY;
+            self.selectedGraphic.position = p;
+        }
+        [_decorLayer setNeedsDisplay];
     }
 }
 
@@ -534,6 +618,14 @@
             break;
         case kASMapViewAddFinish:
             addingType = kASOverprintObjectFinish;
+            break;
+        case kASMapViewLayout:
+            [self updateTrackingAreas];
+            if (self.selectedGraphic != nil) {
+                [_decorLayer setNeedsDisplay];
+                [[[self window] undoManager] endUndoGrouping];
+            }
+            return;
             break;
         default:
             return;

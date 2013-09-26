@@ -130,19 +130,28 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 }
 
 + (NSArray *)cornersForRect:(NSRect)r {
-	return @[[NSValue valueWithPoint:NSMakePoint(NSMaxX(r), NSMidY(r))],
+	return @[
+             [NSValue valueWithPoint:NSMakePoint(NSMinX(r), NSMinY(r))],
+             [NSValue valueWithPoint:NSMakePoint(NSMinX(r), NSMidY(r))],
+             [NSValue valueWithPoint:NSMakePoint(NSMinX(r), NSMaxY(r))],
+             [NSValue valueWithPoint:NSMakePoint(NSMidX(r), NSMaxY(r))],
+             [NSValue valueWithPoint:NSMakePoint(NSMaxX(r), NSMaxY(r))],
+             [NSValue valueWithPoint:NSMakePoint(NSMaxX(r), NSMidY(r))],
 			[NSValue valueWithPoint:NSMakePoint(NSMaxX(r), NSMinY(r))],
-			[NSValue valueWithPoint:NSMakePoint(NSMaxX(r), NSMaxY(r))],
-			[NSValue valueWithPoint:NSMakePoint(NSMinX(r), NSMidY(r))],
-			[NSValue valueWithPoint:NSMakePoint(NSMinX(r), NSMinY(r))],
-			[NSValue valueWithPoint:NSMakePoint(NSMinX(r), NSMaxY(r))],
-			[NSValue valueWithPoint:NSMakePoint(NSMidX(r), NSMaxY(r))],
 			[NSValue valueWithPoint:NSMakePoint(NSMidX(r), NSMinY(r))]];
 }
 
 - (void)drawDecorInContext:(CGContextRef)ctx {
     // Drawing is from the main thread. This means that it's safe to fetch graphic objects using Core Data.
     NSAssert([NSThread isMainThread], @"Drawing paper frame in a background thread!");
+
+    CGContextSaveGState(ctx);
+    CGPathRef path = CGPathCreateRoundRect(CGRectIntegral([_printedMapScrollLayer frame]), _printedMapScrollLayer.cornerRadius);
+    CGContextBeginPath(ctx);
+    CGContextAddPath(ctx, path);
+    CGContextClip(ctx);
+    CGPathRelease(path);
+
     NSGraphicsContext *nsGraphicsContext;
     nsGraphicsContext = [NSGraphicsContext graphicsContextWithGraphicsPort:ctx
                                                                    flipped:NO];
@@ -150,9 +159,21 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [NSGraphicsContext setCurrentContext:nsGraphicsContext];
 
     [NSGraphicsContext graphicsContextWithGraphicsPort:ctx flipped:NO];
+    CGFloat scalingFactor = 1.0/[self actualPaperRelatedToPaperOnPage];
     for (id <ASGraphicItem> g in [self.layoutController graphicsInLayout]) {
         CGRect f = g.frame;
+        CGAffineTransform at = CGAffineTransformMakeScale(scalingFactor, scalingFactor);
+        if (g.whiteBackground) {
+            [[NSColor whiteColor] set];
+            NSBezierPath *bezierPath = [NSBezierPath bezierPathWithRoundedRect:CGRectApplyAffineTransform(CGRectInset(f, -6.0, -6.0), at)
+                                                                       xRadius:FRAME_CORNER_RADIUS
+                                                                       yRadius:FRAME_CORNER_RADIUS];
+            [bezierPath fill];
+        }
+        f = CGRectApplyAffineTransform(f, at);
+        f = CGRectIntegral(f);
         [g.image drawInRect:f fromRect:NSZeroRect operation:NSCompositeCopy fraction:1.0];
+        
         if (self.selectedGraphic == g) {
             [[NSColor grayColor] set];
             NSBezierPath *bp = [NSBezierPath bezierPathWithRect:f];
@@ -170,6 +191,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         }
     }
     [NSGraphicsContext restoreGraphicsState];
+    CGContextRestoreGState(ctx);
 }
 
 - (void)drawPaperFrameInContext:(CGContextRef)ctx {

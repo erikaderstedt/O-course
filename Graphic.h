@@ -22,7 +22,8 @@
 @property (nonatomic, retain) id image;
 @property (nonatomic, retain) Layout *layout;
 @property (nonatomic) double scale;
-
+@property (nonatomic) BOOL whiteBackground;
 @property (nonatomic) CGPoint position;
+@property (nonatomic) CGRect frame;
 
 @end

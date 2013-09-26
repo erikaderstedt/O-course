@@ -21,6 +21,8 @@
 //	  The ASMapProvider
 // 2. Show control description
 
+// This list is unfortunately not complete.
+// State is also determined by 'resizingGraphic' and 'selectedGraphic'
 enum ASMapViewUIState {
     kASMapViewNormal,
     kASMapViewDraggingCourseObject,
@@ -29,6 +31,8 @@ enum ASMapViewUIState {
     kASMapViewAddFinish,
     kASMapViewLayout
 };
+
+
 
 @class ASLayoutController;
 @class ASControlDescriptionView;
@@ -57,6 +61,8 @@ enum ASMapViewUIState {
     CIFilter *_backgroundMapFilter;
     CALayer *_controlDescriptionLayer;
     CALayer *_decorLayer;
+    BOOL resizingGraphic;
+    enum ASCorner resizeCorner;
     
     CGColorRef _frameColor;
     CGFloat _printingScale;

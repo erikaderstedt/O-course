@@ -28,6 +28,7 @@
 - (void)frameColorChanged:(NSNotification *)notification;
 - (void)layoutFrameChanged:(NSNotification *)notification;
 - (void)decorChanged:(NSNotification *)notification;
+- (void)layoutWillChange:(NSNotification *)n;
 
 - (void)setupLayoutNotificationObserving;
 - (void)teardownLayoutNotificationObserving;
@@ -48,6 +49,8 @@
 - (CGFloat)cornerRadius;
 - (enum ASLayoutControlDescriptionLocation)location;
 - (BOOL)controlDescriptionVisible;
+
++ (NSArray *)cornersForRect:(NSRect)r;
 
 @end
 
