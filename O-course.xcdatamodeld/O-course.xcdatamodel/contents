@@ -51,7 +51,12 @@
         <attribute name="showEventDate" optional="YES" attributeType="Boolean" syncable="YES"/>
         <attribute name="showEventName" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
         <relationship name="graphics" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Graphic" inverseName="layout" inverseEntity="Graphic" syncable="YES"/>
+        <relationship name="maskedAreas" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="MaskedArea" inverseName="layout" inverseEntity="MaskedArea" syncable="YES"/>
         <relationship name="project" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Project" inverseName="layouts" inverseEntity="Project" indexed="YES" syncable="YES"/>
+    </entity>
+    <entity name="MaskedArea" representedClassName="MaskedArea" syncable="YES">
+        <attribute name="data" optional="YES" attributeType="Binary" syncable="YES"/>
+        <relationship name="layout" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Layout" inverseName="maskedAreas" inverseEntity="Layout" syncable="YES"/>
     </entity>
     <entity name="OverprintObject" representedClassName="OverprintObject" syncable="YES">
         <attribute name="added" attributeType="Date" syncable="YES"/>
@@ -91,5 +96,6 @@
         <element name="Layout" positionX="0" positionY="0" width="0" height="0"/>
         <element name="OverprintObject" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Project" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="MaskedArea" positionX="0" positionY="0" width="0" height="0"/>
     </elements>
 </model>

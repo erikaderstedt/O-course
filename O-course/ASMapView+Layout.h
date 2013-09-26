@@ -16,6 +16,7 @@
 - (CALayer *)printedMapLayer;
 - (void)adjustPrintedMapLayerForBounds;
 - (CIFilter *)backgroundMapFilter;
+- (void)drawMaskedAreasInContext:(CGContextRef)ctx;
 - (void)drawPaperFrameInContext:(CGContextRef)ctx;
 - (void)drawDecorInContext:(CGContextRef)ctx;
 - (CALayer *)controlDescriptionLayer;
@@ -29,6 +30,7 @@
 - (void)layoutFrameChanged:(NSNotification *)notification;
 - (void)decorChanged:(NSNotification *)notification;
 - (void)layoutWillChange:(NSNotification *)n;
+- (void)maskedAreasChanged:(NSNotification *)notification;
 
 - (void)setupLayoutNotificationObserving;
 - (void)teardownLayoutNotificationObserving;
@@ -49,6 +51,7 @@
 - (CGFloat)cornerRadius;
 - (enum ASLayoutControlDescriptionLocation)location;
 - (BOOL)controlDescriptionVisible;
+- (IBAction)addWhiteArea:(id)sender;
 
 + (NSArray *)cornersForRect:(NSRect)r;
 

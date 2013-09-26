@@ -7,6 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "ASMaskedAreaItem.h"
+#import "ASGraphicItem.h"
 
 @class ASScaleFormatter;
 @class Layout;
@@ -40,6 +42,7 @@ extern NSString *const ASLayoutDecorChanged;
 @property (strong) NSArray *manMade;
 @property (strong) NSArray *technical;
 @property (assign) BOOL recognizesSymbols;
+@property (nonatomic,retain) NSArray *maskedAreaVertices;
 
 - (void)willAppear;
 - (void)willDisappear;
@@ -60,6 +63,11 @@ extern NSString *const ASLayoutDecorChanged;
 - (Layout *)selectedLayout;
 - (void)addImage:(NSImage *)image atLocation:(CGPoint)p;
 - (NSArray *)graphicsInLayout;
+- (NSArray *)masksInLayout;
+- (id <ASMaskedAreaItem>)startNewMaskedAreaAt:(CGPoint)location;
+- (void)removeGraphicItem:(id <ASGraphicItem>)item;
+- (void)removeMaskedArea:(id <ASMaskedAreaItem>)item;
+- (void)cacheMaskedAreas;
 
 - (IBAction)duplicateLayout:(id)sender;
 

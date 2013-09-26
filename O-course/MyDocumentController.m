@@ -51,8 +51,10 @@
     
     NSManagedObjectContext *moc = [doc managedObjectContext];
     NSManagedObject *project = [NSEntityDescription insertNewObjectForEntityForName:@"Project" inManagedObjectContext:moc];
-    [project setValue:@"Vargarna" forKey:@"event"];
-    [project setValue:[NSDate date] forKey:@"date"];
+    [project setValue:NSLocalizedString(@"event name", nil) forKey:@"event"];
+    NSDateComponents *dc = [[NSDateComponents alloc] init];
+    [dc setDay:1];
+    [project setValue:[[NSCalendar currentCalendar] dateByAddingComponents:dc toDate:[NSDate date] options:0] forKey:@"date"];
     NSManagedObject *layout = [NSEntityDescription insertNewObjectForEntityForName:@"Layout" inManagedObjectContext:moc];
     [layout setValue:project forKey:@"project"];
     [layout setValue:NSLocalizedString(@"layout.name.default", nil) forKey:@"name"];

@@ -10,6 +10,7 @@
 #import "Layout.h"
 #import "Project.h"
 #import "Graphic.h"
+#import "MaskedArea.h"
 
 NSString *const ASLayoutWillChange = @"_ASLayoutWillChange";
 NSString *const ASLayoutChanged = @"_ASLayoutChanged";
@@ -76,13 +77,10 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if (context == (__bridge void *)(self)) {
         // Restock the table
-            [self.layoutsTable reloadData];
-            [self.visibleSymbolsTable reloadData];
-        [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutDecorChanged object:self];
-
-        /*if ([keyPath isEqualToString:@"arrangedObjects"]) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutChanged object:self.layouts.managedObjectContext];
-        } else*/ if ([keyPath isEqualToString:@"selection.scale"]) {
+        [self.layoutsTable reloadData];
+        [self.visibleSymbolsTable reloadData];
+        
+        if ([keyPath isEqualToString:@"selection.scale"]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutScaleChanged object:self];
         } else if ([keyPath isEqualToString:@"selection.paperType"]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutOrientationChanged object:self];
@@ -97,6 +95,9 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
             [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutFrameChanged object:self];
         } 
     } else if (object == self.layouts && [keyPath isEqualToString:@"selection"]) {
+        [self cacheMaskedAreas];
+        [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutDecorChanged object:self];
+
         [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutChanged object:self];
         [self.paperMatrix setNeedsDisplay:YES];
         [self.orientationMatrix setNeedsDisplay:YES];
@@ -301,6 +302,63 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
     Layout *layout = [self selectedLayout];
     
     return [[layout valueForKey:@"graphics"] allObjects];
+}
+
+- (NSArray *)masksInLayout {
+    Layout *layout = [self selectedLayout];
+    
+    return [[layout valueForKey:@"maskedAreas"] allObjects];
+}
+
+- (id <ASMaskedAreaItem>)startNewMaskedAreaAt:(CGPoint)location {
+    Layout *layout = [self selectedLayout];
+
+    MaskedArea *area = [NSEntityDescription insertNewObjectForEntityForName:@"MaskedArea" inManagedObjectContext:layout.managedObjectContext];
+    
+    area.layout = layout;
+    [area addVertex:location];
+    
+    [self cacheMaskedAreas];
+    return area;
+}
+
+- (void)cacheMaskedAreas {
+    NSArray *x = [self masksInLayout];
+    NSMutableArray *ma = [NSMutableArray arrayWithCapacity:[x count]];
+    for (MaskedArea *area in x) {
+        [ma addObject:[area vertices]];
+    }
+    self.maskedAreaVertices = ma;
+}
+
+- (void)removeGraphicItem:(id <ASGraphicItem>) item {
+    Layout *layout = [self selectedLayout];
+    Graphic *g = nil;
+    
+    for (Graphic *g2 in [layout valueForKey:@"graphics"]) {
+        if (g2 == item) {
+            g = g2;
+        }
+    }
+    if (g == nil) return;
+    g.layout = nil;
+    [g.managedObjectContext deleteObject:g];
+}
+
+- (void)removeMaskedArea:(id<ASMaskedAreaItem>)item {
+    Layout *layout = [self selectedLayout];
+    MaskedArea *g = nil;
+    
+    for (MaskedArea *g2 in [layout valueForKey:@"maskedAreas"]) {
+        if (g2 == item) {
+            g = g2;
+        }
+    }
+    if (g == nil) return;
+    g.layout = nil;
+    [g.managedObjectContext deleteObject:g];
+    
+    [self cacheMaskedAreas];
 }
 
 #pragma mark NSTableViewDataSource

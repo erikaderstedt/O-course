@@ -11,6 +11,7 @@
 #import "ASCourseObject.h"
 #import <QuartzCore/QuartzCore.h>
 #import "ASGraphicItem.h"
+#import "ASMaskedAreaItem.h"
 
 #define MAX_ZOOM 1.5
 #define GLASS_SIZE 180.0
@@ -32,6 +33,13 @@ enum ASMapViewUIState {
     kASMapViewLayout
 };
 
+enum ASLayoutModeSubState {
+    kASLayoutModeNormal,
+    kASLayoutModeResizingGraphic,
+    kASLayoutModeMovingGraphic,
+    kASLayoutModeAddingArea,
+    kASLayoutModeDraggingMap
+};
 
 
 @class ASLayoutController;
@@ -61,12 +69,10 @@ enum ASMapViewUIState {
     CIFilter *_backgroundMapFilter;
     CALayer *_controlDescriptionLayer;
     CALayer *_decorLayer;
-    BOOL resizingGraphic;
     enum ASCorner resizeCorner;
     
     CGColorRef _frameColor;
     CGFloat _printingScale;
-    BOOL draggingPaperMap;
     CGSize paperOffset;
     CGRect uninsetFrameForScrollMapLayer;
     
@@ -90,6 +96,7 @@ enum ASMapViewUIState {
 @property(weak) NSLayoutConstraint *theConstraint;
 @property(nonatomic,weak) IBOutlet NSView *controlDescriptionContainerView;
 @property(nonatomic,weak) IBOutlet ASControlDescriptionView *controlDescriptionView;
+@property (assign) enum ASLayoutModeSubState layoutState;
 
 @property (assign) BOOL changedLayoutPosition;
 @property(assign) BOOL frameVisible;
@@ -98,6 +105,8 @@ enum ASMapViewUIState {
 @property CGColorRef frameColor;
 @property (nonatomic,strong) NSString *eventDetails;
 @property (nonatomic,weak) id <ASGraphicItem> selectedGraphic;
+@property (nonatomic,weak) id <ASMaskedAreaItem> currentMaskedArea;
+@property (nonatomic,strong) NSMutableArray *currentMaskedAreaVertices;
 
 - (IBAction)revertToStandardMode:(id)sender;
 - (IBAction)goIntoAddControlsMode:(id)sender;

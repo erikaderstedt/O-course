@@ -342,6 +342,7 @@ out_error:
     [[NSNotificationCenter defaultCenter] postNotificationName:@"ASCourseChanged" object:self.managedObjectContext userInfo:nil];;
     [self.mapView.controlDescriptionView setNeedsDisplay:YES];
     [self.mapView decorChanged:nil];
+    [self.mapView maskedAreasChanged:nil];
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
@@ -599,6 +600,16 @@ out_error:
     [self.undoManager beginUndoGrouping];
 
     [self.eventInfoPopover showRelativeToRect:[[[n userInfo] valueForKey:@"rect"] rectValue] ofView:[[n userInfo] valueForKey:@"view"] preferredEdge:NSMaxXEdge];
+}
+
+- (BOOL)validateUserInterfaceItem:(id < NSValidatedUserInterfaceItem >)anItem {
+    if ([anItem action] == @selector(addWhiteArea:)) {
+        return self.mapView.state == kASMapViewLayout;
+    }
+    if ([anItem action] == @selector(goIntoAddControlsMode:) || [anItem action] == @selector(goIntoAddFinishMode:) || [anItem action] == @selector(goIntoAddStartMode:)) {
+        return  self.mapView.state != kASMapViewLayout;
+    }
+    return [super validateUserInterfaceItem:anItem];
 }
 
 

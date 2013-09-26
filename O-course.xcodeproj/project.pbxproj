@@ -68,6 +68,9 @@
 		03CE92A3142E6C06003EBECD /* MyDocumentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03CE92A2142E6C06003EBECD /* MyDocumentController.m */; };
 		03D6D19B17F382230082CB9F /* O-course.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 03D6D19917F382230082CB9F /* O-course.xcdatamodeld */; };
 		03D6D19C17F384530082CB9F /* O-course.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 03D6D19917F382230082CB9F /* O-course.xcdatamodeld */; };
+		03D97B0D17F47F740080C7B4 /* WhiteArea.png in Resources */ = {isa = PBXBuildFile; fileRef = 03D97B0C17F47F740080C7B4 /* WhiteArea.png */; };
+		03D97B0F17F481940080C7B4 /* ForbiddenArea.png in Resources */ = {isa = PBXBuildFile; fileRef = 03D97B0E17F481940080C7B4 /* ForbiddenArea.png */; };
+		03D97B1317F4C4A50080C7B4 /* MaskedArea.m in Sources */ = {isa = PBXBuildFile; fileRef = 03D97B1217F4C4A50080C7B4 /* MaskedArea.m */; };
 		03EEB2A0147194A300BD9E0F /* ASOverprintController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03EEB29F147194A300BD9E0F /* ASOverprintController.m */; };
 		03EEB2A61471C0D100BD9E0F /* ASControlDescriptionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 03EEB2A51471C0D100BD9E0F /* ASControlDescriptionView.m */; };
 		03EEB2A9147427F500BD9E0F /* ASCourseController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03EEB2A8147427F400BD9E0F /* ASCourseController.m */; };
@@ -189,6 +192,11 @@
 		03CE92A1142E6C06003EBECD /* MyDocumentController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyDocumentController.h; sourceTree = "<group>"; };
 		03CE92A2142E6C06003EBECD /* MyDocumentController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyDocumentController.m; sourceTree = "<group>"; };
 		03D6D19A17F382230082CB9F /* O-course.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "O-course.xcdatamodel"; sourceTree = "<group>"; };
+		03D97B0C17F47F740080C7B4 /* WhiteArea.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = WhiteArea.png; sourceTree = "<group>"; };
+		03D97B0E17F481940080C7B4 /* ForbiddenArea.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ForbiddenArea.png; sourceTree = "<group>"; };
+		03D97B1017F4C38E0080C7B4 /* ASMaskedAreaItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ASMaskedAreaItem.h; sourceTree = "<group>"; };
+		03D97B1117F4C4A50080C7B4 /* MaskedArea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaskedArea.h; sourceTree = "<group>"; };
+		03D97B1217F4C4A50080C7B4 /* MaskedArea.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MaskedArea.m; sourceTree = "<group>"; };
 		03EEB29E147194A300BD9E0F /* ASOverprintController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASOverprintController.h; sourceTree = "<group>"; };
 		03EEB29F147194A300BD9E0F /* ASOverprintController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASOverprintController.m; sourceTree = "<group>"; };
 		03EEB2A2147194DB00BD9E0F /* ASControlDescriptionProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASControlDescriptionProvider.h; sourceTree = "<group>"; };
@@ -374,6 +382,8 @@
 				032001D212FE9EF900707BA5 /* ASOcourseDocument.xib */,
 				03B86EA817653A2E00C4A358 /* Finish.png */,
 				032001D512FE9EF900707BA5 /* MainMenu.xib */,
+				03D97B0C17F47F740080C7B4 /* WhiteArea.png */,
+				03D97B0E17F481940080C7B4 /* ForbiddenArea.png */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -417,6 +427,7 @@
 				03EEB2A314719D2C00BD9E0F /* ASCourseObject.h */,
 				03EEB2A2147194DB00BD9E0F /* ASControlDescriptionProvider.h */,
 				0306AC9D17F42D6A0081FC2E /* ASGraphicItem.h */,
+				03D97B1017F4C38E0080C7B4 /* ASMaskedAreaItem.h */,
 			);
 			name = Protocols;
 			path = ..;
@@ -438,6 +449,8 @@
 				037A4446175F3CD900FFABBD /* Course.h */,
 				037A4447175F3CD900FFABBD /* Course.m */,
 				03D6D19917F382230082CB9F /* O-course.xcdatamodeld */,
+				03D97B1117F4C4A50080C7B4 /* MaskedArea.h */,
+				03D97B1217F4C4A50080C7B4 /* MaskedArea.m */,
 				0306AC9A17F416F50081FC2E /* Graphic.h */,
 				0306AC9B17F416F50081FC2E /* Graphic.m */,
 			);
@@ -537,7 +550,9 @@
 				032001CE12FE9EF900707BA5 /* Credits.rtf in Resources */,
 				032001D412FE9EF900707BA5 /* ASOcourseDocument.xib in Resources */,
 				032001D712FE9EF900707BA5 /* MainMenu.xib in Resources */,
+				03D97B0D17F47F740080C7B4 /* WhiteArea.png in Resources */,
 				03FA63AA1570125300EF4ACF /* linen_texture.jpg in Resources */,
+				03D97B0F17F481940080C7B4 /* ForbiddenArea.png in Resources */,
 				03B86EA21763AD0200C4A358 /* Localizable.strings in Resources */,
 				03B86EA71765376000C4A358 /* Control.png in Resources */,
 				03B86EA917653A2E00C4A358 /* Finish.png in Resources */,
@@ -586,6 +601,7 @@
 				03F2C76B142C72600053A47F /* Project.m in Sources */,
 				03CE92A3142E6C06003EBECD /* MyDocumentController.m in Sources */,
 				03B90D3B14330A530033216D /* CoordinateTransverser.m in Sources */,
+				03D97B1317F4C4A50080C7B4 /* MaskedArea.m in Sources */,
 				033DA8B2144EFFC600C787F8 /* ASGenericImageController.m in Sources */,
 				0306AC9617F2DCAB0081FC2E /* BackgroundMap.m in Sources */,
 				03EEB2A0147194A300BD9E0F /* ASOverprintController.m in Sources */,

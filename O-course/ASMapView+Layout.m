@@ -16,6 +16,7 @@
 #define FRAME_WIDTH 6.0
 #define USER_POINTS_TO_MM(x) ((x)*25.4/72)
 #define MM_TO_USER_POINTS(x) ((x)*72./25.4)
+#define HANDLE_SIZE 50.0
 
 CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 {
@@ -87,7 +88,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         _innerOverprintLayer.bounds = _innerMapLayer.bounds;
         _innerOverprintLayer.anchorPoint = _innerMapLayer.anchorPoint;
         _innerOverprintLayer.position = _innerMapLayer.position;
-        _innerOverprintLayer.delegate = [self.overprintProvider layoutProxy];
+        _innerOverprintLayer.delegate = self;
 
         _decorLayer = [CALayer layer];
         _decorLayer.delegate = self;
@@ -129,6 +130,52 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     return _controlDescriptionLayer;
 }
 
+- (void)drawMaskedAreasInContext:(CGContextRef)ctx {
+    CGContextSaveGState(ctx);
+    CGContextSetFillColorWithColor(ctx, _printedMapLayer.backgroundColor);
+    for (NSArray *vertexList in [self.layoutController maskedAreaVertices]) {
+        CGContextBeginPath(ctx);
+        for (NSValue *v in vertexList) {
+            CGPoint p = [v pointValue];
+            if (CGContextIsPathEmpty(ctx)) {
+                CGContextMoveToPoint(ctx, p.x, p.y);
+            } else {
+                CGContextAddLineToPoint(ctx, p.x, p.y);
+            }
+        }
+        CGContextFillPath(ctx);
+    }
+    
+    if (self.currentMaskedAreaVertices) {
+        CGMutablePathRef base = CGPathCreateMutable();
+        CGMutablePathRef corners = CGPathCreateMutable();
+        for (NSValue *v in self.currentMaskedAreaVertices) {
+            NSPoint p = [v pointValue];
+            if (CGPathIsEmpty(base)) {
+                CGPathMoveToPoint(base, NULL, p.x, p.y);
+            } else {
+                CGPathAddLineToPoint(base, NULL, p.x, p.y);
+            }
+            CGPathAddRect(corners, NULL, CGRectMake(p.x-HANDLE_SIZE, p.y-HANDLE_SIZE, 2.0*HANDLE_SIZE, 2.0*HANDLE_SIZE));
+        }
+        CGContextBeginPath(ctx);
+        CGContextAddPath(ctx, base);
+        CGContextFillPath(ctx);
+        
+        CGContextSetStrokeColorWithColor(ctx, [[NSColor grayColor] CGColor]);
+        CGFloat dashes[2]; dashes[0] = HANDLE_SIZE; dashes[1] = 0.6*HANDLE_SIZE;
+        CGContextSetLineDash(ctx, 0.0, dashes, 2);
+        CGContextStrokePath(ctx);
+        
+        CGContextSetFillColorWithColor(ctx, [[NSColor darkGrayColor] CGColor]);
+        CGContextBeginPath(ctx);
+        CGContextAddPath(ctx, corners);
+        CGContextFillPath(ctx);
+    }
+    
+    CGContextRestoreGState(ctx);
+}
+
 + (NSArray *)cornersForRect:(NSRect)r {
 	return @[
              [NSValue valueWithPoint:NSMakePoint(NSMinX(r), NSMinY(r))],
@@ -146,7 +193,8 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     NSAssert([NSThread isMainThread], @"Drawing paper frame in a background thread!");
 
     CGContextSaveGState(ctx);
-    CGPathRef path = CGPathCreateRoundRect(CGRectIntegral([_printedMapScrollLayer frame]), _printedMapScrollLayer.cornerRadius);
+    CGFloat inset = [self recommendedFrameInsetForBounds:_printedMapLayer.bounds];
+    CGPathRef path = CGPathCreateRoundRect(CGRectIntegral(CGRectInset([_printedMapScrollLayer frame], -inset*0.5, -inset*0.5)), _printedMapScrollLayer.cornerRadius*0.5);
     CGContextBeginPath(ctx);
     CGContextAddPath(ctx, path);
     CGContextClip(ctx);
@@ -174,7 +222,11 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         f = CGRectIntegral(f);
         [g.image drawInRect:f fromRect:NSZeroRect operation:NSCompositeCopy fraction:1.0];
         
-        if (self.selectedGraphic == g) {
+        if (self.selectedGraphic == g && (
+                                          self.layoutState == kASLayoutModeNormal ||
+                                          self.layoutState == kASLayoutModeMovingGraphic ||
+                                          self.layoutState == kASLayoutModeResizingGraphic ||
+                                          self.layoutState == kASLayoutModeDraggingMap)) {
             [[NSColor grayColor] set];
             NSBezierPath *bp = [NSBezierPath bezierPathWithRect:f];
             CGFloat dashes[2]; dashes[0] = 5.0; dashes[1] = 3.0;
@@ -303,7 +355,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         r.origin.x += leftMargin;
         r.origin.y += bottomMargin;
     }
-    CGFloat inset = [self recommendedFrameInsetForBounds:r];
+    CGFloat inset = [self recommendedFrameInsetForBounds:_printedMapLayer.bounds];
     uninsetFrameForScrollMapLayer = r;
     if (self.frameColor != NULL) {
         r = CGRectInset(uninsetFrameForScrollMapLayer, inset, inset);
@@ -663,6 +715,11 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     [_decorLayer setNeedsDisplay];
 }
 
+- (void)maskedAreasChanged:(NSNotification *)notification {
+    [self.layoutController cacheMaskedAreas];
+    [_innerOverprintLayer setNeedsDisplayInRect:[_innerOverprintLayer bounds]];
+}
+
 - (void)setupLayoutNotificationObserving {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(visibleSymbolsChanged:) name:ASLayoutVisibleItemsChanged object:self.layoutController];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutFrameChanged:) name:ASLayoutFrameChanged object:self.layoutController];
@@ -707,6 +764,34 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 
 - (void)courseChanged:(NSNotification *)n {
     [self adjustControlDescription];
+}
+
+- (void)resetCursorRects {
+    if (self.state == kASMapViewLayout && self.layoutState == kASLayoutModeAddingArea) {
+        [self addCursorRect:[self bounds] cursor:[NSCursor crosshairCursor]];
+    } else if (self.selectedGraphic) {
+        for (NSValue *cornerCenterValue in [[self class] cornersForRect:self.selectedGraphic.frame]) {
+            NSPoint cornerCenter = [cornerCenterValue pointValue];
+            // Convert this point to view coordinates.
+            CGFloat f = [self actualPaperRelatedToPaperOnPage];
+            cornerCenter.x /= f;
+            cornerCenter.y /= f;
+            cornerCenter = [[self layer] convertPoint:cornerCenter fromLayer:[self printedMapLayer]];
+            NSRect r = NSMakeRect(cornerCenter.x-3.0, cornerCenter.y-3.0, 6.0, 6.0);
+            
+            [self addCursorRect:r cursor:[NSCursor openHandCursor]];
+        }
+    }
+}
+
+- (IBAction)addWhiteArea:(id)sender {
+    if (self.state != kASMapViewLayout) return;
+
+    self.layoutState = kASLayoutModeAddingArea;
+    self.selectedGraphic = nil;
+    [_decorLayer setNeedsDisplay];
+    [self resetCursorRects];
+    [self updateTrackingAreas];
 }
 
 @end
