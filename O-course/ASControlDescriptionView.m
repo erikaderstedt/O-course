@@ -42,6 +42,13 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"ASOverprintChanged" object:nil];
 }
 
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    
+    [[self enclosingScrollView] setPostsFrameChangedNotifications:YES];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(courseChanged:) name:NSViewFrameDidChangeNotification object:[self enclosingScrollView]];
+}
+
 - (void)setup {
     
     NSMutableParagraphStyle *mps = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
@@ -76,6 +83,11 @@
     if ([self frame].size.height > x) {
         NSRect r = [self frame];
         r.size.height = x;
+        [self setFrame:r];
+    }
+    if ([self frame].size.height < enc) {
+        NSRect r = [self frame];
+        r.size.height = enc;
         [self setFrame:r];
     }
 }
