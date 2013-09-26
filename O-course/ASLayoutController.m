@@ -9,6 +9,7 @@
 #import "ASLayoutController.h"
 #import "Layout.h"
 #import "Project.h"
+#import "Graphic.h"
 
 NSString *const ASLayoutWillChange = @"_ASLayoutWillChange";
 NSString *const ASLayoutChanged = @"_ASLayoutChanged";
@@ -71,22 +72,14 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
     self.manMade = nil;
     self.technical = nil;
 }
-/*
-- (void)awakeFromNib {
-    if ([super respondsToSelector:@selector(awakeFromNib)]) [super awakeFromNib];
-    
-    NSView *v1 = [self.layoutsTable enclosingScrollView];
-    NSView *v2 = [self.visibleSymbolsTable enclosingScrollView];
-    NSView *v3 = [v1 superview];
-    
-    [v3 addConstraint:[NSLayoutConstraint constraintWithItem:v1 attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:v2 attribute:NSLayoutAttributeHeight multiplier:0.35 constant:0.0]];
-}
-*/
+
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if (context == (__bridge void *)(self)) {
         // Restock the table
             [self.layoutsTable reloadData];
             [self.visibleSymbolsTable reloadData];
+        [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutDecorChanged object:self];
+
         /*if ([keyPath isEqualToString:@"arrangedObjects"]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutChanged object:self.layouts.managedObjectContext];
         } else*/ if ([keyPath isEqualToString:@"selection.scale"]) {
@@ -102,9 +95,7 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
                    [keyPath isEqualToString:@"selection.controlDescriptionPlacement"] ||
                    [keyPath isEqualToString:@"selection.showControlDescription"]) {
             [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutFrameChanged object:self];
-        } else if (0) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutDecorChanged object:self];
-        }
+        } 
     } else if (object == self.layouts && [keyPath isEqualToString:@"selection"]) {
         [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutChanged object:self];
         [self.paperMatrix setNeedsDisplay:YES];
@@ -293,6 +284,23 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
     }
     
     return [[selectedLayout valueForKey:@"printClassNameOnBack"] boolValue];
+}
+
+- (void)addImage:(NSImage *)image atLocation:(CGPoint)p {
+    Layout *layout = [self selectedLayout];
+    Graphic *g = [NSEntityDescription insertNewObjectForEntityForName:@"Graphic" inManagedObjectContext:layout.managedObjectContext];
+    g.layout = layout;
+    g.image = image;
+    
+    // Convert the po
+    g.position = p;
+    [[NSNotificationCenter defaultCenter] postNotificationName:ASLayoutDecorChanged object:self];
+}
+
+- (NSArray *)graphicsInLayout {
+    Layout *layout = [self selectedLayout];
+    
+    return [[layout valueForKey:@"graphics"] allObjects];
 }
 
 #pragma mark NSTableViewDataSource

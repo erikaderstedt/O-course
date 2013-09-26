@@ -10,6 +10,7 @@
 #import "ASControlDescriptionView.h"
 #import "ASLayoutController.h"
 #import "ASMapView+Layout.h"
+#import "ASMapView+Dragging.h"
 #import "Layout.h"
 
 #define SIGN_OF(x) ((x > 0.0)?1.0:-1.0)
@@ -91,6 +92,8 @@
     [[self enclosingScrollView] setBackgroundColor:[NSColor whiteColor]];
     
     [self setupTiledLayer];
+    
+    [self registerForDraggedTypes:[self draggingTypes]];
 }
 
 - (BOOL)acceptsFirstMouse:(NSEvent *)theEvent {
@@ -447,6 +450,9 @@
 - (void)mouseDown:(NSEvent *)theEvent {
     if (self.state == kASMapViewLayout) {
         NSPoint eventLocationInView = [[[self window] contentView] convertPoint:[theEvent locationInWindow] fromView:nil];
+        
+        // First check if we're inside a graphic.
+        
         if (CGRectContainsPoint([[self printedMapLayer] frame],eventLocationInView)) {
             draggingPaperMap = YES;
             return;
@@ -698,6 +704,8 @@
         }
     } else if (layer == _controlDescriptionLayer) {
         [self.controlDescriptionView drawControlDescriptionInLayer:_controlDescriptionLayer inContext:ctx];
+    } else if ([layer.name isEqualToString:@"decor"]) {
+        [self drawDecorInContext:ctx];
     }
 }
 

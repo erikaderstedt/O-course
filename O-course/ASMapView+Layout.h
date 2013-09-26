@@ -17,6 +17,7 @@
 - (void)adjustPrintedMapLayerForBounds;
 - (CIFilter *)backgroundMapFilter;
 - (void)drawPaperFrameInContext:(CGContextRef)ctx;
+- (void)drawDecorInContext:(CGContextRef)ctx;
 - (CALayer *)controlDescriptionLayer;
 
 - (void)dragPaperMapBasedOnEvent:(NSEvent *)event;

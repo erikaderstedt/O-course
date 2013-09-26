@@ -9,6 +9,7 @@
 #import "ASMapView+Layout.h"
 #import "ASLayoutController.h"
 #import "ASControlDescriptionView.h"
+#import "Graphic.h"
 
 #define DEFAULT_PRINTING_SCALE 10000.0
 #define FRAME_CORNER_RADIUS 12.0
@@ -57,6 +58,7 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         _printedMapLayer.name = @"paper";
         _printedMapLayer.delegate = self;
         _printedMapLayer.anchorPoint = CGPointMake(0.5,0.5);
+        _printedMapLayer.layoutManager = [CAConstraintLayoutManager layoutManager];
         
         _printedMapScrollLayer = [CAScrollLayer layer];
         _printedMapScrollLayer.anchorPoint = CGPointMake(0.5,0.5);
@@ -87,6 +89,19 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
         _innerOverprintLayer.position = _innerMapLayer.position;
         _innerOverprintLayer.delegate = [self.overprintProvider layoutProxy];
 
+        _decorLayer = [CALayer layer];
+        _decorLayer.delegate = self;
+        _decorLayer.name = @"decor";
+        _decorLayer.zPosition = 1.0;
+        _decorLayer.needsDisplayOnBoundsChange = YES;
+        [_printedMapLayer addSublayer:_decorLayer];
+        [_decorLayer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMinX relativeTo:@"superlayer" attribute:kCAConstraintMinX]];
+        [_decorLayer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMinY relativeTo:@"superlayer" attribute:kCAConstraintMinY]];
+        [_decorLayer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMaxX relativeTo:@"superlayer" attribute:kCAConstraintMaxX]];
+        [_decorLayer addConstraint:[CAConstraint constraintWithAttribute:kCAConstraintMaxY relativeTo:@"superlayer" attribute:kCAConstraintMaxY]];
+        
+        [_printedMapLayer setNeedsLayout];
+        
         /*
          CIFilter *mulBlend = [CIFilter filterWithName:@"CIMultiplyCompositing"];
          _innerOverprintLayer.compositingFilter = mulBlend;
@@ -114,10 +129,53 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
     return _controlDescriptionLayer;
 }
 
++ (NSArray *)cornersForRect:(NSRect)r {
+	return @[[NSValue valueWithPoint:NSMakePoint(NSMaxX(r), NSMidY(r))],
+			[NSValue valueWithPoint:NSMakePoint(NSMaxX(r), NSMinY(r))],
+			[NSValue valueWithPoint:NSMakePoint(NSMaxX(r), NSMaxY(r))],
+			[NSValue valueWithPoint:NSMakePoint(NSMinX(r), NSMidY(r))],
+			[NSValue valueWithPoint:NSMakePoint(NSMinX(r), NSMinY(r))],
+			[NSValue valueWithPoint:NSMakePoint(NSMinX(r), NSMaxY(r))],
+			[NSValue valueWithPoint:NSMakePoint(NSMidX(r), NSMaxY(r))],
+			[NSValue valueWithPoint:NSMakePoint(NSMidX(r), NSMinY(r))]];
+}
+
+- (void)drawDecorInContext:(CGContextRef)ctx {
+    // Drawing is from the main thread. This means that it's safe to fetch graphic objects using Core Data.
+    NSAssert([NSThread isMainThread], @"Drawing paper frame in a background thread!");
+    NSGraphicsContext *nsGraphicsContext;
+    nsGraphicsContext = [NSGraphicsContext graphicsContextWithGraphicsPort:ctx
+                                                                   flipped:NO];
+    [NSGraphicsContext saveGraphicsState];
+    [NSGraphicsContext setCurrentContext:nsGraphicsContext];
+
+    [NSGraphicsContext graphicsContextWithGraphicsPort:ctx flipped:NO];
+    for (id <ASGraphicItem> g in [self.layoutController graphicsInLayout]) {
+        CGRect f = g.frame;
+        [g.image drawInRect:f fromRect:NSZeroRect operation:NSCompositeCopy fraction:1.0];
+        if (self.selectedGraphic == g) {
+            [[NSColor grayColor] set];
+            NSBezierPath *bp = [NSBezierPath bezierPathWithRect:f];
+            CGFloat dashes[2]; dashes[0] = 5.0; dashes[1] = 3.0;
+            [bp setLineDash:dashes count:2 phase:0.0];
+            [bp stroke];
+            
+            // Draw rects
+            [[NSColor darkGrayColor] set];
+            for (NSValue *corner in [[self class] cornersForRect:f]) {
+                NSPoint p = [corner pointValue];
+                NSRect crect = NSMakeRect(p.x-3.0, p.y-3.0, 6.0, 6.0);
+                [NSBezierPath fillRect:crect];
+            }
+        }
+    }
+    [NSGraphicsContext restoreGraphicsState];
+}
+
 - (void)drawPaperFrameInContext:(CGContextRef)ctx {
     NSAssert(self.frameVisible, @"Shouldn't be drawing the frame");
     CGRect r = uninsetFrameForScrollMapLayer;
-
+    
     CGContextBeginPath(ctx);
     if (self.eventDetails != nil) {
         CGMutablePathRef p;
@@ -577,7 +635,10 @@ CGPathRef CGPathCreateRoundRect( const CGRect r, const CGFloat cornerRadius )
 }
 
 - (void)decorChanged:(NSNotification *)notification {
-    NSLog(@"decor");
+    if (_decorLayer == nil) {
+        [[self printedMapLayer] setNeedsDisplay];
+    }
+    [_decorLayer setNeedsDisplay];
 }
 
 - (void)setupLayoutNotificationObserving {

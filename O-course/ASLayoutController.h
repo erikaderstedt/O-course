@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @class ASScaleFormatter;
+@class Layout;
 
 extern NSString *const ASLayoutWillChange;
 extern NSString *const ASLayoutChanged;
@@ -56,6 +57,9 @@ extern NSString *const ASLayoutDecorChanged;
 - (enum ASLayoutControlDescriptionLocation)controlDescriptionLocation;
 - (BOOL)showControlDescription;
 - (BOOL)printClassNameOnBack;
+- (Layout *)selectedLayout;
+- (void)addImage:(NSImage *)image atLocation:(CGPoint)p;
+- (NSArray *)graphicsInLayout;
 
 - (IBAction)duplicateLayout:(id)sender;
 

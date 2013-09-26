@@ -10,6 +10,7 @@
 #import "ASMapProvider.h"
 #import "ASCourseObject.h"
 #import <QuartzCore/QuartzCore.h>
+#import "ASGraphicItem.h"
 
 #define MAX_ZOOM 1.5
 #define GLASS_SIZE 180.0
@@ -55,6 +56,7 @@ enum ASMapViewUIState {
     CALayer *_printedMapLayer;
     CIFilter *_backgroundMapFilter;
     CALayer *_controlDescriptionLayer;
+    CALayer *_decorLayer;
     
     CGColorRef _frameColor;
     CGFloat _printingScale;
@@ -89,6 +91,7 @@ enum ASMapViewUIState {
 @property(assign) NSPrintingOrientation orientation;
 @property CGColorRef frameColor;
 @property (nonatomic,strong) NSString *eventDetails;
+@property (nonatomic,weak) id <ASGraphicItem> selectedGraphic;
 
 - (IBAction)revertToStandardMode:(id)sender;
 - (IBAction)goIntoAddControlsMode:(id)sender;
