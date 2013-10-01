@@ -122,6 +122,16 @@ int i;
     for (i = 0; i < ocdf->num_strings; i++) {
         if (ocdf->string_rec_types[i] != 8) continue;
         NSArray *a = [[NSString stringWithCString:ocdf->strings[i] encoding:NSISOLatin1StringEncoding] componentsSeparatedByString:@"\t"];
+        
+        // Check that the file is visible.
+        BOOL notVisible = NO;
+        for (NSString *comp in a) {
+            if ([[comp lowercaseString] isEqualToString:@"s0"]) {
+                notVisible = YES;
+            }
+        }
+        if (notVisible) continue;
+        
         __block NSString *backgroundFileName = a[0];
         if ([backgroundFileName rangeOfString:@"\\"].location != NSNotFound) {
             backgroundFileName = [[backgroundFileName componentsSeparatedByString:@"\\"] lastObject];
