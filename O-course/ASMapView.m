@@ -128,6 +128,7 @@
 
 - (void)setupTiledLayer {
     if (tiledLayer == nil) {
+        self.layerUsesCoreImageFilters = YES;
         
         tiledLayer = [CATiledLayer layer];
         tiledLayer.name = @"tiled";

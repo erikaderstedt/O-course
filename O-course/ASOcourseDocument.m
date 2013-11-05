@@ -391,10 +391,11 @@ out_error:
 	//
 	// Add a persistent store at that URL to our store coordinator
 	//
+    NSDictionary *options = @{ NSSQLitePragmasOption : @{@"journal_mode" : @"DELETE"} };
 	NSPersistentStore *addedPS = [[self persistentStoreCoordinator] addPersistentStoreWithType:NSSQLiteStoreType
                                                                                  configuration:nil
                                                                                            URL:tempURL
-                                                                                       options:nil
+                                                                                       options:options
                                                                                          error:outError];
 	BOOL success = (addedPS != nil);
 
@@ -479,10 +480,12 @@ out_error:
                 return NO;
             }
         }
+        
+        NSDictionary *options = @{ NSSQLitePragmasOption : @{@"journal_mode" : @"DELETE"} };
 		if ([[self persistentStoreCoordinator] addPersistentStoreWithType:NSSQLiteStoreType
 															configuration:nil
 																	  URL:tempStore
-																  options:nil
+																  options:options
 																	error:outError] == nil) {
 			return NO;
 		}
