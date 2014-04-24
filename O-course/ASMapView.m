@@ -745,8 +745,12 @@
     
     NSRect r = NSMakeRect(0.0, 0.0, mapBounds.size.width*z2, mapBounds.size.height*z2);
     if (r.size.width == 0.0 || r.size.height == 0.0) r.size = NSMakeSize(1.0, 1.0);
-	[self setFrame:r];
-	f = [self frame];
+    f = [self frame];
+    if (round(f.size.width) != round(r.size.width) ||
+        round(f.size.height) != round(r.size.height)) {
+        [self setFrame:r];
+        f = r;
+    }
 	
 	tiledLayer.transform = CATransform3DMakeScale(z2, z2, 1.0);
 	midpointAfter = [tiledLayer convertPoint:pointInMapCoordinates toLayer:[self layer]];
