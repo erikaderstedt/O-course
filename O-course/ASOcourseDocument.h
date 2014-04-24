@@ -15,13 +15,9 @@
 @class ASCourseController;
 @class BackgroundMap;
 
-@interface ASOcourseDocument : NSDocument <ASBackgroundImageLoaderDelegate> {
+@interface ASOcourseDocument : NSPersistentDocument <ASBackgroundImageLoaderDelegate> {
 @private
     NSObjectController *__weak projectController;
-    
-    NSPersistentStoreCoordinator *_psc;
-	NSManagedObjectContext *_context;
-	NSManagedObjectModel *_model;
     
     dispatch_semaphore_t loader;
     dispatch_queue_t queue;
@@ -36,8 +32,6 @@
 
 - (IBAction)changeEventInfoOK:(id)sender;
 - (IBAction)changeEventInfoCancel:(id)sender;
-
-- (NSManagedObjectContext *)managedObjectContext;
 
 - (Project *)project;
 - (IBAction)chooseBackgroundMap:(id)sender;
