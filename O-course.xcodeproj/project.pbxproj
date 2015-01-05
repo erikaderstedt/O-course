@@ -45,7 +45,7 @@
 		03A3528713B32B060028D87C /* ocdimport.c in Sources */ = {isa = PBXBuildFile; fileRef = 032001E012FE9F1000707BA5 /* ocdimport.c */; };
 		03A3528813B331350028D87C /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 033D6817134AF79C00502CA8 /* QuartzCore.framework */; };
 		03A3528913B331450028D87C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 032001C212FE9EF900707BA5 /* Foundation.framework */; };
-		03A3529313B33AD80028D87C /* OCAD map preview.qlgenerator in CopyFiles */ = {isa = PBXBuildFile; fileRef = 03A3526A13B31C5D0028D87C /* OCAD map preview.qlgenerator */; };
+		03A3529313B33AD80028D87C /* OCAD map preview.qlgenerator in CopyFiles */ = {isa = PBXBuildFile; fileRef = 03A3526A13B31C5D0028D87C /* OCAD map preview.qlgenerator */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		03A5113F13B7AE6000469BCF /* ASOCADController_Text.h in Headers */ = {isa = PBXBuildFile; fileRef = 03A5113D13B7AE5F00469BCF /* ASOCADController_Text.h */; };
 		03A5114013B7AE6000469BCF /* ASOCADController_Text.m in Sources */ = {isa = PBXBuildFile; fileRef = 03A5113E13B7AE6000469BCF /* ASOCADController_Text.m */; };
 		03A5114113B7AE6000469BCF /* ASOCADController_Text.m in Sources */ = {isa = PBXBuildFile; fileRef = 03A5113E13B7AE6000469BCF /* ASOCADController_Text.m */; };
@@ -519,7 +519,7 @@
 		032001B012FE9EF900707BA5 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 0610;
 				ORGANIZATIONNAME = "Aderstedt Software AB";
 				TargetAttributes = {
 					032001B812FE9EF900707BA5 = {
@@ -721,7 +721,9 @@
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
@@ -746,7 +748,9 @@
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
