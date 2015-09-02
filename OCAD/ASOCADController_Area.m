@@ -65,8 +65,8 @@
         }
     }
 
-    if (area->structure_mode != 0) {
-        [result addObject:@{@"fillColor": structureColors[[NSNumber numberWithInt:area->symnum]], 
+    if (area->structure_mode != 0 && area->hatch_mode == 0) {
+        [result addObject:@{@"fillColor": structureColors[[NSNumber numberWithInt:area->symnum]],
                            @"fillMode": @(kCGPathEOFill),
                            @"colornum": [NSNumber numberWithInt:((struct ocad_symbol_element *)area->coords)->color],
                            (id)@"path": (__bridge id)p, @"element": [NSValue valueWithPointer:e],
