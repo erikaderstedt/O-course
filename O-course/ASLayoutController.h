@@ -52,6 +52,7 @@ extern NSString *const ASLayoutDecorChanged;
 - (NSInteger)scale;
 - (NSPrintingOrientation)orientation;
 - (NSSize)paperSize;
+- (NSString *)paperName;
 - (CGColorRef)frameColor;
 - (BOOL)frameVisible;
 - (CGPoint)layoutCenterPosition;

@@ -213,6 +213,14 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
     return [selectedLayout paperSize];
 }
 
+- (NSString *)paperName {
+	Layout *selectedLayout = [self selectedLayout];
+	if (selectedLayout == nil) return @"A4";
+	
+	return [selectedLayout paperName];
+	
+}
+
 - (CGColorRef)frameColor {
     Layout *selectedLayout = [self selectedLayout];
     if (selectedLayout == nil) return NULL;
@@ -306,8 +314,8 @@ NSString *const ASLayoutDecorChanged = @"_ASLayoutDecorChanged";
 
 - (NSArray *)masksInLayout {
     Layout *layout = [self selectedLayout];
-    
-    return [[layout valueForKey:@"maskedAreas"] allObjects];
+	return @[];
+//    return [[layout valueForKey:@"maskedAreas"] allObjects];
 }
 
 - (id <ASMaskedAreaItem>)startNewMaskedAreaAt:(CGPoint)location {

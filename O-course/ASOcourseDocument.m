@@ -23,6 +23,7 @@
 #import "ASControlDescriptionView.h"
 #import "MyDocumentController.h"
 #import "ASControlDescriptionProvider.h"
+#import "ASLayoutController.h"
 
 @implementation ASOcourseDocument
 
@@ -320,6 +321,7 @@
         if ([self.courseController specificCourseSelected]) {
             jobTitle = [jobTitle stringByAppendingFormat:@" %@", [self.courseController classNames]];
         }
+
         size_t numberOfHiddenSymbols;
         const int32_t *hiddenSymbols = [[self.mapView.mapProvider layoutProxy] hiddenSymbolNumbers:&numberOfHiddenSymbols];
         [[pv.mapProvider layoutProxy] setHiddenSymbolNumbers:hiddenSymbols count:numberOfHiddenSymbols];
@@ -327,21 +329,21 @@
         [pi setBottomMargin:0.0];
         [pi setLeftMargin:0.0];
         [pi setRightMargin:0.0];
-        [pi setOrientation:self.mapView.orientation];
-        [pi setPaperSize:[pv rectForPage:1].size];
+        [pi setOrientation:(NSPaperOrientation)self.mapView.orientation];
+		pi.paperName = self.mapView.layoutController.paperName;
         [pi setHorizontalPagination:NSClipPagination];
         [pi setVerticalPagination:NSClipPagination];
         [pi setHorizontallyCentered:YES];
         [pi setVerticallyCentered:YES];
-        
+        /*
         PMPrintSettings ps = [pi PMPrintSettings];
         NSNumber *colorMode = @(3);
         NSNumber *quality = @(2);
         NSNumber *pmOrientation = @(1+((int)self.mapView.orientation));
         PMPrintSettingsSetValue(ps, (CFStringRef)(@"com.apple.print.PrintSettings.PMColorMode"), (__bridge CFNumberRef)colorMode, YES);
         PMPrintSettingsSetValue(ps, (CFStringRef)(@"com.apple.print.PrintSettings.PMQuality"), (__bridge CFNumberRef)quality, YES);
-        PMPrintSettingsSetValue(ps, (CFStringRef)(@"com.apple.print.PageFormat.PMOrientation"), (__bridge CFNumberRef)pmOrientation, YES);
-        [pi updateFromPMPrintSettings];
+//        PMPrintSettingsSetValue(ps, (CFStringRef)(@"com.apple.print.PageFormat.PMOrientation"), (__bridge CFNumberRef)pmOrientation, YES);
+        [pi updateFromPMPrintSettings];*/
 
         NSPrintOperation *po = [NSPrintOperation printOperationWithView:pv printInfo:pi];
         [po setCanSpawnSeparateThread:YES];
