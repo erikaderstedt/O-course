@@ -179,10 +179,10 @@ void load_objects(struct ocad_file *f) {
     i = f->header->objectindex;
     j = 0; n = 0;
     
-    r.lower_left.x = 1e30;
-    r.lower_left.y = 1e30;
-    r.upper_right.x = -1e30;
-    r.upper_right.y = -1e30;
+    r.lower_left.x = INT32_MAX;
+    r.lower_left.y = INT32_MAX;
+    r.upper_right.x = INT32_MIN;
+    r.upper_right.y = INT32_MIN;
     
     if (version8) {
         // TODO: fix version 8 support.
